@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { OwnEntry, OtherEntry } from './StrainCard';
 import StrainForm from './StrainForm';
 import Tests from './Tests';
+import Effects from './Effects';
 import { expiryInfo } from '@/lib/expiry';
 
 export default function StrainDetail({ strain, options, tastes, mates, tests, me }) {
@@ -73,6 +74,8 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, me
           {others.map((e) => <OtherEntry key={e.userId} e={e} />)}
         </div>
       </section>
+
+      <Effects strain={strain} meId={me.id} />
 
       <Tests strainId={strain.id} initialTests={tests} me={me} />
     </div>

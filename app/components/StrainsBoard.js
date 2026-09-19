@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { api } from '@/lib/api';
 import { KINDS } from '@/lib/kinds';
@@ -21,6 +22,7 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
   const [dir, setDir] = useState('desc');
   const [formFor, setFormFor] = useState(null); // null | 'new' | id odmiany
   const [error, setError] = useState('');
+  const [cmp, setCmp] = useState([]); // do 3 odmian do porównania
 
   const mine = (s) => s.entries.find((e) => e.userId === me.id) || { current: 0, remaining: 0 };
   const SORTS = {
@@ -100,6 +102,8 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
       <div className="toolbar">
         <input className="input search" type="search" placeholder="Szukaj: odmiana, producent, smak, terpen…" aria-label="Szukaj"
           value={query} onChange={(e) => setQuery(e.target.value)} />
+        {cmp.length >= 2 && <Link className="btn ghost" href={`/compare?ids=${cmp.join(',')}`}>Porównaj ({cmp.length})</Link>}
+        <a className="btn ghost" href="/api/export">Eksport CSV</a>
         <button className="btn" onClick={() => setFormFor('new')}>Dodaj odmianę</button>
       </div>
 
@@ -154,7 +158,7 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
         <StrainForm key={s.id} strain={s} options={options} tastes={tastes} canDelete={canDelete(s)}
           onOptionsChange={setOptions} onDone={done} onCancel={() => setFormFor(null)} />
       ) : (
-        <StrainCard key={s.id} strain={s} meId={me.id} mates={matesOf(s)} onEdit={() => setFormFor(s.id)} onEntrySaved={entrySaved} />
+        <StrainCard key={s.id} strain={s} meId={me.id} mates={matesOf(s)} cmpOn={cmp.includes(s.id)} onCmp={() => setCmp((c) => (c.includes(s.id) ? c.filter((x) => x !== s.id) : [...c, s.id].slice(-3)))} onEdit={() => setFormFor(s.id)} onEntrySaved={entrySaved} />
       )))}
     </div>
   );

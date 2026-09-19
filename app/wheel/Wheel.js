@@ -1,5 +1,6 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { KINDS } from '@/lib/kinds';
 import Leaf from '../components/Leaf';
 
 const COLORS = [['#2f5b3a', '#fff'], ['#78a952', '#10230f'], ['#d9992b', '#2b1c02'], ['#7e6798', '#fff'], ['#1d3b27', '#fff'], ['#b9d68f', '#10230f']];
@@ -26,11 +27,17 @@ function draw(cv, items, rot) {
   g.beginPath(); g.arc(c, c, R, 0, TAU); g.strokeStyle = '#1d3b27'; g.lineWidth = 6; g.stroke();
 }
 
-export default function Wheel({ items }) {
+export default function Wheel({ items: all }) {
   const cv = useRef(null);
   const rot = useRef(-Math.PI / 2);
   const [winner, setWinner] = useState(null);
   const [spinning, setSpinning] = useState(false);
+  const [kind, setKind] = useState('');
+  const [minThc, setMinThc] = useState('');
+  const items = useMemo(
+    () => all.filter((i) => (!kind || i.kind === kind) && (minThc === '' || (i.thc != null && i.thc >= Number(minThc)))),
+    [all, kind, minThc],
+  );
 
   useEffect(() => {
     if (!items.length) return;
@@ -61,7 +68,7 @@ export default function Wheel({ items }) {
     })(t0);
   }
 
-  if (!items.length) {
+  if (!all.length) {
     return (
       <div className="card empty">
         <h2>Koło jest puste</h2>
@@ -70,7 +77,24 @@ export default function Wheel({ items }) {
     );
   }
 
-  return (
+  const filters = (
+    <div className="toolbar">
+      <div className="chips" role="group" aria-label="Filtr rodzaju">
+        <button className={`chip ${kind === '' ? 'on' : ''}`} onClick={() => { setKind(''); setWinner(null); }}>Wszystkie</button>
+        {KINDS.map((k) => (
+          <button key={k.value} className={`chip kind-${k.value} ${kind === k.value ? 'on' : ''}`}
+            onClick={() => { setKind(kind === k.value ? '' : k.value); setWinner(null); }}>{k.label}</button>
+        ))}
+      </div>
+      <div className="sortbox">
+        <label htmlFor="minthc">Minimalne THC (%)</label>
+        <input id="minthc" className="input" type="number" min="0" max="100" step="0.5" value={minThc}
+          onChange={(e) => { setMinThc(e.target.value); setWinner(null); }} />
+      </div>
+    </div>
+  );
+
+  const wheel = (
     <div className="wheel-wrap">
       <div className="wheel-box">
         <div className="wheel-pointer" aria-hidden="true" />
@@ -96,6 +120,13 @@ export default function Wheel({ items }) {
           </>
         )}
       </div>
+    </div>
+  );
+
+  return (
+    <div className="stack">
+      {filters}
+      {items.length ? wheel : <div className="card empty"><h2>Brak odmian dla tych filtrów</h2><p className="muted">Zmień rodzaj lub obniż minimalne THC.</p></div>}
     </div>
   );
 }

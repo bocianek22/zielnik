@@ -15,7 +15,7 @@ export default async function WheelPage() {
   const items = (await listStrains())
     .map((s) => ({ s, mine: s.entries.find((e) => e.userId === user.id) }))
     .filter(({ mine }) => mine && mine.current > 0)
-    .map(({ s, mine }) => ({ id: s.id, name: s.name, producer: s.producer, type: s.type, current: mine.current }));
+    .map(({ s, mine }) => ({ id: s.id, name: s.name, producer: s.producer, type: s.type, kind: s.kind, thc: s.thc, current: mine.current }));
 
   return (
     <>

@@ -247,3 +247,44 @@ textarea.input { resize: vertical; min-height: 44px; }
 .test-meta { margin: 0; display: flex; gap: 12px; flex-wrap: wrap; color: var(--muted); }
 .test-note { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 @media (max-width: 560px) { .test { flex-direction: column; } .test-photo { width: 100%; height: auto; aspect-ratio: 4/3; } }
+
+/* ===== Etap 6: wiedza ===== */
+.alert.note { background: #f6efd8; border: 1px solid #e3d29a; color: #5b4712; }
+.knav { display: flex; gap: 8px 10px; flex-wrap: wrap; margin: 18px 0 22px; }
+.knav a { padding: .35rem .9rem; border-radius: 99px; background: #e2e9cf; color: var(--hemp-deep); text-decoration: none; font-weight: 600; font-size: .92rem; }
+.knav a:hover { background: var(--hemp-deep); color: #fff; }
+.knowledge { scroll-margin-top: 90px; }
+.knowledge h2 { margin-bottom: .5em; }
+.knowledge p { max-width: 72ch; }
+.klist { display: grid; gap: 10px; margin: 14px 0; }
+.klist > div { padding: 10px 14px; border-left: 4px solid var(--leaf); background: #f3f7e6; border-radius: 0 12px 12px 0; }
+.klist dt { font-weight: 700; }
+.klist dd { margin: 2px 0 0; }
+#katalog-terpenow { scroll-margin-top: 90px; }
+.terp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 14px; }
+.terp-card { padding: 18px 20px; border-top: 5px solid var(--resin); }
+.terp-card h3 { margin-bottom: .4em; }
+.terp-card p { margin: .35em 0; font-size: .94rem; }
+
+/* ===== Etap 7: zużycie ===== */
+.badge.low { background: #fbe3d6; color: #8a3a12; font-weight: 700; }
+.use-row { display: flex; gap: 8px; }
+.use-row .input { min-width: 0; }
+.entry-field.use { grid-column: 1 / -1; }
+.use-row { max-width: 340px; }
+
+/* ===== Etap 9: odczucia, porównywarka ===== */
+.effects-body { display: flex; gap: 28px; flex-wrap: wrap; align-items: center; }
+.radar { width: 280px; max-width: 100%; height: auto; }
+.legend { text-align: center; font-size: .85rem; color: var(--muted); }
+.dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin: 0 4px 0 10px; vertical-align: -1px; }
+.dot.avg { background: #d9992b; } .dot.me { background: #2f5b3a; }
+.sliders { flex: 1 1 260px; display: grid; gap: 12px; }
+.slider label { display: flex; justify-content: space-between; font-weight: 600; }
+.slider input[type=range] { width: 100%; accent-color: var(--hemp); }
+.table-wrap { overflow-x: auto; padding: 8px 12px; }
+.cmp { border-collapse: collapse; width: 100%; min-width: 480px; }
+.cmp th, .cmp td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.cmp thead th { font-size: 1.1rem; }
+.cmp tbody th { color: var(--muted); font-weight: 600; white-space: nowrap; }
+.strain-foot { align-items: center; justify-content: space-between; gap: 12px; }

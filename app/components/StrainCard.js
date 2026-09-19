@@ -88,7 +88,7 @@ export function OtherEntry({ e }) {
   );
 }
 
-export default function StrainCard({ strain, meId, mates, onEdit, onEntrySaved }) {
+export default function StrainCard({ strain, meId, mates, cmpOn, onCmp, onEdit, onEntrySaved }) {
   const mine = strain.entries.find((e) => e.userId === meId);
   const others = strain.entries.filter((e) => e.userId !== meId);
   const rated = strain.entries.filter((e) => e.rating != null);
@@ -149,6 +149,7 @@ export default function StrainCard({ strain, meId, mates, onEdit, onEntrySaved }
       </div>
 
       <div className="strain-foot">
+        <label className="check"><input type="checkbox" checked={!!cmpOn} onChange={onCmp} /> Porównaj</label>
         <button className="btn ghost small" onClick={onEdit}>Edytuj pola wspólne</button>
       </div>
     </article>
