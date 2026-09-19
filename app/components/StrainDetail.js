@@ -52,7 +52,7 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, me
               {strain.terpenes?.length > 0 && (
                 <>
                   <p className="label">Profil terpenowy</p>
-                  <div className="chips small">{strain.terpenes.map((t) => <span key={t} className="chip on static">{t}</span>)}</div>
+                  <div className="chips small">{strain.terpenes.map((t) => <Link key={t} href={`/wiedza#t-${t.toLowerCase().split(' ')[0]}`} className="chip on static">{t}</Link>)}</div>
                 </>
               )}
               <button className="btn ghost small" onClick={() => setEditing(true)}>Edytuj odmianę</button>

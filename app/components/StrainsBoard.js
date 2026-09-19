@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { api } from '@/lib/api';
 import { KINDS } from '@/lib/kinds';
 import StrainCard from './StrainCard';
@@ -11,7 +11,20 @@ const avgOf = (s) => {
   return r.length ? r.reduce((a, e) => a + Number(e.rating), 0) / r.length : null;
 };
 
-export default function StrainsBoard({ initialStrains, initialOptions, me, usage = { perDay: 0, cost: 0 } }) {
+export default function StrainsBoard({ initialStrains, initialOptions, me, usage = { perDay: 0, cost: 0 }, bought = { grams: 0, cost: 0 } }) {
+  const [boughtG, setBoughtG] = useState(bought.grams);
+  const [low, setLow] = useState(3);      // próg "Kończy się" (g), zapisywany w tej przeglądarce
+  const [limit, setLimit] = useState(0);  // miesięczny limit wykupu (g), zapisywany w tej przeglądarce
+  useEffect(() => {
+    try {
+      setLow(Number(localStorage.getItem('zielnik.low') ?? 3));
+      setLimit(Number(localStorage.getItem('zielnik.limit') ?? 0));
+    } catch {}
+  }, []);
+  const savePref = (key, set) => (e) => {
+    set(e.target.value === '' ? 0 : Number(e.target.value));
+    try { localStorage.setItem(key, e.target.value || '0'); } catch {}
+  };
   const dailyUse = usage.perDay;
   const [strains, setStrains] = useState(initialStrains);
   const [options, setOptions] = useState(initialOptions);
@@ -47,7 +60,9 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
   }
 
   // "Do wykupienia" jest wspólne dla puli, więc aktualizujemy je we wszystkich odmianach z tej samej puli
-  function entrySaved(strainId, entry) {
+  function entrySaved(strainId, rawEntry) {
+    const { bought: b, ...entry } = rawEntry;
+    if (b) setBoughtG((x) => x + b);
     setStrains((list) => {
       const key = list.find((s) => s.id === strainId)?.pool_key;
       return list.map((s) => ({
@@ -136,6 +151,20 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
           ? <>Średnie zużycie: <b>{Number(dailyUse.toFixed(2))} g/dzień</b>. Twój zapas ({Number(totalStock.toFixed(2))} g) starczy na ok. <b>{Math.floor(totalStock / dailyUse)} dni</b>.</>
           : <>Zapisuj zużycie w karcie odmiany (pole „Zużycie”), a policzę średnie tempo i prognozę, na ile dni starczy zapasu.</>}
       </p>
+      <p className="muted">
+        Wykupiono w tym miesiącu: <b>{Number(boughtG.toFixed(2))} g</b>
+        {bought.cost > 0 && <> (ok. {Number(bought.cost.toFixed(2))} zł)</>}
+        {limit > 0 && <>, limit {limit} g, zostało <b>{Number(Math.max(limit - boughtG, 0).toFixed(2))} g</b></>}.
+      </p>
+      <details className="prefs">
+        <summary>Ustawienia (na tym urządzeniu)</summary>
+        <div className="row">
+          <div className="field"><label htmlFor="pref-low">Próg „Kończy się” (g)</label>
+            <input id="pref-low" className="input" type="number" min="0" step="0.5" value={low || ''} onChange={savePref('zielnik.low', setLow)} /></div>
+          <div className="field"><label htmlFor="pref-limit">Miesięczny limit wykupu (g)</label>
+            <input id="pref-limit" className="input" type="number" min="0" step="1" value={limit || ''} onChange={savePref('zielnik.limit', setLimit)} /></div>
+        </div>
+      </details>
       {usage.cost > 0 && <p className="muted">Koszt zużycia z ostatnich 30 dni: <b>{Number(usage.cost.toFixed(2))} zł</b></p>}
       {totalRemaining > 0 && (
         <p className="muted">Do wykupienia łącznie: <b>{Number(totalRemaining.toFixed(2))} g</b> (odmiany z jednej puli liczone raz).</p>
@@ -158,7 +187,7 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
         <StrainForm key={s.id} strain={s} options={options} tastes={tastes} canDelete={canDelete(s)}
           onOptionsChange={setOptions} onDone={done} onCancel={() => setFormFor(null)} />
       ) : (
-        <StrainCard key={s.id} strain={s} meId={me.id} mates={matesOf(s)} cmpOn={cmp.includes(s.id)} onCmp={() => setCmp((c) => (c.includes(s.id) ? c.filter((x) => x !== s.id) : [...c, s.id].slice(-3)))} onEdit={() => setFormFor(s.id)} onEntrySaved={entrySaved} />
+        <StrainCard key={s.id} strain={s} meId={me.id} mates={matesOf(s)} low={low} cmpOn={cmp.includes(s.id)} onCmp={() => setCmp((c) => (c.includes(s.id) ? c.filter((x) => x !== s.id) : [...c, s.id].slice(-3)))} onEdit={() => setFormFor(s.id)} onEntrySaved={entrySaved} />
       )))}
     </div>
   );

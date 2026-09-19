@@ -288,3 +288,13 @@ textarea.input { resize: vertical; min-height: 44px; }
 .cmp thead th { font-size: 1.1rem; }
 .cmp tbody th { color: var(--muted); font-weight: 600; white-space: nowrap; }
 .strain-foot { align-items: center; justify-content: space-between; gap: 12px; }
+
+/* ===== Etap 10: zakupy, historia, ustawienia ===== */
+.entry-field.buy { grid-column: 1 / -1; }
+.prefs summary { cursor: pointer; font-weight: 600; color: var(--hemp-deep); }
+.prefs .row { margin-top: 10px; }
+a.chip.static { text-decoration: none; cursor: pointer; }
+a.chip.static:hover { background: var(--hemp-deep); color: #fff; }
+.terp-card { scroll-margin-top: 90px; }
+.rank-grid.two { grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 900px) { .rank-grid.two { grid-template-columns: 1fr; } }

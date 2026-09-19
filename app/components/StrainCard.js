@@ -15,8 +15,22 @@ export function OwnEntry({ strainId, entry, onSaved, mates }) {
   const [status, setStatus] = useState({ kind: 'idle', msg: '' });
   const last = useRef(JSON.stringify(f));
   const id = `e${strainId}`;
+  const [buyG, setBuyG] = useState('');
+  const [buyMsg, setBuyMsg] = useState('');
   const [use, setUse] = useState('');
   const [useMsg, setUseMsg] = useState('');
+
+  async function buy() {
+    const g = Number(buyG);
+    if (!(g > 0)) return;
+    try {
+      const r = await api(`/api/strains/${strainId}/purchase`, 'POST', { grams: g });
+      const next = { ...f, current: r.current, remaining: r.remaining };
+      setF(next); last.current = JSON.stringify(next);
+      onSaved({ current: r.current, remaining: r.remaining, bought: g });
+      setBuyG(''); setBuyMsg(`Zapisano zakup: ${g} g`);
+    } catch (e) { setBuyMsg(e.message); }
+  }
 
   async function consume() {
     const g = Number(use);
@@ -72,6 +86,15 @@ export function OwnEntry({ strainId, entry, onSaved, mates }) {
         </div>
         {useMsg && <small className="pool-note" role="status">{useMsg}</small>}
       </div>
+      <div className="entry-field buy">
+        <label htmlFor={`${id}-b`}>Wykupiłem (g)</label>
+        <div className="use-row">
+          <input id={`${id}-b`} className="input" type="number" min="0" step="0.1" inputMode="decimal" placeholder="np. 10" value={buyG}
+            onChange={(e) => setBuyG(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); buy(); } }} />
+          <button type="button" className="btn small" onClick={buy}>Dodaj zakup</button>
+        </div>
+        {buyMsg && <small className="pool-note" role="status">{buyMsg}</small>}
+      </div>
     </div>
   );
 }
@@ -88,7 +111,7 @@ export function OtherEntry({ e }) {
   );
 }
 
-export default function StrainCard({ strain, meId, mates, cmpOn, onCmp, onEdit, onEntrySaved }) {
+export default function StrainCard({ strain, meId, mates, low, cmpOn, onCmp, onEdit, onEntrySaved }) {
   const mine = strain.entries.find((e) => e.userId === meId);
   const others = strain.entries.filter((e) => e.userId !== meId);
   const rated = strain.entries.filter((e) => e.rating != null);
@@ -113,7 +136,7 @@ export default function StrainCard({ strain, meId, mates, cmpOn, onCmp, onEdit, 
             <span className="badge">{strain.type}</span>
             {ex?.expired && <span className="badge low">Po terminie</span>}
             {ex?.soon && <span className="badge low">Ważne jeszcze {ex.days} dni</span>}
-            {mine && Number(mine.current) > 0 && Number(mine.current) <= LOW_STOCK && <span className="badge low">Kończy się</span>}
+            {mine && Number(mine.current) > 0 && Number(mine.current) <= (low ?? LOW_STOCK) && <span className="badge low">Kończy się</span>}
           </p>
           <p className="strain-meta">
             {strain.thc != null && <span className="pill">THC {strain.thc}%</span>}
@@ -127,7 +150,7 @@ export default function StrainCard({ strain, meId, mates, cmpOn, onCmp, onEdit, 
           )}
           {strain.taste && <p className="strain-taste">Smak: {strain.taste}</p>}
           {strain.terpenes?.length > 0 && (
-            <div className="chips small">{strain.terpenes.map((t) => <span key={t} className="chip on static">{t}</span>)}</div>
+            <div className="chips small">{strain.terpenes.map((t) => <Link key={t} href={`/wiedza#t-${t.toLowerCase().split(' ')[0]}`} className="chip on static">{t}</Link>)}</div>
           )}
           {strain.description && (
             <details className="strain-desc"><summary>Opis</summary><p>{strain.description}</p></details>
