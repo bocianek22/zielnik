@@ -7,7 +7,7 @@ export const POST = safe(async (req) => {
   const { res } = await requireUser();
   if (res) return res;
   const { kind, value } = await req.json().catch(() => ({}));
-  if (!['producer', 'type'].includes(kind)) return bad('Nieznany rodzaj listy.');
+  if (!['producer', 'type', 'terpene'].includes(kind)) return bad('Nieznany rodzaj listy.');
   const saved = await canonOption(kind, value);
   if (!saved) return bad('Wpisz nazwę nowej opcji.');
   return NextResponse.json({ value: saved, options: await listOptions() });

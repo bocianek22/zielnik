@@ -2,7 +2,6 @@
 import { useRef, useState } from 'react';
 import { api } from '@/lib/api';
 
-const typeClass = (t) => ({ haze: 'haze', kush: 'kush', hybryda: 'hybryda' })[String(t).toLowerCase()] || 'other';
 const fmt = (n) => (n == null ? '–' : String(Number(n)));
 
 // Edytowalne, osobiste pola zalogowanego użytkownika (autozapis po opuszczeniu pola)
@@ -68,16 +67,34 @@ export default function StrainCard({ strain, meId, onEdit, onEntrySaved }) {
   const rated = strain.entries.filter((e) => e.rating != null);
   const avg = rated.length ? (rated.reduce((a, e) => a + Number(e.rating), 0) / rated.length).toFixed(1) : null;
 
+  const photoSrc = `/api/strains/${strain.id}/photo?v=${strain.photo_v}`;
+
   return (
-    <article className={`card strain t-${typeClass(strain.type)}`}>
+    <article className={`card strain k-${strain.kind || 'none'}`}>
       <header className="strain-head">
-        <div>
+        {strain.photo_v && (
+          <a href={photoSrc} target="_blank" rel="noreferrer" className="photo-link">
+            <img className="strain-photo" src={photoSrc} alt={`Zdjęcie: ${strain.name}`} loading="lazy" />
+          </a>
+        )}
+        <div className="strain-title">
           <h3>{strain.name}</h3>
           <p className="strain-meta">
             <span>{strain.producer}</span>
-            <span className={`badge type-${typeClass(strain.type)}`}>{strain.type}</span>
+            {strain.kind && <span className={`badge kind-${strain.kind}`}>{strain.kind}</span>}
+            <span className="badge">{strain.type}</span>
+          </p>
+          <p className="strain-meta">
+            {strain.thc != null && <span className="pill">THC {strain.thc}%</span>}
+            {strain.cbd != null && <span className="pill">CBD {strain.cbd}%</span>}
           </p>
           {strain.taste && <p className="strain-taste">Smak: {strain.taste}</p>}
+          {strain.terpenes?.length > 0 && (
+            <div className="chips small">{strain.terpenes.map((t) => <span key={t} className="chip on static">{t}</span>)}</div>
+          )}
+          {strain.description && (
+            <details className="strain-desc"><summary>Opis</summary><p>{strain.description}</p></details>
+          )}
         </div>
         <div className="scores">
           <div className="score" title="Ocena końcowa">

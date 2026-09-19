@@ -1,27 +1,50 @@
 'use client';
 import { useState } from 'react';
 import { api } from '@/lib/api';
+import { KINDS } from '@/lib/kinds';
+import { fileToDataUrl } from '@/lib/image';
 import OptionSelect from './OptionSelect';
+import TerpenePicker from './TerpenePicker';
 
-// Formularz pól wspólnych: producent, odmiana, typ, ocena końcowa, smak
+// Formularz pól wspólnych: producent, odmiana, rodzaj, typ, THC/CBD, terpeny, opis, smak, zdjęcie
 export default function StrainForm({ strain, options, tastes, canDelete, onOptionsChange, onDone, onCancel }) {
   const [f, setF] = useState({
     producer: strain?.producer ?? '',
     name: strain?.name ?? '',
     type: strain?.type ?? '',
+    kind: strain?.kind ?? '',
+    thc: strain?.thc ?? '',
+    cbd: strain?.cbd ?? '',
     finalRating: strain?.final_rating ?? '',
     taste: strain?.taste ?? '',
+    terpenes: strain?.terpenes ?? [],
+    description: strain?.description ?? '',
   });
+  const [photo, setPhoto] = useState({ data: null, remove: false });
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const set = (k) => (v) => setF((p) => ({ ...p, [k]: v }));
+  const inp = (k) => ({ value: f[k] ?? '', onChange: (e) => set(k)(e.target.value) });
+
+  const preview = photo.data || (strain?.photo_v && !photo.remove ? `/api/strains/${strain.id}/photo?v=${strain.photo_v}` : null);
+
+  async function pickPhoto(e) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    try { setPhoto({ data: await fileToDataUrl(file), remove: false }); setError(''); }
+    catch (err) { setError(err.message); }
+  }
 
   async function submit(e) {
     e.preventDefault();
     setError(''); setBusy(true);
     try {
-      if (strain) await api(`/api/strains/${strain.id}`, 'PATCH', f);
-      else await api('/api/strains', 'POST', f);
+      let id = strain?.id;
+      if (strain) await api(`/api/strains/${id}`, 'PATCH', f);
+      else id = (await api('/api/strains', 'POST', f)).id;
+      if (photo.data) await api(`/api/strains/${id}/photo`, 'PUT', { image: photo.data });
+      else if (photo.remove) await api(`/api/strains/${id}/photo`, 'DELETE');
       await onDone();
     } catch (err) { setError(err.message); setBusy(false); }
   }
@@ -45,31 +68,67 @@ export default function StrainForm({ strain, options, tastes, canDelete, onOptio
         </div>
         <div className="field grow">
           <label htmlFor={`${uid}-name`}>Odmiana</label>
-          <input id={`${uid}-name`} className="input" value={f.name} maxLength={60} required
-            onChange={(e) => set('name')(e.target.value)} />
+          <input id={`${uid}-name`} className="input" maxLength={60} required {...inp('name')} />
         </div>
       </div>
       <div className="row">
+        <div className="field grow">
+          <label htmlFor={`${uid}-kind`}>Rodzaj (kolor karty)</label>
+          <select id={`${uid}-kind`} className="input" {...inp('kind')}>
+            <option value="">Nie wybrano</option>
+            {KINDS.map((k) => <option key={k.value} value={k.value}>{k.label}</option>)}
+          </select>
+        </div>
         <div className="field grow">
           <label htmlFor={`${uid}-type`}>Typ</label>
           <OptionSelect id={`${uid}-type`} kind="type" options={options.type} value={f.type}
             onChange={set('type')} onOptionsChange={onOptionsChange} />
         </div>
+      </div>
+      <div className="row">
         <div className="field grow">
-          <label htmlFor={`${uid}-final`}>Ocena końcowa (0–10)</label>
-          <input id={`${uid}-final`} className="input" type="number" min="0" max="10" step="0.5" inputMode="decimal"
-            value={f.finalRating ?? ''} onChange={(e) => set('finalRating')(e.target.value)} />
+          <label htmlFor={`${uid}-thc`}>THC (%)</label>
+          <input id={`${uid}-thc`} className="input" type="number" min="0" max="100" step="0.1" inputMode="decimal" {...inp('thc')} />
         </div>
         <div className="field grow">
-          <label htmlFor={`${uid}-taste`}>Smak</label>
-          <input id={`${uid}-taste`} className="input" list={`${uid}-tastes`} value={f.taste} maxLength={120}
-            placeholder="np. cytrusowy, ziemisty" onChange={(e) => set('taste')(e.target.value)} />
-          <datalist id={`${uid}-tastes`}>{tastes.map((t) => <option key={t} value={t} />)}</datalist>
+          <label htmlFor={`${uid}-cbd`}>CBD (%)</label>
+          <input id={`${uid}-cbd`} className="input" type="number" min="0" max="100" step="0.1" inputMode="decimal" {...inp('cbd')} />
+        </div>
+        <div className="field grow">
+          <label htmlFor={`${uid}-final`}>Ocena końcowa (0–10)</label>
+          <input id={`${uid}-final`} className="input" type="number" min="0" max="10" step="0.5" inputMode="decimal" {...inp('finalRating')} />
+        </div>
+      </div>
+      <div className="field">
+        <label htmlFor={`${uid}-taste`}>Smak</label>
+        <input id={`${uid}-taste`} className="input" list={`${uid}-tastes`} maxLength={120}
+          placeholder="np. cytrusowy, ziemisty" {...inp('taste')} />
+        <datalist id={`${uid}-tastes`}>{tastes.map((t) => <option key={t} value={t} />)}</datalist>
+      </div>
+      <div className="field">
+        <span className="label">Profil terpenowy</span>
+        <TerpenePicker options={options.terpene} value={f.terpenes} onChange={set('terpenes')} onOptionsChange={onOptionsChange} />
+      </div>
+      <div className="field">
+        <label htmlFor={`${uid}-desc`}>Opis (aromat, efekty, uwagi o profilu)</label>
+        <textarea id={`${uid}-desc`} className="input" rows={3} maxLength={2000} {...inp('description')} />
+      </div>
+      <div className="field">
+        <span className="label">Zdjęcie podglądowe</span>
+        <div className="photo-edit">
+          {preview ? <img className="strain-photo" src={preview} alt="Podgląd zdjęcia" /> : <div className="strain-photo ph">Brak zdjęcia</div>}
+          <div className="photo-actions">
+            <label className="btn ghost small file-btn">
+              {preview ? 'Zmień zdjęcie' : 'Dodaj zdjęcie'}
+              <input type="file" accept="image/*" onChange={pickPhoto} hidden />
+            </label>
+            {preview && <button type="button" className="btn ghost small" onClick={() => setPhoto({ data: null, remove: true })}>Usuń zdjęcie</button>}
+          </div>
         </div>
       </div>
       {error && <div className="alert error" role="alert">{error}</div>}
       <div className="row form-actions">
-        <button className="btn" disabled={busy}>{strain ? 'Zapisz zmiany' : 'Dodaj odmianę'}</button>
+        <button className="btn" disabled={busy}>{busy ? 'Zapisuję…' : strain ? 'Zapisz zmiany' : 'Dodaj odmianę'}</button>
         <button type="button" className="btn ghost" onClick={onCancel}>Anuluj</button>
         {strain && canDelete && (
           <button type="button" className="btn danger push-right" disabled={busy} onClick={remove}>Usuń odmianę</button>
