@@ -119,6 +119,7 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
           value={query} onChange={(e) => setQuery(e.target.value)} />
         {cmp.length >= 2 && <Link className="btn ghost" href={`/compare?ids=${cmp.join(',')}`}>Porównaj ({cmp.length})</Link>}
         <a className="btn ghost" href="/api/export">Eksport CSV</a>
+        <Link className="btn ghost" href="/import">Import CSV</Link>
         <button className="btn" onClick={() => setFormFor('new')}>Dodaj odmianę</button>
       </div>
 
