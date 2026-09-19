@@ -7,7 +7,7 @@ import OptionSelect from './OptionSelect';
 import TerpenePicker from './TerpenePicker';
 
 // Formularz pól wspólnych: producent, odmiana, rodzaj, typ, THC/CBD, terpeny, opis, smak, zdjęcie
-export default function StrainForm({ strain, options, tastes, canDelete, onOptionsChange, onDone, onCancel }) {
+export default function StrainForm({ strain, options, tastes, canDelete, onOptionsChange, onDone, onDeleted, onCancel }) {
   const [f, setF] = useState({
     producer: strain?.producer ?? '',
     name: strain?.name ?? '',
@@ -52,7 +52,7 @@ export default function StrainForm({ strain, options, tastes, canDelete, onOptio
   async function remove() {
     if (!confirm(`Usunąć odmianę „${strain.name}” razem ze wszystkimi ocenami i stanami?`)) return;
     setBusy(true);
-    try { await api(`/api/strains/${strain.id}`, 'DELETE'); await onDone(); }
+    try { await api(`/api/strains/${strain.id}`, 'DELETE'); await (onDeleted || onDone)(); }
     catch (err) { setError(err.message); setBusy(false); }
   }
 

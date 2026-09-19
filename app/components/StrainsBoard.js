@@ -43,11 +43,28 @@ export default function StrainsBoard({ initialStrains, initialOptions, me }) {
     setFormFor(null);
   }
 
+  // "Do wykupienia" jest wspólne dla puli, więc aktualizujemy je we wszystkich odmianach z tej samej puli
   function entrySaved(strainId, entry) {
-    setStrains((list) => list.map((s) => (s.id !== strainId ? s : {
-      ...s, entries: s.entries.map((e) => (e.userId === me.id ? { ...e, ...entry } : e)),
-    })));
+    setStrains((list) => {
+      const key = list.find((s) => s.id === strainId)?.pool_key;
+      return list.map((s) => ({
+        ...s,
+        entries: s.entries.map((e) => {
+          if (e.userId !== me.id) return e;
+          if (s.id === strainId) return { ...e, ...entry };
+          return s.pool_key === key ? { ...e, remaining: entry.remaining } : e;
+        }),
+      }));
+    });
   }
+
+  const pools = useMemo(() => {
+    const m = new Map();
+    strains.forEach((s) => m.set(s.pool_key, [...(m.get(s.pool_key) || []), s]));
+    return m;
+  }, [strains]);
+  const matesOf = (s) => (pools.get(s.pool_key) || []).filter((o) => o.id !== s.id).map((o) => o.name);
+  const totalRemaining = [...pools.values()].reduce((a, list) => a + Number(mine(list[0]).remaining), 0);
 
   const tastes = useMemo(() => [...new Set(strains.map((s) => s.taste).filter(Boolean))], [strains]);
 
@@ -107,6 +124,9 @@ export default function StrainsBoard({ initialStrains, initialOptions, me }) {
           Tylko te, które mam
         </label>
       </div>
+      {totalRemaining > 0 && (
+        <p className="muted">Do wykupienia łącznie: <b>{Number(totalRemaining.toFixed(2))} g</b> (odmiany z jednej puli liczone raz).</p>
+      )}
       {error && <div className="alert error" role="alert">{error}</div>}
 
       {formFor === 'new' && (
@@ -125,7 +145,7 @@ export default function StrainsBoard({ initialStrains, initialOptions, me }) {
         <StrainForm key={s.id} strain={s} options={options} tastes={tastes} canDelete={canDelete(s)}
           onOptionsChange={setOptions} onDone={done} onCancel={() => setFormFor(null)} />
       ) : (
-        <StrainCard key={s.id} strain={s} meId={me.id} onEdit={() => setFormFor(s.id)} onEntrySaved={entrySaved} />
+        <StrainCard key={s.id} strain={s} meId={me.id} mates={matesOf(s)} onEdit={() => setFormFor(s.id)} onEntrySaved={entrySaved} />
       )))}
     </div>
   );

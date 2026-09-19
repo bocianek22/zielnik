@@ -22,19 +22,22 @@ export const PUT = safe(async (req, { params }) => {
 
   // rated_at zmienia się tylko, gdy zmieniła się sama ocena (na tym opierają się rankingi tygodniowe i miesięczne)
   const [e] = await sql()`
-    INSERT INTO user_strain (strain_id, user_id, rating, rated_at, current_amount, remaining_to_buy, notes)
+    INSERT INTO user_strain (strain_id, user_id, rating, rated_at, current_amount, notes)
     VALUES (${id}, ${user.id}, ${rating}::numeric, CASE WHEN ${rating}::numeric IS NULL THEN NULL ELSE now() END,
-            ${current}, ${remaining}, ${notes})
+            ${current}, ${notes})
     ON CONFLICT (strain_id, user_id) DO UPDATE SET
       rated_at = CASE WHEN EXCLUDED.rating IS NULL THEN NULL
                       WHEN user_strain.rating IS DISTINCT FROM EXCLUDED.rating THEN now()
                       ELSE user_strain.rated_at END,
       rating = EXCLUDED.rating,
       current_amount = EXCLUDED.current_amount,
-      remaining_to_buy = EXCLUDED.remaining_to_buy,
       notes = EXCLUDED.notes,
       updated_at = now()
-    RETURNING rating::float8 AS rating, rated_at AS "ratedAt", current_amount::float8 AS current,
-              remaining_to_buy::float8 AS remaining, notes`;
-  return NextResponse.json({ entry: { ...e, ratedAt: e.ratedAt ? new Date(e.ratedAt).toISOString() : null } });
+    RETURNING rating::float8 AS rating, rated_at AS "ratedAt", current_amount::float8 AS current, notes`;
+
+  // "Do wykupienia" jest wspólne dla puli (ten sam producent, THC i CBD) i osobiste dla użytkownika
+  await sql()`INSERT INTO user_pool (user_id, pool_key, remaining_to_buy)
+              SELECT ${user.id}::int, pool_key(s.id, s.producer, s.thc, s.cbd), ${remaining}::numeric FROM strains s WHERE s.id = ${id}
+              ON CONFLICT (user_id, pool_key) DO UPDATE SET remaining_to_buy = EXCLUDED.remaining_to_buy`;
+  return NextResponse.json({ entry: { ...e, remaining, ratedAt: e.ratedAt ? new Date(e.ratedAt).toISOString() : null } });
 });

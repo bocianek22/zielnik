@@ -1,11 +1,12 @@
 'use client';
+import Link from 'next/link';
 import { useRef, useState } from 'react';
 import { api } from '@/lib/api';
 
 const fmt = (n) => (n == null ? '–' : String(Number(n)));
 
 // Edytowalne, osobiste pola zalogowanego użytkownika (autozapis po opuszczeniu pola)
-function OwnEntry({ strainId, entry, onSaved }) {
+export function OwnEntry({ strainId, entry, onSaved, mates }) {
   const [f, setF] = useState({
     rating: entry.rating ?? '', current: entry.current ?? 0, remaining: entry.remaining ?? 0, notes: entry.notes ?? '',
   });
@@ -40,6 +41,7 @@ function OwnEntry({ strainId, entry, onSaved }) {
       <div className="entry-field">
         <label htmlFor={`${id}-m`}>Do wykupienia (g)</label>
         <input id={`${id}-m`} className="input" type="number" min="0" step="0.1" inputMode="decimal" {...bind('remaining')} />
+        {mates?.length > 0 && <small className="pool-note">Jedna pula z: {mates.join(', ')}</small>}
       </div>
       <div className="entry-field notes">
         <label htmlFor={`${id}-n`}>Spostrzeżenia</label>
@@ -49,7 +51,7 @@ function OwnEntry({ strainId, entry, onSaved }) {
   );
 }
 
-function OtherEntry({ e }) {
+export function OtherEntry({ e }) {
   return (
     <div className="entry">
       <div className="entry-who">{e.username}</div>
@@ -61,7 +63,7 @@ function OtherEntry({ e }) {
   );
 }
 
-export default function StrainCard({ strain, meId, onEdit, onEntrySaved }) {
+export default function StrainCard({ strain, meId, mates, onEdit, onEntrySaved }) {
   const mine = strain.entries.find((e) => e.userId === meId);
   const others = strain.entries.filter((e) => e.userId !== meId);
   const rated = strain.entries.filter((e) => e.rating != null);
@@ -78,7 +80,7 @@ export default function StrainCard({ strain, meId, onEdit, onEntrySaved }) {
           </a>
         )}
         <div className="strain-title">
-          <h3>{strain.name}</h3>
+          <h3><Link href={`/strains/${strain.id}`}>{strain.name}</Link></h3>
           <p className="strain-meta">
             <span>{strain.producer}</span>
             {strain.kind && <span className={`badge kind-${strain.kind}`}>{strain.kind}</span>}
@@ -107,7 +109,7 @@ export default function StrainCard({ strain, meId, onEdit, onEntrySaved }) {
       </header>
 
       <div className="entries">
-        {mine && <OwnEntry strainId={strain.id} entry={mine} onSaved={(en) => onEntrySaved(strain.id, en)} />}
+        {mine && <OwnEntry strainId={strain.id} entry={mine} mates={mates} onSaved={(en) => onEntrySaved(strain.id, en)} />}
         {others.map((e) => <OtherEntry key={e.userId} e={e} />)}
       </div>
 
