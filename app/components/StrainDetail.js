@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { OwnEntry, OtherEntry } from './StrainCard';
 import StrainForm from './StrainForm';
 import Tests from './Tests';
+import { expiryInfo } from '@/lib/expiry';
 
 export default function StrainDetail({ strain, options, tastes, mates, tests, me }) {
   const router = useRouter();
@@ -13,6 +14,7 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, me
   const mine = strain.entries.find((e) => e.userId === me.id);
   const others = strain.entries.filter((e) => e.userId !== me.id);
   const photo = `/api/strains/${strain.id}/photo?v=${strain.photo_v}`;
+  const ex = expiryInfo(strain.expires_on);
   const canDelete = me.isAdmin || strain.created_by === me.id;
 
   return (
@@ -40,7 +42,11 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, me
                 {strain.thc != null && <span className="pill">THC {strain.thc}%</span>}
                 {strain.cbd != null && <span className="pill">CBD {strain.cbd}%</span>}
                 {strain.final_rating != null && <span className="pill">Ocena końcowa {strain.final_rating}</span>}
+                {strain.price_per_g != null && <span className="pill">{strain.price_per_g} zł/g</span>}
+                {ex?.expired && <span className="badge low">Po terminie</span>}
+                {ex?.soon && <span className="badge low">Ważne jeszcze {ex.days} dni</span>}
               </p>
+              {(strain.batch || strain.expires_on) && <p><b>Partia:</b> {strain.batch && <>seria {strain.batch}; </>}{strain.expires_on && <>ważne do {strain.expires_on}</>}</p>}
               {strain.taste && <p><b>Smak:</b> {strain.taste}</p>}
               {strain.terpenes?.length > 0 && (
                 <>

@@ -2,7 +2,9 @@
 import Link from 'next/link';
 import { useRef, useState } from 'react';
 import { api } from '@/lib/api';
+import { expiryInfo } from '@/lib/expiry';
 
+export const LOW_STOCK = 3; // g: poniżej tej ilości odmiana dostaje znacznik "Kończy się"
 const fmt = (n) => (n == null ? '–' : String(Number(n)));
 
 // Edytowalne, osobiste pola zalogowanego użytkownika (autozapis po opuszczeniu pola)
@@ -13,6 +15,20 @@ export function OwnEntry({ strainId, entry, onSaved, mates }) {
   const [status, setStatus] = useState({ kind: 'idle', msg: '' });
   const last = useRef(JSON.stringify(f));
   const id = `e${strainId}`;
+  const [use, setUse] = useState('');
+  const [useMsg, setUseMsg] = useState('');
+
+  async function consume() {
+    const g = Number(use);
+    if (!(g > 0)) return;
+    try {
+      const r = await api(`/api/strains/${strainId}/usage`, 'POST', { grams: g });
+      const next = { ...f, current: r.current };
+      setF(next); last.current = JSON.stringify(next);
+      onSaved({ current: r.current });
+      setUse(''); setUseMsg(`Zapisano zużycie: ${r.used} g`);
+    } catch (e) { setUseMsg(e.message); }
+  }
 
   async function save() {
     const key = JSON.stringify(f);
@@ -47,6 +63,15 @@ export function OwnEntry({ strainId, entry, onSaved, mates }) {
         <label htmlFor={`${id}-n`}>Spostrzeżenia</label>
         <textarea id={`${id}-n`} className="input" rows={2} maxLength={1000} {...bind('notes')} />
       </div>
+      <div className="entry-field use">
+        <label htmlFor={`${id}-u`}>Zużycie (g)</label>
+        <div className="use-row">
+          <input id={`${id}-u`} className="input" type="number" min="0" step="0.05" inputMode="decimal" placeholder="np. 0.5" value={use}
+            onChange={(e) => setUse(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); consume(); } }} />
+          <button type="button" className="btn small" onClick={consume}>Zużyj</button>
+        </div>
+        {useMsg && <small className="pool-note" role="status">{useMsg}</small>}
+      </div>
     </div>
   );
 }
@@ -69,6 +94,7 @@ export default function StrainCard({ strain, meId, mates, onEdit, onEntrySaved }
   const rated = strain.entries.filter((e) => e.rating != null);
   const avg = rated.length ? (rated.reduce((a, e) => a + Number(e.rating), 0) / rated.length).toFixed(1) : null;
 
+  const ex = expiryInfo(strain.expires_on);
   const photoSrc = `/api/strains/${strain.id}/photo?v=${strain.photo_v}`;
 
   return (
@@ -85,11 +111,20 @@ export default function StrainCard({ strain, meId, mates, onEdit, onEntrySaved }
             <span>{strain.producer}</span>
             {strain.kind && <span className={`badge kind-${strain.kind}`}>{strain.kind}</span>}
             <span className="badge">{strain.type}</span>
+            {ex?.expired && <span className="badge low">Po terminie</span>}
+            {ex?.soon && <span className="badge low">Ważne jeszcze {ex.days} dni</span>}
+            {mine && Number(mine.current) > 0 && Number(mine.current) <= LOW_STOCK && <span className="badge low">Kończy się</span>}
           </p>
           <p className="strain-meta">
             {strain.thc != null && <span className="pill">THC {strain.thc}%</span>}
             {strain.cbd != null && <span className="pill">CBD {strain.cbd}%</span>}
+            {strain.price_per_g != null && <span className="pill">{strain.price_per_g} zł/g</span>}
           </p>
+          {(strain.batch || strain.expires_on) && (
+            <p className="strain-taste">
+              {strain.batch && <>Seria: {strain.batch}. </>}{strain.expires_on && <>Ważne do: {strain.expires_on}.</>}
+            </p>
+          )}
           {strain.taste && <p className="strain-taste">Smak: {strain.taste}</p>}
           {strain.terpenes?.length > 0 && (
             <div className="chips small">{strain.terpenes.map((t) => <span key={t} className="chip on static">{t}</span>)}</div>

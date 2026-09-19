@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
-import { listStrains, listOptions } from '@/lib/strains';
+import { listStrains, listOptions, dailyUse } from '@/lib/strains';
 import Header from './components/Header';
 import StrainsBoard from './components/StrainsBoard';
 
@@ -11,7 +11,7 @@ export default async function Home() {
   if (!user) redirect('/login');
   if (user.must_change_password) redirect('/change-password');
 
-  const [strains, options] = await Promise.all([listStrains(), listOptions()]);
+  const [strains, options, daily] = await Promise.all([listStrains(), listOptions(), dailyUse(user.id)]);
 
   return (
     <>
@@ -21,6 +21,7 @@ export default async function Home() {
         <StrainsBoard
           initialStrains={strains}
           initialOptions={options}
+          usage={daily}
           me={{ id: user.id, username: user.username, isAdmin: user.is_admin }}
         />
       </main>

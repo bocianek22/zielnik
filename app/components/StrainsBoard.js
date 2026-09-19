@@ -10,7 +10,8 @@ const avgOf = (s) => {
   return r.length ? r.reduce((a, e) => a + Number(e.rating), 0) / r.length : null;
 };
 
-export default function StrainsBoard({ initialStrains, initialOptions, me }) {
+export default function StrainsBoard({ initialStrains, initialOptions, me, usage = { perDay: 0, cost: 0 } }) {
+  const dailyUse = usage.perDay;
   const [strains, setStrains] = useState(initialStrains);
   const [options, setOptions] = useState(initialOptions);
   const [query, setQuery] = useState('');
@@ -52,7 +53,7 @@ export default function StrainsBoard({ initialStrains, initialOptions, me }) {
         entries: s.entries.map((e) => {
           if (e.userId !== me.id) return e;
           if (s.id === strainId) return { ...e, ...entry };
-          return s.pool_key === key ? { ...e, remaining: entry.remaining } : e;
+          return s.pool_key === key && entry.remaining !== undefined ? { ...e, remaining: entry.remaining } : e;
         }),
       }));
     });
@@ -65,6 +66,8 @@ export default function StrainsBoard({ initialStrains, initialOptions, me }) {
   }, [strains]);
   const matesOf = (s) => (pools.get(s.pool_key) || []).filter((o) => o.id !== s.id).map((o) => o.name);
   const totalRemaining = [...pools.values()].reduce((a, list) => a + Number(mine(list[0]).remaining), 0);
+
+  const totalStock = strains.reduce((a, s) => a + Number(mine(s).current || 0), 0);
 
   const tastes = useMemo(() => [...new Set(strains.map((s) => s.taste).filter(Boolean))], [strains]);
 
@@ -124,6 +127,12 @@ export default function StrainsBoard({ initialStrains, initialOptions, me }) {
           Tylko te, które mam
         </label>
       </div>
+      <p className="muted">
+        {dailyUse > 0 && totalStock > 0
+          ? <>Średnie zużycie: <b>{Number(dailyUse.toFixed(2))} g/dzień</b>. Twój zapas ({Number(totalStock.toFixed(2))} g) starczy na ok. <b>{Math.floor(totalStock / dailyUse)} dni</b>.</>
+          : <>Zapisuj zużycie w karcie odmiany (pole „Zużycie”), a policzę średnie tempo i prognozę, na ile dni starczy zapasu.</>}
+      </p>
+      {usage.cost > 0 && <p className="muted">Koszt zużycia z ostatnich 30 dni: <b>{Number(usage.cost.toFixed(2))} zł</b></p>}
       {totalRemaining > 0 && (
         <p className="muted">Do wykupienia łącznie: <b>{Number(totalRemaining.toFixed(2))} g</b> (odmiany z jednej puli liczone raz).</p>
       )}

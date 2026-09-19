@@ -19,6 +19,9 @@ export default function StrainForm({ strain, options, tastes, canDelete, onOptio
     taste: strain?.taste ?? '',
     terpenes: strain?.terpenes ?? [],
     description: strain?.description ?? '',
+    price: strain?.price_per_g ?? '',
+    batch: strain?.batch ?? '',
+    expires: strain?.expires_on ?? '',
   });
   const [photo, setPhoto] = useState({ data: null, remove: false });
   const [error, setError] = useState('');
@@ -104,6 +107,20 @@ export default function StrainForm({ strain, options, tastes, canDelete, onOptio
         <input id={`${uid}-taste`} className="input" list={`${uid}-tastes`} maxLength={120}
           placeholder="np. cytrusowy, ziemisty" {...inp('taste')} />
         <datalist id={`${uid}-tastes`}>{tastes.map((t) => <option key={t} value={t} />)}</datalist>
+      </div>
+      <div className="row">
+        <div className="field grow">
+          <label htmlFor={`${uid}-price`}>Cena za gram (zł)</label>
+          <input id={`${uid}-price`} className="input" type="number" min="0" step="0.01" inputMode="decimal" {...inp('price')} />
+        </div>
+        <div className="field grow">
+          <label htmlFor={`${uid}-batch`}>Numer serii</label>
+          <input id={`${uid}-batch`} className="input" maxLength={40} {...inp('batch')} />
+        </div>
+        <div className="field grow">
+          <label htmlFor={`${uid}-exp`}>Ważne do</label>
+          <input id={`${uid}-exp`} className="input" type="date" {...inp('expires')} />
+        </div>
       </div>
       <div className="field">
         <span className="label">Profil terpenowy</span>
