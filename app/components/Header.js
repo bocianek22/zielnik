@@ -4,6 +4,7 @@ import LogoutButton from './LogoutButton';
 import NavBadge from './NavBadge';
 import MoreMenu from './MoreMenu';
 import ThemeToggle from './ThemeToggle';
+import { VERSION } from '@/lib/version';
 
 export default function Header({ user }) {
   return (
@@ -31,6 +32,7 @@ export default function Header({ user }) {
             {user.is_admin && <Link href="/admin">Użytkownicy<NavBadge kind="admin" /></Link>}
             <Link href="/change-password">Zmień hasło</Link>
             <ThemeToggle />
+            <span className="ver">Zielnik v{VERSION}</span>
           </MoreMenu>
         </nav>
         <div className="who">

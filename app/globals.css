@@ -374,3 +374,5 @@ html[data-theme="dark"] img, html[data-theme="dark"] canvas, html[data-theme="da
 .stat { display: grid; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
 .stat b { font-family: var(--font-display), Georgia, serif; font-size: 1.7rem; }
 .stat span { color: var(--muted); font-size: .85rem; }
+
+.ver { padding: 6px 14px; font-size: .75rem; opacity: .6; }

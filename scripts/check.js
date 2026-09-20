@@ -49,5 +49,10 @@ for (const file of files) {
     for (const n of exportsOf(src).named) if (!ROUTE_OK.has(n)) problems.push(`${rel}: niedozwolony eksport trasy API '${n}'`);
   }
 }
+// wersja z package.json musi mieć wpis w CHANGELOG.md
+const version = require('../package.json').version;
+const changelog = fs.existsSync(path.join(ROOT, 'CHANGELOG.md')) ? fs.readFileSync(path.join(ROOT, 'CHANGELOG.md'), 'utf8') : '';
+if (!changelog.includes(`## [${version}]`)) problems.push(`CHANGELOG.md: brak sekcji dla wersji ${version} z package.json`);
+
 if (problems.length) { console.error(problems.join('\n')); process.exit(1); }
 console.log(`OK: sprawdzono ${files.length} plików, bez problemów.`);
