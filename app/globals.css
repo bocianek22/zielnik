@@ -354,3 +354,13 @@ html[data-theme="dark"] img, html[data-theme="dark"] canvas, html[data-theme="da
 .linklike { background: none; border: 0; color: inherit; font: inherit; text-align: left; cursor: pointer; padding: 6px 14px; border-radius: 99px; }
 .linklike:hover { background: rgba(255,255,255,.12); }
 .result-group { margin-top: 6px; }
+
+/* raport do wydruku */
+.report-sheet h3 { margin-top: 1.2em; }
+@media print {
+  .topbar, .no-print { display: none !important; }
+  body { background: #fff !important; color: #000; }
+  .page { max-width: none; padding: 0; }
+  .card { border: none !important; box-shadow: none !important; padding: 0 !important; background: #fff !important; }
+  .cmp th, .cmp td { padding: 4px 8px; }
+}
