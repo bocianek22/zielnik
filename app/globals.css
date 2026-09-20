@@ -364,3 +364,6 @@ html[data-theme="dark"] img, html[data-theme="dark"] canvas, html[data-theme="da
   .card { border: none !important; box-shadow: none !important; padding: 0 !important; background: #fff !important; }
   .cmp th, .cmp td { padding: 4px 8px; }
 }
+
+.chip.tag { display: inline-block; background: #e2e9cf; color: var(--hemp-deep); border: 1px solid #cfdcb5; padding: .12rem .6rem; border-radius: 99px; font-size: .8rem; margin: 2px 4px 2px 0; cursor: default; }
+.slider small { line-height: 1.35; }

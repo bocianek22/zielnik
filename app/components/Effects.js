@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
-import { EFFECTS } from '@/lib/effects';
+import { EFFECTS, EFFECT_HELP, TAG_THRESHOLD, strainTags } from '@/lib/effects';
 
 const N = EFFECTS.length, SIZE = 280, C = SIZE / 2, R = 92;
 const pt = (i, v) => {
@@ -52,6 +52,8 @@ export default function Effects({ strain, meId }) {
   return (
     <section className="card effects">
       <h2>Skala odczuć</h2>
+      <p className="muted">Oceń, jak ta odmiana działała na Ciebie (0–10). To Twoje subiektywne odczucia, nie zalecenia medyczne. Suwak, którego nie ruszysz, pozostaje bez oceny.</p>
+      <p>Tagi efektów: {strainTags(strain).length ? strainTags(strain).map((t) => <span key={t} className="chip tag">{t}</span>) : <span className="muted">brak (tag pojawia się, gdy średnia widocznych ocen efektu wynosi co najmniej {String(TAG_THRESHOLD).replace('.', ',')}).</span>}</p>
       <div className="effects-body">
         <div>
           <Radar avg={avg} mine={EFFECTS.map(([k]) => mine[k])} />
@@ -61,8 +63,10 @@ export default function Effects({ strain, meId }) {
           {EFFECTS.map(([k, label]) => (
             <div key={k} className="slider">
               <label htmlFor={`fx-${k}`}>{label} <b>{mine[k] ?? '–'}</b></label>
+              <small className="muted">{EFFECT_HELP[k]}</small>
               <input id={`fx-${k}`} type="range" min="0" max="10" step="1" value={mine[k] ?? 5}
                 onChange={(e) => setMine((p) => ({ ...p, [k]: Number(e.target.value) }))} />
+              {mine[k] != null && <button type="button" className="btn ghost small" onClick={() => setMine((p) => ({ ...p, [k]: null }))}>Wyczyść ocenę</button>}
             </div>
           ))}
           <div className="row">

@@ -5,6 +5,7 @@ import { api } from '@/lib/api';
 import { expiryInfo } from '@/lib/expiry';
 import { VIS } from '@/lib/visibility';
 import { formLabel } from '@/lib/forms';
+import { strainTags } from '@/lib/effects';
 
 export const LOW_STOCK = 3; // g: poniżej tej ilości odmiana dostaje znacznik "Kończy się"
 const fmt = (n) => (n == null ? '–' : String(Number(n)));
@@ -157,6 +158,7 @@ export default function StrainCard({ strain, meId, mates, low, cmpOn, onCmp, onE
             </p>
           )}
           {strain.taste && <p className="strain-taste">Smak: {strain.taste}</p>}
+          {strainTags(strain).length > 0 && <div className="chips small">{strainTags(strain).map((t) => <span key={t} className="chip tag">{t}</span>)}</div>}
           {strain.terpenes?.length > 0 && (
             <div className="chips small">{strain.terpenes.map((t) => <Link key={t} href={`/wiedza#t-${t.toLowerCase().split(' ')[0]}`} className="chip on static">{t}</Link>)}</div>
           )}

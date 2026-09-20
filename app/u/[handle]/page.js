@@ -32,7 +32,7 @@ export default async function ProfilePage({ params }) {
       FROM user_strain us JOIN strains s ON s.id = us.strain_id
       WHERE us.user_id = ${o.id} AND can_see(${me.id}::int, us.user_id, us.visibility) AND (us.rating IS NOT NULL OR us.notes <> '')
       ORDER BY us.updated_at DESC LIMIT 50`;
-    tests = await q`SELECT t.id, t.note, (t.data IS NOT NULL) AS has_photo, t.visibility, s.id AS strain_id, s.name,
+    tests = await q`SELECT t.id, t.note, (t.data IS NOT NULL) AS has_photo, t.visibility, floor(extract(epoch FROM COALESCE(t.updated_at, t.created_at)))::int AS pv, s.id AS strain_id, s.name,
         to_char(t.created_at AT TIME ZONE 'Europe/Warsaw', 'YYYY-MM-DD') AS at
       FROM strain_tests t JOIN strains s ON s.id = t.strain_id
       WHERE t.user_id = ${o.id} AND can_see(${me.id}::int, t.user_id, t.visibility) ORDER BY t.created_at DESC LIMIT 30`;
@@ -76,7 +76,7 @@ export default async function ProfilePage({ params }) {
               {tests.length === 0 ? <p className="muted">Brak widocznych testów.</p> : (
                 <ul className="wall">{tests.map((t) => (
                   <li key={t.id} className="wall-test">
-                    {t.has_photo && <img className="test-photo" src={`/api/tests/${t.id}/photo`} alt="Zdjęcie z testu" loading="lazy" />}
+                    {t.has_photo && <img className="test-photo" src={`/api/tests/${t.id}/photo?v=${t.pv}`} alt="Zdjęcie z testu" loading="lazy" />}
                     <div><p><Link href={`/strains/${t.strain_id}`}><b>{t.name}</b></Link> <span className="muted">{t.at}</span>
                       {isMe && <span className="badge">{visLabel(t.visibility)}</span>}{!isMe && <ReportButton type="test" userId={o.id} refId={t.id} />}</p>
                       {t.note && <p className="detail-desc">{t.note}</p>}</div>

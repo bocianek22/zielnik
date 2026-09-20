@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
 import { listStrains } from '@/lib/strains';
+import { strainTags } from '@/lib/effects';
 import Header from '../components/Header';
 import Rankings from './Rankings';
 
@@ -13,7 +14,7 @@ export default async function RankingsPage() {
 
   // do rankingów wystarczą oceny: odmiana + (użytkownik, ocena, data oceny)
   const strains = (await listStrains(user.id)).map((s) => ({
-    id: s.id, name: s.name, producer: s.producer, type: s.type,
+    id: s.id, name: s.name, producer: s.producer, type: s.type, kind: s.kind, form: s.form || 'susz', thc: s.thc, tags: strainTags(s),
     ratings: s.entries.filter((e) => e.rating != null).map((e) => ({ userId: e.userId, rating: e.rating, at: e.ratedAt })),
   }));
 

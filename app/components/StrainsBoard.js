@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { api } from '@/lib/api';
 import { KINDS } from '@/lib/kinds';
 import { FORMS } from '@/lib/forms';
+import { TAG_LIST, strainTags } from '@/lib/effects';
 import StrainCard from './StrainCard';
 import StrainForm from './StrainForm';
 
@@ -33,7 +34,8 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
   const [onlyStock, setOnlyStock] = useState(false);
   const [kindFilter, setKindFilter] = useState('');
   const [scope, setScope] = useState('all'); // 'all' | 'mine'
-  const [formFilter, setFormFilter] = useState(''); // '' | susz | olej | pen
+  const [formFilter, setFormFilter] = useState('');
+  const [tagFilter, setTagFilter] = useState(''); // '' | susz | olej | pen
   const [sortKey, setSortKey] = useState('new');
   const [dir, setDir] = useState('desc');
   const [formFor, setFormFor] = useState(null); // null | 'new' | id odmiany
@@ -105,7 +107,8 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
         if (onlyStock && !(Number(mine(s).current) > 0)) return false;
         if (kindFilter && s.kind !== kindFilter) return false;
         if (formFilter && (s.form || 'susz') !== formFilter) return false;
-        return !q || `${s.name} ${s.producer} ${s.type} ${s.kind || ''} ${s.taste} ${(s.terpenes || []).join(' ')}`.toLowerCase().includes(q);
+        if (tagFilter && !strainTags(s).includes(tagFilter)) return false;
+        return !q || `${s.name} ${s.producer} ${s.type} ${s.kind || ''} ${s.taste} ${(s.terpenes || []).join(' ')} ${strainTags(s).join(' ')}`.toLowerCase().includes(q);
       })
       .sort((a, b) => {
         const x = get(a), y = get(b);
@@ -116,7 +119,7 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
         return c ? c * sign : a.name.localeCompare(b.name, 'pl');
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [strains, query, onlyStock, kindFilter, formFilter, scope, sortKey, dir, me.id]);
+  }, [strains, query, onlyStock, kindFilter, formFilter, tagFilter, scope, sortKey, dir, me.id]);
 
   const canDelete = (s) => me.isAdmin || s.created_by === me.id;
   const done = () => refresh().catch((e) => setError(e.message));
@@ -153,6 +156,13 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
             aria-label={dir === 'asc' ? 'Rosnąco, kliknij by odwrócić' : 'Malejąco, kliknij by odwrócić'}>
             {dir === 'asc' ? '↑ rosnąco' : '↓ malejąco'}
           </button>
+        </div>
+        <div className="sortbox">
+          <label htmlFor="tagf">Efekt</label>
+          <select id="tagf" className="input" value={tagFilter} onChange={(e) => setTagFilter(e.target.value)}>
+            <option value="">Wszystkie</option>
+            {TAG_LIST.map((t) => <option key={t} value={t}>{t}</option>)}
+          </select>
         </div>
         <div className="chips" role="group" aria-label="Filtr rodzaju">
           <button className={`chip ${kindFilter === '' ? 'on' : ''}`} onClick={() => setKindFilter('')}>Wszystkie</button>
