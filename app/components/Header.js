@@ -14,13 +14,15 @@ export default function Header({ user }) {
           <Link href="/">Odmiany</Link>
           <Link href="/wheel">Koło fortuny</Link>
           <Link href="/rankings">Rankingi</Link>
+          <Link href="/katalog">Katalog</Link>
           <Link href="/wiedza">Wiedza</Link>
           <Link href="/historia">Historia</Link>
+          <Link href="/znajomi">Znajomi</Link>
           {user.is_admin && <Link href="/admin">Użytkownicy</Link>}
           <Link href="/change-password">Zmień hasło</Link>
         </nav>
         <div className="who">
-          <span className="who-name">{user.username}</span>
+          <Link href="/profil" className="who-name">{user.username}</Link>
           <LogoutButton />
         </div>
       </div>

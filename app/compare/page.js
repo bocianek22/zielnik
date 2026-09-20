@@ -17,7 +17,7 @@ export default async function Compare({ searchParams }) {
   if (user.must_change_password) redirect('/change-password');
 
   const ids = String((await searchParams).ids || '').split(',').map(Number).filter(Number.isInteger).slice(0, 3);
-  const all = await listStrains();
+  const all = await listStrains(user.id);
   const rows = ids.map((id) => all.find((s) => s.id === id)).filter(Boolean);
   const mine = (s) => s.entries.find((e) => e.userId === user.id);
   const v = (x, unit = '') => (x == null || x === '' ? '–' : `${x}${unit}`);

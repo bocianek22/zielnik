@@ -13,7 +13,7 @@ export const GET = safe(async () => {
   const head = ['Odmiana', 'Producent', 'Rodzaj', 'Typ', 'THC %', 'CBD %', 'Cena zł/g', 'Seria', 'Ważne do', 'Smak', 'Terpeny',
     'Ocena końcowa', 'Twoja ocena', 'Mam teraz g', 'Do wykupienia g', 'Spostrzeżenia'];
   const lines = [head.join(';')];
-  for (const s of await listStrains()) {
+  for (const s of await listStrains(user.id)) {
     const m = s.entries.find((e) => e.userId === user.id) || {};
     lines.push([s.name, s.producer, s.kind, s.type, s.thc, s.cbd, s.price_per_g, s.batch, s.expires_on, s.taste,
       (s.terpenes || []).join(', '), s.final_rating, m.rating, m.current, m.remaining, m.notes].map(esc).join(';'));

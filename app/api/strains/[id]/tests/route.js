@@ -2,11 +2,12 @@ import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
 import { requireUser, bad, safe } from '@/lib/guard';
 import { listTests } from '@/lib/strains';
+import { VIS_VALUES } from '@/lib/visibility';
 
 export const GET = safe(async (_req, { params }) => {
-  const { res } = await requireUser();
+  const { user, res } = await requireUser();
   if (res) return res;
-  return NextResponse.json({ tests: await listTests(Number((await params).id)) });
+  return NextResponse.json({ tests: await listTests(Number((await params).id), user.id) });
 });
 
 // Nowy test: opis i/lub zdjęcie
@@ -14,7 +15,8 @@ export const POST = safe(async (req, { params }) => {
   const { user, res } = await requireUser();
   if (res) return res;
   const id = Number((await params).id);
-  const { note, image } = await req.json().catch(() => ({}));
+  const { note, image, visibility } = await req.json().catch(() => ({}));
+  const vis = VIS_VALUES.includes(visibility) ? visibility : null;
   const text = String(note ?? '').trim().slice(0, 1500);
   let mime = null, data = null;
   if (image) {
@@ -26,6 +28,7 @@ export const POST = safe(async (req, { params }) => {
   if (!text && !data) return bad('Dodaj opis lub zdjęcie testu.');
   const exists = await sql()`SELECT 1 FROM strains WHERE id = ${id}`;
   if (!exists.length) return bad('Nie znaleziono odmiany.', 404);
-  await sql()`INSERT INTO strain_tests (strain_id, user_id, note, mime, data) VALUES (${id}, ${user.id}, ${text}, ${mime}, ${data})`;
-  return NextResponse.json({ tests: await listTests(id) });
+  await sql()`INSERT INTO strain_tests (strain_id, user_id, note, mime, data, visibility)
+              VALUES (${id}, ${user.id}, ${text}, ${mime}, ${data}, COALESCE(${vis}::text, 'me'))`;
+  return NextResponse.json({ tests: await listTests(id, user.id) });
 });

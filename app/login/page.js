@@ -45,6 +45,7 @@ export default function LoginPage() {
           </div>
           {error && <div className="alert error" role="alert">{error}</div>}
           <button className="btn" disabled={busy}>{busy ? 'Logowanie…' : 'Zaloguj się'}</button>
+          <p className="muted">Masz kod zaproszenia? <a href="/register">Załóż konto</a></p>
         </form>
       </main>
     </div>

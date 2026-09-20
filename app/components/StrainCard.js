@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useRef, useState } from 'react';
 import { api } from '@/lib/api';
 import { expiryInfo } from '@/lib/expiry';
+import { VIS } from '@/lib/visibility';
 
 export const LOW_STOCK = 3; // g: poniżej tej ilości odmiana dostaje znacznik "Kończy się"
 const fmt = (n) => (n == null ? '–' : String(Number(n)));
@@ -11,6 +12,7 @@ const fmt = (n) => (n == null ? '–' : String(Number(n)));
 export function OwnEntry({ strainId, entry, onSaved, mates }) {
   const [f, setF] = useState({
     rating: entry.rating ?? '', current: entry.current ?? 0, remaining: entry.remaining ?? 0, notes: entry.notes ?? '',
+    visibility: entry.visibility ?? 'me',
   });
   const [status, setStatus] = useState({ kind: 'idle', msg: '' });
   const last = useRef(JSON.stringify(f));
@@ -77,6 +79,12 @@ export function OwnEntry({ strainId, entry, onSaved, mates }) {
         <label htmlFor={`${id}-n`}>Spostrzeżenia</label>
         <textarea id={`${id}-n`} className="input" rows={2} maxLength={1000} {...bind('notes')} />
       </div>
+      <div className="entry-field vis">
+        <label htmlFor={`${id}-v`}>Kto widzi Twoją ocenę i opinię</label>
+        <select id={`${id}-v`} className="input" value={f.visibility} onChange={(e) => setF((p) => ({ ...p, visibility: e.target.value }))} onBlur={save}>
+          {VIS.map(([v, label]) => <option key={v} value={v}>{label}</option>)}
+        </select>
+      </div>
       <div className="entry-field use">
         <label htmlFor={`${id}-u`}>Zużycie (g)</label>
         <div className="use-row">
@@ -101,12 +109,10 @@ export function OwnEntry({ strainId, entry, onSaved, mates }) {
 
 export function OtherEntry({ e }) {
   return (
-    <div className="entry">
-      <div className="entry-who">{e.username}</div>
+    <div className="entry other">
+      <div className="entry-who"><Link href={`/u/${encodeURIComponent(e.username)}`}>{e.displayName || e.username}</Link></div>
       <div className="entry-field"><span className="lbl">Ocena</span><b>{fmt(e.rating)}</b></div>
-      <div className="entry-field"><span className="lbl">Ma teraz</span><b>{fmt(e.current)} g</b></div>
-      <div className="entry-field"><span className="lbl">Do wykupienia</span><b>{fmt(e.remaining)} g</b></div>
-      <div className="entry-field notes"><span className="lbl">Spostrzeżenia</span><span>{e.notes || '–'}</span></div>
+      <div className="entry-field notes"><span className="lbl">Opinia</span><span>{e.notes || '–'}</span></div>
     </div>
   );
 }

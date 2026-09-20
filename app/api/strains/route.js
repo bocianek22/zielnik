@@ -4,9 +4,9 @@ import { requireUser, bad, safe } from '@/lib/guard';
 import { listStrains, listOptions, parseCommon } from '@/lib/strains';
 
 export const GET = safe(async () => {
-  const { res } = await requireUser();
+  const { user, res } = await requireUser();
   if (res) return res;
-  const [strains, options] = await Promise.all([listStrains(), listOptions()]);
+  const [strains, options] = await Promise.all([listStrains(user.id), listOptions()]);
   return NextResponse.json({ strains, options });
 });
 

@@ -12,7 +12,7 @@ export default async function RankingsPage() {
   if (user.must_change_password) redirect('/change-password');
 
   // do rankingów wystarczą oceny: odmiana + (użytkownik, ocena, data oceny)
-  const strains = (await listStrains()).map((s) => ({
+  const strains = (await listStrains(user.id)).map((s) => ({
     id: s.id, name: s.name, producer: s.producer, type: s.type,
     ratings: s.entries.filter((e) => e.rating != null).map((e) => ({ userId: e.userId, rating: e.rating, at: e.ratedAt })),
   }));

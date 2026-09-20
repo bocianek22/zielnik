@@ -13,7 +13,7 @@ export default async function StrainPage({ params }) {
 
   const id = Number((await params).id);
   if (!Number.isInteger(id)) notFound();
-  const [strains, options, tests] = await Promise.all([listStrains(), listOptions(), listTests(id)]);
+  const [strains, options, tests] = await Promise.all([listStrains(user.id), listOptions(), listTests(id, user.id)]);
   const strain = strains.find((s) => s.id === id);
   if (!strain) notFound();
 

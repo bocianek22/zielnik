@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { api } from '@/lib/api';
 import { fileToDataUrl } from '@/lib/image';
+import { VIS, visLabel } from '@/lib/visibility';
 
 const fmtDate = (iso) => new Date(iso).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
 
@@ -10,6 +11,7 @@ export default function Tests({ strainId, initialTests, me }) {
   const [tests, setTests] = useState(initialTests);
   const [note, setNote] = useState('');
   const [image, setImage] = useState(null);
+  const [vis, setVis] = useState('me');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
@@ -24,7 +26,7 @@ export default function Tests({ strainId, initialTests, me }) {
     e.preventDefault();
     setBusy(true); setError('');
     try {
-      const r = await api(`/api/strains/${strainId}/tests`, 'POST', { note, image });
+      const r = await api(`/api/strains/${strainId}/tests`, 'POST', { note, image, visibility: vis });
       setTests(r.tests); setNote(''); setImage(null);
     } catch (err) { setError(err.message); }
     setBusy(false);
@@ -43,6 +45,12 @@ export default function Tests({ strainId, initialTests, me }) {
         <div className="field">
           <label htmlFor="test-note">Opis testu (sposób użycia, odczucia, wrażenia)</label>
           <textarea id="test-note" className="input" rows={3} maxLength={1500} value={note} onChange={(e) => setNote(e.target.value)} />
+        </div>
+        <div className="field">
+          <label htmlFor="test-vis">Kto widzi ten test</label>
+          <select id="test-vis" className="input vis-select" value={vis} onChange={(e) => setVis(e.target.value)}>
+            {VIS.map(([v, label]) => <option key={v} value={v}>{label}</option>)}
+          </select>
         </div>
         <div className="photo-edit">
           {image && <img className="strain-photo" src={image} alt="Podgląd zdjęcia z testu" />}
@@ -66,7 +74,7 @@ export default function Tests({ strainId, initialTests, me }) {
                 </a>
               )}
               <div className="test-body">
-                <p className="test-meta"><b>{t.username || 'Usunięty użytkownik'}</b><span>{fmtDate(t.createdAt)}</span></p>
+                <p className="test-meta"><b>{t.username || 'Usunięty użytkownik'}</b>{t.userId === me.id && <span className="badge">{visLabel(t.visibility)}</span>}<span>{fmtDate(t.createdAt)}</span></p>
                 {t.note && <p className="test-note">{t.note}</p>}
                 {(me.isAdmin || t.userId === me.id) && (
                   <button className="btn ghost small" onClick={() => remove(t.id)}>Usuń</button>

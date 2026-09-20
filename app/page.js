@@ -11,7 +11,7 @@ export default async function Home() {
   if (!user) redirect('/login');
   if (user.must_change_password) redirect('/change-password');
 
-  const [strains, options, daily, bought] = await Promise.all([listStrains(), listOptions(), dailyUse(user.id), purchaseStats(user.id)]);
+  const [strains, options, daily, bought] = await Promise.all([listStrains(user.id), listOptions(), dailyUse(user.id), purchaseStats(user.id)]);
 
   return (
     <>
