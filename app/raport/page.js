@@ -46,6 +46,9 @@ export default async function Raport({ searchParams }) {
     WHERE us.user_id = ${me.id} AND s.id IN (SELECT strain_id FROM usage_log WHERE user_id = ${me.id}
       AND (created_at AT TIME ZONE 'Europe/Warsaw')::date BETWEEN ${from}::date AND ${to}::date) ORDER BY s.name`;
 
+  const [sym] = await q`SELECT COUNT(*)::int AS days, AVG(pain)::float8 AS pain, AVG(sleep)::float8 AS sleep, AVG(anxiety)::float8 AS anxiety, AVG(mood)::float8 AS mood
+    FROM symptom_log WHERE user_id = ${me.id} AND day BETWEEN ${from}::date AND ${to}::date`;
+  const av = (v) => (v == null ? '–' : Number(v.toFixed(1)));
   const total = usage.reduce((a, u) => a + u.grams, 0);
   const daysSpan = Math.max(1, Math.round((Date.parse(to) - Date.parse(from)) / 864e5) + 1);
   const bought = purchases.reduce((a, p) => a + p.grams, 0);
@@ -86,6 +89,11 @@ export default async function Raport({ searchParams }) {
           {weekly.length > 0 && (<><h3>Zużycie tygodniowe</h3>
             <div className="table-wrap"><table className="cmp"><thead><tr><th>Tydzień od</th><th>Gramy</th></tr></thead>
               <tbody>{weekly.map((w) => <tr key={w.week}><td>{w.week}</td><td>{Number(w.grams.toFixed(2))} g</td></tr>)}</tbody></table></div></>)}
+
+          {sym.days > 0 && (<><h3>Dziennik objawów (średnie z {sym.days} dni wpisów, skala 0–10)</h3>
+            <div className="table-wrap"><table className="cmp"><thead><tr><th>Ból</th><th>Jakość snu</th><th>Lęk</th><th>Nastrój</th></tr></thead>
+              <tbody><tr><td>{av(sym.pain)}</td><td>{av(sym.sleep)}</td><td>{av(sym.anxiety)}</td><td>{av(sym.mood)}</td></tr></tbody></table></div>
+            <p className="muted small">Ból i lęk: wyższa wartość oznacza gorzej. Sen i nastrój: wyższa wartość oznacza lepiej.</p></>)}
 
           {purchases.length > 0 && (<><h3>Zakupy</h3>
             <div className="table-wrap"><table className="cmp"><thead><tr><th>Data</th><th>Odmiana</th><th>Ilość</th><th>Koszt</th></tr></thead>

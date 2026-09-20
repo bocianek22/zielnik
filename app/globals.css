@@ -367,3 +367,10 @@ html[data-theme="dark"] img, html[data-theme="dark"] canvas, html[data-theme="da
 
 .chip.tag { display: inline-block; background: #e2e9cf; color: var(--hemp-deep); border: 1px solid #cfdcb5; padding: .12rem .6rem; border-radius: 99px; font-size: .8rem; margin: 2px 4px 2px 0; cursor: default; }
 .slider small { line-height: 1.35; }
+
+/* dziennik objawów, statystyki */
+.sym-chart { width: 100%; max-width: 640px; height: auto; display: block; }
+.stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+.stat { display: grid; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
+.stat b { font-family: var(--font-display), Georgia, serif; font-size: 1.7rem; }
+.stat span { color: var(--muted); font-size: .85rem; }

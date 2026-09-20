@@ -6,6 +6,7 @@ import InvitesAdmin from './InvitesAdmin';
 import ReportsAdmin from './ReportsAdmin';
 import BackupsAdmin from './BackupsAdmin';
 import PlansAdmin from './PlansAdmin';
+import StatsAdmin from './StatsAdmin';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,6 +20,7 @@ export default async function AdminPage() {
       <Header user={user} />
       <main className="page stack">
         <h1>Użytkownicy</h1>
+        <StatsAdmin />
         <UsersAdmin meId={user.id} />
         <InvitesAdmin />
         <ReportsAdmin />

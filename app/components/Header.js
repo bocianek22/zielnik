@@ -23,6 +23,7 @@ export default function Header({ user }) {
             <Link href="/wheel">Koło fortuny</Link>
             <Link href="/rankings">Rankingi</Link>
             <Link href="/historia">Historia</Link>
+            <Link href="/dziennik">Dziennik objawów</Link>
             <Link href="/recepty">Recepty</Link>
             <Link href="/raport">Raport dla lekarza</Link>
             <Link href="/premium">Premium i wsparcie</Link>
