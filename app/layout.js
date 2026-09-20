@@ -11,7 +11,10 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="pl" className={`${display.variable} ${body.variable}`}>
+    <html lang="pl" className={`${display.variable} ${body.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: "try{var t=localStorage.getItem('zielnik.theme');if(t==='dark')document.documentElement.dataset.theme='dark'}catch(e){}" }} />
+      </head>
       <body>{children}</body>
     </html>
   );

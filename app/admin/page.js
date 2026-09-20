@@ -4,6 +4,7 @@ import Header from '../components/Header';
 import UsersAdmin from './UsersAdmin';
 import InvitesAdmin from './InvitesAdmin';
 import ReportsAdmin from './ReportsAdmin';
+import BackupsAdmin from './BackupsAdmin';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,11 +21,7 @@ export default async function AdminPage() {
         <UsersAdmin meId={user.id} />
         <InvitesAdmin />
         <ReportsAdmin />
-        <section className="card">
-          <h2>Kopia zapasowa</h2>
-          <p className="muted">Plik JSON z całą bazą: odmiany, oceny, stany, pule, zakupy, zużycie, testy (bez zdjęć i bez haseł). Warto pobierać co jakiś czas.</p>
-          <a className="btn ghost" href="/api/backup">Pobierz kopię zapasową</a>
-        </section>
+        <BackupsAdmin />
       </main>
     </>
   );

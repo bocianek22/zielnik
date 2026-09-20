@@ -3,6 +3,7 @@ import Leaf from './Leaf';
 import LogoutButton from './LogoutButton';
 import NavBadge from './NavBadge';
 import MoreMenu from './MoreMenu';
+import ThemeToggle from './ThemeToggle';
 
 export default function Header({ user }) {
   return (
@@ -15,6 +16,7 @@ export default function Header({ user }) {
         <nav className="nav" aria-label="Główna nawigacja">
           <Link href="/">Odmiany</Link>
           <Link href="/katalog">Katalog</Link>
+          <Link href="/szukaj">Szukaj</Link>
           <Link href="/znajomi">Znajomi<NavBadge kind="friends" /></Link>
           <Link href="/grupy">Grupy<NavBadge kind="groups" /></Link>
           <MoreMenu badge={user.is_admin ? <NavBadge kind="admin" /> : null}>
@@ -24,6 +26,7 @@ export default function Header({ user }) {
             <Link href="/wiedza">Wiedza</Link>
             {user.is_admin && <Link href="/admin">Użytkownicy<NavBadge kind="admin" /></Link>}
             <Link href="/change-password">Zmień hasło</Link>
+            <ThemeToggle />
           </MoreMenu>
         </nav>
         <div className="who">

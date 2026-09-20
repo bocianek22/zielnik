@@ -68,6 +68,16 @@ export default function ProfileForm({ me, initial }) {
       </form>
 
       <section className="card">
+        <h2>Moje dane</h2>
+        <p className="muted">Pobierz kopię wszystkich swoich danych: profil, oceny, opinie, zużycie, zakupy, testy, znajomych i grupy.</p>
+        <div className="row">
+          <a className="btn ghost" href="/api/account/export">Pobierz dane (JSON)</a>
+          <a className="btn ghost" href="/api/account/export?photos=1">Pobierz ze zdjęciami</a>
+          <a className="btn ghost" href="/api/export">Moje odmiany (CSV)</a>
+        </div>
+      </section>
+
+      <section className="card">
         <h2>Usuń konto</h2>
         {me.isAdmin ? <p className="muted">Konta admina nie można usunąć samodzielnie.</p> : (
           <>
