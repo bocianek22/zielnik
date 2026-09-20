@@ -8,6 +8,15 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-09
+### Dodano
+- Testy automatyczne funkcji czystych (tagi efektów, CSV, terminy ważności, plany, dozwolone wartości), polecenie `npm test`.
+- Własny dziennik błędów: zapis nieobsłużonych błędów serwera, tras API i przeglądarki (`error_log`) oraz panel „Dziennik błędów” w panelu admina.
+### Naprawiono
+- Nieudane założenie konta nie zużywa już kodu zaproszenia (KON-2).
+### Zmieniono
+- Workflow CI uruchamia kontrolę projektu oraz testy.
+
 ## [0.15.0] - 2026-09
 ### Dodano
 - Dziennik objawów: dzienne wpisy (ból, jakość snu, lęk, nastrój, notatka), wykres z 30 dni z nałożonym zużyciem.
@@ -102,5 +111,6 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 ### Dodano
 - Fundament: Next.js, baza Neon (Postgres), logowanie, konto admina Bocian, wymuszona zmiana hasła, zarządzanie kontami, motyw konopny.
 
-[Unreleased]: https://github.com/bocianek22/zielnik/compare/v0.15.0...HEAD
+[Unreleased]: https://github.com/bocianek22/zielnik/compare/v0.16.0...HEAD
+[0.16.0]: https://github.com/bocianek22/zielnik/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/bocianek22/zielnik/releases/tag/v0.15.0

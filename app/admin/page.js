@@ -7,6 +7,7 @@ import ReportsAdmin from './ReportsAdmin';
 import BackupsAdmin from './BackupsAdmin';
 import PlansAdmin from './PlansAdmin';
 import StatsAdmin from './StatsAdmin';
+import ErrorsAdmin from './ErrorsAdmin';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,6 +27,7 @@ export default async function AdminPage() {
         <ReportsAdmin />
         <PlansAdmin />
         <BackupsAdmin />
+        <ErrorsAdmin />
       </main>
     </>
   );

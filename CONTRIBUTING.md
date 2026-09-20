@@ -29,7 +29,7 @@ Przykłady: `feat(pacjent): dziennik objawów z wykresem`, `fix(odmiany): przywr
 Gałąź `fix/...` z `main`, poprawka, podniesienie `PATCH`, wpis w CHANGELOG (sekcja „Naprawiono”), wydanie jak wyżej.
 
 ## Definicja ukończenia zmiany
-- `npm run check` przechodzi.
+- `npm run check` i `npm test` przechodzą.
 - Zmiana ma wpis w `CHANGELOG.md`, a w razie potrzeby aktualizację `ROADMAP.md`.
 - Nowe zapytania SQL i uprawnienia sprawdzone ręcznie na koncie testowym (zwłaszcza widoczność i prywatność danych).
 - Dotyczy danych osobowych? Zaktualizuj eksport danych, kopię zapasową i politykę prywatności.

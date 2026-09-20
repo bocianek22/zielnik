@@ -1,6 +1,11 @@
 'use client';
+import { useEffect } from 'react';
 
 export default function ErrorPage({ error, reset }) {
+  useEffect(() => {
+    fetch('/api/client-error', { method: 'POST', headers: { 'Content-Type': 'application/json' }, keepalive: true,
+      body: JSON.stringify({ digest: error?.digest, message: error?.message, path: location.pathname }) }).catch(() => {});
+  }, [error]);
   return (
     <main className="page">
       <div className="card empty">

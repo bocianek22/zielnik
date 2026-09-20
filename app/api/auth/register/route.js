@@ -28,8 +28,14 @@ export async function POST(req) {
     if (!inv.length) return err('Nieprawidłowy, wygasły lub wykorzystany kod zaproszenia.');
 
     const hash = await bcrypt.hash(password, 10);
-    const [u] = await q`INSERT INTO users (username, password_hash, is_admin, must_change_password, consent_at)
-                        VALUES (${username}, ${hash}, FALSE, FALSE, now()) RETURNING id`;
+    let u;
+    try {
+      [u] = await q`INSERT INTO users (username, password_hash, is_admin, must_change_password, consent_at)
+                          VALUES (${username}, ${hash}, FALSE, FALSE, now()) RETURNING id`;
+    } catch (e) {
+      await q`UPDATE invites SET uses = GREATEST(uses - 1, 0) WHERE code = ${code}`; // zwrot użycia kodu
+      throw e;
+    }
     await q`INSERT INTO user_strain (strain_id, user_id) SELECT id, ${u.id}::int FROM strains ON CONFLICT DO NOTHING`;
     await createSession(u.id);
     return NextResponse.json({ ok: true });

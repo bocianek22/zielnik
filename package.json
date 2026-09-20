@@ -1,12 +1,13 @@
 {
   "name": "zielnik",
-  "version": "0.15.0",
+  "version": "0.16.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "check": "node scripts/check.js"
+    "check": "node scripts/check.js",
+    "test": "node --experimental-default-type=module --test tests/*.test.js"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.0",

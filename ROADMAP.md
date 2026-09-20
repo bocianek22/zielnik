@@ -2,12 +2,13 @@
 
 Legenda: **P0** krytyczne przed publicznym startem · **P1** ważne · **P2** wartościowe · **P3** pomysł.
 Rozmiar: **S** (godziny) · **M** (dzień lub dwa) · **L** (tydzień i więcej). Zależność: 🌐 domena · ⚖️ prawnik · 💳 firma i płatności · 📧 usługa e-mail.
-Bieżąca wersja: **0.15.0** (zamknięta beta, rejestracja z zaproszeniem).
+Bieżąca wersja: **0.16.0** (zamknięta beta, rejestracja z zaproszeniem).
 
 ## Kamienie milowe
 | Wersja | Cel | Zawartość |
 |---|---|---|
-| 0.16 | Stabilność i jakość | testy automatyczne, monitoring błędów, poprawki z sekcji 10 |
+| 0.16 ✅ | Stabilność i jakość (część 1) | testy funkcji czystych, dziennik błędów, KON-2 |
+| 0.16.x | Stabilność i jakość (część 2) | testy SQL i API (Neon), alerty i uptime, poprawki z sekcji 10 |
 | 0.17 | Konta i e-mail | 🌐📧 odzyskiwanie hasła, weryfikacja e-mail, sesje |
 | 0.18 | Logowanie zewnętrzne | 🌐 Google, Apple |
 | 0.19 | Prawo i prywatność | ⚖️ regulamin, polityka, DPIA, zgody |
@@ -17,7 +18,7 @@ Bieżąca wersja: **0.15.0** (zamknięta beta, rejestracja z zaproszeniem).
 
 ## 1. Konta i bezpieczeństwo
 - **KON-1 (P0, M, 📧)** Odzyskiwanie hasła e-mailem i weryfikacja adresu.
-- **KON-2 (P0, S)** Ochrona unikalności zaproszeń przy błędzie rejestracji (zwrot użycia kodu w transakcji).
+- ~~**KON-2 (P0, S)** Zwrot użycia kodu zaproszenia przy nieudanej rejestracji~~ ✅ 0.16.0
 - **KON-3 (P1, M, 🌐)** Logowanie przez Google, potem Apple.
 - **KON-4 (P1, M)** Lista aktywnych sesji i wylogowanie z innych urządzeń.
 - **KON-5 (P1, M)** Uwierzytelnianie dwuskładnikowe (TOTP).
@@ -66,8 +67,8 @@ Bieżąca wersja: **0.15.0** (zamknięta beta, rejestracja z zaproszeniem).
 - **MON-4 (P3, L, ⚖️)** Panel dla lekarzy i klinik (za zgodą pacjenta): udostępnianie raportów, konta zawodowe.
 
 ## 7. Platforma i infrastruktura
-- **PLA-1 (P0, M)** Testy automatyczne: jednostkowe funkcji SQL widoczności i integracyjne API na osobnej gałęzi bazy Neon.
-- **PLA-2 (P0, S)** Monitoring błędów i alerty (np. Sentry) oraz uptime.
+- **PLA-1 (P0, M)** Testy automatyczne. ✅ 0.16.0: funkcje czyste (`npm test`, CI). Do zrobienia: testy funkcji SQL widoczności (`can_see`) i integracyjne API na osobnej gałęzi bazy Neon.
+- **PLA-2 (P0, S)** Monitoring błędów. ✅ 0.16.0: własny dziennik błędów w panelu admina. Do zrobienia: alerty (e-mail lub komunikator) i uptime.
 - **PLA-3 (P0, S)** Przejście na plan Vercel Pro (użycie komercyjne) i osobna gałąź bazy dla podglądów.
 - **PLA-4 (P1, M)** Zdjęcia poza bazą (magazyn obiektów, np. Vercel Blob lub S3) z miniaturami.
 - **PLA-5 (P1, M)** Paginacja i pamięć podręczna listy odmian oraz rankingów (dziś ładujemy wszystko naraz).
@@ -101,7 +102,7 @@ Bieżąca wersja: **0.15.0** (zamknięta beta, rejestracja z zaproszeniem).
 - **DT-7** Wspólny katalog odmian może edytować każdy zalogowany (KAT-1).
 - **DT-8** Limit prób logowania opiera się o adres z `x-forwarded-for`.
 - **DT-9** Regulamin, polityka prywatności i treści Wiedzy są projektem roboczym (PRA-1, KAT-4).
-- **DT-10** Zamknięcie zaproszenia przy nieudanej rejestracji nie jest cofane (KON-2).
+- ~~**DT-10** Zamknięcie zaproszenia przy nieudanej rejestracji nie było cofane~~ ✅ 0.16.0
 
 ## Lista kontrolna publicznego startu (1.0.0)
 - [ ] KON-1, KON-3 (przynajmniej Google), PRA-1, PRA-2, PRA-3
