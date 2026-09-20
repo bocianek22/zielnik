@@ -13,7 +13,7 @@ export const PATCH = safe(async (req, { params }) => {
   const rows = await sql()`UPDATE strains SET producer = ${f.producer}, name = ${f.name}, type = ${f.type},
                              final_rating = ${f.finalRating}, taste = ${f.taste}, thc = ${f.thc}, cbd = ${f.cbd},
                              kind = ${f.kind}, terpenes = ${JSON.stringify(f.terpenes)}::jsonb, description = ${f.description},
-                             price_per_g = ${f.price}, batch = ${f.batch}, expires_on = ${f.expires}::date
+                             price_per_g = ${f.price}, batch = ${f.batch}, expires_on = ${f.expires}::date, form = ${f.form}
                            WHERE id = ${id} RETURNING id`;
   if (!rows.length) return bad('Nie znaleziono odmiany.', 404);
   return NextResponse.json({ ok: true });

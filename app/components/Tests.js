@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { api } from '@/lib/api';
 import { fileToDataUrl } from '@/lib/image';
 import { VIS, visLabel } from '@/lib/visibility';
+import ReportButton from './ReportButton';
 
 const fmtDate = (iso) => new Date(iso).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
 
@@ -76,6 +77,7 @@ export default function Tests({ strainId, initialTests, me }) {
               <div className="test-body">
                 <p className="test-meta"><b>{t.username || 'Usunięty użytkownik'}</b>{t.userId === me.id && <span className="badge">{visLabel(t.visibility)}</span>}<span>{fmtDate(t.createdAt)}</span></p>
                 {t.note && <p className="test-note">{t.note}</p>}
+                {t.userId && t.userId !== me.id && <ReportButton type="test" userId={t.userId} refId={t.id} />}
                 {(me.isAdmin || t.userId === me.id) && (
                   <button className="btn ghost small" onClick={() => remove(t.id)}>Usuń</button>
                 )}

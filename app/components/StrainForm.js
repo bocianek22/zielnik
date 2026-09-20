@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { api } from '@/lib/api';
 import { KINDS } from '@/lib/kinds';
 import { fileToDataUrl } from '@/lib/image';
+import { FORMS } from '@/lib/forms';
 import OptionSelect from './OptionSelect';
 import TerpenePicker from './TerpenePicker';
 
@@ -13,6 +14,7 @@ export default function StrainForm({ strain, options, tastes, canDelete, onOptio
     name: strain?.name ?? '',
     type: strain?.type ?? '',
     kind: strain?.kind ?? '',
+    form: strain?.form ?? 'susz',
     thc: strain?.thc ?? '',
     cbd: strain?.cbd ?? '',
     finalRating: strain?.final_rating ?? '',
@@ -73,6 +75,12 @@ export default function StrainForm({ strain, options, tastes, canDelete, onOptio
           <label htmlFor={`${uid}-name`}>Odmiana</label>
           <input id={`${uid}-name`} className="input" maxLength={60} required {...inp('name')} />
         </div>
+      </div>
+      <div className="field">
+        <label htmlFor={`${uid}-form`}>Postać</label>
+        <select id={`${uid}-form`} className="input vis-select" {...inp('form')}>
+          {FORMS.map(([v, label]) => <option key={v} value={v}>{label}</option>)}
+        </select>
       </div>
       <div className="row">
         <div className="field grow">

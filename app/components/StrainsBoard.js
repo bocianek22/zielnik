@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { api } from '@/lib/api';
 import { KINDS } from '@/lib/kinds';
+import { FORMS } from '@/lib/forms';
 import StrainCard from './StrainCard';
 import StrainForm from './StrainForm';
 
@@ -32,6 +33,7 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
   const [onlyStock, setOnlyStock] = useState(false);
   const [kindFilter, setKindFilter] = useState('');
   const [scope, setScope] = useState('all'); // 'all' | 'mine'
+  const [formFilter, setFormFilter] = useState(''); // '' | susz | olej | pen
   const [sortKey, setSortKey] = useState('new');
   const [dir, setDir] = useState('desc');
   const [formFor, setFormFor] = useState(null); // null | 'new' | id odmiany
@@ -102,6 +104,7 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
         }
         if (onlyStock && !(Number(mine(s).current) > 0)) return false;
         if (kindFilter && s.kind !== kindFilter) return false;
+        if (formFilter && (s.form || 'susz') !== formFilter) return false;
         return !q || `${s.name} ${s.producer} ${s.type} ${s.kind || ''} ${s.taste} ${(s.terpenes || []).join(' ')}`.toLowerCase().includes(q);
       })
       .sort((a, b) => {
@@ -113,7 +116,7 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
         return c ? c * sign : a.name.localeCompare(b.name, 'pl');
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [strains, query, onlyStock, kindFilter, scope, sortKey, dir, me.id]);
+  }, [strains, query, onlyStock, kindFilter, formFilter, scope, sortKey, dir, me.id]);
 
   const canDelete = (s) => me.isAdmin || s.created_by === me.id;
   const done = () => refresh().catch((e) => setError(e.message));
@@ -130,6 +133,11 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
       </div>
 
       <div className="toolbar">
+        <div className="seg" role="tablist" aria-label="Postać produktu">
+          {[['', 'Wszystko'], ...FORMS].map(([k, label]) => (
+            <button key={k || 'all'} role="tab" aria-selected={formFilter === k} className={formFilter === k ? 'on' : ''} onClick={() => setFormFilter(k)}>{label}</button>
+          ))}
+        </div>
         <div className="seg" role="tablist" aria-label="Zakres widoku">
           {[['all', 'Wszystkie'], ['mine', 'Moje odmiany']].map(([k, label]) => (
             <button key={k} role="tab" aria-selected={scope === k} className={scope === k ? 'on' : ''} onClick={() => setScope(k)}>{label}</button>

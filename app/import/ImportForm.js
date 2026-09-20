@@ -5,7 +5,7 @@ import { api } from '@/lib/api';
 const MAP = {
   'odmiana': 'name', 'producent': 'producer', 'rodzaj': 'kind', 'typ': 'type', 'thc %': 'thc', 'thc': 'thc',
   'cbd %': 'cbd', 'cbd': 'cbd', 'cena zł/g': 'price', 'cena': 'price', 'seria': 'batch', 'ważne do': 'expires',
-  'smak': 'taste', 'terpeny': 'terpenes', 'ocena końcowa': 'finalRating', 'twoja ocena': 'rating',
+  'smak': 'taste', 'postać': 'form', 'postac': 'form', 'terpeny': 'terpenes', 'ocena końcowa': 'finalRating', 'twoja ocena': 'rating',
   'mam teraz g': 'current', 'do wykupienia g': 'remaining', 'spostrzeżenia': 'notes',
 };
 

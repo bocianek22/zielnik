@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { api } from '@/lib/api';
 import { expiryInfo } from '@/lib/expiry';
 import { VIS } from '@/lib/visibility';
+import { formLabel } from '@/lib/forms';
 
 export const LOW_STOCK = 3; // g: poniżej tej ilości odmiana dostaje znacznik "Kończy się"
 const fmt = (n) => (n == null ? '–' : String(Number(n)));
@@ -140,6 +141,7 @@ export default function StrainCard({ strain, meId, mates, low, cmpOn, onCmp, onE
             <span>{strain.producer}</span>
             {strain.kind && <span className={`badge kind-${strain.kind}`}>{strain.kind}</span>}
             <span className="badge">{strain.type}</span>
+            {strain.form && strain.form !== 'susz' && <span className="badge form">{formLabel(strain.form)}</span>}
             {ex?.expired && <span className="badge low">Po terminie</span>}
             {ex?.soon && <span className="badge low">Ważne jeszcze {ex.days} dni</span>}
             {mine && Number(mine.current) > 0 && Number(mine.current) <= (low ?? LOW_STOCK) && <span className="badge low">Kończy się</span>}

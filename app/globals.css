@@ -330,3 +330,20 @@ a.chip.static:hover { background: var(--hemp-deep); color: #fff; }
 .person { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 14px; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
 .person a { text-decoration: none; color: inherit; }
 a.who-name { color: inherit; text-decoration: none; }
+
+.badge.form { background: #d9e6f2; color: #1d4a6b; }
+
+.report .input { max-width: 180px; }
+.report form { flex-wrap: wrap; }
+
+.nbadge { display: inline-block; min-width: 18px; padding: 0 5px; margin-left: 6px; border-radius: 99px; background: var(--resin, #d9992b); color: #2b1c02; font-size: .72rem; font-weight: 800; line-height: 18px; text-align: center; vertical-align: 1px; }
+
+/* menu "Więcej" */
+.more { position: relative; }
+.more summary { list-style: none; cursor: pointer; padding: 6px 14px; border-radius: 99px; transition: background .15s; }
+.more summary::-webkit-details-marker { display: none; }
+.more summary::after { content: ' ▾'; font-size: .8em; }
+.more summary:hover, .more[open] summary { background: rgba(255,255,255,.12); }
+.more-menu { position: absolute; left: 0; top: calc(100% + 6px); z-index: 30; min-width: 200px; display: grid; gap: 2px; padding: 8px; border-radius: 16px; background: var(--hemp-deep); box-shadow: 0 10px 30px rgba(0,0,0,.28); }
+.more-menu a { white-space: nowrap; }
+@media (max-width: 560px) { .more-menu { left: auto; right: 0; } }

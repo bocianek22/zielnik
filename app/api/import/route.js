@@ -18,16 +18,16 @@ export const POST = safe(async (req) => {
   for (const r of rows.slice(0, 200)) {
     const { error, fields: f } = await parseCommon({
       name: r.name, producer: r.producer, type: r.type, kind: r.kind, thc: dec(r.thc), cbd: dec(r.cbd), price: dec(r.price),
-      batch: r.batch, expires: r.expires, taste: r.taste, finalRating: dec(r.finalRating),
+      batch: r.batch, expires: r.expires, form: String(r.form ?? '').trim(), taste: r.taste, finalRating: dec(r.finalRating),
       terpenes: String(r.terpenes ?? '').split(/[,;]/).map((t) => t.trim()).filter(Boolean),
     });
     if (error) { errors.push(`${r.name || '(pusty wiersz)'}: ${error}`); continue; }
     const dup = await q`SELECT 1 FROM strains WHERE lower(name) = lower(${f.name}) AND lower(producer) = lower(${f.producer})`;
     if (dup.length) { skipped++; continue; }
 
-    const [s] = await q`INSERT INTO strains (producer, name, type, final_rating, taste, thc, cbd, kind, terpenes, description, price_per_g, batch, expires_on, created_by)
+    const [s] = await q`INSERT INTO strains (producer, name, type, final_rating, taste, thc, cbd, kind, terpenes, description, price_per_g, batch, expires_on, form, created_by)
       VALUES (${f.producer}, ${f.name}, ${f.type}, ${f.finalRating}, ${f.taste}, ${f.thc}, ${f.cbd}, ${f.kind},
-              ${JSON.stringify(f.terpenes)}::jsonb, '', ${f.price}, ${f.batch}, ${f.expires}::date, ${user.id}) RETURNING id`;
+              ${JSON.stringify(f.terpenes)}::jsonb, '', ${f.price}, ${f.batch}, ${f.expires}::date, ${f.form}, ${user.id}) RETURNING id`;
     await q`INSERT INTO user_strain (strain_id, user_id) SELECT ${s.id}, id FROM users ON CONFLICT DO NOTHING`;
 
     const rating = parseNumber(dec(r.rating), 0, 10);

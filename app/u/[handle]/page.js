@@ -5,6 +5,8 @@ import { sql } from '@/lib/db';
 import { visLabel } from '@/lib/visibility';
 import Header from '../../components/Header';
 import FriendButton from './FriendButton';
+import ProfileActions from './ProfileActions';
+import ReportButton from '../../components/ReportButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,6 +25,7 @@ export default async function ProfilePage({ params }) {
                      WHERE (requester = ${me.id} AND addressee = ${o.id}) OR (requester = ${o.id} AND addressee = ${me.id})`;
   const status = isMe ? 'me' : !fr.length ? 'none' : fr[0].status === 'accepted' ? 'friends' : fr[0].requester === me.id ? 'outgoing' : 'incoming';
 
+  const [blk] = isMe ? [null] : await q`SELECT 1 AS x FROM blocks WHERE blocker = ${me.id} AND blocked = ${o.id}`;
   let opinions = [], tests = [];
   if (o.ok) {
     opinions = await q`SELECT s.id, s.name, s.producer, us.rating::float8 AS rating, us.notes, us.visibility
@@ -51,7 +54,7 @@ export default async function ProfilePage({ params }) {
                 {o.links?.length > 0 && <ul className="plinks">{o.links.map((l) => <li key={l}><a href={l} target="_blank" rel="nofollow noopener noreferrer ugc">{l.replace(/^https?:\/\//, '')}</a></li>)}</ul>}
               </>
             ) : <p className="muted">Ten profil jest prywatny.</p>}
-            {isMe ? <Link className="btn ghost small" href="/profil">Edytuj profil</Link> : <FriendButton userId={o.id} status={status} />}
+            {isMe ? <Link className="btn ghost small" href="/profil">Edytuj profil</Link> : <><FriendButton userId={o.id} status={status} /><ProfileActions userId={o.id} blocked={!!blk} /></>}
           </div>
         </section>
 
@@ -75,7 +78,7 @@ export default async function ProfilePage({ params }) {
                   <li key={t.id} className="wall-test">
                     {t.has_photo && <img className="test-photo" src={`/api/tests/${t.id}/photo`} alt="Zdjęcie z testu" loading="lazy" />}
                     <div><p><Link href={`/strains/${t.strain_id}`}><b>{t.name}</b></Link> <span className="muted">{t.at}</span>
-                      {isMe && <span className="badge">{visLabel(t.visibility)}</span>}</p>
+                      {isMe && <span className="badge">{visLabel(t.visibility)}</span>}{!isMe && <ReportButton type="test" userId={o.id} refId={t.id} />}</p>
                       {t.note && <p className="detail-desc">{t.note}</p>}</div>
                   </li>))}</ul>)}
             </section>

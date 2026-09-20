@@ -24,6 +24,8 @@ export const POST = safe(async (req) => {
   if (!exists.length) return bad('Nie znaleziono użytkownika.', 404);
 
   if (action === 'request') {
+    const blk = await sql()`SELECT 1 FROM blocks WHERE (blocker = ${user.id} AND blocked = ${other}) OR (blocker = ${other} AND blocked = ${user.id})`;
+    if (blk.length) return bad('Nie można wysłać zaproszenia temu użytkownikowi.', 403);
     const cur = await sql()`SELECT requester, status FROM friendships
                             WHERE (requester = ${user.id} AND addressee = ${other}) OR (requester = ${other} AND addressee = ${user.id})`;
     if (!cur.length) await sql()`INSERT INTO friendships (requester, addressee) VALUES (${user.id}, ${other})`;

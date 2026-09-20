@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { ensureDb, sql } from '@/lib/db';
 import { createSession, USERNAME_RE } from '@/lib/auth';
+import { clientIp, hit } from '@/lib/ratelimit';
 
 const err = (msg, status = 400) => NextResponse.json({ error: msg }, { status });
 
@@ -17,6 +18,7 @@ export async function POST(req) {
     if (password.length < 8 || password.length > 100) return err('Hasło musi mieć od 8 do 100 znaków.');
 
     await ensureDb();
+    if (!(await hit(`register-ip:${await clientIp()}`, 10, 3600))) return err('Zbyt wiele prób rejestracji. Spróbuj ponownie później.', 429);
     const q = sql();
     const dup = await q`SELECT 1 FROM users WHERE lower(username) = lower(${username})`;
     if (dup.length) return err('Ta nazwa użytkownika jest zajęta.', 409);

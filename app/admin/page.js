@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth';
 import Header from '../components/Header';
 import UsersAdmin from './UsersAdmin';
 import InvitesAdmin from './InvitesAdmin';
+import ReportsAdmin from './ReportsAdmin';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,6 +19,7 @@ export default async function AdminPage() {
         <h1>Użytkownicy</h1>
         <UsersAdmin meId={user.id} />
         <InvitesAdmin />
+        <ReportsAdmin />
         <section className="card">
           <h2>Kopia zapasowa</h2>
           <p className="muted">Plik JSON z całą bazą: odmiany, oceny, stany, pule, zakupy, zużycie, testy (bez zdjęć i bez haseł). Warto pobierać co jakiś czas.</p>
