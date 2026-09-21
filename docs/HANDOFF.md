@@ -37,7 +37,8 @@ Aktualizuj ten plik przy każdym wydaniu. Sekcja „Następne kroki” ma zawsze
 - Wybór bramki płatności i platformy wpłat (`DONATE_URL`), decyzja o `PREMIUM_ENFORCED`.
 - Źródło danych do katalogu (`CATALOG_FEED_URL`), plan Vercel Pro przy działalności komercyjnej.
 
-## 6. Następne kroki (aktualne dla wersji 0.17.0)
+## 6. Następne kroki (aktualne dla wersji 0.18.0)
+0. **Włączyć podpowiedzi z internetu:** w Vercel dodać `ANTHROPIC_API_KEY` (klucz z konsoli Anthropic) i zrobić redeploy. Przetestować na kilku odmianach, sprawdzić źródła i koszt zapytań (limit 15 dziennie na użytkownika, cache 90 dni).
 1. **Sprawdzić wersję mobilną na telefonie** (iOS i Android): dolny pasek, arkusz „Więcej”, tryb ciemny, formularze. Zgłosić uwagi jako zadania.
 2. **0.18 Mobile, część 2** (`ROADMAP.md`, sekcja 11): MOB-3 karta mobilna, MOB-4 lista z filtrami w arkuszu i paginacją, MOB-5 przycisk „+”, potem MOB-9 i MOB-10 (wydajność, lżejsze dane), MOB-8 (PWA offline).
 3. **0.16.x**: testy funkcji SQL `can_see` i integracyjne API na gałęzi bazy Neon (PLA-1), alerty o błędach (PLA-2).

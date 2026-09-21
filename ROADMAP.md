@@ -2,7 +2,7 @@
 
 Legenda: **P0** krytyczne przed publicznym startem · **P1** ważne · **P2** wartościowe · **P3** pomysł.
 Rozmiar: **S** (godziny) · **M** (dzień lub dwa) · **L** (tydzień i więcej). Zależność: 🌐 domena · ⚖️ prawnik · 💳 firma i płatności · 📧 usługa e-mail.
-Bieżąca wersja: **0.17.0** (zamknięta beta, rejestracja z zaproszeniem).
+Bieżąca wersja: **0.18.0** (zamknięta beta, rejestracja z zaproszeniem).
 
 ## Kamienie milowe
 | Wersja | Cel | Zawartość |
@@ -57,6 +57,10 @@ Bieżąca wersja: **0.17.0** (zamknięta beta, rejestracja z zaproszeniem).
 ## 5. Katalog i treści
 - **KAT-1 (P1, M)** Model własności katalogu odmian: propozycje zmian i zatwierdzanie zamiast wspólnej edycji.
 - **KAT-2 (P1, S)** Podpowiadanie nazw z katalogu przy dodawaniu odmiany.
+- ~~**KAT-11** Karta charakterystyki, podpowiedź opisu z internetu, szczegóły w katalogu~~ ✅ 0.18.0
+- **KAT-12 (P1, M)** Weryfikacja i ocena jakości podpowiedzi AI (oznaczanie błędów przez użytkowników, ręczna korekta, historia zmian opisu).
+- **KAT-13 (P2, M)** Średnie ceny w czasie (wykres) i porównanie z ceną katalogową; wykrywanie odstających zgłoszeń.
+- **KAT-14 (P2, S)** Polskie źródła w podpowiedziach (po ustaleniu wiarygodnych serwisów) i tłumaczenie treści.
 - **KAT-3 (P1, M)** Źródło danych katalogu: uzgodnione, legalne, z monitorowaniem jakości.
 - **KAT-4 (P1, L, ⚖️)** Przegląd merytoryczny działu Wiedza (źródła, aktualizacja, wersje).
 - **KAT-5 (P2, M)** Historia cen i dostępności odmian.

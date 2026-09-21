@@ -14,7 +14,7 @@ export const GET = safe(async (req) => {
     profile,
     strainsCreated: await q`SELECT id, name, producer FROM strains WHERE created_by = ${me}`,
     entries: await q`SELECT s.name AS strain, s.producer, us.rating::float8 AS rating, us.rated_at, us.current_amount::float8 AS current_g,
-        us.notes, us.effects, us.visibility FROM user_strain us JOIN strains s ON s.id = us.strain_id
+        us.notes, us.effects, us.visibility, us.price_per_g::float8 AS price_per_g FROM user_strain us JOIN strains s ON s.id = us.strain_id
       WHERE us.user_id = ${me} AND (us.rating IS NOT NULL OR us.notes <> '' OR us.current_amount > 0 OR us.effects <> '{}'::jsonb)
       ORDER BY s.name`,
     remainingToBuy: await q`SELECT pool_key, remaining_to_buy::float8 AS grams FROM user_pool WHERE user_id = ${me}`,

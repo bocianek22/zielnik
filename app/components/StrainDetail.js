@@ -6,6 +6,7 @@ import { OwnEntry, OtherEntry } from './StrainCard';
 import StrainForm from './StrainForm';
 import Tests from './Tests';
 import Effects from './Effects';
+import CharacteristicCard from './CharacteristicCard';
 import { expiryInfo } from '@/lib/expiry';
 
 export default function StrainDetail({ strain, options, tastes, mates, tests, me }) {
@@ -58,14 +59,10 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, me
               <button className="btn ghost small" onClick={() => setEditing(true)}>Edytuj odmianę</button>
             </div>
           </div>
-          {strain.description && (
-            <>
-              <h2>Opis</h2>
-              <p className="detail-desc">{strain.description}</p>
-            </>
-          )}
         </article>
       )}
+
+      <CharacteristicCard strain={strain} />
 
       <section className="card">
         <h2>Stany i oceny</h2>

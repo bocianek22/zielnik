@@ -26,6 +26,9 @@ export default function StrainForm({ strain, options, tastes, canDelete, onOptio
     expires: strain?.expires_on ?? '',
   });
   const [photo, setPhoto] = useState({ data: null, remove: false });
+  const [sources, setSources] = useState(strain?.sources ?? []);
+  const [auto, setAuto] = useState(strain?.description_auto ?? false);
+  const [ai, setAi] = useState({ busy: false, msg: '' });
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const set = (k) => (v) => setF((p) => ({ ...p, [k]: v }));
@@ -46,12 +49,33 @@ export default function StrainForm({ strain, options, tastes, canDelete, onOptio
     setError(''); setBusy(true);
     try {
       let id = strain?.id;
-      if (strain) await api(`/api/strains/${id}`, 'PATCH', f);
-      else id = (await api('/api/strains', 'POST', f)).id;
+      const body = { ...f, sources, descriptionAuto: auto };
+      if (strain) await api(`/api/strains/${id}`, 'PATCH', body);
+      else id = (await api('/api/strains', 'POST', body)).id;
       if (photo.data) await api(`/api/strains/${id}/photo`, 'PUT', { image: photo.data });
       else if (photo.remove) await api(`/api/strains/${id}/photo`, 'DELETE');
       await onDone();
     } catch (err) { setError(err.message); setBusy(false); }
+  }
+
+  async function suggest() {
+    setAi({ busy: true, msg: '' });
+    try {
+      const r = await api('/api/strains/suggest', 'POST', { producer: f.producer, name: f.name });
+      const s = r.suggestion;
+      const replace = !f.description || confirm('Zastąpić obecny opis podpowiedzią z internetu?');
+      setF((p) => ({
+        ...p,
+        description: replace ? s.description : p.description,
+        terpenes: [...new Set([...p.terpenes, ...s.terpenes])],
+        kind: p.kind || s.kind || '',
+        thc: p.thc === '' || p.thc == null ? (s.thc ?? '') : p.thc,
+        cbd: p.cbd === '' || p.cbd == null ? (s.cbd ?? '') : p.cbd,
+        taste: p.taste || s.taste || '',
+      }));
+      if (replace) { setSources(r.sources || []); setAuto(true); }
+      setAi({ busy: false, msg: `Uzupełniono pola (pewność: ${s.confidence}). Sprawdź je przed zapisem: THC i CBD z internetu są typowe dla odmiany, a Twoja partia może się różnić.` });
+    } catch (err) { setAi({ busy: false, msg: err.message }); }
   }
 
   async function remove() {
@@ -81,6 +105,13 @@ export default function StrainForm({ strain, options, tastes, canDelete, onOptio
         <select id={`${uid}-form`} className="input vis-select" {...inp('form')}>
           {FORMS.map(([v, label]) => <option key={v} value={v}>{label}</option>)}
         </select>
+      </div>
+      <div className="field">
+        <button type="button" className="btn ghost small" onClick={suggest} disabled={ai.busy || !f.producer || !f.name}>
+          {ai.busy ? 'Szukam w internecie…' : 'Uzupełnij z internetu (podgląd)'}
+        </button>
+        {ai.msg && <p className="muted small" role="status">{ai.msg}</p>}
+        <p className="muted small">Podpowiedź powstaje na podstawie serwisów o konopiach (np. Leafly, AllBud). Informacje są poglądowe i mogą być niepełne lub błędne. Ustal je z lekarzem.</p>
       </div>
       <div className="row">
         <div className="field grow">

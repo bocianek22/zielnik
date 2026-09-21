@@ -8,6 +8,21 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.18.0] - 2026-09
+### Dodano
+- Karta charakterystyki odmiany (podstrona odmiany i katalog): opis, rodzaj, stężenia, terpeny, smak, średnia ocen odczuć i tagi, średnia cena, źródła oraz stałe zastrzeżenie, że informacje są poglądowe i należy je ustalać z lekarzem.
+- Podpowiedź z internetu w formularzu odmiany („Uzupełnij z internetu”): wyszukiwanie w wybranych serwisach o konopiach (Leafly, AllBud, Wikileaf, Seedfinder; lista w `SUGGEST_DOMAINS`) przez API Anthropic z narzędziem wyszukiwania; wypełnia opis, terpeny, rodzaj, THC/CBD i smak, zapisuje źródła. Wynik jest tylko podglądem: użytkownik sprawdza go i zapisuje sam. Wyniki są w pamięci podręcznej (90 dni), limit 15 podpowiedzi dziennie na użytkownika.
+- Ceny użytkowników: pole „Cena u mnie (zł/g)” w karcie odmiany; średnia cena pojawia się od 3 zgłoszeń.
+- Szczegóły odmiany w katalogu (`/katalog/[id]`), z przyciskiem dodania do własnych odmian lub przejścia do pełnej karty.
+### Zmieniono
+- Opis odmiany jest prezentowany jako karta charakterystyki; opisy z internetu są oznaczone.
+- Polityka prywatności (projekt) opisuje podpowiedzi z internetu i średnie ceny.
+
+## [0.17.1] - 2026-09
+### Naprawiono
+- Zużycie: zapis działa także wtedy, gdy zapisany stan („Mam teraz”) wynosi 0 g (wcześniej kończył się błędem); wpis zawsze trafia do dziennika, a stan nie spada poniżej 0. Dodano przyciski szybkich dawek (0,1; 0,25; 0,5; 1 g) i czytelniejszy komunikat.
+- Skalowanie na telefonach: przełączniki (zakładki filtrów) zawijają się zamiast być szersze niż ekran; strona nie może już wychodzić poza szerokość ekranu.
+
 ## [0.17.0] - 2026-09
 ### Dodano
 - Wersja mobilna: dolny pasek nawigacji (Odmiany, Katalog, Szukaj, Znajomi, Więcej) z arkuszem „Więcej”, plakietkami powiadomień i obsługą wcięć ekranu (safe-area).
@@ -121,7 +136,9 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 ### Dodano
 - Fundament: Next.js, baza Neon (Postgres), logowanie, konto admina Bocian, wymuszona zmiana hasła, zarządzanie kontami, motyw konopny.
 
-[Unreleased]: https://github.com/bocianek22/zielnik/compare/v0.17.0...HEAD
+[Unreleased]: https://github.com/bocianek22/zielnik/compare/v0.18.0...HEAD
+[0.18.0]: https://github.com/bocianek22/zielnik/compare/v0.17.1...v0.18.0
+[0.17.1]: https://github.com/bocianek22/zielnik/compare/v0.17.0...v0.17.1
 [0.17.0]: https://github.com/bocianek22/zielnik/compare/v0.16.0...v0.17.0
 [0.16.0]: https://github.com/bocianek22/zielnik/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/bocianek22/zielnik/releases/tag/v0.15.0

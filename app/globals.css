@@ -405,3 +405,16 @@ html[data-theme="dark"] img, html[data-theme="dark"] canvas, html[data-theme="da
   .score { flex: 0 0 auto; min-width: 72px; padding: 6px 12px; border-radius: 14px; }
   .score b { font-size: 1.4rem; }
 }
+
+/* Poprawka skalowania na telefonach: nic nie może być szersze niż ekran */
+html, body { max-width: 100%; overflow-x: hidden; overflow-x: clip; }
+img, canvas, video { max-width: 100%; }
+main, .card, .stack > *, .row > *, .toolbar > * { min-width: 0; }
+.seg { display: flex; flex-wrap: wrap; max-width: 100%; border-radius: 22px; }
+.seg button { flex: 1 1 auto; padding: .5rem 1rem; }
+.chips.small .use-chip { cursor: pointer; }
+@media (max-width: 480px) { .seg button { padding: .5rem .7rem; font-size: .9rem; } .page { padding-inline: 14px; } }
+
+.entry-field.price { grid-column: 1 / -1; }
+.entry-field.price .input { max-width: 260px; }
+.charcard h3 { margin-top: 1em; }

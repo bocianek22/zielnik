@@ -15,6 +15,7 @@ export function OwnEntry({ strainId, entry, onSaved, mates }) {
   const [f, setF] = useState({
     rating: entry.rating ?? '', current: entry.current ?? 0, remaining: entry.remaining ?? 0, notes: entry.notes ?? '',
     visibility: entry.visibility ?? 'me',
+    price: entry.price ?? '',
   });
   const [status, setStatus] = useState({ kind: 'idle', msg: '' });
   const last = useRef(JSON.stringify(f));
@@ -44,7 +45,8 @@ export function OwnEntry({ strainId, entry, onSaved, mates }) {
       const next = { ...f, current: r.current };
       setF(next); last.current = JSON.stringify(next);
       onSaved({ current: r.current });
-      setUse(''); setUseMsg(`Zapisano zużycie: ${r.used} g`);
+      setUse('');
+      setUseMsg(r.stockShort ? `Zapisano zużycie ${r.used} g (zapisany stan był mniejszy, ustawiono 0 g)` : `Zapisano zużycie ${r.used} g, zostało ${r.current} g`);
     } catch (e) { setUseMsg(e.message); }
   }
 
@@ -81,6 +83,10 @@ export function OwnEntry({ strainId, entry, onSaved, mates }) {
         <label htmlFor={`${id}-n`}>Spostrzeżenia</label>
         <textarea id={`${id}-n`} className="input" rows={2} maxLength={1000} {...bind('notes')} />
       </div>
+      <div className="entry-field price">
+        <label htmlFor={`${id}-pr`}>Cena u mnie (zł/g), tworzy średnią cen</label>
+        <input id={`${id}-pr`} className="input" type="number" min="0" step="0.01" inputMode="decimal" {...bind('price')} />
+      </div>
       <div className="entry-field vis">
         <label htmlFor={`${id}-v`}>Kto widzi Twoją ocenę i opinię</label>
         <select id={`${id}-v`} className="input" value={f.visibility} onChange={(e) => setF((p) => ({ ...p, visibility: e.target.value }))} onBlur={save}>
@@ -94,6 +100,7 @@ export function OwnEntry({ strainId, entry, onSaved, mates }) {
             onChange={(e) => setUse(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); consume(); } }} />
           <button type="button" className="btn small" onClick={consume}>Zużyj</button>
         </div>
+        <div className="chips small">{[0.1, 0.25, 0.5, 1].map((v) => <button key={v} type="button" className="chip use-chip" onClick={() => setUse(String(v))}>{v} g</button>)}</div>
         {useMsg && <small className="pool-note" role="status">{useMsg}</small>}
       </div>
       <div className="entry-field buy">

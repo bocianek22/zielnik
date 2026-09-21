@@ -15,7 +15,7 @@ Next.js 15 (App Router) na Vercel, baza Neon (Postgres) przez `@neondatabase/ser
 Funkcja SQL `can_see(viewer, owner, visibility)` decyduje o dostępie (tylko ja, znajomi, znajomi znajomych, wszyscy zalogowani; blokada działa w obie strony). Stany, zakupy, zużycie, recepty i objawy są zawsze prywatne. Każda nowa treść użytkownika musi przechodzić przez `can_see` i trafić do eksportu oraz kopii zapasowej.
 
 ## Zmienne środowiskowe
-`DATABASE_URL` (baza), `AUTH_SECRET` (sesje), `BOCIAN_INITIAL_PASSWORD` (hasło startowe admina), `CRON_SECRET` (zadania cykliczne), `CATALOG_FEED_URL` (źródło katalogu), `DONATE_URL` (wpłaty), `PREMIUM_ENFORCED=1` (włącza płatny plan).
+`DATABASE_URL` (baza), `AUTH_SECRET` (sesje), `BOCIAN_INITIAL_PASSWORD` (hasło startowe admina), `CRON_SECRET` (zadania cykliczne), `CATALOG_FEED_URL` (źródło katalogu), `DONATE_URL` (wpłaty), `PREMIUM_ENFORCED=1` (włącza płatny plan), `ANTHROPIC_API_KEY` (podpowiedzi z internetu; bez klucza funkcja zwraca komunikat o braku konfiguracji), `ANTHROPIC_MODEL` (opcjonalnie, domyślnie `claude-haiku-4-5-20251001`), `SUGGEST_DOMAINS` (opcjonalnie, lista serwisów oddzielona przecinkami).
 
 ## Zadania cykliczne (`vercel.json`)
 Poniedziałek 05:00 UTC: aktualizacja katalogu · niedziela 03:00 UTC: migawka bazy.
