@@ -8,6 +8,16 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.17.0] - 2026-09
+### Dodano
+- Wersja mobilna: dolny pasek nawigacji (Odmiany, Katalog, Szukaj, Znajomi, Więcej) z arkuszem „Więcej”, plakietkami powiadomień i obsługą wcięć ekranu (safe-area).
+- Dostosowanie do dotyku: cele dotykowe co najmniej 44 px, pola formularzy 16 px (bez powiększania na iOS), brak opóźnienia dotknięcia.
+- `viewport` z `viewport-fit=cover` i kolorem motywu przeglądarki.
+- `docs/HANDOFF.md`: notatka przekazania prac (stan, zasady, pułapki, następne kroki, prompt startowy dla Claude).
+### Zmieniono
+- Na telefonie górne menu jest ukryte (zastępuje je dolny pasek); ramka oceny na kartach jest mniejsza.
+- Tryb ciemny nie filtruje już całej strony, tylko jej treść, dzięki czemu dolny pasek pozostaje przypięty do ekranu.
+
 ## [0.16.0] - 2026-09
 ### Dodano
 - Testy automatyczne funkcji czystych (tagi efektów, CSV, terminy ważności, plany, dozwolone wartości), polecenie `npm test`.
@@ -111,6 +121,7 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 ### Dodano
 - Fundament: Next.js, baza Neon (Postgres), logowanie, konto admina Bocian, wymuszona zmiana hasła, zarządzanie kontami, motyw konopny.
 
-[Unreleased]: https://github.com/bocianek22/zielnik/compare/v0.16.0...HEAD
+[Unreleased]: https://github.com/bocianek22/zielnik/compare/v0.17.0...HEAD
+[0.17.0]: https://github.com/bocianek22/zielnik/compare/v0.16.0...v0.17.0
 [0.16.0]: https://github.com/bocianek22/zielnik/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/bocianek22/zielnik/releases/tag/v0.15.0

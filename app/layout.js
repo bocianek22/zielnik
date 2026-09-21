@@ -4,6 +4,13 @@ import './globals.css';
 const display = Fraunces({ subsets: ['latin', 'latin-ext'], variable: '--font-display', axes: ['SOFT'] });
 const body = Figtree({ subsets: ['latin', 'latin-ext'], variable: '--font-body' });
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: '#1d3b27',
+};
+
 export const metadata = {
   title: 'Zielnik',
   description: 'Dziennik odmian medycznej konopi: stan, oceny i spostrzeżenia.',

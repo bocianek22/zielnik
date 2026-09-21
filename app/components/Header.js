@@ -4,10 +4,12 @@ import LogoutButton from './LogoutButton';
 import NavBadge from './NavBadge';
 import MoreMenu from './MoreMenu';
 import ThemeToggle from './ThemeToggle';
+import BottomNav from './BottomNav';
 import { VERSION } from '@/lib/version';
 
 export default function Header({ user }) {
   return (
+    <>
     <header className="topbar">
       <div className="topbar-in">
         <Link href="/" className="brand">
@@ -41,5 +43,7 @@ export default function Header({ user }) {
         </div>
       </div>
     </header>
+    <BottomNav isAdmin={!!user.is_admin} />
+    </>
   );
 }

@@ -30,6 +30,7 @@ Gałąź `fix/...` z `main`, poprawka, podniesienie `PATCH`, wpis w CHANGELOG (s
 
 ## Definicja ukończenia zmiany
 - `npm run check` i `npm test` przechodzą.
+- Zaktualizowana sekcja „Następne kroki” w `docs/HANDOFF.md` (kolejna osoba i Claude muszą wiedzieć, co dalej).
 - Zmiana ma wpis w `CHANGELOG.md`, a w razie potrzeby aktualizację `ROADMAP.md`.
 - Nowe zapytania SQL i uprawnienia sprawdzone ręcznie na koncie testowym (zwłaszcza widoczność i prywatność danych).
 - Dotyczy danych osobowych? Zaktualizuj eksport danych, kopię zapasową i politykę prywatności.

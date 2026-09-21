@@ -2,17 +2,19 @@
 
 Legenda: **P0** krytyczne przed publicznym startem · **P1** ważne · **P2** wartościowe · **P3** pomysł.
 Rozmiar: **S** (godziny) · **M** (dzień lub dwa) · **L** (tydzień i więcej). Zależność: 🌐 domena · ⚖️ prawnik · 💳 firma i płatności · 📧 usługa e-mail.
-Bieżąca wersja: **0.16.0** (zamknięta beta, rejestracja z zaproszeniem).
+Bieżąca wersja: **0.17.0** (zamknięta beta, rejestracja z zaproszeniem).
 
 ## Kamienie milowe
 | Wersja | Cel | Zawartość |
 |---|---|---|
 | 0.16 ✅ | Stabilność i jakość (część 1) | testy funkcji czystych, dziennik błędów, KON-2 |
 | 0.16.x | Stabilność i jakość (część 2) | testy SQL i API (Neon), alerty i uptime, poprawki z sekcji 10 |
-| 0.17 | Konta i e-mail | 🌐📧 odzyskiwanie hasła, weryfikacja e-mail, sesje |
-| 0.18 | Logowanie zewnętrzne | 🌐 Google, Apple |
-| 0.19 | Prawo i prywatność | ⚖️ regulamin, polityka, DPIA, zgody |
-| 0.20 | Płatności | 💳 Premium: bramka, faktury, zarządzanie subskrypcją |
+| 0.17 ✅ | Mobile, część 1 | dolna nawigacja, cele dotykowe (MOB-1, MOB-2) |
+| 0.18 | Mobile, część 2 | MOB-3 do MOB-11: karta mobilna, lista, PWA, wydajność |
+| 0.19 | Konta i e-mail | 🌐📧 odzyskiwanie hasła, weryfikacja e-mail, sesje |
+| 0.20 | Logowanie zewnętrzne | 🌐 Google, Apple |
+| 0.21 | Prawo i prywatność | ⚖️ regulamin, polityka, DPIA, zgody |
+| 0.22 | Płatności | 💳 Premium: bramka, faktury, zarządzanie subskrypcją |
 | **1.0.0** | **Publiczny start** | lista kontrolna z końca dokumentu |
 | 1.x | Rozwój | społeczność, B2B, wersja angielska |
 
@@ -103,6 +105,34 @@ Bieżąca wersja: **0.16.0** (zamknięta beta, rejestracja z zaproszeniem).
 - **DT-8** Limit prób logowania opiera się o adres z `x-forwarded-for`.
 - **DT-9** Regulamin, polityka prywatności i treści Wiedzy są projektem roboczym (PRA-1, KAT-4).
 - ~~**DT-10** Zamknięcie zaproszenia przy nieudanej rejestracji nie było cofane~~ ✅ 0.16.0
+
+## 11. Wersja mobilna (MOB): priorytet, bo to ok. 90% użyć
+Cele wydajności: LCP < 2,5 s, INP < 200 ms, CLS < 0,1 na średnim telefonie i sieci 4G.
+- ~~**MOB-1 (P0, M)** Dolny pasek nawigacji i arkusz „Więcej”~~ ✅ 0.17.0 (do ujednolicenia z górnym menu, patrz MOB-17)
+- ~~**MOB-2 (P0, S)** Cele dotykowe ≥ 44 px, pola ≥ 16 px~~ ✅ 0.17.0
+- **MOB-3 (P0, M)** Karta odmiany „mobile-first”: na wierzchu nazwa, ocena, stan i szybkie akcje (zużyłem, wykupiłem), reszta w rozwijanych sekcjach.
+- **MOB-4 (P0, M)** Lista odmian: paginacja lub wirtualizacja, szkielety ładowania, filtry i sortowanie w arkuszu „Filtry” zamiast rzędu kontrolek.
+- **MOB-5 (P0, S)** Pływający przycisk „+” (nowa odmiana, szybki wpis zużycia lub objawów).
+- **MOB-6 (P1, M)** Formularze w pełnoekranowych arkuszach, dodawanie odmiany krok po kroku, właściwe klawiatury (numeryczna, data).
+- **MOB-7 (P1, M)** Gesty: przeciągnięcie do odświeżenia, przesunięcie karty do szybkiego zużycia.
+- **MOB-8 (P1, L)** PWA: service worker, cache powłoki, odczyt offline, kolejka zapisów offline, monit instalacji, ikony maskable, ekran startowy.
+- **MOB-9 (P1, M)** Wydajność front-endu: mniej czcionek (Fraunces bez osi SOFT lub subset), `next/image` z miniaturami, leniwe ładowanie koła i wykresów (dynamic import), analiza rozmiaru paczek.
+- **MOB-10 (P1, M)** Lżejsze dane: lista odmian bez pełnych wpisów innych osób (doczytywanie na podstronie), nagłówki cache, SWR.
+- **MOB-11 (P1, M)** Tryb ciemny na zmiennych CSS (filtr obciąża GPU telefonu). Zobacz DT-2 i UX-1.
+- **MOB-12 (P2, M)** Wykresy dotykowe (podpowiedź po dotknięciu, większe obszary).
+- **MOB-13 (P2, S)** Wibracja przy zapisie, szanowanie `prefers-reduced-motion`.
+- **MOB-14 (P2, M)** Web Share (profil, zaproszenie) i skróty aplikacji w manifeście („Zużyłem”, „Dziennik”).
+- **MOB-15 (P2, S)** Testy na urządzeniach (iOS Safari, Android Chrome; szerokości 320, 360, 390, 430) i Lighthouse w CI.
+- **MOB-16 (P3, L)** Aplikacja natywna (Capacitor lub Expo), jeśli PWA okaże się za słabe (powiadomienia push na iOS).
+- **MOB-17 (P1, S)** Jedna lista pozycji menu dla górnego i dolnego paska (dziś zduplikowana w `Header.js` i `BottomNav.js`).
+
+## 12. Backlog pomysłów (do rozpisania i przypisania do wersji)
+**Konta i prywatność:** KON-9 klucze dostępu (passkeys) · KON-10 logowanie linkiem e-mail · KON-11 blokada aplikacji PIN lub biometrią · PRA-7 „tryb dyskretny” (neutralna nazwa i ikona, ukrywanie nazw odmian) · PRA-8 szyfrowanie pól wrażliwych (recepty, objawy) · PLA-11 region UE dla bazy i funkcji (RODO).
+**Pacjent:** PAC-9 harmonogram i przypomnienia dawek · PAC-10 podsumowanie miesiąca („Twój miesiąc”) · PAC-11 skanowanie kodu z opakowania (dane partii) · PAC-12 rozpoznawanie cennika lub recepty ze zdjęcia i zamiana na CSV · PAC-13 lista życzeń „chcę spróbować” · PAC-14 standardowe skale objawów (np. VAS bólu) · PAC-15 tryb opiekuna (dostęp za zgodą dla bliskiej osoby) · PAC-16 przypomnienie o wizycie i kończącej się recepcie.
+**Społeczność:** SPO-7 poradniki od użytkowników (moderowane) · SPO-8 tematyczne wątki w grupach · SPO-9 zgłaszanie błędnych danych w katalogu · SPO-10 tłumaczenia treści przez społeczność.
+**Katalog i treści:** KAT-7 alerty o nowych odmianach i powrocie do dostępności · KAT-8 alerty o wycofaniu partii · KAT-9 słownik pojęć i quizy edukacyjne · KAT-10 źródła naukowe z linkami przy artykułach.
+**Monetyzacja:** MON-5 plany roczne i kody promocyjne · MON-6 plan rodzinny lub opiekuna · MON-7 opcjonalne, zanonimizowane dane do badań (za zgodą, po analizie prawnej).
+**Platforma:** PLA-12 flagi funkcji per użytkownik · PLA-13 webhooki i integracje (np. kalendarz) · PLA-14 środowisko stagingowe z osobną bazą · PLA-15 automatyczne kopie poza infrastrukturą aplikacji · PLA-16 Lighthouse i budżety wydajności w CI.
 
 ## Lista kontrolna publicznego startu (1.0.0)
 - [ ] KON-1, KON-3 (przynajmniej Google), PRA-1, PRA-2, PRA-3
