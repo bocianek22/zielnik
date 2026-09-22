@@ -5,7 +5,6 @@ import { api } from '@/lib/api';
 import { expiryInfo } from '@/lib/expiry';
 import { VIS } from '@/lib/visibility';
 import { formLabel } from '@/lib/forms';
-import Lightbox from './Lightbox';
 import { strainTags } from '@/lib/effects';
 
 export const LOW_STOCK = 3; // g: poniżej tej ilości odmiana dostaje znacznik "Kończy się"
@@ -128,7 +127,6 @@ export function OtherEntry({ e }) {
 }
 
 export default function StrainCard({ strain, meId, mates, low, cmpOn, onCmp, onEdit, onEntrySaved }) {
-  const [expanded, setExpanded] = useState(false); // na telefonie szczegóły są domyślnie zwinięte
   const mine = strain.entries.find((e) => e.userId === meId);
   const others = strain.entries.filter((e) => e.userId !== meId);
   const rated = strain.entries.filter((e) => e.rating != null);
@@ -138,10 +136,12 @@ export default function StrainCard({ strain, meId, mates, low, cmpOn, onCmp, onE
   const photoSrc = `/api/strains/${strain.id}/photo?v=${strain.photo_v}`;
 
   return (
-    <article className={`card strain k-${strain.kind || 'none'}${expanded ? ' expanded' : ''}`}>
+    <article className={`card strain k-${strain.kind || 'none'}`}>
       <header className="strain-head">
         {strain.photo_v && (
-<div className="photo-link"><Lightbox className="strain-photo" src={photoSrc} alt={`Zdjęcie: ${strain.name}`} /></div>
+          <a href={photoSrc} target="_blank" rel="noreferrer" className="photo-link">
+            <img className="strain-photo" src={photoSrc} alt={`Zdjęcie: ${strain.name}`} loading="lazy" />
+          </a>
         )}
         <div className="strain-title">
           <h3><Link href={`/strains/${strain.id}`}>{strain.name}</Link></h3>
@@ -189,9 +189,6 @@ export default function StrainCard({ strain, meId, mates, low, cmpOn, onCmp, onE
       </div>
 
       <div className="strain-foot">
-        <button type="button" className="btn ghost small only-mobile" onClick={() => setExpanded((v) => !v)} aria-expanded={expanded}>
-          {expanded ? 'Zwiń szczegóły' : 'Więcej: opinia, cena, zakup, inni'}
-        </button>
         <label className="check"><input type="checkbox" checked={!!cmpOn} onChange={onCmp} /> Porównaj</label>
         <button className="btn ghost small" onClick={onEdit}>Edytuj pola wspólne</button>
       </div>

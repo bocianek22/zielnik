@@ -5,10 +5,8 @@ import { useRouter } from 'next/navigation';
 import { OwnEntry, OtherEntry } from './StrainCard';
 import StrainForm from './StrainForm';
 import Tests from './Tests';
-import dynamicImport from 'next/dynamic';
-const Effects = dynamicImport(() => import('./Effects'), { loading: () => <div className="card"><p className="muted">Wczytuję skalę odczuć…</p></div> });
+import Effects from './Effects';
 import CharacteristicCard from './CharacteristicCard';
-import Lightbox from './Lightbox';
 import { expiryInfo } from '@/lib/expiry';
 
 export default function StrainDetail({ strain, options, tastes, mates, tests, me }) {
@@ -33,7 +31,7 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, me
         <article className={`card strain detail k-${strain.kind || 'none'}`}>
           <div className="detail-top">
             {strain.photo_v && (
-              <Lightbox className="detail-photo" src={photo} alt={`Zdjęcie: ${strain.name}`} />
+              <a href={photo} target="_blank" rel="noreferrer"><img className="detail-photo" src={photo} alt={`Zdjęcie: ${strain.name}`} /></a>
             )}
             <div className="strain-title">
               <h1>{strain.name}</h1>

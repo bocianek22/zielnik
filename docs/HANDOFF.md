@@ -22,12 +22,6 @@ Aktualizuj ten plik przy każdym wydaniu. Sekcja „Następne kroki” ma zawsze
 - Zmiany bazy tylko addytywne i idempotentne w `lib/db.js` (`ensureDb`).
 
 ## 4. Pułapki (wyciągnięte wnioski)
-- Przy dodawaniu stanu (`useState`) do pliku najpierw sprawdź `grep -n "useState(" plik`, żeby nie zadeklarować dwa razy tej samej nazwy (zdarzyło się z `limit` w `StrainsBoard.js`, 0.19.0).
-- Ta paczka (`zielnik-v0.22.1.zip`) zawiera **skumulowane zmiany od v0.17.0** (ostatniej wersji, o której wiadomo, że została wgrana): 0.17.1, 0.18.0, 0.19.0, 0.20.0, 0.21.0, 0.22.0, 0.22.1. Wgraj ją w całości.
-- Po wgraniu: na telefonie kliknij „Dodaj odmianę” i sprawdź, czy arkusz zajmuje cały ekran, pasek u góry jest przyklejony, a „← Wróć” zamyka formularz bez zapisu.
-- Po wgraniu 0.21.0: przełącz tryb ciemny na telefonie i na komputerze, sprawdź kontrast tekstu na kartach, plakietkach i w formularzach — zgłoś, co jest nieczytelne (kolory łatwo poprawić w `:root[data-theme="dark"]` w `app/globals.css`).
-- Po wgraniu 0.20.0 sprawdź w Vercel, czy `/sw.js` i `/offline.html` są dostępne publicznie (folder `public/`, bez logowania) — inaczej offline nie zadziała.
-- Zdjęcia otwieraj komponentem `app/components/Lightbox.js` (pełny ekran, przycisk ×), nigdy linkiem `target="_blank"` do pliku obrazu — na telefonie nie ma jak z tego wrócić.
 - **Brakujący plik po wgraniu** psuje stronę (były przypadki `knowledge.js`, `dailyUse`). `node scripts/check.js` wykrywa brakujące pliki i eksporty. Uruchamiaj zawsze.
 - W `app/api/**/route.js` nie eksportuj niczego poza metodami HTTP i opcjami Next.js (skrypt kontrolny to sprawdza).
 - Przebudowując plik, nie kasuj cudzych funkcji: po zmianie sprawdź listę eksportów (`grep -n "^export" plik`).
@@ -43,10 +37,10 @@ Aktualizuj ten plik przy każdym wydaniu. Sekcja „Następne kroki” ma zawsze
 - Wybór bramki płatności i platformy wpłat (`DONATE_URL`), decyzja o `PREMIUM_ENFORCED`.
 - Źródło danych do katalogu (`CATALOG_FEED_URL`), plan Vercel Pro przy działalności komercyjnej.
 
-## 6. Następne kroki (aktualne dla wersji 0.22.1)
+## 6. Następne kroki (aktualne dla wersji 0.18.0)
 0. **Włączyć podpowiedzi z internetu:** w Vercel dodać `ANTHROPIC_API_KEY` (klucz z konsoli Anthropic) i zrobić redeploy. Przetestować na kilku odmianach, sprawdzić źródła i koszt zapytań (limit 15 dziennie na użytkownika, cache 90 dni).
 1. **Sprawdzić wersję mobilną na telefonie** (iOS i Android): dolny pasek, arkusz „Więcej”, tryb ciemny, formularze. Zgłosić uwagi jako zadania.
-2. **Mobile, część 3** (`ROADMAP.md`, sekcja 11): MOB-10 lżejsze dane listy (zmiana zapytania SQL w `lib/strains.js::listStrains` — **celowo odłożone, wymaga testu na koncie z wieloma znajomymi przed wdrożeniem, nie robić bez możliwości uruchomienia**), MOB-6 formularze w arkuszach, dokończenie MOB-8 (offline z danymi, monit instalacji). Zrobione: MOB-3, MOB-4, MOB-5 (0.19.0), szkielety i leniwe ładowanie (0.20.0), tryb ciemny na zmiennych CSS (0.21.0).
+2. **0.18 Mobile, część 2** (`ROADMAP.md`, sekcja 11): MOB-3 karta mobilna, MOB-4 lista z filtrami w arkuszu i paginacją, MOB-5 przycisk „+”, potem MOB-9 i MOB-10 (wydajność, lżejsze dane), MOB-8 (PWA offline).
 3. **0.16.x**: testy funkcji SQL `can_see` i integracyjne API na gałęzi bazy Neon (PLA-1), alerty o błędach (PLA-2).
 4. **Po zakupie domeny**: KON-1 e-mail i odzyskiwanie hasła, KON-3 Google, potem Apple i płatności.
 5. Utrzymywać `CHANGELOG.md` i tę sekcję na bieżąco.

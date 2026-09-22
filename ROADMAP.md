@@ -2,7 +2,7 @@
 
 Legenda: **P0** krytyczne przed publicznym startem · **P1** ważne · **P2** wartościowe · **P3** pomysł.
 Rozmiar: **S** (godziny) · **M** (dzień lub dwa) · **L** (tydzień i więcej). Zależność: 🌐 domena · ⚖️ prawnik · 💳 firma i płatności · 📧 usługa e-mail.
-Bieżąca wersja: **0.22.1** (zamknięta beta, rejestracja z zaproszeniem).
+Bieżąca wersja: **0.18.0** (zamknięta beta, rejestracja z zaproszeniem).
 
 ## Kamienie milowe
 | Wersja | Cel | Zawartość |
@@ -85,7 +85,7 @@ Bieżąca wersja: **0.22.1** (zamknięta beta, rejestracja z zaproszeniem).
 - **PLA-10 (P2, M)** Prawdziwa aplikacja offline (service worker) i powiadomienia push.
 
 ## 8. Interfejs i dostępność
-- **UX-1 (P1, M)** Dopracowanie trybu ciemnego. ✅ częściowo 0.21.0 (fundament na zmiennych). Zostaje: kontrast plakietek/chipów ze stałymi kolorami, ikony, wykresy SVG na canvasie koła fortuny.
+- **UX-1 (P1, M)** Dopracowanie trybu ciemnego na zmiennych CSS (zamiast odwracania kolorów).
 - **UX-2 (P1, M)** Audyt dostępności (WCAG 2.2 AA): kontrasty, czytniki ekranu, klawiatura.
 - **UX-3 (P1, S)** Szybkie akcje z listy („zużyłem”, „wykupiłem” bez wchodzenia w kartę).
 - **UX-4 (P2, L)** Wersja angielska (i18n).
@@ -100,7 +100,7 @@ Bieżąca wersja: **0.22.1** (zamknięta beta, rejestracja z zaproszeniem).
 
 ## 10. Poprawki i dług techniczny (znane ograniczenia)
 - **DT-1** Zapytania SQL o widoczność i pule powstały bez zautomatyzowanych testów (patrz PLA-1).
-- ~~**DT-2** Tryb ciemny odwracał kolory całej strony~~ ✅ 0.21.0 (przepisany na zmienne CSS).
+- **DT-2** Tryb ciemny odwraca kolory całej strony (UX-1).
 - **DT-3** Zdjęcia są przechowywane jako base64 w bazie (PLA-4).
 - **DT-4** Rankingi i filtry liczą się w przeglądarce ze wszystkich odmian (PLA-5).
 - **DT-5** Strefa czasowa `Europe/Warsaw` jest wpisana na stałe.
@@ -114,15 +114,15 @@ Bieżąca wersja: **0.22.1** (zamknięta beta, rejestracja z zaproszeniem).
 Cele wydajności: LCP < 2,5 s, INP < 200 ms, CLS < 0,1 na średnim telefonie i sieci 4G.
 - ~~**MOB-1 (P0, M)** Dolny pasek nawigacji i arkusz „Więcej”~~ ✅ 0.17.0 (do ujednolicenia z górnym menu, patrz MOB-17)
 - ~~**MOB-2 (P0, S)** Cele dotykowe ≥ 44 px, pola ≥ 16 px~~ ✅ 0.17.0
-- ~~**MOB-3 (P0, M)** Karta odmiany~~ ✅ 0.19.0 (zwijane szczegóły; dalej: szybkie akcje na wierzchu). Pierwotnie: karta odmiany „mobile-first”: na wierzchu nazwa, ocena, stan i szybkie akcje (zużyłem, wykupiłem), reszta w rozwijanych sekcjach.
-- ~~**MOB-4 (P0, M)** Lista odmian~~ ✅ 0.19.0 (panel filtrów, paginacja; dalej: szkielety ładowania, wirtualizacja). Pierwotnie: lista odmian: paginacja lub wirtualizacja, szkielety ładowania, filtry i sortowanie w arkuszu „Filtry” zamiast rzędu kontrolek.
-- ~~**MOB-5 (P0, S)** Pływający przycisk~~ ✅ 0.19.0. Pierwotnie: pływający przycisk „+” (nowa odmiana, szybki wpis zużycia lub objawów).
-- **MOB-6 (P1, M)** Formularze w pełnoekranowych arkuszach. ✅ częściowo 0.22.0 (formularz odmiany). ✅ 0.22.1: `inputMode` uzupełniony na wszystkich polach liczbowych w aplikacji. Zostaje: formularze testów, dodawanie krok po kroku.
+- **MOB-3 (P0, M)** Karta odmiany „mobile-first”: na wierzchu nazwa, ocena, stan i szybkie akcje (zużyłem, wykupiłem), reszta w rozwijanych sekcjach.
+- **MOB-4 (P0, M)** Lista odmian: paginacja lub wirtualizacja, szkielety ładowania, filtry i sortowanie w arkuszu „Filtry” zamiast rzędu kontrolek.
+- **MOB-5 (P0, S)** Pływający przycisk „+” (nowa odmiana, szybki wpis zużycia lub objawów).
+- **MOB-6 (P1, M)** Formularze w pełnoekranowych arkuszach, dodawanie odmiany krok po kroku, właściwe klawiatury (numeryczna, data).
 - **MOB-7 (P1, M)** Gesty: przeciągnięcie do odświeżenia, przesunięcie karty do szybkiego zużycia.
-- **MOB-8 (P1, L)** PWA. ✅ częściowo 0.20.0 (service worker, cache powłoki, strona offline). Zostaje: pełny odczyt danych offline, kolejka zapisów offline, monit instalacji, ekran startowy.
-- **MOB-9 (P1, M)** Wydajność front-endu. ✅ częściowo 0.19.0 (czcionka) i 0.20.0 (leniwe ładowanie koła/wykresów, szkielety). Zostaje: `next/image` z miniaturami, analiza rozmiaru paczek.
-- **MOB-10 (P1, M, ryzykowne — zmiana zapytania SQL `listStrains`)** Lżejsze dane: lista odmian bez pełnych wpisów innych osób (doczytywanie na podstronie), nagłówki cache, SWR. Wymaga testu na koncie z wieloma znajomymi przed wdrożeniem.
-- ~~**MOB-11 (P1, M)** Tryb ciemny na zmiennych CSS~~ ✅ 0.21.0. Zostaje dopracowanie kontrastu drugorzędnych plakietek/chipów (UX-1, UX-2).
+- **MOB-8 (P1, L)** PWA: service worker, cache powłoki, odczyt offline, kolejka zapisów offline, monit instalacji, ikony maskable, ekran startowy.
+- **MOB-9 (P1, M)** Wydajność front-endu: mniej czcionek (Fraunces bez osi SOFT lub subset), `next/image` z miniaturami, leniwe ładowanie koła i wykresów (dynamic import), analiza rozmiaru paczek.
+- **MOB-10 (P1, M)** Lżejsze dane: lista odmian bez pełnych wpisów innych osób (doczytywanie na podstronie), nagłówki cache, SWR.
+- **MOB-11 (P1, M)** Tryb ciemny na zmiennych CSS (filtr obciąża GPU telefonu). Zobacz DT-2 i UX-1.
 - **MOB-12 (P2, M)** Wykresy dotykowe (podpowiedź po dotknięciu, większe obszary).
 - **MOB-13 (P2, S)** Wibracja przy zapisie, szanowanie `prefers-reduced-motion`.
 - **MOB-14 (P2, M)** Web Share (profil, zaproszenie) i skróty aplikacji w manifeście („Zużyłem”, „Dziennik”).
