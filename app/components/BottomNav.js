@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import NavBadge from './NavBadge';
 import ThemeToggle from './ThemeToggle';
 import Leaf from './Leaf';
@@ -18,8 +18,16 @@ const ICONS = {
 // Dolny pasek nawigacji dla telefonów (widoczny tylko poniżej 760 px) z arkuszem "Więcej"
 export default function BottomNav({ isAdmin }) {
   const path = usePathname();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
-  useEffect(() => { setOpen(false); }, [path]);
+  const [fab, setFab] = useState(false);
+  useEffect(() => { setOpen(false); setFab(false); }, [path]);
+
+  function newStrain() {
+    setFab(false);
+    if (path === '/') window.dispatchEvent(new Event('zielnik:new-strain'));
+    else router.push('/?new=1');
+  }
 
   const active = (href) => (href === '/' ? path === '/' || path.startsWith('/strains') : path.startsWith(href));
   const Tab = ({ href, label, icon, badge }) => (
@@ -36,7 +44,15 @@ export default function BottomNav({ isAdmin }) {
 
   return (
     <>
-      {open && <div className="sheet-backdrop" onClick={() => setOpen(false)} />}
+      {(open || fab) && <div className="sheet-backdrop" onClick={() => { setOpen(false); setFab(false); }} />}
+      {fab && (
+        <div className="fab-menu" role="menu">
+          <button type="button" role="menuitem" onClick={newStrain}>Nowa odmiana</button>
+          <Link href="/dziennik" role="menuitem">Objawy dnia</Link>
+          <Link href="/historia" role="menuitem">Historia zużycia i zakupów</Link>
+        </div>
+      )}
+      <button type="button" className="fab" onClick={() => { setOpen(false); setFab((f) => !f); }} aria-label="Dodaj" aria-expanded={fab}>{fab ? '×' : '+'}</button>
       {open && (
         <nav className="sheet" aria-label="Więcej">
           {more.map(([href, label, badge]) => (

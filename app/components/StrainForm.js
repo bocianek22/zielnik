@@ -88,7 +88,12 @@ export default function StrainForm({ strain, options, tastes, canDelete, onOptio
   const uid = strain ? `s${strain.id}` : 'new';
   return (
     <form className="card strain-form" onSubmit={submit}>
-      <h2>{strain ? 'Edytuj odmianę' : 'Nowa odmiana'}</h2>
+      <div className="mobile-form-bar">
+        <button type="button" className="linklike" onClick={onCancel} aria-label="Zamknij">← Wróć</button>
+        <span>{strain ? 'Edytuj odmianę' : 'Nowa odmiana'}</span>
+        <span aria-hidden="true" style={{ width: 44 }} />
+      </div>
+      <h2 className="only-desktop">{strain ? 'Edytuj odmianę' : 'Nowa odmiana'}</h2>
       <div className="row">
         <div className="field grow">
           <label htmlFor={`${uid}-producer`}>Producent</label>

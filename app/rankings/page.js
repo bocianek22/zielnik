@@ -3,7 +3,8 @@ import { getUser } from '@/lib/auth';
 import { listStrains } from '@/lib/strains';
 import { strainTags } from '@/lib/effects';
 import Header from '../components/Header';
-import Rankings from './Rankings';
+import dynamicImport from 'next/dynamic';
+const Rankings = dynamicImport(() => import('./Rankings'), { loading: () => <p className="muted">Wczytuję rankingi…</p> });
 
 export const dynamic = 'force-dynamic';
 

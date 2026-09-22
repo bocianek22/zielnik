@@ -8,6 +8,43 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.22.1] - 2026-09
+### Naprawiono
+- Klawiatura numeryczna na telefonie pojawia się teraz też w polach: minimalne THC (koło fortuny, rankingi), przepisana ilość (recepty), próg „Kończy się” i limit miesięczny (ustawienia), liczba użyć i ważność zaproszenia (panel admina).
+
+## [0.22.0] - 2026-09
+### Zmieniono
+- Formularz dodawania i edycji odmiany na telefonie otwiera się teraz jako pełnoekranowy arkusz z przyklejonym paskiem u góry ("← Wróć" i tytuł) zamiast wąskiej karty wciśniętej między inne elementy listy. Na komputerze wygląd bez zmian.
+### Uwagi
+- Formularze testów (dodawanie/edycja opinii z testu) zostają na razie w dotychczasowym, kompaktowym układzie — są krótsze i mniej problematyczne na małym ekranie niż formularz odmiany. Rozważyć w kolejnej wersji, jeśli zgłoszona zostanie taka potrzeba (MOB-6 w `ROADMAP.md`).
+
+## [0.21.0] - 2026-09
+### Zmieniono
+- Tryb ciemny przepisany na zmiennych CSS zamiast filtra odwracającego kolory całej strony: tła, karty, linie, tekst i akcenty mają teraz dedykowane, ręcznie dobrane kolory ciemne. Wygląda naturalnie zamiast "wyblakle/fioletowo", zdjęcia i wykresy nie są już zniekształcane filtrem.
+- Motyw systemowy (`prefers-color-scheme`) jest respektowany, dopóki użytkownik nie wybierze ręcznie trybu w aplikacji.
+### Naprawiono
+- Wybór trybu jasnego zapamiętywał się niepoprawnie na urządzeniu z ciemnym motywem systemowym (po odświeżeniu wracał tryb ciemny).
+### Uwagi
+- Część drugorzędnych plakietek i chipów ma nadal stałe jasne kolory (celowo, jako akcent) — pełny przegląd kontrastu w trybie ciemnym to UX-1/UX-2 w `ROADMAP.md`.
+
+## [0.20.0] - 2026-09
+### Dodano
+- Szkielety ładowania (`loading.js`) dla listy odmian, katalogu, rankingów i podstrony odmiany — widoczna treść pojawia się od razu zamiast pustego ekranu.
+- Leniwe ładowanie (code-splitting) koła fortuny, wykresu odczuć i rankingów — mniej kodu JS do pobrania i uruchomienia przy pierwszym wejściu na inne strony.
+- Podstawowe wsparcie offline (PWA): service worker cache'uje wyłącznie powłokę aplikacji (ikony, manifest) i pokazuje `offline.html` przy braku sieci. Dane i API nigdy nie są cache'owane, więc zawsze są aktualne.
+### Uwagi
+- To pierwszy krok wydajności mobilnej (MOB-9/MOB-8 z `ROADMAP.md`). Skrócenie danych listy odmian (MOB-10) i pełny tryb offline z zapisem w tle zostają na kolejne wersje.
+
+## [0.19.0] - 2026-09
+### Dodano
+- Wersja mobilna, część 2: pływający przycisk „+” z szybkimi akcjami (nowa odmiana, objawy dnia, historia), filtry i sortowanie w zwijanym panelu z licznikiem aktywnych filtrów, karta odmiany ze zwiniętymi szczegółami (opinia, cena, zakup, wpisy innych osób) oraz przyciskiem „Więcej”.
+- Lista odmian pokazuje po 30 kart i przycisk „Pokaż więcej” (mniej elementów na telefonie).
+### Zmieniono
+- Czcionka nagłówków ładuje się bez dodatkowej osi „SOFT” (mniejszy plik).
+- Eksport i import CSV przeniesione do panelu filtrów.
+### Naprawiono
+- Zdjęcia (odmiany, testy, profil) otwierają się teraz w podglądzie na cały ekran z widocznym przyciskiem zamknięcia (×), zamiast w nowej karcie przeglądarki, z której na telefonie nie dało się łatwo wrócić. Zamyka też klawisz Escape i dotknięcie tła.
+
 ## [0.18.0] - 2026-09
 ### Dodano
 - Karta charakterystyki odmiany (podstrona odmiany i katalog): opis, rodzaj, stężenia, terpeny, smak, średnia ocen odczuć i tagi, średnia cena, źródła oraz stałe zastrzeżenie, że informacje są poglądowe i należy je ustalać z lekarzem.
@@ -136,7 +173,12 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 ### Dodano
 - Fundament: Next.js, baza Neon (Postgres), logowanie, konto admina Bocian, wymuszona zmiana hasła, zarządzanie kontami, motyw konopny.
 
-[Unreleased]: https://github.com/bocianek22/zielnik/compare/v0.18.0...HEAD
+[Unreleased]: https://github.com/bocianek22/zielnik/compare/v0.22.1...HEAD
+[0.22.1]: https://github.com/bocianek22/zielnik/compare/v0.22.0...v0.22.1
+[0.22.0]: https://github.com/bocianek22/zielnik/compare/v0.21.0...v0.22.0
+[0.21.0]: https://github.com/bocianek22/zielnik/compare/v0.20.0...v0.21.0
+[0.20.0]: https://github.com/bocianek22/zielnik/compare/v0.19.0...v0.20.0
+[0.19.0]: https://github.com/bocianek22/zielnik/compare/v0.18.0...v0.19.0
 [0.18.0]: https://github.com/bocianek22/zielnik/compare/v0.17.1...v0.18.0
 [0.17.1]: https://github.com/bocianek22/zielnik/compare/v0.17.0...v0.17.1
 [0.17.0]: https://github.com/bocianek22/zielnik/compare/v0.16.0...v0.17.0

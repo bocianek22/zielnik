@@ -2,7 +2,8 @@ import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
 import { listStrains } from '@/lib/strains';
 import Header from '../components/Header';
-import Wheel from './Wheel';
+import dynamicImport from 'next/dynamic';
+const Wheel = dynamicImport(() => import('./Wheel'), { loading: () => <p className="muted">Wczytuję koło…</p> });
 
 export const dynamic = 'force-dynamic';
 

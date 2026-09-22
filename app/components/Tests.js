@@ -4,6 +4,7 @@ import { api } from '@/lib/api';
 import { fileToDataUrl } from '@/lib/image';
 import { VIS, visLabel } from '@/lib/visibility';
 import ReportButton from './ReportButton';
+import Lightbox from './Lightbox';
 
 const fmtDate = (iso) => new Date(iso).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
 const photoUrl = (t) => `/api/tests/${t.id}/photo?v=${t.pv}`;
@@ -82,7 +83,7 @@ export default function Tests({ strainId, initialTests, me }) {
                 </div>
               ) : (
                 <>
-                  {t.hasPhoto && <a href={photoUrl(t)} target="_blank" rel="noreferrer"><img className="test-photo" src={photoUrl(t)} alt="Zdjęcie z testu" loading="lazy" /></a>}
+                  {t.hasPhoto && <Lightbox className="test-photo" src={photoUrl(t)} alt="Zdjęcie z testu" />}
                   <div className="test-body">
                     <p className="test-meta"><b>{t.username || 'Usunięty użytkownik'}</b>{t.userId === me.id && <span className="badge">{visLabel(t.visibility)}</span>}<span>{fmtDate(t.createdAt)}</span></p>
                     {t.note && <p className="test-note">{t.note}</p>}

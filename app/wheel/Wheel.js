@@ -88,7 +88,7 @@ export default function Wheel({ items: all }) {
       </div>
       <div className="sortbox">
         <label htmlFor="minthc">Minimalne THC (%)</label>
-        <input id="minthc" className="input" type="number" min="0" max="100" step="0.5" value={minThc}
+        <input id="minthc" className="input" type="number" min="0" max="100" step="0.5" inputMode="decimal" value={minThc}
           onChange={(e) => { setMinThc(e.target.value); setWinner(null); }} />
       </div>
     </div>

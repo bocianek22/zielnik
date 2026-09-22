@@ -83,9 +83,9 @@ export default function Rankings({ strains, meId }) {
             <select id="rk-prod" className="input" value={producer} onChange={(e) => setProducer(e.target.value)}>
               <option value="">Wszyscy</option>{producers.map((p) => <option key={p} value={p}>{p}</option>)}</select></div>
           <div className="field"><label htmlFor="rk-min">THC od (%)</label>
-            <input id="rk-min" className="input" type="number" min="0" max="100" step="0.5" value={minThc} onChange={(e) => setMinThc(e.target.value)} /></div>
+            <input id="rk-min" className="input" type="number" min="0" max="100" step="0.5" inputMode="decimal" value={minThc} onChange={(e) => setMinThc(e.target.value)} /></div>
           <div className="field"><label htmlFor="rk-max">THC do (%)</label>
-            <input id="rk-max" className="input" type="number" min="0" max="100" step="0.5" value={maxThc} onChange={(e) => setMaxThc(e.target.value)} /></div>
+            <input id="rk-max" className="input" type="number" min="0" max="100" step="0.5" inputMode="decimal" value={maxThc} onChange={(e) => setMaxThc(e.target.value)} /></div>
         </div>
       </div>
       <div className="rank-grid">

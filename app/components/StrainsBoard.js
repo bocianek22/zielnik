@@ -35,7 +35,9 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
   const [kindFilter, setKindFilter] = useState('');
   const [scope, setScope] = useState('all'); // 'all' | 'mine'
   const [formFilter, setFormFilter] = useState('');
-  const [tagFilter, setTagFilter] = useState(''); // '' | susz | olej | pen
+  const [tagFilter, setTagFilter] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+  const [visibleLimit, setVisibleLimit] = useState(30); // liczba widocznych kart (szybsze przewijanie na telefonie) // '' | susz | olej | pen
   const [sortKey, setSortKey] = useState('new');
   const [dir, setDir] = useState('desc');
   const [formFor, setFormFor] = useState(null); // null | 'new' | id odmiany
@@ -121,7 +123,17 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [strains, query, onlyStock, kindFilter, formFilter, tagFilter, scope, sortKey, dir, me.id]);
 
-  const canDelete = (s) => me.isAdmin || s.created_by === me.id;
+  // Szybka akcja „Nowa odmiana” z przycisku „+” (także po przejściu na stronę z ?new=1)
+  useEffect(() => {
+    const open = () => { setFormFor('new'); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+    window.addEventListener('zielnik:new-strain', open);
+    if (new URLSearchParams(window.location.search).get('new') === '1') { open(); window.history.replaceState(null, '', '/'); }
+    return () => window.removeEventListener('zielnik:new-strain', open);
+  }, []);
+  useEffect(() => { setVisibleLimit(30); }, [query, onlyStock, kindFilter, formFilter, tagFilter, scope, sortKey, dir]);
+  const activeFilters = [kindFilter, formFilter, tagFilter, scope === 'mine', onlyStock, sortKey !== 'new'].filter(Boolean).length;
+
+  const canDelete = (s) = me.isAdmin || s.created_by === me.id;
   const done = () => refresh().catch((e) => setError(e.message));
 
   return (
@@ -130,12 +142,13 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
         <input className="input search" type="search" placeholder="Szukaj: odmiana, producent, smak, terpen…" aria-label="Szukaj"
           value={query} onChange={(e) => setQuery(e.target.value)} />
         {cmp.length >= 2 && <Link className="btn ghost" href={`/compare?ids=${cmp.join(',')}`}>Porównaj ({cmp.length})</Link>}
-        <a className="btn ghost" href="/api/export">Eksport CSV</a>
-        <Link className="btn ghost" href="/import">Import CSV</Link>
         <button className="btn" onClick={() => setFormFor('new')}>Dodaj odmianę</button>
       </div>
 
-      <div className="toolbar">
+      <button type="button" className="btn ghost only-mobile" onClick={() => setShowFilters((v) => !v)} aria-expanded={showFilters}>
+        Filtry i sortowanie{activeFilters ? ` (${activeFilters})` : ''}
+      </button>
+      <div className={`toolbar filters-panel ${showFilters ? 'open' : ''}`}>
         <div className="seg" role="tablist" aria-label="Postać produktu">
           {[['', 'Wszystko'], ...FORMS].map(([k, label]) => (
             <button key={k || 'all'} role="tab" aria-selected={formFilter === k} className={formFilter === k ? 'on' : ''} onClick={() => setFormFilter(k)}>{label}</button>
@@ -175,6 +188,8 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
           <input type="checkbox" checked={onlyStock} onChange={(e) => setOnlyStock(e.target.checked)} />
           Tylko te, które mam
         </label>
+        <a className="btn ghost small" href="/api/export">Eksport CSV</a>
+        <Link className="btn ghost small" href="/import">Import CSV</Link>
       </div>
       <p className="muted">
         {dailyUse > 0 && totalStock > 0
@@ -190,9 +205,9 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
         <summary>Ustawienia (na tym urządzeniu)</summary>
         <div className="row">
           <div className="field"><label htmlFor="pref-low">Próg „Kończy się” (g)</label>
-            <input id="pref-low" className="input" type="number" min="0" step="0.5" value={low || ''} onChange={savePref('zielnik.low', setLow)} /></div>
+            <input id="pref-low" className="input" type="number" min="0" step="0.5" inputMode="decimal" value={low || ''} onChange={savePref('zielnik.low', setLow)} /></div>
           <div className="field"><label htmlFor="pref-limit">Miesięczny limit wykupu (g)</label>
-            <input id="pref-limit" className="input" type="number" min="0" step="1" value={limit || ''} onChange={savePref('zielnik.limit', setLimit)} /></div>
+            <input id="pref-limit" className="input" type="number" min="0" step="1" inputMode="numeric" value={limit || ''} onChange={savePref('zielnik.limit', setLimit)} /></div>
         </div>
       </details>
       {usage.cost > 0 && <p className="muted">Koszt zużycia z ostatnich 30 dni: <b>{Number(usage.cost.toFixed(2))} zł</b></p>}
@@ -213,12 +228,13 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
       )}
       {strains.length > 0 && visible.length === 0 && <p className="muted">Nic nie pasuje do filtrów.</p>}
 
-      {visible.map((s) => (formFor === s.id ? (
+      {visible.slice(0, visibleLimit).map((s) => (formFor === s.id ? (
         <StrainForm key={s.id} strain={s} options={options} tastes={tastes} canDelete={canDelete(s)}
           onOptionsChange={setOptions} onDone={done} onCancel={() => setFormFor(null)} />
       ) : (
         <StrainCard key={s.id} strain={s} meId={me.id} mates={matesOf(s)} low={low} cmpOn={cmp.includes(s.id)} onCmp={() => setCmp((c) => (c.includes(s.id) ? c.filter((x) => x !== s.id) : [...c, s.id].slice(-3)))} onEdit={() => setFormFor(s.id)} onEntrySaved={entrySaved} />
       )))}
+      {visible.length > visibleLimit && <button className="btn ghost" onClick={() => setVisibleLimit((l) => l + 30)}>Pokaż więcej ({visible.length - visibleLimit})</button>}
     </div>
   );
 }

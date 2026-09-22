@@ -29,7 +29,7 @@ export default function Prescriptions() {
         <div className="row">
           <div className="field grow"><label htmlFor="rx-from">Data wystawienia</label><input id="rx-from" className="input" type="date" required value={f.issuedOn} onChange={set('issuedOn')} /></div>
           <div className="field grow"><label htmlFor="rx-to">Ważna do (opcjonalnie)</label><input id="rx-to" className="input" type="date" value={f.validUntil} onChange={set('validUntil')} /></div>
-          <div className="field grow"><label htmlFor="rx-g">Przepisana ilość (g)</label><input id="rx-g" className="input" type="number" min="0.1" step="0.1" required value={f.grams} onChange={set('grams')} /></div>
+          <div className="field grow"><label htmlFor="rx-g">Przepisana ilość (g)</label><input id="rx-g" className="input" type="number" min="0.1" step="0.1" inputMode="decimal" required value={f.grams} onChange={set('grams')} /></div>
         </div>
         <div className="field"><label htmlFor="rx-n">Notatka (np. lekarz, numer)</label><input id="rx-n" className="input" maxLength={120} value={f.note} onChange={set('note')} /></div>
         {msg && <div className="alert error" role="alert">{msg}</div>}

@@ -5,6 +5,7 @@ import { sql } from '@/lib/db';
 import { visLabel } from '@/lib/visibility';
 import Header from '../../components/Header';
 import FriendButton from './FriendButton';
+import Lightbox from '../../components/Lightbox';
 import ProfileActions from './ProfileActions';
 import ReportButton from '../../components/ReportButton';
 
@@ -76,7 +77,7 @@ export default async function ProfilePage({ params }) {
               {tests.length === 0 ? <p className="muted">Brak widocznych testów.</p> : (
                 <ul className="wall">{tests.map((t) => (
                   <li key={t.id} className="wall-test">
-                    {t.has_photo && <img className="test-photo" src={`/api/tests/${t.id}/photo?v=${t.pv}`} alt="Zdjęcie z testu" loading="lazy" />}
+                    {t.has_photo && <Lightbox className="test-photo" src={`/api/tests/${t.id}/photo?v=${t.pv}`} alt="Zdjęcie z testu" />}
                     <div><p><Link href={`/strains/${t.strain_id}`}><b>{t.name}</b></Link> <span className="muted">{t.at}</span>
                       {isMe && <span className="badge">{visLabel(t.visibility)}</span>}{!isMe && <ReportButton type="test" userId={o.id} refId={t.id} />}</p>
                       {t.note && <p className="detail-desc">{t.note}</p>}</div>

@@ -1,7 +1,8 @@
 import { Fraunces, Figtree } from 'next/font/google';
 import './globals.css';
+import RegisterSW from './components/RegisterSW';
 
-const display = Fraunces({ subsets: ['latin', 'latin-ext'], variable: '--font-display', axes: ['SOFT'] });
+const display = Fraunces({ subsets: ['latin', 'latin-ext'], variable: '--font-display', display: 'swap' });
 const body = Figtree({ subsets: ['latin', 'latin-ext'], variable: '--font-body' });
 
 export const viewport = {
@@ -20,9 +21,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="pl" className={`${display.variable} ${body.variable}`} suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: "try{var t=localStorage.getItem('zielnik.theme');if(t==='dark')document.documentElement.dataset.theme='dark'}catch(e){}" }} />
+        <script dangerouslySetInnerHTML={{ __html: "try{var t=localStorage.getItem('zielnik.theme');if(t==='dark'||t==='light')document.documentElement.dataset.theme=t}catch(e){}" }} />
       </head>
-      <body>{children}</body>
+      <body>{children}<RegisterSW /></body>
     </html>
   );
 }

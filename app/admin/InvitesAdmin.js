@@ -32,9 +32,9 @@ export default function InvitesAdmin() {
         <div className="field grow"><label htmlFor="inv-note">Dla kogo (notatka)</label>
           <input id="inv-note" className="input" maxLength={80} value={note} onChange={(e) => setNote(e.target.value)} /></div>
         <div className="field"><label htmlFor="inv-max">Liczba użyć</label>
-          <input id="inv-max" className="input" type="number" min="1" max="100" value={maxUses} onChange={(e) => setMaxUses(e.target.value)} /></div>
+          <input id="inv-max" className="input" type="number" min="1" max="100" inputMode="numeric" value={maxUses} onChange={(e) => setMaxUses(e.target.value)} /></div>
         <div className="field"><label htmlFor="inv-days">Ważny dni (0 = bez limitu)</label>
-          <input id="inv-days" className="input" type="number" min="0" max="90" value={days} onChange={(e) => setDays(e.target.value)} /></div>
+          <input id="inv-days" className="input" type="number" min="0" max="90" inputMode="numeric" value={days} onChange={(e) => setDays(e.target.value)} /></div>
         <button className="btn">Utwórz kod</button>
       </form>
       {msg && <div className="alert note" role="status">{msg}</div>}
