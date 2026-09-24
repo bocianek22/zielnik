@@ -22,6 +22,9 @@ Aktualizuj ten plik przy każdym wydaniu. Sekcja „Następne kroki” ma zawsze
 - Zmiany bazy tylko addytywne i idempotentne w `lib/db.js` (`ensureDb`).
 
 ## 4. Pułapki (wyciągnięte wnioski)
+- **Kontrola składni (esbuild) NIE wykrywa literówki `(x) = wartość` zamiast `(x) => wartość`** - to poprawny JS (przypisanie do zmiennej), tylko błędny semantycznie, i wybucha dopiero w runtime jako `ReferenceError: x is not defined`. Po każdej automatycznej edycji funkcji strzałkowych sprawdzaj: `grep -nE "\([a-zA-Z_]+\) = [^=>]" plik` (bez `=>` i bez `==`).
+- Gdy użytkownik zgłasza błąd z kodem: najpierw sprawdź Vercel -> Deployments (czy w ogóle powstał nowy deploy) i logi runtime konkretnego `deploymentId` - to daje dokładny stack trace zamiast zgadywania.
+- Bez `npm install` (brak sieci w piaskownicy) nie da się uruchomić prawdziwego lintera (`eslint` z regułą `no-undef`) - `scripts/check.js` i `esbuild --loader=jsx` łapią tylko część błędów (patrz punkt wyżej).
 - Przy dodawaniu stanu (`useState`) do pliku najpierw sprawdź `grep -n "useState(" plik`, żeby nie zadeklarować dwa razy tej samej nazwy (zdarzyło się z `limit` w `StrainsBoard.js`, 0.19.0).
 - Ta paczka (`zielnik-v0.22.1.zip`) zawiera **skumulowane zmiany od v0.17.0** (ostatniej wersji, o której wiadomo, że została wgrana): 0.17.1, 0.18.0, 0.19.0, 0.20.0, 0.21.0, 0.22.0, 0.22.1. Wgraj ją w całości.
 - Po wgraniu: na telefonie kliknij „Dodaj odmianę” i sprawdź, czy arkusz zajmuje cały ekran, pasek u góry jest przyklejony, a „← Wróć” zamyka formularz bez zapisu.

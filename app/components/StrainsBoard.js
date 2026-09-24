@@ -133,7 +133,7 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
   useEffect(() => { setVisibleLimit(30); }, [query, onlyStock, kindFilter, formFilter, tagFilter, scope, sortKey, dir]);
   const activeFilters = [kindFilter, formFilter, tagFilter, scope === 'mine', onlyStock, sortKey !== 'new'].filter(Boolean).length;
 
-  const canDelete = (s) = me.isAdmin || s.created_by === me.id;
+  const canDelete = (s) => me.isAdmin || s.created_by === me.id;
   const done = () => refresh().catch((e) => setError(e.message));
 
   return (
