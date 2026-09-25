@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
 import { requireUser, bad, safe } from '@/lib/guard';
 import { randomPassword } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 
 async function admin() {
   const r = await requireUser();
@@ -29,13 +30,15 @@ export const POST = safe(async (req) => {
   await sql()`INSERT INTO invites (code, created_by, note, max_uses, expires_at)
               VALUES (${code}, ${user.id}, ${String(b.note ?? '').trim().slice(0, 80)}, ${maxUses},
                       ${days ? new Date(Date.now() + days * 864e5).toISOString() : null}::timestamptz)`;
+  await logAudit(user.username, 'utworzył zaproszenie', code, b.note);
   return NextResponse.json({ invites: await list() });
 });
 
 export const DELETE = safe(async (req) => {
-  const { res } = await admin();
+  const { user, res } = await admin();
   if (res) return res;
   const { code } = await req.json().catch(() => ({}));
+  await logAudit(user.username, 'usunął zaproszenie', String(code ?? ''));
   await sql()`DELETE FROM invites WHERE code = ${String(code ?? '')}`;
   return NextResponse.json({ invites: await list() });
 });

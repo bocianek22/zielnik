@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
 import { requireUser, bad, safe } from '@/lib/guard';
+import { logAudit } from '@/lib/audit';
 
 async function admin() {
   const r = await requireUser();
@@ -19,11 +20,13 @@ export const GET = safe(async () => {
 
 // { userId, plan: 'free' | 'premium', days? } - ręczne nadanie lub cofnięcie Premium
 export const POST = safe(async (req) => {
-  const { res } = await admin();
+  const { user, res } = await admin();
   if (res) return res;
   const b = await req.json().catch(() => ({}));
   if (!['free', 'premium'].includes(b.plan)) return bad('Nieprawidłowy plan.');
   const days = Math.min(3650, Math.max(0, Number(b.days) || 0));
+  const [t] = await sql()`SELECT username FROM users WHERE id = ${Number(b.userId)}`;
+  await logAudit(user.username, `ustawił plan: ${b.plan}${days ? ` (${days} dni)` : ''}`, t?.username);
   await sql()`UPDATE users SET plan = ${b.plan},
       plan_until = ${b.plan === 'premium' && days ? new Date(Date.now() + days * 864e5).toISOString() : null}::timestamptz
     WHERE id = ${Number(b.userId)}`;

@@ -2,7 +2,7 @@
 
 Legenda: **P0** krytyczne przed publicznym startem · **P1** ważne · **P2** wartościowe · **P3** pomysł.
 Rozmiar: **S** (godziny) · **M** (dzień lub dwa) · **L** (tydzień i więcej). Zależność: 🌐 domena · ⚖️ prawnik · 💳 firma i płatności · 📧 usługa e-mail.
-Bieżąca wersja: **0.22.1** (zamknięta beta, rejestracja z zaproszeniem).
+Bieżąca wersja: **0.23.0** (zamknięta beta, rejestracja z zaproszeniem).
 
 ## Kamienie milowe
 | Wersja | Cel | Zawartość |
@@ -93,7 +93,7 @@ Bieżąca wersja: **0.22.1** (zamknięta beta, rejestracja z zaproszeniem).
 - **UX-6 (P3, M)** Kreator pierwszego uruchomienia dla nowych użytkowników.
 
 ## 9. Administracja i moderacja
-- **ADM-1 (P1, M)** Dziennik zdarzeń (audit log): kto, co i kiedy zmienił.
+- ~~**ADM-1 (P1, M)** Dziennik zdarzeń (audit log)~~ ✅ 0.23.0 (kluczowe akcje admina: zaproszenia, plany, zgłoszenia). Do rozszerzenia: usuwanie kont, edycje odmian.
 - **ADM-2 (P1, M)** Rozbudowana moderacja: zawieszanie kont, historia zgłoszeń, powiadomienia dla moderatorów.
 - **ADM-3 (P2, M)** Role: moderator i redaktor treści (bez pełnego admina).
 - **ADM-4 (P2, S)** Rozszerzone statystyki i eksport (bez danych zdrowotnych).

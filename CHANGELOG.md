@@ -8,6 +8,10 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.23.0] - 2026-09
+### Dodano
+- Dziennik działań administratora (`audit_log`): tworzenie i usuwanie zaproszeń, zmiana planu użytkownika, zamykanie zgłoszeń. Panel „Dziennik działań administratora" w Użytkownicy (ostatnie 1000 wpisów, widok 50 najnowszych). Realizuje ADM-1 z `ROADMAP.md`.
+
 ## [0.22.2] - 2026-09
 ### Naprawiono
 - Krytyczny błąd: strona główna ("/") kończyła się błędem serwera (`ReferenceError: s is not defined`) z powodu literówki `(s) =` zamiast `(s) =>` w `StrainsBoard.js` (funkcja `canDelete`), wprowadzonej przy automatycznej edycji w wersji 0.19.0. Sprawdzono cały projekt pod kątem tego samego wzorca - innych wystąpień nie znaleziono.
@@ -177,7 +181,8 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 ### Dodano
 - Fundament: Next.js, baza Neon (Postgres), logowanie, konto admina Bocian, wymuszona zmiana hasła, zarządzanie kontami, motyw konopny.
 
-[Unreleased]: https://github.com/bocianek22/zielnik/compare/v0.22.2...HEAD
+[Unreleased]: https://github.com/bocianek22/zielnik/compare/v0.23.0...HEAD
+[0.23.0]: https://github.com/bocianek22/zielnik/compare/v0.22.2...v0.23.0
 [0.22.2]: https://github.com/bocianek22/zielnik/compare/v0.22.1...v0.22.2
 [0.22.1]: https://github.com/bocianek22/zielnik/compare/v0.22.0...v0.22.1
 [0.22.0]: https://github.com/bocianek22/zielnik/compare/v0.21.0...v0.22.0

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
 import { requireUser, bad, safe } from '@/lib/guard';
+import { logAudit } from '@/lib/audit';
 
 async function admin() {
   const r = await requireUser();
@@ -23,12 +24,13 @@ export const GET = safe(async () => {
 
 // { id, deleteContent?: boolean } - zamyka zgłoszenie, opcjonalnie usuwa zgłoszony test
 export const POST = safe(async (req) => {
-  const { res } = await admin();
+  const { user, res } = await admin();
   if (res) return res;
   const { id, deleteContent } = await req.json().catch(() => ({}));
   const [r] = await sql()`SELECT type, ref FROM reports WHERE id = ${Number(id)}`;
   if (!r) return bad('Nie znaleziono zgłoszenia.', 404);
   if (deleteContent && r.type === 'test' && r.ref) await sql()`DELETE FROM strain_tests WHERE id = ${r.ref}`;
+  await logAudit(user.username, deleteContent ? 'usunął zgłoszony test i zamknął zgłoszenie' : 'zamknął zgłoszenie', String(id));
   await sql()`UPDATE reports SET status = 'resolved' WHERE id = ${Number(id)}`;
   return NextResponse.json({ reports: await list() });
 });
