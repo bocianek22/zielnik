@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import { KINDS } from '@/lib/kinds';
 import { fileToDataUrl } from '@/lib/image';
@@ -29,6 +29,9 @@ export default function StrainForm({ strain, options, tastes, canDelete, onOptio
   const [sources, setSources] = useState(strain?.sources ?? []);
   const [auto, setAuto] = useState(strain?.description_auto ?? false);
   const [ai, setAi] = useState({ busy: false, msg: '' });
+  const [catalog, setCatalog] = useState([]);
+  useEffect(() => { api('/api/catalog').then((r) => setCatalog(r.items || [])).catch(() => {}); }, []);
+  const nameSuggestions = [...new Set(catalog.filter((c) => !f.producer || c.producer.toLowerCase() === f.producer.toLowerCase()).map((c) => c.name))];
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const set = (k) => (v) => setF((p) => ({ ...p, [k]: v }));
@@ -102,7 +105,8 @@ export default function StrainForm({ strain, options, tastes, canDelete, onOptio
         </div>
         <div className="field grow">
           <label htmlFor={`${uid}-name`}>Odmiana</label>
-          <input id={`${uid}-name`} className="input" maxLength={60} required {...inp('name')} />
+          <input id={`${uid}-name`} className="input" maxLength={60} required list={`${uid}-names`} {...inp('name')} />
+          <datalist id={`${uid}-names`}>{nameSuggestions.map((n) => <option key={n} value={n} />)}</datalist>
         </div>
       </div>
       <div className="field">

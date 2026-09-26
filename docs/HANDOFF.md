@@ -22,6 +22,7 @@ Aktualizuj ten plik przy każdym wydaniu. Sekcja „Następne kroki” ma zawsze
 - Zmiany bazy tylko addytywne i idempotentne w `lib/db.js` (`ensureDb`).
 
 ## 4. Pułapki (wyciągnięte wnioski)
+- **KRYTYCZNE w github.dev: przeciągnięcie folderu na już istniejący folder o tej samej nazwie ZASTĘPUJE go całkowicie** (usuwa pliki, których nie ma w nowym folderze), zamiast scalić zawartość. Zdarzyło się to dwa razy w tej sesji (app/admin i lib straciły większość plików). Zawsze: 1) usuń stary folder w drzewie (prawy klik → Delete), 2) dopiero wtedy przeciągnij nowy folder w puste miejsce, 3) rozwiń go i policz pliki przed commitem.
 - **Kontrola składni (esbuild) NIE wykrywa literówki `(x) = wartość` zamiast `(x) => wartość`** - to poprawny JS (przypisanie do zmiennej), tylko błędny semantycznie, i wybucha dopiero w runtime jako `ReferenceError: x is not defined`. Po każdej automatycznej edycji funkcji strzałkowych sprawdzaj: `grep -nE "\([a-zA-Z_]+\) = [^=>]" plik` (bez `=>` i bez `==`).
 - Gdy użytkownik zgłasza błąd z kodem: najpierw sprawdź Vercel -> Deployments (czy w ogóle powstał nowy deploy) i logi runtime konkretnego `deploymentId` - to daje dokładny stack trace zamiast zgadywania.
 - Bez `npm install` (brak sieci w piaskownicy) nie da się uruchomić prawdziwego lintera (`eslint` z regułą `no-undef`) - `scripts/check.js` i `esbuild --loader=jsx` łapią tylko część błędów (patrz punkt wyżej).

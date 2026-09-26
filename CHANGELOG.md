@@ -8,6 +8,12 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.24.0] - 2026-09
+### Dodano
+- Podpowiadanie nazw odmian z katalogu przy dodawaniu nowej odmiany (KAT-2): pole „Odmiana" podpowiada nazwy z katalogu, zawężone do wybranego producenta.
+### Uwagi
+- W tej sesji kilka wgrań przez github.dev nadpisało całe foldery `app` i `lib` zamiast dodać pojedyncze pliki (przeciąganie folderu na istniejący folder o tej samej nazwie **zastępuje go całkowicie**). Zasada na przyszłość: zawsze najpierw usuń stary folder w drzewie, dopiero potem wrzuć nowy w puste miejsce. Zapisane w `docs/HANDOFF.md`.
+
 ## [0.23.0] - 2026-09
 ### Dodano
 - Dziennik działań administratora (`audit_log`): tworzenie i usuwanie zaproszeń, zmiana planu użytkownika, zamykanie zgłoszeń. Panel „Dziennik działań administratora" w Użytkownicy (ostatnie 1000 wpisów, widok 50 najnowszych). Realizuje ADM-1 z `ROADMAP.md`.
@@ -181,7 +187,8 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 ### Dodano
 - Fundament: Next.js, baza Neon (Postgres), logowanie, konto admina Bocian, wymuszona zmiana hasła, zarządzanie kontami, motyw konopny.
 
-[Unreleased]: https://github.com/bocianek22/zielnik/compare/v0.23.0...HEAD
+[Unreleased]: https://github.com/bocianek22/zielnik/compare/v0.24.0...HEAD
+[0.24.0]: https://github.com/bocianek22/zielnik/compare/v0.23.0...v0.24.0
 [0.23.0]: https://github.com/bocianek22/zielnik/compare/v0.22.2...v0.23.0
 [0.22.2]: https://github.com/bocianek22/zielnik/compare/v0.22.1...v0.22.2
 [0.22.1]: https://github.com/bocianek22/zielnik/compare/v0.22.0...v0.22.1
