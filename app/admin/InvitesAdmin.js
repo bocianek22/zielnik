@@ -24,6 +24,11 @@ export default function InvitesAdmin() {
     const link = `${location.origin}/register?code=${code}`;
     try { await navigator.clipboard.writeText(link); setMsg('Skopiowano link zaproszenia.'); } catch { setMsg(link); }
   }
+  async function share(code) {
+    const link = `${location.origin}/register?code=${code}`;
+    if (navigator.share) { try { await navigator.share({ title: 'Zaproszenie do Zielnika', text: 'Dołącz do Zielnika:', url: link }); } catch {} }
+    else copy(code);
+  }
 
   return (
     <section className="card">
@@ -43,6 +48,7 @@ export default function InvitesAdmin() {
           <tbody>{invites.map((i) => (
             <tr key={i.code}><td><code>{i.code}</code></td><td>{i.note || '–'}</td><td>{i.uses}/{i.max_uses}</td><td>{i.expires_at || 'bez limitu'}</td>
               <td className="row"><button className="btn ghost small" onClick={() => copy(i.code)}>Kopiuj link</button>
+                <button className="btn ghost small only-mobile" onClick={() => share(i.code)}>Udostępnij</button>
                 <button className="btn ghost small" onClick={() => remove(i.code)}>Usuń</button></td></tr>
           ))}</tbody></table></div>
       )}

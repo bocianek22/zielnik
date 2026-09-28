@@ -8,6 +8,10 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.26.0] - 2026-09
+### Dodano
+- Udostępnianie linku zaproszenia przez natywne menu telefonu (Web Share, MOB-14): przycisk "Udostępnij" obok "Kopiuj link" w panelu Zaproszeń (widoczny na telefonie).
+
 ## [0.25.0] - 2026-09
 ### Dodano
 - Przypomnienie o kończącej się recepcie (PAC-16, częściowo): baner na stronie głównej, gdy recepta wygasa za 7 dni lub mniej (albo już wygasła) i zostało z niej niewykorzystane ilości.
@@ -191,7 +195,8 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 ### Dodano
 - Fundament: Next.js, baza Neon (Postgres), logowanie, konto admina Bocian, wymuszona zmiana hasła, zarządzanie kontami, motyw konopny.
 
-[Unreleased]: https://github.com/bocianek22/zielnik/compare/v0.25.0...HEAD
+[Unreleased]: https://github.com/bocianek22/zielnik/compare/v0.26.0...HEAD
+[0.26.0]: https://github.com/bocianek22/zielnik/compare/v0.25.0...v0.26.0
 [0.25.0]: https://github.com/bocianek22/zielnik/compare/v0.24.0...v0.25.0
 [0.24.0]: https://github.com/bocianek22/zielnik/compare/v0.23.0...v0.24.0
 [0.23.0]: https://github.com/bocianek22/zielnik/compare/v0.22.2...v0.23.0

@@ -2,7 +2,7 @@
 
 Legenda: **P0** krytyczne przed publicznym startem · **P1** ważne · **P2** wartościowe · **P3** pomysł.
 Rozmiar: **S** (godziny) · **M** (dzień lub dwa) · **L** (tydzień i więcej). Zależność: 🌐 domena · ⚖️ prawnik · 💳 firma i płatności · 📧 usługa e-mail.
-Bieżąca wersja: **0.25.0** (zamknięta beta, rejestracja z zaproszeniem).
+Bieżąca wersja: **0.26.0** (zamknięta beta, rejestracja z zaproszeniem).
 
 ## Kamienie milowe
 | Wersja | Cel | Zawartość |
@@ -125,7 +125,7 @@ Cele wydajności: LCP < 2,5 s, INP < 200 ms, CLS < 0,1 na średnim telefonie i s
 - ~~**MOB-11 (P1, M)** Tryb ciemny na zmiennych CSS~~ ✅ 0.21.0. Zostaje dopracowanie kontrastu drugorzędnych plakietek/chipów (UX-1, UX-2).
 - **MOB-12 (P2, M)** Wykresy dotykowe (podpowiedź po dotknięciu, większe obszary).
 - **MOB-13 (P2, S)** Wibracja przy zapisie, szanowanie `prefers-reduced-motion`.
-- **MOB-14 (P2, M)** Web Share (profil, zaproszenie) i skróty aplikacji w manifeście („Zużyłem”, „Dziennik”).
+- **MOB-14 (P2, M)** Web Share. Częściowo 0.26.0 (zaproszenia). Zostaje: udostępnianie profilu, skróty aplikacji w manifeście.
 - **MOB-15 (P2, S)** Testy na urządzeniach (iOS Safari, Android Chrome; szerokości 320, 360, 390, 430) i Lighthouse w CI.
 - **MOB-16 (P3, L)** Aplikacja natywna (Capacitor lub Expo), jeśli PWA okaże się za słabe (powiadomienia push na iOS).
 - **MOB-17 (P1, S)** Jedna lista pozycji menu dla górnego i dolnego paska (dziś zduplikowana w `Header.js` i `BottomNav.js`).
