@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { sql } from '@/lib/db';
 import { getUser, randomPassword, USERNAME_RE } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 
 const forbidden = () => NextResponse.json({ error: 'Brak uprawnień.' }, { status: 403 });
 
@@ -41,6 +42,7 @@ export async function POST(req) {
     // Automatycznie utwórz osobiste pola (ocena, ilości, spostrzeżenia) dla wszystkich istniejących odmian
     await sql()`INSERT INTO user_strain (strain_id, user_id)
                 SELECT id, ${row.id} FROM strains ON CONFLICT DO NOTHING`;
+    await logAudit(me.username, 'utworzył konto', row.username);
     return NextResponse.json({ user: row, tempPassword: temp });
   } catch (e) {
     console.error(e);

@@ -2,7 +2,7 @@
 
 Legenda: **P0** krytyczne przed publicznym startem · **P1** ważne · **P2** wartościowe · **P3** pomysł.
 Rozmiar: **S** (godziny) · **M** (dzień lub dwa) · **L** (tydzień i więcej). Zależność: 🌐 domena · ⚖️ prawnik · 💳 firma i płatności · 📧 usługa e-mail.
-Bieżąca wersja: **0.26.0** (zamknięta beta, rejestracja z zaproszeniem).
+Bieżąca wersja: **0.27.0** (zamknięta beta, rejestracja z zaproszeniem).
 
 ## Kamienie milowe
 | Wersja | Cel | Zawartość |
@@ -26,7 +26,7 @@ Bieżąca wersja: **0.26.0** (zamknięta beta, rejestracja z zaproszeniem).
 - **KON-5 (P1, M)** Uwierzytelnianie dwuskładnikowe (TOTP).
 - **KON-6 (P2, S)** Sprawdzanie haseł na listach wycieków; wymóg złożoności.
 - **KON-7 (P2, M, 🌐)** Adresy profili `nick.domena.pl`.
-- **KON-8 (P2, S)** Ochrona ostatniego admina (nie można go usunąć ani zdegradować).
+- ~~**KON-8 (P2, S)** Ochrona ostatniego admina~~ ✅ 0.27.0 (brak ścieżki nadawania roli admina, blokada usuwania własnego konta i kont administratora).
 
 ## 2. Prywatność, prawo i zgodność
 - **PRA-1 (P0, ⚖️)** Przegląd regulaminu i polityki prywatności; rejestr czynności przetwarzania.
@@ -93,7 +93,7 @@ Bieżąca wersja: **0.26.0** (zamknięta beta, rejestracja z zaproszeniem).
 - **UX-6 (P3, M)** Kreator pierwszego uruchomienia dla nowych użytkowników.
 
 ## 9. Administracja i moderacja
-- ~~**ADM-1 (P1, M)** Dziennik zdarzeń (audit log)~~ ✅ 0.23.0 (kluczowe akcje admina: zaproszenia, plany, zgłoszenia). Do rozszerzenia: usuwanie kont, edycje odmian.
+- ~~**ADM-1 (P1, M)** Dziennik zdarzeń (audit log)~~ ✅ 0.23.0, rozszerzony w 0.27.0 o tworzenie kont, reset hasła i usuwanie kont. Do rozszerzenia: edycje odmian.
 - **ADM-2 (P1, M)** Rozbudowana moderacja: zawieszanie kont, historia zgłoszeń, powiadomienia dla moderatorów.
 - **ADM-3 (P2, M)** Role: moderator i redaktor treści (bez pełnego admina).
 - **ADM-4 (P2, S)** Rozszerzone statystyki i eksport (bez danych zdrowotnych).
@@ -125,7 +125,7 @@ Cele wydajności: LCP < 2,5 s, INP < 200 ms, CLS < 0,1 na średnim telefonie i s
 - ~~**MOB-11 (P1, M)** Tryb ciemny na zmiennych CSS~~ ✅ 0.21.0. Zostaje dopracowanie kontrastu drugorzędnych plakietek/chipów (UX-1, UX-2).
 - **MOB-12 (P2, M)** Wykresy dotykowe (podpowiedź po dotknięciu, większe obszary).
 - **MOB-13 (P2, S)** Wibracja przy zapisie, szanowanie `prefers-reduced-motion`.
-- **MOB-14 (P2, M)** Web Share. Częściowo 0.26.0 (zaproszenia). Zostaje: udostępnianie profilu, skróty aplikacji w manifeście.
+- ~~**MOB-14 (P2, M)** Web Share i skróty aplikacji~~ ✅ 0.27.0 (zaproszenia, profil, skróty w manifeście).
 - **MOB-15 (P2, S)** Testy na urządzeniach (iOS Safari, Android Chrome; szerokości 320, 360, 390, 430) i Lighthouse w CI.
 - **MOB-16 (P3, L)** Aplikacja natywna (Capacitor lub Expo), jeśli PWA okaże się za słabe (powiadomienia push na iOS).
 - **MOB-17 (P1, S)** Jedna lista pozycji menu dla górnego i dolnego paska (dziś zduplikowana w `Header.js` i `BottomNav.js`).

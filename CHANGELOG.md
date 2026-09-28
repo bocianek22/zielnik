@@ -8,6 +8,18 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.27.0] - 2026-09
+### Dodano
+- Wiedza: artykuły „Jak czytać etykietę i certyfikat badań (COA)” oraz „Słownik pojęć”.
+- Skróty aplikacji po przytrzymaniu ikony na ekranie głównym telefonu: Nowa odmiana, Dziennik objawów, Recepty, Historia (wymaga ponownego dodania aplikacji do ekranu głównego).
+- Przycisk „Udostępnij profil” (Web Share) na stronie Mój profil, widoczny na telefonie.
+- Dziennik działań administratora obejmuje teraz także tworzenie kont, reset hasła i usuwanie kont.
+- Test automatyczny poprawności treści działu Wiedza (unikalne identyfikatory, komplet pól, unikalne kotwice terpenów).
+### Zmieniono
+- Kont administratora nie można usunąć przez panel (KON-8). Usunięcie nieistniejącego użytkownika zwraca teraz błąd 404 zamiast potwierdzenia.
+### Dokumentacja
+- HANDOFF: zasady dostarczania paczek (całe foldery, najpierw usuń stary folder), procedura wgrywania przez github.dev, pułapki skryptów poprawek oraz odświeżone następne kroki.
+
 ## [0.26.0] - 2026-09
 ### Dodano
 - Udostępnianie linku zaproszenia przez natywne menu telefonu (Web Share, MOB-14): przycisk "Udostępnij" obok "Kopiuj link" w panelu Zaproszeń (widoczny na telefonie).
@@ -195,7 +207,8 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 ### Dodano
 - Fundament: Next.js, baza Neon (Postgres), logowanie, konto admina Bocian, wymuszona zmiana hasła, zarządzanie kontami, motyw konopny.
 
-[Unreleased]: https://github.com/bocianek22/zielnik/compare/v0.26.0...HEAD
+[Unreleased]: https://github.com/bocianek22/zielnik/compare/v0.27.0...HEAD
+[0.27.0]: https://github.com/bocianek22/zielnik/compare/v0.26.0...v0.27.0
 [0.26.0]: https://github.com/bocianek22/zielnik/compare/v0.25.0...v0.26.0
 [0.25.0]: https://github.com/bocianek22/zielnik/compare/v0.24.0...v0.25.0
 [0.24.0]: https://github.com/bocianek22/zielnik/compare/v0.23.0...v0.24.0

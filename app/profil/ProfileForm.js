@@ -33,6 +33,12 @@ export default function ProfileForm({ me, initial }) {
     } catch (err) { setMsg(err.message); }
     setBusy(false);
   }
+  async function shareProfile() {
+    const url = `${location.origin}/u/${encodeURIComponent(me.username)}`;
+    if (navigator.share) { try { await navigator.share({ title: 'Mój profil w Zielniku', url }); } catch {} }
+    else { try { await navigator.clipboard.writeText(url); setMsg('Skopiowano link do profilu.'); } catch { setMsg(url); } }
+  }
+
   async function del() {
     if (!confirm('Trwale usunąć konto i wszystkie Twoje dane? Tego nie da się cofnąć.')) return;
     try { await api('/api/account', 'DELETE', { password: pw }); router.replace('/login'); router.refresh(); }
@@ -63,6 +69,7 @@ export default function ProfileForm({ me, initial }) {
         <div className="row">
           <button className="btn" disabled={busy}>Zapisz profil</button>
           <Link className="btn ghost" href={`/u/${encodeURIComponent(me.username)}`}>Zobacz mój profil</Link>
+          <button type="button" className="btn ghost only-mobile" onClick={shareProfile}>Udostępnij profil</button>
           <span role="status" className="muted">{msg}</span>
         </div>
       </form>

@@ -14,14 +14,16 @@ Aktualizuj ten plik przy każdym wydaniu. Sekcja „Następne kroki” ma zawsze
 3. Claude pracuje w piaskownicy bez dostępu do sieci: nie zainstaluje pakietów npm, nie połączy się z bazą i nie wdroży aplikacji. Zwraca paczkę ZIP ze zmianami, a Ty wgrywasz ją na GitHub (Add file → Upload files).
 
 **Prompt startowy (do wklejenia):**
-> Kontynuujemy projekt „Zielnik” (Next.js + Neon, repozytorium w załączonym ZIP-ie). Przeczytaj `docs/HANDOFF.md`, `ROADMAP.md`, `CHANGELOG.md`, `CONTRIBUTING.md` i `docs/ARCHITEKTURA.md`. Zasady: odpowiadaj po polsku; małe, bezpieczne kroki; po każdej zmianie uruchom `node scripts/check.js` i `npm test`; zaktualizuj `CHANGELOG.md`, podnieś wersję w `package.json` i sekcję „Następne kroki” w `docs/HANDOFF.md`; oddaj paczkę `zielnik-vX.Y.Z.zip` zawierającą wyłącznie pliki zmienione od poprzedniego wydania (zachowaj ścieżki katalogów) oraz sugerowany komunikat commita w formacie Conventional Commits. Na końcu każdej odpowiedzi podaj krótko następne kroki. Zaczynamy od: [wpisz zadanie z ROADMAP, np. MOB-3].
+> Kontynuujemy projekt „Zielnik” (Next.js + Neon, repozytorium w załączonym ZIP-ie). Przeczytaj `docs/HANDOFF.md`, `ROADMAP.md`, `CHANGELOG.md`, `CONTRIBUTING.md` i `docs/ARCHITEKTURA.md`. Zasady: odpowiadaj po polsku; małe, bezpieczne kroki; po każdej zmianie uruchom `node scripts/check.js` i `npm test`; zaktualizuj `CHANGELOG.md`, podnieś wersję w `package.json` i sekcję „Następne kroki” w `docs/HANDOFF.md`; oddaj paczkę `zielnik-vX.Y.Z.zip` zawierającą CAŁE foldery najwyższego poziomu, w których cokolwiek się zmieniło (np. cały `app/` i/lub `lib/`), oraz zmienione pliki z katalogu głównego; wgrywam je przez github.dev, usuwając najpierw stary folder, a dopiero potem wrzucając nowy (nigdy nie przeciągam folderu na istniejący folder o tej samej nazwie) oraz sugerowany komunikat commita w formacie Conventional Commits. Na końcu każdej odpowiedzi podaj krótko następne kroki. Zaczynamy od: [wpisz zadanie z ROADMAP, np. MOB-3].
 
 ## 3. Zasady pracy (skrót)
-- Paczka zawiera tylko zmienione pliki od ostatniego **potwierdzonego** wgranego wydania. Gdy nie wiadomo, co jest wgrane, zrób paczkę zbiorczą od ostatniego potwierdzonego stanu.
+- Paczka zawiera **całe foldery najwyższego poziomu**, w których coś się zmieniło (`app/`, `lib/`), plus zmienione pliki z katalogu głównego (`package.json`, `CHANGELOG.md`). Wgrywanie pojedynczych plików do podfolderów kilkukrotnie kończyło się plikami w złych miejscach albo utraconymi plikami (sekcja 4). Procedura wgrania: github.dev (klawisz `.` na stronie repo), kliknij nazwę repo na górze drzewa, usuń stary folder i poczekaj aż zniknie, przeciągnij nowy folder na korzeń drzewa, rozwiń go i sprawdź liczbę plików (np. `app/layout.js`, `lib/api.js`), dopiero potem commit z krótkim opisem (nie wklejaj tam kodu).
 - Po wgraniu: Vercel → Deployments (status READY), potem logi runtime i sekcja „Dziennik błędów” w panelu admina.
 - Zmiany bazy tylko addytywne i idempotentne w `lib/db.js` (`ensureDb`).
 
 ## 4. Pułapki (wyciągnięte wnioski)
+- Skrypty poprawek w Pythonie: jeśli w którymś napisie jest niewyescapowany cudzysłów, cały skrypt kończy się błędem składni i żadna podmiana się nie wykonuje, a kolejne polecenia w tej samej powłoce (np. commit) mimo to się wykonują. Stosuj potrójne cudzysłowy, łącz polecenia przez `&&`, po podmianie weryfikuj efekt (`grep`), a linie z polskimi cudzysłowami zmieniaj po numerze linii (`sed -i 'NUMs/.*/nowa linia/'`).
+- Podmiany tekstu mają być atomowe: najpierw wszystkie dopasowania w pamięci (przerwij przy niedopasowaniu), dopiero potem zapis plików.
 - **KRYTYCZNE w github.dev: przeciągnięcie folderu na już istniejący folder o tej samej nazwie ZASTĘPUJE go całkowicie** (usuwa pliki, których nie ma w nowym folderze), zamiast scalić zawartość. Zdarzyło się to dwa razy w tej sesji (app/admin i lib straciły większość plików). Zawsze: 1) usuń stary folder w drzewie (prawy klik → Delete), 2) dopiero wtedy przeciągnij nowy folder w puste miejsce, 3) rozwiń go i policz pliki przed commitem.
 - **Kontrola składni (esbuild) NIE wykrywa literówki `(x) = wartość` zamiast `(x) => wartość`** - to poprawny JS (przypisanie do zmiennej), tylko błędny semantycznie, i wybucha dopiero w runtime jako `ReferenceError: x is not defined`. Po każdej automatycznej edycji funkcji strzałkowych sprawdzaj: `grep -nE "\([a-zA-Z_]+\) = [^=>]" plik` (bez `=>` i bez `==`).
 - Gdy użytkownik zgłasza błąd z kodem: najpierw sprawdź Vercel -> Deployments (czy w ogóle powstał nowy deploy) i logi runtime konkretnego `deploymentId` - to daje dokładny stack trace zamiast zgadywania.
@@ -47,10 +49,11 @@ Aktualizuj ten plik przy każdym wydaniu. Sekcja „Następne kroki” ma zawsze
 - Wybór bramki płatności i platformy wpłat (`DONATE_URL`), decyzja o `PREMIUM_ENFORCED`.
 - Źródło danych do katalogu (`CATALOG_FEED_URL`), plan Vercel Pro przy działalności komercyjnej.
 
-## 6. Następne kroki (aktualne dla wersji 0.22.1)
-0. **Włączyć podpowiedzi z internetu:** w Vercel dodać `ANTHROPIC_API_KEY` (klucz z konsoli Anthropic) i zrobić redeploy. Przetestować na kilku odmianach, sprawdzić źródła i koszt zapytań (limit 15 dziennie na użytkownika, cache 90 dni).
-1. **Sprawdzić wersję mobilną na telefonie** (iOS i Android): dolny pasek, arkusz „Więcej”, tryb ciemny, formularze. Zgłosić uwagi jako zadania.
-2. **Mobile, część 3** (`ROADMAP.md`, sekcja 11): MOB-10 lżejsze dane listy (zmiana zapytania SQL w `lib/strains.js::listStrains` — **celowo odłożone, wymaga testu na koncie z wieloma znajomymi przed wdrożeniem, nie robić bez możliwości uruchomienia**), MOB-6 formularze w arkuszach, dokończenie MOB-8 (offline z danymi, monit instalacji). Zrobione: MOB-3, MOB-4, MOB-5 (0.19.0), szkielety i leniwe ładowanie (0.20.0), tryb ciemny na zmiennych CSS (0.21.0).
-3. **0.16.x**: testy funkcji SQL `can_see` i integracyjne API na gałęzi bazy Neon (PLA-1), alerty o błędach (PLA-2).
-4. **Po zakupie domeny**: KON-1 e-mail i odzyskiwanie hasła, KON-3 Google, potem Apple i płatności.
-5. Utrzymywać `CHANGELOG.md` i tę sekcję na bieżąco.
+## 6. Następne kroki (aktualne dla wersji 0.27.0)
+0. **Podpowiedzi z internetu (0.18.0):** ustaw w Vercel `ANTHROPIC_API_KEY` i zrób redeploy; przetestuj na kilku odmianach (źródła, koszt: limit 15 dziennie na użytkownika, cache 90 dni). Bez klucza funkcja zwraca komunikat o braku konfiguracji.
+1. **Ręcznie sprawdzić na telefonie** (iOS i Android): dolny pasek, arkusz „Więcej”, przycisk „+”, formularz odmiany, podgląd zdjęć (×), tryb ciemny, skróty aplikacji po przytrzymaniu ikony (po ponownym dodaniu aplikacji do ekranu głównego).
+2. **Stabilność (0.16.x):** testy funkcji SQL `can_see` i integracyjne API na gałęzi bazy Neon (PLA-1), alerty o błędach i uptime (PLA-2). To największa luka jakości: zapytania SQL były pisane bez uruchomienia.
+3. **MOB-10 (ryzykowne):** odchudzenie zapytania `listStrains` (lista bez pełnych wpisów innych osób). Nie robić bez możliwości uruchomienia i testu na koncie z wieloma znajomymi.
+4. **Po zakupie domeny:** e-mail i odzyskiwanie hasła (KON-1), Google i Apple (KON-3), potem płatności (MON-1) i adresy `nick.domena.pl` (KON-7).
+5. **Do rozważenia bez domeny:** komentarze pod testami (SPO-1), wersje partii i COA jako załącznik (PAC-1, PAC-2), przypomnienia dawek (PAC-9), wykresy cen w czasie (KAT-13), formularze testów w arkuszach (MOB-6).
+6. Utrzymywać `CHANGELOG.md`, `ROADMAP.md` i tę sekcję na bieżąco przy każdym wydaniu.
