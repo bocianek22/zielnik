@@ -8,6 +8,14 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.27.1] - 2026-09
+### Naprawiono
+- Tryb ciemny: kilka miejsc miało jasne tło bez ustawionego koloru tekstu, przez co tekst (dziedziczony jasny kolor motywu) był nieczytelny na jasnym tle. Dotyczyło to m.in. boksu "Twoje pola" na karcie odmiany, kodu zaproszenia (`<code>`), pozycji w rankingu poza podium oraz ramek w dziale Wiedza.
+### Zmieniono
+- Boks "Twoje pola" na karcie odmiany ma teraz tło dopasowane do motywu (jak reszta kart), z zielonym akcentem z lewej strony zamiast pełnego jasnego wypełnienia - lepiej pasuje do ciemnego motywu.
+- Stan "hover" przycisków ghost/danger korzysta teraz z przezroczystej nakładki reagującej na motyw zamiast stałego jasnego koloru.
+- Pasek animacji szkieletu ładowania dopasowuje się do motywu.
+
 ## [0.27.0] - 2026-09
 ### Dodano
 - Wiedza: artykuły „Jak czytać etykietę i certyfikat badań (COA)” oraz „Słownik pojęć”.
@@ -207,7 +215,8 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 ### Dodano
 - Fundament: Next.js, baza Neon (Postgres), logowanie, konto admina Bocian, wymuszona zmiana hasła, zarządzanie kontami, motyw konopny.
 
-[Unreleased]: https://github.com/bocianek22/zielnik/compare/v0.27.0...HEAD
+[Unreleased]: https://github.com/bocianek22/zielnik/compare/v0.27.1...HEAD
+[0.27.1]: https://github.com/bocianek22/zielnik/compare/v0.27.0...v0.27.1
 [0.27.0]: https://github.com/bocianek22/zielnik/compare/v0.26.0...v0.27.0
 [0.26.0]: https://github.com/bocianek22/zielnik/compare/v0.25.0...v0.26.0
 [0.25.0]: https://github.com/bocianek22/zielnik/compare/v0.24.0...v0.25.0
