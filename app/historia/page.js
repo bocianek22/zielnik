@@ -1,22 +1,42 @@
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
-import { history } from '@/lib/strains';
+import { history, monthlyRecap, purchaseStats } from '@/lib/strains';
 import Header from '../components/Header';
 
 export const dynamic = 'force-dynamic';
+
+const MONTHS = ['stycznia', 'lutego', 'marca', 'kwietnia', 'maja', 'czerwca', 'lipca', 'sierpnia', 'września', 'października', 'listopada', 'grudnia'];
 
 export default async function Historia() {
   const user = await getUser();
   if (!user) redirect('/login');
   if (user.must_change_password) redirect('/change-password');
-  const { purchases, usage, weekly, top } = await history(user.id);
+  const [{ purchases, usage, weekly, top }, recap, bought] = await Promise.all([
+    history(user.id), monthlyRecap(user.id), purchaseStats(user.id),
+  ]);
   const max = Math.max(1, ...weekly.map((w) => w.grams));
+  const monthLabel = MONTHS[new Date().getMonth()];
+  const hasRecap = recap.totalGrams > 0 || recap.ratedCount > 0 || bought.grams > 0;
 
   return (
     <>
       <Header user={user} />
       <main className="page">
         <h1>Historia</h1>
+        {hasRecap && (
+          <section className="card recap">
+            <h2>Twój miesiąc — {monthLabel}</h2>
+            <div className="recap-grid">
+              <div className="recap-tile"><b>{Number(recap.totalGrams.toFixed(1))} g</b><span>zużyte</span></div>
+              <div className="recap-tile"><b>{recap.activeDays}</b><span>{recap.activeDays === 1 ? 'aktywny dzień' : 'aktywne dni'}</span></div>
+              <div className="recap-tile"><b>{Number(bought.grams.toFixed(1))} g</b><span>wykupione{bought.cost > 0 ? ` (${Number(bought.cost.toFixed(0))} zł)` : ''}</span></div>
+              <div className="recap-tile"><b>{recap.avgRating != null ? recap.avgRating.toFixed(1) : '–'}</b><span>średnia ocena{recap.ratedCount ? ` (${recap.ratedCount})` : ''}</span></div>
+            </div>
+            {recap.topStrain && (
+              <p className="recap-top">Najczęściej sięgałeś po <b>{recap.topStrain.name}</b> — {Number(recap.topStrain.grams.toFixed(1))} g w tym miesiącu.</p>
+            )}
+          </section>
+        )}
         <section className="card usage-chart">
           <h2>Zużycie tygodniowe (ostatnie 8 tygodni)</h2>
           {weekly.every((w) => w.grams === 0) ? <p className="muted">Brak danych. Wpisuj zużycie w karcie odmiany.</p> : (

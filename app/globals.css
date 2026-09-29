@@ -502,3 +502,13 @@ main, .card, .stack > *, .row > *, .toolbar > * { min-width: 0; }
   .strain-form .form-actions .btn.ghost { display: none; } /* na telefonie zamykamy tylko przez górny pasek, żeby nie duplikować akcji */
   .strain-form .form-actions .push-right { margin-left: 0; }
 }
+
+/* ===== Twój miesiąc (Historia) ===== */
+.recap { border: 1px solid var(--line); background: linear-gradient(135deg, var(--card) 60%, var(--card-alt)); }
+.recap h2 { margin-bottom: 14px; }
+.recap-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; }
+.recap-tile { display: grid; gap: 4px; padding: 14px 10px; border-radius: 16px; background: var(--hemp-deep); color: #eef1e2; text-align: center; }
+.recap-tile b { font-family: var(--font-display), Georgia, serif; font-size: 1.6rem; line-height: 1; }
+.recap-tile span { font-size: .78rem; opacity: .85; }
+.recap-top { margin: 14px 0 0; }
+@media (max-width: 480px) { .recap-grid { grid-template-columns: repeat(2, 1fr); } }

@@ -2,7 +2,7 @@
 
 Legenda: **P0** krytyczne przed publicznym startem · **P1** ważne · **P2** wartościowe · **P3** pomysł.
 Rozmiar: **S** (godziny) · **M** (dzień lub dwa) · **L** (tydzień i więcej). Zależność: 🌐 domena · ⚖️ prawnik · 💳 firma i płatności · 📧 usługa e-mail.
-Bieżąca wersja: **0.27.1** (zamknięta beta, rejestracja z zaproszeniem).
+Bieżąca wersja: **0.28.0** (zamknięta beta, rejestracja z zaproszeniem).
 
 ## Kamienie milowe
 | Wersja | Cel | Zawartość |
@@ -132,7 +132,7 @@ Cele wydajności: LCP < 2,5 s, INP < 200 ms, CLS < 0,1 na średnim telefonie i s
 
 ## 12. Backlog pomysłów (do rozpisania i przypisania do wersji)
 **Konta i prywatność:** KON-9 klucze dostępu (passkeys) · KON-10 logowanie linkiem e-mail · KON-11 blokada aplikacji PIN lub biometrią · PRA-7 „tryb dyskretny” (neutralna nazwa i ikona, ukrywanie nazw odmian) · PRA-8 szyfrowanie pól wrażliwych (recepty, objawy) · PLA-11 region UE dla bazy i funkcji (RODO).
-**Pacjent:** PAC-9 harmonogram i przypomnienia dawek · PAC-10 podsumowanie miesiąca („Twój miesiąc”) · PAC-11 skanowanie kodu z opakowania (dane partii) · PAC-12 rozpoznawanie cennika lub recepty ze zdjęcia i zamiana na CSV · PAC-13 lista życzeń „chcę spróbować” · PAC-14 standardowe skale objawów (np. VAS bólu) · PAC-15 tryb opiekuna (dostęp za zgodą dla bliskiej osoby) · PAC-16 przypomnienie o wizycie i kończącej się recepcie.
+**Pacjent:** PAC-9 harmonogram i przypomnienia dawek · ~~PAC-10 podsumowanie miesiąca~~ ✅ 0.28.0 · PAC-11 skanowanie kodu z opakowania (dane partii) · PAC-12 rozpoznawanie cennika lub recepty ze zdjęcia i zamiana na CSV · PAC-13 lista życzeń „chcę spróbować” · PAC-14 standardowe skale objawów (np. VAS bólu) · PAC-15 tryb opiekuna (dostęp za zgodą dla bliskiej osoby) · PAC-16 przypomnienie o wizycie i kończącej się recepcie.
 **Społeczność:** SPO-7 poradniki od użytkowników (moderowane) · SPO-8 tematyczne wątki w grupach · SPO-9 zgłaszanie błędnych danych w katalogu · SPO-10 tłumaczenia treści przez społeczność.
 **Katalog i treści:** KAT-7 alerty o nowych odmianach i powrocie do dostępności · KAT-8 alerty o wycofaniu partii · KAT-9 słownik pojęć i quizy edukacyjne · KAT-10 źródła naukowe z linkami przy artykułach.
 **Monetyzacja:** MON-5 plany roczne i kody promocyjne · MON-6 plan rodzinny lub opiekuna · MON-7 opcjonalne, zanonimizowane dane do badań (za zgodą, po analizie prawnej).
