@@ -2,7 +2,7 @@
 
 Legenda: **P0** krytyczne przed publicznym startem · **P1** ważne · **P2** wartościowe · **P3** pomysł.
 Rozmiar: **S** (godziny) · **M** (dzień lub dwa) · **L** (tydzień i więcej). Zależność: 🌐 domena · ⚖️ prawnik · 💳 firma i płatności · 📧 usługa e-mail.
-Bieżąca wersja: **0.28.0** (zamknięta beta, rejestracja z zaproszeniem).
+Bieżąca wersja: **0.28.1** (zamknięta beta, rejestracja z zaproszeniem).
 
 ## Kamienie milowe
 | Wersja | Cel | Zawartość |
@@ -85,7 +85,7 @@ Bieżąca wersja: **0.28.0** (zamknięta beta, rejestracja z zaproszeniem).
 - **PLA-10 (P2, M)** Prawdziwa aplikacja offline (service worker) i powiadomienia push.
 
 ## 8. Interfejs i dostępność
-- ~~**UX-1 (P1, M)** Dopracowanie trybu ciemnego~~ ✅ 0.21.0 (fundament) i 0.27.1 (poprawki kontrastu: „Twoje pola”, kod zaproszenia, ranking, Wiedza, hover). Zostaje: przegląd ikon i wykresów SVG na canvasie koła fortuny.
+- ~~**UX-1 (P1, M)** Dopracowanie trybu ciemnego~~ ✅ 0.21.0, 0.27.1 i 0.28.1 (wykresy SVG: Historia, radar odczuć, Dziennik objawów). Zostaje: koło fortuny (canvas) - celowo kolorowe jak ruletka, niezależnie od motywu.
 - **UX-2 (P1, M)** Audyt dostępności (WCAG 2.2 AA): kontrasty, czytniki ekranu, klawiatura.
 - **UX-3 (P1, S)** Szybkie akcje z listy („zużyłem”, „wykupiłem” bez wchodzenia w kartę).
 - **UX-4 (P2, L)** Wersja angielska (i18n).

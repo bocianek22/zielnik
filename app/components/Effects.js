@@ -15,14 +15,14 @@ function Radar({ avg, mine }) {
   return (
     <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="radar" role="img" aria-label="Wykres odczuć: średnia i Twoje oceny">
       {[2.5, 5, 7.5, 10].map((lvl) => (
-        <polygon key={lvl} points={poly(EFFECTS.map(() => lvl))} fill="none" stroke="#d7e0c8" />
+        <polygon key={lvl} points={poly(EFFECTS.map(() => lvl))} fill="none" stroke="var(--line)" />
       ))}
       {EFFECTS.map(([k, label], i) => {
         const [x, y] = pt(i, 10), [lx, ly] = pt(i, 12.6);
         return (
           <g key={k}>
-            <line x1={C} y1={C} x2={x} y2={y} stroke="#d7e0c8" />
-            <text x={lx} y={ly} textAnchor="middle" dominantBaseline="middle" fontSize="11" fill="#4c5d50">{label}</text>
+            <line x1={C} y1={C} x2={x} y2={y} stroke="var(--line)" />
+            <text x={lx} y={ly} textAnchor="middle" dominantBaseline="middle" fontSize="11" fill="var(--muted)">{label}</text>
           </g>
         );
       })}

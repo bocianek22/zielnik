@@ -19,8 +19,8 @@ function Chart({ rows, usage }) {
   const maxU = Math.max(1, ...Object.values(use));
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="sym-chart" role="img" aria-label="Wykres objawów z ostatnich 30 dni">
-      {[0, 5, 10].map((v) => <g key={v}><line x1={L} x2={W - R} y1={y(v)} y2={y(v)} stroke="#d5dcc0" /><text x={4} y={y(v) + 4} fontSize="10" fill="#5d6c5f">{v}</text></g>)}
-      {xs.map((d, i) => use[d] ? <rect key={d} x={x(i) - 3} y={y(0) - ((use[d] / maxU) * (H - T - B)) * 0.5} width="6" height={((use[d] / maxU) * (H - T - B)) * 0.5} fill="#c9c9b8" /> : null)}
+      {[0, 5, 10].map((v) => <g key={v}><line x1={L} x2={W - R} y1={y(v)} y2={y(v)} stroke="var(--line)" /><text x={4} y={y(v) + 4} fontSize="10" fill="var(--muted)">{v}</text></g>)}
+      {xs.map((d, i) => use[d] ? <rect key={d} x={x(i) - 3} y={y(0) - ((use[d] / maxU) * (H - T - B)) * 0.5} width="6" height={((use[d] / maxU) * (H - T - B)) * 0.5} fill="var(--line)" /> : null)}
       {FIELDS.map(([k, , , color]) => {
         const pts = xs.map((d, i) => (byDay[d]?.[k] != null ? [x(i), y(byDay[d][k])] : null));
         const segs = []; let cur = [];
@@ -29,7 +29,7 @@ function Chart({ rows, usage }) {
         return <g key={k}>{segs.map((s, i) => <polyline key={i} points={s.join(' ')} fill="none" stroke={color} strokeWidth="2" />)}
           {pts.map((p, i) => p && <circle key={i} cx={p[0]} cy={p[1]} r="2.5" fill={color} />)}</g>;
       })}
-      {[0, 10, 20, 29].map((i) => <text key={i} x={x(i)} y={H - 6} fontSize="10" textAnchor="middle" fill="#5d6c5f">{xs[i].slice(5).replace('-', '.')}</text>)}
+      {[0, 10, 20, 29].map((i) => <text key={i} x={x(i)} y={H - 6} fontSize="10" textAnchor="middle" fill="var(--muted)">{xs[i].slice(5).replace('-', '.')}</text>)}
     </svg>
   );
 }
@@ -77,7 +77,7 @@ export default function SymptomsBoard() {
       <section className="card">
         <h2>Ostatnie 30 dni</h2>
         <Chart rows={data.rows} usage={data.usage} />
-        <p className="legend">{FIELDS.map(([k, l, , c]) => <span key={k}><span className="dot" style={{ background: c }} />{l} </span>)}<span><span className="dot" style={{ background: '#c9c9b8' }} />zużycie (słupki)</span></p>
+        <p className="legend">{FIELDS.map(([k, l, , c]) => <span key={k}><span className="dot" style={{ background: c }} />{l} </span>)}<span><span className="dot" style={{ background: 'var(--line)' }} />zużycie (słupki)</span></p>
       </section>
     </div>
   );

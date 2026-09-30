@@ -8,6 +8,10 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.28.1] - 2026-09
+### Naprawiono
+- Tryb ciemny: etykiety i siatka na wykresach SVG (zuzycie tygodniowe w Historii, radar skali odczuc, wykres w Dzienniku objawow) mialy na stale wpisane ciemne kolory tekstu, nieczytelne na ciemnym tle. Zamienione na zmienne motywu, ktore dopasowuja sie automatycznie.
+
 ## [0.28.0] - 2026-09
 ### Dodano
 - "Twoj miesiac" - podsumowanie aktywnosci na gorze strony Historia: zuzyte gramy, aktywne dni, wykupione (z kosztem), srednia wystawiona ocena i najczesciej uzywana odmiana w biezacym miesiacu. Liczone wylacznie z juz istniejacych danych (usage_log, user_strain, purchases), bez zmian w bazie.
@@ -219,7 +223,8 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 ### Dodano
 - Fundament: Next.js, baza Neon (Postgres), logowanie, konto admina Bocian, wymuszona zmiana hasła, zarządzanie kontami, motyw konopny.
 
-[Unreleased]: https://github.com/bocianek22/zielnik/compare/v0.28.0...HEAD
+[Unreleased]: https://github.com/bocianek22/zielnik/compare/v0.28.1...HEAD
+[0.28.1]: https://github.com/bocianek22/zielnik/compare/v0.28.0...v0.28.1
 [0.28.0]: https://github.com/bocianek22/zielnik/compare/v0.27.1...v0.28.0
 [0.27.1]: https://github.com/bocianek22/zielnik/compare/v0.27.0...v0.27.1
 [0.27.0]: https://github.com/bocianek22/zielnik/compare/v0.26.0...v0.27.0

@@ -45,9 +45,9 @@ export default async function Historia() {
                 const h = (w.grams / max) * 110, x = 12 + i * 47;
                 return (
                   <g key={w.label}>
-                    <rect x={x} y={130 - h} width="34" height={h} rx="5" fill="#5f9a4a" />
-                    <text x={x + 17} y={124 - h} textAnchor="middle" fontSize="11" fill="#1d3b27">{w.grams ? Number(w.grams.toFixed(1)) : ''}</text>
-                    <text x={x + 17} y={150} textAnchor="middle" fontSize="10" fill="#5f7064">{w.label}</text>
+                    <rect x={x} y={130 - h} width="34" height={h} rx="5" fill="var(--hemp)" />
+                    <text x={x + 17} y={124 - h} textAnchor="middle" fontSize="11" fill="var(--ink)">{w.grams ? Number(w.grams.toFixed(1)) : ''}</text>
+                    <text x={x + 17} y={150} textAnchor="middle" fontSize="10" fill="var(--muted)">{w.label}</text>
                   </g>
                 );
               })}
