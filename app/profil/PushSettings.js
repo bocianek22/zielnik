@@ -76,6 +76,7 @@ export default function PushSettings() {
       await sub.unsubscribe().catch(() => {});
       await api('/api/push/subscription', 'DELETE', { endpoint });
       setSub(null);
+      setPrefs((p) => ({ ...p, devices: Math.max(0, (p.devices || 0) - 1) }));
       setMsg('Powiadomienia wyłączone na tym urządzeniu.');
     } catch (e) { setMsg(e.message); }
     setBusy(false);
