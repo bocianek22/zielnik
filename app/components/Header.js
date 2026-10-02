@@ -5,9 +5,11 @@ import NavBadge from './NavBadge';
 import MoreMenu from './MoreMenu';
 import ThemeToggle from './ThemeToggle';
 import BottomNav from './BottomNav';
+import { navItems } from './navItems';
 import { VERSION } from '@/lib/version';
 
 export default function Header({ user }) {
+  const admin = !!user.is_admin;
   return (
     <>
     <header className="topbar">
@@ -17,22 +19,9 @@ export default function Header({ user }) {
           <span>Zielnik</span>
         </Link>
         <nav className="nav" aria-label="Główna nawigacja">
-          <Link href="/">Odmiany</Link>
-          <Link href="/katalog">Katalog</Link>
-          <Link href="/szukaj">Szukaj</Link>
-          <Link href="/znajomi">Znajomi<NavBadge kind="friends" /></Link>
-          <Link href="/grupy">Grupy<NavBadge kind="groups" /></Link>
-          <MoreMenu badge={user.is_admin ? <NavBadge kind="admin" /> : null}>
-            <Link href="/wheel">Koło fortuny</Link>
-            <Link href="/rankings">Rankingi</Link>
-            <Link href="/historia">Historia</Link>
-            <Link href="/dziennik">Dziennik objawów</Link>
-            <Link href="/recepty">Recepty</Link>
-            <Link href="/raport">Raport dla lekarza</Link>
-            <Link href="/premium">Premium i wsparcie</Link>
-            <Link href="/wiedza">Wiedza</Link>
-            {user.is_admin && <Link href="/admin">Użytkownicy<NavBadge kind="admin" /></Link>}
-            <Link href="/change-password">Zmień hasło</Link>
+          {navItems('main', admin).map((i) => <Link key={i.href} href={i.href}>{i.label}{i.badge && <NavBadge kind={i.badge} />}</Link>)}
+          <MoreMenu badge={admin ? <NavBadge kind="admin" /> : null}>
+            {navItems('more', admin).map((i) => <Link key={i.href} href={i.href}>{i.label}{i.badge && <NavBadge kind={i.badge} />}</Link>)}
             <ThemeToggle />
             <span className="ver">Zielnik v{VERSION}</span>
           </MoreMenu>
@@ -43,7 +32,7 @@ export default function Header({ user }) {
         </div>
       </div>
     </header>
-    <BottomNav isAdmin={!!user.is_admin} />
+    <BottomNav isAdmin={admin} />
     </>
   );
 }

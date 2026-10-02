@@ -5,10 +5,12 @@ import { usePathname, useRouter } from 'next/navigation';
 import NavBadge from './NavBadge';
 import ThemeToggle from './ThemeToggle';
 import Leaf from './Leaf';
+import { navItems } from './navItems';
 import { VERSION } from '@/lib/version';
 
 const I = (p) => <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{p}</svg>;
 const ICONS = {
+  leaf: <Leaf size={24} />,
   katalog: I(<path d="M4 6h16M4 12h16M4 18h10" />),
   szukaj: I(<><circle cx="11" cy="11" r="6" /><path d="M20 20l-4-4" /></>),
   znajomi: I(<><circle cx="9" cy="8" r="3" /><path d="M3 20c0-4 3-6 6-6s6 2 6 6" /><circle cx="17" cy="9" r="2.5" /></>),
@@ -35,12 +37,6 @@ export default function BottomNav({ isAdmin }) {
       {icon}<span>{label}</span>{badge}
     </Link>
   );
-  const more = [
-    ['/wheel', 'Koło fortuny'], ['/rankings', 'Rankingi'], ['/grupy', 'Grupy', 'groups'], ['/historia', 'Historia'],
-    ['/dziennik', 'Dziennik objawów'], ['/recepty', 'Recepty'], ['/raport', 'Raport dla lekarza'], ['/wiedza', 'Wiedza'],
-    ['/premium', 'Premium i wsparcie'], ['/profil', 'Mój profil'],
-    ...(isAdmin ? [['/admin', 'Użytkownicy', 'admin']] : []), ['/change-password', 'Zmień hasło'],
-  ];
 
   return (
     <>
@@ -55,18 +51,15 @@ export default function BottomNav({ isAdmin }) {
       <button type="button" className="fab" onClick={() => { setOpen(false); setFab((f) => !f); }} aria-label="Dodaj" aria-expanded={fab}>{fab ? '×' : '+'}</button>
       {open && (
         <nav className="sheet" aria-label="Więcej">
-          {more.map(([href, label, badge]) => (
-            <Link key={href} href={href}>{label}{badge && <NavBadge kind={badge} />}</Link>
+          {navItems('sheet', isAdmin).map((i) => (
+            <Link key={i.href} href={i.href}>{i.label}{i.badge && <NavBadge kind={i.badge} />}</Link>
           ))}
           <ThemeToggle />
           <span className="ver">Zielnik v{VERSION}</span>
         </nav>
       )}
       <nav className="bottomnav" aria-label="Główna nawigacja">
-        <Tab href="/" label="Odmiany" icon={<Leaf size={24} />} />
-        <Tab href="/katalog" label="Katalog" icon={ICONS.katalog} />
-        <Tab href="/szukaj" label="Szukaj" icon={ICONS.szukaj} />
-        <Tab href="/znajomi" label="Znajomi" icon={ICONS.znajomi} badge={<NavBadge kind="friends" />} />
+        {navItems('bar', isAdmin).map((i) => <Tab key={i.href} href={i.href} label={i.label} icon={ICONS[i.icon]} badge={i.badge && <NavBadge kind={i.badge} />} />)}
         <button type="button" className={open ? 'on' : ''} onClick={() => setOpen((o) => !o)} aria-expanded={open}>
           {ICONS.wiecej}<span>Więcej</span>
         </button>
