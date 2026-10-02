@@ -2,7 +2,7 @@
 
 Legenda: **P0** krytyczne przed publicznym startem · **P1** ważne · **P2** wartościowe · **P3** pomysł.
 Rozmiar: **S** (godziny) · **M** (dzień lub dwa) · **L** (tydzień i więcej). Zależność: 🌐 domena · ⚖️ prawnik · 💳 firma i płatności · 📧 usługa e-mail.
-Bieżąca wersja: **0.29.0** (zamknięta beta, rejestracja z zaproszeniem).
+Bieżąca wersja: **0.30.0** (zamknięta beta, rejestracja z zaproszeniem).
 
 ## Kamienie milowe
 | Wersja | Cel | Zawartość |
@@ -79,7 +79,7 @@ Bieżąca wersja: **0.29.0** (zamknięta beta, rejestracja z zaproszeniem).
 - **PLA-4 (P1, M)** Zdjęcia poza bazą (magazyn obiektów, np. Vercel Blob lub S3) z miniaturami.
 - **PLA-5 (P1, M)** Paginacja i pamięć podręczna listy odmian oraz rankingów (dziś ładujemy wszystko naraz).
 - **PLA-6 (P1, M)** Migracje bazy jako osobne, wersjonowane pliki (zamiast `ensureDb`).
-- **PLA-7 (P1, M)** Kopia zapasowa poza bazą (magazyn zewnętrzny) i automatyczne odtwarzanie.
+- ~~**PLA-7 (P1, M)**~~ ✅ 0.30.0 (Vercel Blob, szyfrowanie). Kopia zapasowa poza bazą (magazyn zewnętrzny) i automatyczne odtwarzanie.
 - **PLA-8 (P2, S)** Nagłówki bezpieczeństwa. ✅ częściowo 0.29.0 (nosniff, ramki, HSTS, Referrer-Policy, Permissions-Policy). Zostaje: pełny CSP (nonce dla skryptu motywu), `includeSubDomains` po zakupie domeny, audyt zależności.
 - **PLA-9 (P2, L)** Przejście na TypeScript.
 - **PLA-10 (P2, M)** Prawdziwa aplikacja offline (service worker) i powiadomienia push.
@@ -87,7 +87,7 @@ Bieżąca wersja: **0.29.0** (zamknięta beta, rejestracja z zaproszeniem).
 ## 8. Interfejs i dostępność
 - ~~**UX-1 (P1, M)** Dopracowanie trybu ciemnego~~ ✅ 0.21.0, 0.27.1 i 0.28.1 (wykresy SVG: Historia, radar odczuć, Dziennik objawów). Zostaje: koło fortuny (canvas) - celowo kolorowe jak ruletka, niezależnie od motywu.
 - **UX-2 (P1, M)** Audyt dostępności (WCAG 2.2 AA): kontrasty, czytniki ekranu, klawiatura.
-- **UX-3 (P1, S)** Szybkie akcje z listy („zużyłem”, „wykupiłem” bez wchodzenia w kartę).
+- ~~**UX-3 (P1, S)**~~ ✅ 0.30.0. Szybkie akcje z listy („zużyłem”, „wykupiłem” bez wchodzenia w kartę).
 - **UX-4 (P2, L)** Wersja angielska (i18n).
 - **UX-5 (P2, S)** Puste stany, komunikaty i ładowanie w całej aplikacji.
 - **UX-6 (P3, M)** Kreator pierwszego uruchomienia dla nowych użytkowników.
@@ -126,7 +126,7 @@ Cele wydajności: LCP < 2,5 s, INP < 200 ms, CLS < 0,1 na średnim telefonie i s
 - **MOB-7 (P1, M)** Gesty: przeciągnięcie do odświeżenia, przesunięcie karty do szybkiego zużycia.
 - **MOB-8 (P1, L)** PWA. ✅ częściowo 0.20.0 (service worker, cache powłoki, strona offline). Zostaje: pełny odczyt danych offline, kolejka zapisów offline, monit instalacji, ekran startowy.
 - **MOB-9 (P1, M)** Wydajność front-endu. ✅ częściowo 0.19.0 (czcionka) i 0.20.0 (leniwe ładowanie koła/wykresów, szkielety). Zostaje: `next/image` z miniaturami, analiza rozmiaru paczek.
-- **MOB-10 (P1, M, ryzykowne — zmiana zapytania SQL `listStrains`)** Lżejsze dane: lista odmian bez pełnych wpisów innych osób (doczytywanie na podstronie), nagłówki cache, SWR. Wymaga testu na koncie z wieloma znajomymi przed wdrożeniem.
+- ~~**MOB-10**~~ ✅ 0.30.0. Było: **MOB-10 (P1, M, ryzykowne — zmiana zapytania SQL `listStrains`)** Lżejsze dane: lista odmian bez pełnych wpisów innych osób (doczytywanie na podstronie), nagłówki cache, SWR. Wymaga testu na koncie z wieloma znajomymi przed wdrożeniem.
 - ~~**MOB-11 (P1, M)** Tryb ciemny na zmiennych CSS~~ ✅ 0.21.0. Zostaje dopracowanie kontrastu drugorzędnych plakietek/chipów (UX-1, UX-2).
 - **MOB-12 (P2, M)** Wykresy dotykowe (podpowiedź po dotknięciu, większe obszary).
 - **MOB-13 (P2, S)** Wibracja przy zapisie, szanowanie `prefers-reduced-motion`.
@@ -136,7 +136,7 @@ Cele wydajności: LCP < 2,5 s, INP < 200 ms, CLS < 0,1 na średnim telefonie i s
 - ~~**MOB-17 (P1, S)**~~ ✅ 0.29.0 (`app/components/navItems.js`). Było: Jedna lista pozycji menu dla górnego i dolnego paska (dziś zduplikowana w `Header.js` i `BottomNav.js`).
 
 ## 12. Backlog pomysłów (do rozpisania i przypisania do wersji)
-**Konta i prywatność:** KON-9 klucze dostępu (passkeys) · KON-10 logowanie linkiem e-mail · KON-11 blokada aplikacji PIN lub biometrią · PRA-7 „tryb dyskretny” (neutralna nazwa i ikona, ukrywanie nazw odmian) · PRA-8 szyfrowanie pól wrażliwych (recepty, objawy) · PLA-11 region UE dla bazy i funkcji (RODO).
+**Konta i prywatność:** ~~PRA-7 tryb dyskretny~~ ✅ 0.30.0 · KON-9 klucze dostępu (passkeys) · KON-10 logowanie linkiem e-mail · KON-11 blokada aplikacji PIN lub biometrią · PRA-7 „tryb dyskretny” (neutralna nazwa i ikona, ukrywanie nazw odmian) · PRA-8 szyfrowanie pól wrażliwych (recepty, objawy) · PLA-11 region UE dla bazy i funkcji (RODO).
 **Pacjent:** PAC-9 harmonogram i przypomnienia dawek · ~~PAC-10 podsumowanie miesiąca~~ ✅ 0.28.0 · PAC-11 skanowanie kodu z opakowania (dane partii) · PAC-12 rozpoznawanie cennika lub recepty ze zdjęcia i zamiana na CSV · PAC-13 lista życzeń „chcę spróbować” · PAC-14 standardowe skale objawów (np. VAS bólu) · PAC-15 tryb opiekuna (dostęp za zgodą dla bliskiej osoby) · PAC-16 przypomnienie o wizycie i kończącej się recepcie.
 **Społeczność:** SPO-7 poradniki od użytkowników (moderowane) · SPO-8 tematyczne wątki w grupach · SPO-9 zgłaszanie błędnych danych w katalogu · SPO-10 tłumaczenia treści przez społeczność.
 **Katalog i treści:** KAT-7 alerty o nowych odmianach i powrocie do dostępności · KAT-8 alerty o wycofaniu partii · KAT-9 słownik pojęć i quizy edukacyjne · KAT-10 źródła naukowe z linkami przy artykułach.

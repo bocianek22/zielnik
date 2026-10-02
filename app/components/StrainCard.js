@@ -64,7 +64,12 @@ export function OwnEntry({ strainId, entry, onSaved, mates }) {
     if (key === last.current) return;
     setStatus({ kind: 'saving', msg: 'Zapisuję…' });
     try {
-      const r = await api(`/api/strains/${strainId}/entry`, 'PUT', f);
+      // ilości wysyłamy tylko, gdy zmienił je użytkownik w tym polu (szybkie akcje zmieniają je osobno)
+      const prev = JSON.parse(last.current);
+      const body = { ...f };
+      if (Number(body.current) === Number(prev.current)) delete body.current;
+      if (Number(body.remaining) === Number(prev.remaining)) delete body.remaining;
+      const r = await api(`/api/strains/${strainId}/entry`, 'PUT', body);
       last.current = key;
       onSaved(r.entry);
       setStatus({ kind: 'ok', msg: 'Zapisano' });

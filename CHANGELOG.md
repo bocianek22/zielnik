@@ -8,6 +8,25 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.30.0] - 2026-10
+### Dodano
+- Szybkie akcje „Zużyłem” i „Wykupiłem” na wierzchu karty odmiany, z panelem gramów i szybkimi wartościami (UX-3).
+- Przypomnienia push (PAC-3): kończąca się recepta i kończący się zapas, jedno zbiorcze powiadomienie dziennie (ok. 9:00), domyślnie z neutralną treścią bez nazw odmian; ustawienia i powiadomienie testowe w profilu. Wymaga kluczy VAPID w Vercel.
+- Tryb dyskretny (PRA-7), osobno dla każdego urządzenia: tytuł „Notatnik”, rozmyte nazwy odmian odsłaniane dotknięciem, koło fortuny bez nazw; szybkie przełączanie dwuklikiem logo.
+- Historia zmian odmian z przywracaniem przez admina (KAT-1, krok 1). Nazwa edytującego jest widoczna zgodnie z widocznością jego profilu.
+- Kopie zapasowe poza bazą w prywatnym Vercel Blob (PLA-7): gzip, opcjonalne szyfrowanie AES-256-GCM (`BACKUP_ENCRYPTION_KEY`), retencja 12 tygodni, automatycznie wszystkie tabele z danymi; skrypt `scripts/backup-decrypt.js`.
+- „Znane urządzenie” przy logowaniu (DT-14): atak z wielu adresów nie zablokuje logowania właściciela na jego urządzeniu.
+### Zmieniono
+- Lżejsza lista odmian (MOB-10, DT-4): nowe odmiany i konta nie tworzą już pustych wpisów dla wszystkich użytkowników; strona odmiany pobiera wpisy tylko tej odmiany; „znajomi znajomych” w `can_see` przez indeksy (wyniki identyczne jak wcześniej).
+- Zdjęcie odmiany może podmienić lub usunąć tylko osoba, która je dodała, autor odmiany albo admin; dodać brakujące może każdy.
+- Limit prób przy usuwaniu konta, górne granice długości haseł, import katalogu przez `requireAdmin`.
+### Naprawiono
+- Autozapis pól karty nie nadpisuje już stanu zmienionego w międzyczasie szybkim zużyciem lub wykupem.
+- Identyfikatory spoza zakresu w adresach stron (odmiana, grupa, katalog, porównanie) dają 404 zamiast błędu serwera.
+- Cron przypomnień: limit czasu wysyłki i błąd jednego użytkownika nie przerywa wysyłki pozostałym.
+### Uwaga przy wycofaniu wdrożenia
+- Wersje < 0.30.0 zakładają wpisy `user_strain` dla wszystkich par. Przed ewentualnym wycofaniem wykonaj w bazie: `INSERT INTO user_strain (strain_id, user_id) SELECT s.id, u.id FROM strains s CROSS JOIN users u ON CONFLICT DO NOTHING`.
+
 ## [0.29.0] - 2026-10
 ### Dodano
 - „Wyloguj ze wszystkich urządzeń” na stronie Mój profil (`POST /api/auth/logout` z `{ all: true }`).
@@ -258,7 +277,8 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 ### Dodano
 - Fundament: Next.js, baza Neon (Postgres), logowanie, konto admina Bocian, wymuszona zmiana hasła, zarządzanie kontami, motyw konopny.
 
-[Unreleased]: https://github.com/bocianek22/zielnik/compare/v0.29.0...HEAD
+[Unreleased]: https://github.com/bocianek22/zielnik/compare/v0.30.0...HEAD
+[0.30.0]: https://github.com/bocianek22/zielnik/compare/v0.29.0...v0.30.0
 [0.29.0]: https://github.com/bocianek22/zielnik/compare/v0.28.2...v0.29.0
 [0.28.2]: https://github.com/bocianek22/zielnik/compare/v0.28.1...v0.28.2
 [0.28.1]: https://github.com/bocianek22/zielnik/compare/v0.28.0...v0.28.1

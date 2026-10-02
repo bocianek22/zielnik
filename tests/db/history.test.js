@@ -80,14 +80,16 @@ test('edycja zapisuje wpis z różnicą pól; brak zmian = brak wpisu', { skip }
   assert.deepEqual(e[0].changes.expires_on, [null, '2027-01-31']);
 });
 
-test('historia jest widoczna dla zalogowanych, blokada ukrywa nazwę, 404 dla nieznanej odmiany', { skip }, async () => {
+test('historia: nazwa edytującego wg widoczności jego profilu, blokada ukrywa nazwę, 404 dla nieznanej odmiany', { skip }, async () => {
   const { ania: A, bartek: B, celina: C } = ids;
   const s = await create(A, { name: 'Widoczność historii', producer: 'Aurora', thc: 10 });
   await edit(B, s, { name: 'Widoczność historii', producer: 'Aurora', thc: 11 });
   const h = await hist(C, s);
   assert.equal(h.length, 1);
-  assert.equal(h[0].who, 'bartek');
+  assert.equal(h[0].who, 'ktoś', 'profil domyślnie dla znajomych: obcy nie widzi, kto edytował (dane zdrowotne)');
   assert.equal(h[0].mine, false);
+  await q`UPDATE users SET profile_visibility = 'all' WHERE id = ${B}`;
+  assert.equal((await hist(C, s))[0].who, 'bartek', 'profil publiczny: nazwa widoczna');
   assert.deepEqual(h[0].changes.thc, [10, 11]);
   assert.match(h[0].at, /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/);
   assert.equal((await hist(B, s))[0].mine, true);
@@ -127,7 +129,8 @@ test('admin przywraca stare wartości (z przeniesieniem puli), zwykły użytkown
   assert.deepEqual((await q`SELECT user_id FROM user_pool WHERE pool_key = ${cur.pool_key}`).map((x) => x.user_id), [A]);
   const h = await hist(A, s);
   assert.equal(h.length, 3);
-  assert.equal(h[0].who, 'Bocian');
+  assert.equal(h[0].who, 'ktoś', 'admin z profilem dla znajomych też jest ukryty przed obcymi');
+  assert.equal((await hist(ADMIN, s))[0].who, 'Bocian');
   assert.deepEqual(h[0].changes.thc, [25, 20]);
 });
 

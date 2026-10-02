@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { intId } from '@/lib/ids';
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
 import { listStrains } from '@/lib/strains';
@@ -16,7 +17,7 @@ export default async function Compare({ searchParams }) {
   if (!user) redirect('/login');
   if (user.must_change_password) redirect('/change-password');
 
-  const ids = String((await searchParams).ids || '').split(',').map(Number).filter(Number.isInteger).slice(0, 3);
+  const ids = String((await searchParams).ids || '').split(',').map(intId).filter(Boolean).slice(0, 3);
   const all = ids.length ? await listStrains(user.id, { ids }) : [];
   const rows = ids.map((id) => all.find((s) => s.id === id)).filter(Boolean);
   const mine = (s) => s.entries.find((e) => e.userId === user.id);
