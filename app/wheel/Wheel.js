@@ -7,6 +7,7 @@ const COLORS = [['#2f5b3a', '#fff'], ['#78a952', '#10230f'], ['#d9992b', '#2b1c0
 const TAU = Math.PI * 2;
 
 function draw(cv, items, rot) {
+  const hide = document.documentElement.dataset.discreet === '1'; // tryb dyskretny: na kole tylko numery
   const size = cv.clientWidth, dpr = window.devicePixelRatio || 1;
   cv.width = cv.height = size * dpr;
   const g = cv.getContext('2d');
@@ -19,9 +20,9 @@ function draw(cv, items, rot) {
     g.fillStyle = bg; g.fill(); g.strokeStyle = '#fbfaf2'; g.lineWidth = 2; g.stroke();
     g.save(); g.translate(c, c); g.rotate(rot + (i + 0.5) * a);
     g.font = `600 ${fs}px sans-serif`; g.fillStyle = fg; g.textAlign = 'right'; g.textBaseline = 'middle';
-    let t = it.name; const max = R - 62;
+    let t = hide ? `Pozycja ${i + 1}` : it.name; const max = R - 62;
     while (g.measureText(t).width > max && t.length > 3) t = t.slice(0, -2);
-    g.fillText(t === it.name ? t : t + '…', R - 14, 0);
+    g.fillText(hide || t === it.name ? t : t + '…', R - 14, 0);
     g.restore();
   });
   g.beginPath(); g.arc(c, c, R, 0, TAU); g.strokeStyle = '#1d3b27'; g.lineWidth = 6; g.stroke();
@@ -108,8 +109,8 @@ export default function Wheel({ items: all }) {
         {winner ? (
           <>
             <p className="muted">Wylosowano</p>
-            <h2>{winner.name}</h2>
-            <p className="strain-meta"><span>{winner.producer}</span><span className="badge">{winner.type}</span></p>
+            <h2 className="dn">{winner.name}</h2>
+            <p className="strain-meta"><span className="dn">{winner.producer}</span><span className="badge">{winner.type}</span></p>
             <p>Masz jeszcze <b>{winner.current} g</b>.</p>
             <button className="btn ghost small" onClick={spin} disabled={spinning}>Losuj jeszcze raz</button>
           </>

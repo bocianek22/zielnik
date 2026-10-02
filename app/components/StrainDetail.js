@@ -34,12 +34,12 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, me
         <article className={`card strain detail k-${strain.kind || 'none'}`}>
           <div className="detail-top">
             {strain.photo_v && (
-              <Lightbox className="detail-photo" src={photo} alt={`Zdjęcie: ${strain.name}`} />
+              <Lightbox className="detail-photo dn-img" src={photo} alt={`Zdjęcie: ${strain.name}`} />
             )}
             <div className="strain-title">
-              <h1>{strain.name}</h1>
+              <h1 className="dn">{strain.name}</h1>
               <p className="strain-meta">
-                <span>{strain.producer}</span>
+                <span className="dn">{strain.producer}</span>
                 {strain.kind && <span className={`badge kind-${strain.kind}`}>{strain.kind}</span>}
                 <span className="badge">{strain.type}</span>
               </p>
@@ -56,7 +56,7 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, me
               {strain.terpenes?.length > 0 && (
                 <>
                   <p className="label">Profil terpenowy</p>
-                  <div className="chips small">{strain.terpenes.map((t) => <Link key={t} href={`/wiedza#t-${t.toLowerCase().split(' ')[0]}`} className="chip on static">{t}</Link>)}</div>
+                  <div className="chips small">{strain.terpenes.map((t) => <Link key={t} href={`/wiedza#t-${t.toLowerCase().split(' ')[0]}`} className="chip on static dn">{t}</Link>)}</div>
                 </>
               )}
               <button className="btn ghost small" onClick={() => setEditing(true)}>Edytuj odmianę</button>

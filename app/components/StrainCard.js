@@ -86,7 +86,7 @@ export function OwnEntry({ strainId, entry, onSaved, mates }) {
       <div className="entry-field">
         <label htmlFor={`${id}-m`}>Do wykupienia (g)</label>
         <input id={`${id}-m`} className="input" type="number" min="0" step="0.1" inputMode="decimal" {...bind('remaining')} />
-        {mates?.length > 0 && <small className="pool-note">Jedna pula z: {mates.join(', ')}</small>}
+        {mates?.length > 0 && <small className="pool-note">Jedna pula z: <span className="dn">{mates.join(', ')}</span></small>}
       </div>
       <div className="entry-field notes">
         <label htmlFor={`${id}-n`}>Spostrzeżenia</label>
@@ -150,12 +150,12 @@ export default function StrainCard({ strain, meId, mates, low, cmpOn, onCmp, onE
     <article className={`card strain k-${strain.kind || 'none'}${expanded ? ' expanded' : ''}`}>
       <header className="strain-head">
         {strain.photo_v && (
-<div className="photo-link"><Lightbox className="strain-photo" src={photoSrc} alt={`Zdjęcie: ${strain.name}`} /></div>
+<div className="photo-link dn-img"><Lightbox className="strain-photo" src={photoSrc} alt={`Zdjęcie: ${strain.name}`} /></div>
         )}
         <div className="strain-title">
-          <h3><Link href={`/strains/${strain.id}`}>{strain.name}</Link></h3>
+          <h3><Link href={`/strains/${strain.id}`} className="dn">{strain.name}</Link></h3>
           <p className="strain-meta">
-            <span>{strain.producer}</span>
+            <span className="dn">{strain.producer}</span>
             {strain.kind && <span className={`badge kind-${strain.kind}`}>{strain.kind}</span>}
             <span className="badge">{strain.type}</span>
             {strain.form && strain.form !== 'susz' && <span className="badge form">{formLabel(strain.form)}</span>}
@@ -176,7 +176,7 @@ export default function StrainCard({ strain, meId, mates, low, cmpOn, onCmp, onE
           {strain.taste && <p className="strain-taste">Smak: {strain.taste}</p>}
           {strainTags(strain).length > 0 && <div className="chips small">{strainTags(strain).map((t) => <span key={t} className="chip tag">{t}</span>)}</div>}
           {strain.terpenes?.length > 0 && (
-            <div className="chips small">{strain.terpenes.map((t) => <Link key={t} href={`/wiedza#t-${t.toLowerCase().split(' ')[0]}`} className="chip on static">{t}</Link>)}</div>
+            <div className="chips small">{strain.terpenes.map((t) => <Link key={t} href={`/wiedza#t-${t.toLowerCase().split(' ')[0]}`} className="chip on static dn">{t}</Link>)}</div>
           )}
           {strain.description && (
             <details className="strain-desc"><summary>Opis</summary><p>{strain.description}</p></details>

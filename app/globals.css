@@ -543,3 +543,12 @@ main, .card, .stack > *, .row > *, .toolbar > * { min-width: 0; }
 .push-prefs .check input { flex: none; margin-top: 1px; }
 .push-row { display: grid; gap: 6px; }
 .push-row select.input { min-height: 44px; max-width: 260px; }
+
+/* Tryb dyskretny (ustawienie per urządzenie): nazwy odmian, producentów i terpenów rozmyte, dotknięcie odsłania na 5 s */
+.brand-alt { display: none; }
+html[data-discreet] .brand-name { display: none; }
+html[data-discreet] .brand-alt { display: inline; }
+html[data-discreet] .brand svg { display: none; }
+html[data-discreet] .dn:not([data-dn-open]), html[data-discreet] .dn-img:not([data-dn-open]) { filter: blur(7px); cursor: pointer; user-select: none; -webkit-user-select: none; }
+html[data-discreet] .dn, html[data-discreet] .dn-img { transition: filter .2s; }
+@media (prefers-reduced-motion: reduce) { html[data-discreet] .dn, html[data-discreet] .dn-img { transition: none; } }

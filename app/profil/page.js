@@ -4,6 +4,7 @@ import { sql } from '@/lib/db';
 import Header from '../components/Header';
 import ProfileForm from './ProfileForm';
 import PushSettings from './PushSettings';
+import DiscreetSettings from './DiscreetSettings';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,6 +20,7 @@ export default async function Profil() {
         <h1>Mój profil</h1>
         <div className="stack">
           <PushSettings />
+          <DiscreetSettings />
           <ProfileForm me={{ id: user.id, username: user.username, isAdmin: user.is_admin }} initial={p} />
         </div>
       </main>

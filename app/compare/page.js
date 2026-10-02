@@ -23,7 +23,7 @@ export default async function Compare({ searchParams }) {
   const v = (x, unit = '') => (x == null || x === '' ? '–' : `${x}${unit}`);
 
   const lines = [
-    ['Producent', (s) => s.producer],
+    ['Producent', (s) => <span className="dn">{s.producer}</span>],
     ['Rodzaj', (s) => v(s.kind)],
     ['Typ', (s) => s.type],
     ['THC', (s) => v(s.thc, '%')],
@@ -33,7 +33,7 @@ export default async function Compare({ searchParams }) {
     ['Średnia ocen', avg],
     ['Twoja ocena', (s) => v(mine(s)?.rating)],
     ['Smak', (s) => v(s.taste)],
-    ['Terpeny', (s) => (s.terpenes?.length ? s.terpenes.join(', ') : '–')],
+    ['Terpeny', (s) => (s.terpenes?.length ? <span className="dn">{s.terpenes.join(', ')}</span> : '–')],
     ['Mam teraz', (s) => v(mine(s)?.current, ' g')],
     ['Do wykupienia (pula)', (s) => v(mine(s)?.remaining, ' g')],
   ];
@@ -50,7 +50,7 @@ export default async function Compare({ searchParams }) {
           <div className="table-wrap card">
             <table className="cmp">
               <thead>
-                <tr><th />{rows.map((s) => <th key={s.id}><Link href={`/strains/${s.id}`}>{s.name}</Link></th>)}</tr>
+                <tr><th />{rows.map((s) => <th key={s.id}><Link href={`/strains/${s.id}`} className="dn">{s.name}</Link></th>)}</tr>
               </thead>
               <tbody>
                 {lines.map(([label, fn]) => (

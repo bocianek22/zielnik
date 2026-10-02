@@ -33,7 +33,7 @@ export default async function Historia() {
               <div className="recap-tile"><b>{recap.avgRating != null ? recap.avgRating.toFixed(1) : '–'}</b><span>średnia ocena{recap.ratedCount ? ` (${recap.ratedCount})` : ''}</span></div>
             </div>
             {recap.topStrain && (
-              <p className="recap-top">Najczęściej sięgałeś po <b>{recap.topStrain.name}</b> — {Number(recap.topStrain.grams.toFixed(1))} g w tym miesiącu.</p>
+              <p className="recap-top">Najczęściej sięgałeś po <b className="dn">{recap.topStrain.name}</b> — {Number(recap.topStrain.grams.toFixed(1))} g w tym miesiącu.</p>
             )}
           </section>
         )}
@@ -56,7 +56,7 @@ export default async function Historia() {
           {top.length > 0 && (
             <>
               <h3>Najczęściej używane (30 dni)</h3>
-              <ol className="toplist">{top.map((t) => <li key={t.name}><b>{t.name}</b> {Number(t.grams.toFixed(2))} g</li>)}</ol>
+              <ol className="toplist">{top.map((t) => <li key={t.name}><b className="dn">{t.name}</b> {Number(t.grams.toFixed(2))} g</li>)}</ol>
             </>
           )}
         </section>
@@ -66,7 +66,7 @@ export default async function Historia() {
             {purchases.length === 0 ? <p className="muted">Brak zakupów. Dodaj je w karcie odmiany (pole „Wykupiłem”).</p> : (
               <div className="table-wrap"><table className="cmp"><thead><tr><th>Data</th><th>Odmiana</th><th>Ilość</th><th>Koszt</th></tr></thead>
                 <tbody>{purchases.map((p, i) => (
-                  <tr key={i}><td>{p.at}</td><td>{p.name}</td><td>{p.grams} g</td><td>{p.cost != null ? `${p.cost} zł` : '–'}</td></tr>
+                  <tr key={i}><td>{p.at}</td><td><span className="dn">{p.name}</span></td><td>{p.grams} g</td><td>{p.cost != null ? `${p.cost} zł` : '–'}</td></tr>
                 ))}</tbody></table></div>
             )}
           </section>
@@ -75,7 +75,7 @@ export default async function Historia() {
             {usage.length === 0 ? <p className="muted">Brak wpisów. Dodaj je w karcie odmiany (pole „Zużycie”).</p> : (
               <div className="table-wrap"><table className="cmp"><thead><tr><th>Data</th><th>Odmiana</th><th>Ilość</th></tr></thead>
                 <tbody>{usage.map((u, i) => (
-                  <tr key={i}><td>{u.at}</td><td>{u.name}</td><td>{u.grams} g</td></tr>
+                  <tr key={i}><td>{u.at}</td><td><span className="dn">{u.name}</span></td><td>{u.grams} g</td></tr>
                 ))}</tbody></table></div>
             )}
           </section>
