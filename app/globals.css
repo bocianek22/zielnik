@@ -512,3 +512,11 @@ main, .card, .stack > *, .row > *, .toolbar > * { min-width: 0; }
 .recap-tile span { font-size: .78rem; opacity: .85; }
 .recap-top { margin: 14px 0 0; }
 @media (max-width: 480px) { .recap-grid { grid-template-columns: repeat(2, 1fr); } }
+
+/* ===== PAC-3: powiadomienia push (profil) ===== */
+.push-prefs { border: 0; margin: 0; padding: 0; display: grid; gap: 12px; min-width: 0; }
+.push-prefs[disabled] { opacity: .6; }
+.push-prefs .check { align-items: flex-start; min-height: 44px; padding-top: 10px; }
+.push-prefs .check input { flex: none; margin-top: 1px; }
+.push-row { display: grid; gap: 6px; }
+.push-row select.input { min-height: 44px; max-width: 260px; }
