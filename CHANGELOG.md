@@ -8,6 +8,23 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.29.0] - 2026-10
+### Dodano
+- „Wyloguj ze wszystkich urządzeń” na stronie Mój profil (`POST /api/auth/logout` z `{ all: true }`).
+### Zmieniono
+- Szybszy start aplikacji (DT-11): migracje bazy (`ensureDb`, ok. 85 zapytań) wykonują się tylko po zmianie schematu, rozpoznanej po sumie kontrolnej w nowej tabeli `schema_meta`. Zwykły zimny start funkcji to 1-2 zapytania. Pierwsze uruchomienie po wdrożeniu wykona pełną migrację jeden raz.
+- Sesje (DT-13): zmiana hasła, reset hasła przez admina, „wyloguj wszędzie” i nadpisanie hasła admina ze zmiennej środowiskowej unieważniają wcześniejsze sesje (nowa kolumna `users.session_version`). Dotychczasowe sesje działają dalej po wdrożeniu.
+- Limit prób logowania (DT-14): ścisły limit liczony dla pary adres IP + nazwa (8 / 15 min), więc obca osoba z innego adresu nie zablokuje już właściciela konta; dodatkowo 50 prób na godzinę na nazwę i bez zmian 30 / 15 min na adres.
+- Wszystkie trasy admina sprawdzają uprawnienia jedną funkcją `requireAdmin()`; admin z wymuszoną zmianą hasła nie korzysta z API admina, dopóki go nie zmieni.
+- Zmiana hasła: limit 10 prób / 15 min, maksymalnie 100 znaków.
+- Nagłówki bezpieczeństwa (PLA-8): `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options` i `frame-ancestors`, HSTS (bez `includeSubDomains` do czasu własnej domeny), `Permissions-Policy`.
+- Jedna lista pozycji menu dla górnego i dolnego paska oraz arkusza „Więcej” (MOB-17). Na komputerze „Wiedza” jest teraz przed „Premium i wsparcie”, jak na telefonie.
+- Strona Premium: wygasły plan pokazuje się jako „Darmowy (Premium wygasło …)” zamiast „Premium (ważny do <data z przeszłości>)”.
+### Naprawiono
+- Edycja producenta, THC lub CBD odmiany zerowała wszystkim „do wykupienia” w tej puli (DT-12). Wartości przechodzą teraz na nową pulę (przy kolizji zostaje większa, bo to ta sama recepta); gdy stara pula jest nadal używana przez inną odmianę, nowa dostaje kopię.
+### Dla programistów
+- Testy z bazą: `tests/db/schema.test.js`, `pools.test.js`, `security.test.js` (razem 22 przypadki). Definicje subagentów w `.claude/agents/` i `CLAUDE.md`.
+
 ## [0.28.2] - 2026-10
 ### Naprawiono
 - Zużycie i wykup: dwa szybkie zapisy naraz (np. podwójne dotknięcie przycisku) nadpisywały się i stan po nich był błędny (8 równoczesnych zapisów zużycia po 1 g z 10 g zostawiało 8 g zamiast 2 g). Odejmowanie i dodawanie odbywa się teraz w jednym zapytaniu SQL.
@@ -236,7 +253,8 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 ### Dodano
 - Fundament: Next.js, baza Neon (Postgres), logowanie, konto admina Bocian, wymuszona zmiana hasła, zarządzanie kontami, motyw konopny.
 
-[Unreleased]: https://github.com/bocianek22/zielnik/compare/v0.28.2...HEAD
+[Unreleased]: https://github.com/bocianek22/zielnik/compare/v0.29.0...HEAD
+[0.29.0]: https://github.com/bocianek22/zielnik/compare/v0.28.2...v0.29.0
 [0.28.2]: https://github.com/bocianek22/zielnik/compare/v0.28.1...v0.28.2
 [0.28.1]: https://github.com/bocianek22/zielnik/compare/v0.28.0...v0.28.1
 [0.28.0]: https://github.com/bocianek22/zielnik/compare/v0.27.1...v0.28.0

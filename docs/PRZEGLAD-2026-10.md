@@ -53,3 +53,6 @@ Braki w repozytorium uzupełnione: `.gitignore`, `.env.example` (wymieniany w RE
 
 ## 5. Zmiana sposobu pracy
 Dotychczasowy tryb (ZIP z rozmowy → ręczne wgrywanie folderów przez github.dev) był główną przyczyną incydentów z 0.19-0.24 (skasowane foldery, literówka `(s) =`, brakujące pliki) i powodem, dla którego SQL nigdy nie był uruchamiany przed wdrożeniem. Zalecenie: praca w Claude Code z podłączonym repozytorium, gałęzie i Pull Requesty, CI (`check`, `test`, `build`, `test:db`) oraz podgląd Vercel przed scaleniem do `main`.
+
+## 6. Stan po wersji 0.29.0
+Zrobione z tabeli w sekcji 3: DT-11 (szybki start), DT-12 (pule), DT-13 (sesje), `requireAdmin`, limity zmiany hasła, PLA-8 (bez pełnego CSP), MOB-17. Częściowo: DT-14 (limit na parę IP + nazwa; zostaje ochrona przed rozproszonym atakiem). Otwarte: DT-7/KAT-1, usuwanie odmian przez admina, DT-4/MOB-10, DT-6, DT-3/PLA-7. Aktualna kolejność prac: `docs/HANDOFF.md`, sekcja 6.

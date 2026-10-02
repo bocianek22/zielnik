@@ -2,7 +2,7 @@
 
 Legenda: **P0** krytyczne przed publicznym startem · **P1** ważne · **P2** wartościowe · **P3** pomysł.
 Rozmiar: **S** (godziny) · **M** (dzień lub dwa) · **L** (tydzień i więcej). Zależność: 🌐 domena · ⚖️ prawnik · 💳 firma i płatności · 📧 usługa e-mail.
-Bieżąca wersja: **0.28.2** (zamknięta beta, rejestracja z zaproszeniem).
+Bieżąca wersja: **0.29.0** (zamknięta beta, rejestracja z zaproszeniem).
 
 ## Kamienie milowe
 | Wersja | Cel | Zawartość |
@@ -22,7 +22,7 @@ Bieżąca wersja: **0.28.2** (zamknięta beta, rejestracja z zaproszeniem).
 - **KON-1 (P0, M, 📧)** Odzyskiwanie hasła e-mailem i weryfikacja adresu.
 - ~~**KON-2 (P0, S)** Zwrot użycia kodu zaproszenia przy nieudanej rejestracji~~ ✅ 0.16.0
 - **KON-3 (P1, M, 🌐)** Logowanie przez Google, potem Apple.
-- **KON-4 (P1, M)** Lista aktywnych sesji i wylogowanie z innych urządzeń.
+- **KON-4 (P1, M)** Lista aktywnych sesji i wylogowanie z innych urządzeń. ✅ częściowo 0.29.0 („wyloguj ze wszystkich urządzeń”); zostaje lista sesji.
 - **KON-5 (P1, M)** Uwierzytelnianie dwuskładnikowe (TOTP).
 - **KON-6 (P2, S)** Sprawdzanie haseł na listach wycieków; wymóg złożoności.
 - **KON-7 (P2, M, 🌐)** Adresy profili `nick.domena.pl`.
@@ -80,7 +80,7 @@ Bieżąca wersja: **0.28.2** (zamknięta beta, rejestracja z zaproszeniem).
 - **PLA-5 (P1, M)** Paginacja i pamięć podręczna listy odmian oraz rankingów (dziś ładujemy wszystko naraz).
 - **PLA-6 (P1, M)** Migracje bazy jako osobne, wersjonowane pliki (zamiast `ensureDb`).
 - **PLA-7 (P1, M)** Kopia zapasowa poza bazą (magazyn zewnętrzny) i automatyczne odtwarzanie.
-- **PLA-8 (P2, S)** Nagłówki bezpieczeństwa (CSP, HSTS), audyt zależności.
+- **PLA-8 (P2, S)** Nagłówki bezpieczeństwa. ✅ częściowo 0.29.0 (nosniff, ramki, HSTS, Referrer-Policy, Permissions-Policy). Zostaje: pełny CSP (nonce dla skryptu motywu), `includeSubDomains` po zakupie domeny, audyt zależności.
 - **PLA-9 (P2, L)** Przejście na TypeScript.
 - **PLA-10 (P2, M)** Prawdziwa aplikacja offline (service worker) i powiadomienia push.
 
@@ -100,10 +100,10 @@ Bieżąca wersja: **0.28.2** (zamknięta beta, rejestracja z zaproszeniem).
 
 ## 10. Poprawki i dług techniczny (znane ograniczenia)
 - **DT-1** Zapytania SQL o widoczność i pule powstały bez zautomatyzowanych testów (patrz PLA-1). Częściowo ✅ 0.28.2 (`can_see`, zapisy zużycia i wykupu).
-- **DT-11** `ensureDb` wykonuje ok. 85 zapytań po kolei przy każdym zimnym starcie funkcji (na Neon HTTP to prawdopodobnie 1-3 s opóźnienia pierwszego żądania). Patrz PLA-6 i `docs/PRZEGLAD-2026-10.md`.
-- **DT-12** Edycja producenta, THC lub CBD odmiany zmienia jej klucz puli (`pool_key`), przez co „do wykupienia” wszystkich osób dla tej puli wraca po cichu do 0.
-- **DT-13** Sesje (JWT na 30 dni) nie są unieważniane po zmianie lub resecie hasła (KON-4).
-- **DT-14** Limit prób logowania na nazwę użytkownika pozwala każdemu zablokować logowanie wybranej osoby (także admina) na 15 minut.
+- ~~**DT-11**~~ ✅ 0.29.0 (suma kontrolna schematu w `schema_meta`). Było: `ensureDb` wykonuje ok. 85 zapytań po kolei przy każdym zimnym starcie funkcji (na Neon HTTP to prawdopodobnie 1-3 s opóźnienia pierwszego żądania). Patrz PLA-6 i `docs/PRZEGLAD-2026-10.md`.
+- ~~**DT-12**~~ ✅ 0.29.0. Było: Edycja producenta, THC lub CBD odmiany zmienia jej klucz puli (`pool_key`), przez co „do wykupienia” wszystkich osób dla tej puli wraca po cichu do 0.
+- ~~**DT-13**~~ ✅ 0.29.0 (`session_version`, „wyloguj wszędzie”). Było: Sesje (JWT na 30 dni) nie są unieważniane po zmianie lub resecie hasła (KON-4).
+- **DT-14** Limit prób logowania. ✅ częściowo 0.29.0 (limit na parę IP + nazwa). Zostaje: atak z co najmniej 2 adresów nadal może zablokować konto na godzinę (limit 50/h na nazwę); rozwiązanie: ciasteczko „znane urządzenie” omijające limit globalny lub rosnące opóźnienie.
 - ~~**DT-15** Twórca odmiany mógł ją usunąć razem z ocenami, testami i zużyciem innych osób~~ ✅ 0.28.2 (admin nadal może, patrz `docs/PRZEGLAD-2026-10.md`).
 - ~~**DT-2** Tryb ciemny odwracał kolory całej strony~~ ✅ 0.21.0 (przepisany na zmienne CSS).
 - **DT-3** Zdjęcia są przechowywane jako base64 w bazie (PLA-4).
@@ -133,7 +133,7 @@ Cele wydajności: LCP < 2,5 s, INP < 200 ms, CLS < 0,1 na średnim telefonie i s
 - ~~**MOB-14 (P2, M)** Web Share i skróty aplikacji~~ ✅ 0.27.0 (zaproszenia, profil, skróty w manifeście).
 - **MOB-15 (P2, S)** Testy na urządzeniach (iOS Safari, Android Chrome; szerokości 320, 360, 390, 430) i Lighthouse w CI.
 - **MOB-16 (P3, L)** Aplikacja natywna (Capacitor lub Expo), jeśli PWA okaże się za słabe (powiadomienia push na iOS).
-- **MOB-17 (P1, S)** Jedna lista pozycji menu dla górnego i dolnego paska (dziś zduplikowana w `Header.js` i `BottomNav.js`).
+- ~~**MOB-17 (P1, S)**~~ ✅ 0.29.0 (`app/components/navItems.js`). Było: Jedna lista pozycji menu dla górnego i dolnego paska (dziś zduplikowana w `Header.js` i `BottomNav.js`).
 
 ## 12. Backlog pomysłów (do rozpisania i przypisania do wersji)
 **Konta i prywatność:** KON-9 klucze dostępu (passkeys) · KON-10 logowanie linkiem e-mail · KON-11 blokada aplikacji PIN lub biometrią · PRA-7 „tryb dyskretny” (neutralna nazwa i ikona, ukrywanie nazw odmian) · PRA-8 szyfrowanie pól wrażliwych (recepty, objawy) · PLA-11 region UE dla bazy i funkcji (RODO).

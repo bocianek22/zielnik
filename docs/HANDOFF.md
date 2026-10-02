@@ -52,14 +52,14 @@ Tryb awaryjny (rozmowa bez dostępu do repozytorium):
 - Wybór bramki płatności i platformy wpłat (`DONATE_URL`), decyzja o `PREMIUM_ENFORCED`.
 - Źródło danych do katalogu (`CATALOG_FEED_URL`), plan Vercel Pro przy działalności komercyjnej.
 
-## 6. Następne kroki (aktualne dla wersji 0.28.2)
-Pełna lista z uzasadnieniem: `docs/PRZEGLAD-2026-10.md`.
-1. **Scalić PR z wersją 0.28.2**, a w GitHub → Settings → Branches włączyć ochronę `main` (wymagany zielony CI przed scaleniem). Po wdrożeniu: dwukrotne szybkie „zużyłem” na telefonie zapisuje oba wpisy; próba usunięcia cudzej-używanej odmiany pokazuje komunikat.
-2. **Szybki start funkcji (DT-11, PLA-6):** pominięcie `ensureDb` przy niezmienionym schemacie (znacznik wersji schematu w bazie). Duży zysk dla telefonu (pierwsze żądanie po bezczynności), małe ryzyko, testowalne w `tests/db/`.
-3. **Bezpieczeństwo sesji i nagłówki (DT-13, DT-14, PLA-8):** `session_version` w `users` (zmiana/reset hasła wylogowuje inne urządzenia), łagodniejsza blokada logowania (opóźnienie zamiast blokady konta), nagłówki `X-Content-Type-Options`, `Referrer-Policy`, `frame-ancestors`, HSTS.
-4. **Pule i katalog (DT-12, KAT-1/DT-7):** przenoszenie „do wykupienia” przy zmianie klucza puli; potem propozycje zmian katalogu zamiast wspólnej edycji.
-5. **MOB-10 i PLA-5:** odchudzenie `listStrains` i paginacja. Teraz da się to bezpiecznie sprawdzić testem z wieloma kontami w `tests/db/`.
-6. **Podpowiedzi z internetu (0.18.0):** ustaw w Vercel `ANTHROPIC_API_KEY` i zrób redeploy; przetestuj na kilku odmianach.
-7. **Ręcznie na telefonie** (iOS i Android): dolny pasek, arkusz „Więcej”, „+”, formularz odmiany, podgląd zdjęć, tryb ciemny, skróty aplikacji.
-8. **Po zakupie domeny:** KON-1 (e-mail, odzyskiwanie hasła), KON-3 (Google, Apple), MON-1 (płatności), KON-7.
-9. Utrzymywać `CHANGELOG.md`, `ROADMAP.md` i tę sekcję na bieżąco przy każdym wydaniu; każda zmiana SQL = nowy przypadek w `tests/db/`.
+## 6. Następne kroki (aktualne dla wersji 0.29.0)
+Pełna lista z uzasadnieniem: `docs/PRZEGLAD-2026-10.md`. Praca z podziałem na subagentów: definicje w `.claude/agents/` (backend-db, security, frontend-mobile, reviewer); koordynator scala ich gałęzie, uruchamia wszystkie kontrole i prowadzi CHANGELOG/wersję.
+1. **Scalić PR do `main`** (0.28.2 i 0.29.0 razem) i włączyć ochronę `main` z wymaganym CI. Po wdrożeniu: pierwsze żądanie wykona pełną migrację jeden raz (nowa tabela `schema_meta`, kolumna `users.session_version`); sprawdzić „Dziennik błędów” i czy nikt nie został wylogowany. Ręcznie: „Wyloguj ze wszystkich urządzeń” na profilu, menu na telefonie i komputerze, plakietki Znajomi/Grupy.
+2. **DT-14 dokończenie:** ciasteczko „znane urządzenie” lub rosnące opóźnienie zamiast twardej blokady na nazwę.
+3. **MOB-10 / PLA-5 / DT-4:** lżejsza lista odmian i paginacja, koniec tworzenia wierszy `user_strain` dla każdego użytkownika. Najpierw test wydajności w `tests/db/` na dużych danych.
+4. **KAT-1 (DT-7):** propozycje zmian katalogu zamiast wspólnej edycji; historia edycji odmian w `audit_log`.
+5. **PLA-8 dokończenie:** pełny CSP z nonce; `includeSubDomains` w HSTS po zakupie domeny.
+6. **Admin usuwa odmianę z danymi wszystkich:** potwierdzenie z liczbą dotkniętych wpisów albo scalanie duplikatów.
+7. **PLA-4 / PLA-7:** zdjęcia i kopie poza bazą (Vercel Blob).
+8. **Po zakupie domeny:** KON-1, KON-3, MON-1, KON-7. `ANTHROPIC_API_KEY` w Vercel dla podpowiedzi.
+9. Każda zmiana SQL = nowy przypadek w `tests/db/`; CHANGELOG, ROADMAP i ta sekcja przy każdym wydaniu.
