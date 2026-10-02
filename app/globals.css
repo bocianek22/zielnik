@@ -512,3 +512,5 @@ main, .card, .stack > *, .row > *, .toolbar > * { min-width: 0; }
 .recap-tile span { font-size: .78rem; opacity: .85; }
 .recap-top { margin: 14px 0 0; }
 @media (max-width: 480px) { .recap-grid { grid-template-columns: repeat(2, 1fr); } }
+.history-item { border-top: 1px solid var(--line, #ddd); padding: 8px 0; }
+.history-item ul { margin: 4px 0 8px; padding-left: 18px; }
