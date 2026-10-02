@@ -32,6 +32,12 @@ export const GET = safe(async (req) => {
     prescriptions: await q`SELECT issued_on, valid_until, grams::float8 AS grams, note FROM prescriptions WHERE user_id = ${me} ORDER BY issued_on`,
     symptoms: await q`SELECT to_char(day, 'YYYY-MM-DD') AS day, pain, sleep, anxiety, mood, note FROM symptom_log WHERE user_id = ${me} ORDER BY day`,
     blocked: await q`SELECT u.username FROM blocks b JOIN users u ON u.id = b.blocked WHERE b.blocker = ${me}`,
+    // adresów subskrypcji (endpointy i klucze urządzeń) nie eksportujemy: to dane techniczne przeglądarki,
+    // działają jak hasło do wysyłania powiadomień na urządzenie i nie mówią nic o użytkowniku; podajemy tylko ich liczbę i daty
+    pushNotifications: {
+      settings: (await q`SELECT notify_prescription, notify_stock, stock_days, notify_hour, show_details, updated_at FROM push_prefs WHERE user_id = ${me}`)[0] ?? null,
+      devices: await q`SELECT kind, created_at, last_ok_at FROM push_subscriptions WHERE user_id = ${me} ORDER BY created_at`,
+    },
   };
   if (withPhotos) data.avatar = (await q`SELECT avatar FROM users WHERE id = ${me}`)[0]?.avatar ?? null;
   return new Response(JSON.stringify(data, null, 1), {

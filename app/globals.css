@@ -535,3 +535,11 @@ main, .card, .stack > *, .row > *, .toolbar > * { min-width: 0; }
 
 .history-item { border-top: 1px solid var(--line, #ddd); padding: 8px 0; }
 .history-item ul { margin: 4px 0 8px; padding-left: 18px; }
+
+/* ===== PAC-3: powiadomienia push (profil) ===== */
+.push-prefs { border: 0; margin: 0; padding: 0; display: grid; gap: 12px; min-width: 0; }
+.push-prefs[disabled] { opacity: .6; }
+.push-prefs .check { align-items: flex-start; min-height: 44px; padding-top: 10px; }
+.push-prefs .check input { flex: none; margin-top: 1px; }
+.push-row { display: grid; gap: 6px; }
+.push-row select.input { min-height: 44px; max-width: 260px; }
