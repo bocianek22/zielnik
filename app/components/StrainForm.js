@@ -8,7 +8,8 @@ import OptionSelect from './OptionSelect';
 import TerpenePicker from './TerpenePicker';
 
 // Formularz pól wspólnych: producent, odmiana, rodzaj, typ, THC/CBD, terpeny, opis, smak, zdjęcie
-export default function StrainForm({ strain, options, tastes, canDelete, onOptionsChange, onDone, onDeleted, onCancel }) {
+// hidePrice: aplikacja natywna (lib/client.js); pole ceny znika, ale wartość zostaje w stanie, więc zapis jej nie kasuje
+export default function StrainForm({ strain, options, tastes, canDelete, hidePrice = false, onOptionsChange, onDone, onDeleted, onCancel }) {
   const [f, setF] = useState({
     producer: strain?.producer ?? '',
     name: strain?.name ?? '',
@@ -55,8 +56,16 @@ export default function StrainForm({ strain, options, tastes, canDelete, onOptio
       const body = { ...f, sources, descriptionAuto: auto };
       if (strain) await api(`/api/strains/${id}`, 'PATCH', body);
       else id = (await api('/api/strains', 'POST', body)).id;
-      if (photo.data) await api(`/api/strains/${id}/photo`, 'PUT', { image: photo.data });
-      else if (photo.remove) await api(`/api/strains/${id}/photo`, 'DELETE');
+      try {
+        if (photo.data) await api(`/api/strains/${id}/photo`, 'PUT', { image: photo.data });
+        else if (photo.remove) await api(`/api/strains/${id}/photo`, 'DELETE');
+      } catch (err) {
+        // Dane odmiany są już zapisane; zdjęcie mogło zostać odrzucone (np. brak uprawnień do podmiany).
+        setPhoto({ data: null, remove: false });
+        setError(`Zmiany zapisano, ale zdjęcia nie: ${err.message}`);
+        setBusy(false);
+        return;
+      }
       await onDone();
     } catch (err) { setError(err.message); setBusy(false); }
   }
@@ -157,10 +166,12 @@ export default function StrainForm({ strain, options, tastes, canDelete, onOptio
         <datalist id={`${uid}-tastes`}>{tastes.map((t) => <option key={t} value={t} />)}</datalist>
       </div>
       <div className="row">
-        <div className="field grow">
-          <label htmlFor={`${uid}-price`}>Cena za gram (zł)</label>
-          <input id={`${uid}-price`} className="input" type="number" min="0" step="0.01" inputMode="decimal" {...inp('price')} />
-        </div>
+        {!hidePrice && (
+          <div className="field grow">
+            <label htmlFor={`${uid}-price`}>Cena za gram (zł)</label>
+            <input id={`${uid}-price`} className="input" type="number" min="0" step="0.01" inputMode="decimal" {...inp('price')} />
+          </div>
+        )}
         <div className="field grow">
           <label htmlFor={`${uid}-batch`}>Numer serii</label>
           <input id={`${uid}-batch`} className="input" maxLength={40} {...inp('batch')} />

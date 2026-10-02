@@ -3,6 +3,7 @@ import { sql } from '@/lib/db';
 import { requireUser, bad, safe, intId } from '@/lib/guard';
 
 const MAX_CHARS = 900_000; // ok. 650 KB po zakodowaniu
+const NO_RIGHTS = 'Zdjęcie tej odmiany może zmienić lub usunąć tylko osoba, która je dodała, autor odmiany albo admin.';
 
 export const GET = safe(async (_req, { params }) => {
   const { res } = await requireUser();
@@ -15,24 +16,36 @@ export const GET = safe(async (_req, { params }) => {
   });
 });
 
+// Zdjęcie jest wspólne: każdy może je dodać, gdy go brak, ale podmienić lub usunąć istniejące może tylko
+// osoba, która je dodała, autor odmiany albo admin (zdjęcia sprzed kolumny uploaded_by: autor odmiany lub admin).
 export const PUT = safe(async (req, { params }) => {
-  const { res } = await requireUser();
+  const { user, res } = await requireUser();
   if (res) return res;
   const id = intId((await params).id);
   const { image } = await req.json().catch(() => ({}));
   const m = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/.exec(String(image || ''));
   if (!m) return bad('Nieprawidłowy format zdjęcia (JPEG, PNG lub WebP).');
   if (m[2].length > MAX_CHARS) return bad('Zdjęcie jest za duże.');
-  const exists = await sql()`SELECT 1 FROM strains WHERE id = ${id}`;
-  if (!exists.length) return bad('Nie znaleziono odmiany.', 404);
-  await sql()`INSERT INTO strain_photos (strain_id, mime, data) VALUES (${id}, ${m[1]}, ${m[2]})
-              ON CONFLICT (strain_id) DO UPDATE SET mime = EXCLUDED.mime, data = EXCLUDED.data, updated_at = now()`;
+  const [s] = await sql()`SELECT created_by FROM strains WHERE id = ${id}`;
+  if (!s) return bad('Nie znaleziono odmiany.', 404);
+  const privileged = user.is_admin || s.created_by === user.id;
+  // Sprawdzenie uprawnień w tym samym poleceniu co zapis, więc dwa równoczesne „dodaj” nie nadpiszą się po cichu.
+  const rows = await sql()`INSERT INTO strain_photos (strain_id, mime, data, uploaded_by) VALUES (${id}, ${m[1]}, ${m[2]}, ${user.id})
+              ON CONFLICT (strain_id) DO UPDATE SET mime = EXCLUDED.mime, data = EXCLUDED.data, uploaded_by = EXCLUDED.uploaded_by, updated_at = now()
+              WHERE ${privileged}::boolean OR strain_photos.uploaded_by = ${user.id}
+              RETURNING strain_id`;
+  if (!rows.length) return bad(NO_RIGHTS, 403);
   return NextResponse.json({ ok: true });
 });
 
 export const DELETE = safe(async (_req, { params }) => {
-  const { res } = await requireUser();
+  const { user, res } = await requireUser();
   if (res) return res;
-  await sql()`DELETE FROM strain_photos WHERE strain_id = ${intId((await params).id)}`;
+  const id = intId((await params).id);
+  const [s] = await sql()`SELECT created_by FROM strains WHERE id = ${id}`;
+  const privileged = user.is_admin || (!!s && s.created_by === user.id);
+  const del = await sql()`DELETE FROM strain_photos WHERE strain_id = ${id}
+                          AND (${privileged}::boolean OR uploaded_by = ${user.id}) RETURNING strain_id`;
+  if (!del.length && (await sql()`SELECT 1 FROM strain_photos WHERE strain_id = ${id}`).length) return bad(NO_RIGHTS, 403);
   return NextResponse.json({ ok: true });
 });

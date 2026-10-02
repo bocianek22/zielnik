@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Zielnik</string>
+    <string name="title_activity_main">Zielnik</string>
+    <string name="package_name">pl.zielnik.app</string>
+    <string name="custom_url_scheme">pl.zielnik.app</string>
+</resources>

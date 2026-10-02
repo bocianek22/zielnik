@@ -3,6 +3,9 @@ import { getUser } from '@/lib/auth';
 import { sql } from '@/lib/db';
 import Header from '../components/Header';
 import ProfileForm from './ProfileForm';
+import PushSettings from './PushSettings';
+import DiscreetSettings from './DiscreetSettings';
+import NativeLock from './NativeLock';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,7 +19,12 @@ export default async function Profil() {
       <Header user={user} />
       <main className="page">
         <h1>Mój profil</h1>
-        <ProfileForm me={{ id: user.id, username: user.username, isAdmin: user.is_admin }} initial={p} />
+        <div className="stack">
+          <NativeLock />
+          <PushSettings />
+          <DiscreetSettings />
+          <ProfileForm me={{ id: user.id, username: user.username, isAdmin: user.is_admin }} initial={p} />
+        </div>
       </main>
     </>
   );

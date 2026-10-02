@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
+import { intId } from '@/lib/ids';
 import { sql } from '@/lib/db';
 import Header from '../../components/Header';
 import GroupActions from './GroupActions';
@@ -11,8 +12,8 @@ export default async function GroupPage({ params }) {
   const me = await getUser();
   if (!me) redirect('/login');
   if (me.must_change_password) redirect('/change-password');
-  const gid = Number((await params).id);
-  if (!Number.isInteger(gid)) notFound();
+  const gid = intId((await params).id);
+  if (!gid) notFound();
   const q = sql();
   const [g] = await q`SELECT g.id, g.name, g.description, gm.role FROM groups g
                       JOIN group_members gm ON gm.group_id = g.id AND gm.user_id = ${me.id} AND gm.status = 'active' WHERE g.id = ${gid}`;

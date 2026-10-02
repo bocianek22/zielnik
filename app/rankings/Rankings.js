@@ -100,7 +100,7 @@ export default function Rankings({ strains, meId }) {
                   {rows.map((r) => (
                     <li key={r.s.id} className={r.pos <= 3 ? `top top-${r.pos}` : ''}>
                       <span className="pos">{r.pos}</span>
-                      <span className="who"><Link href={`/strains/${r.s.id}`}><b>{r.s.name}</b></Link><small>{r.s.producer}, {r.s.kind || r.s.type}{r.s.thc != null ? `, THC ${r.s.thc}%` : ''}</small></span>
+                      <span className="who"><Link href={`/strains/${r.s.id}`} className="dn"><b>{r.s.name}</b></Link><small><span className="dn">{r.s.producer}</span>, {r.s.kind || r.s.type}{r.s.thc != null ? `, THC ${r.s.thc}%` : ''}</small></span>
                       <span className="pts">{metric === 'avg' ? r.avg.toFixed(1) : Number(r.sum.toFixed(1))}<small>{scope === 'all' ? `${r.n} ocen` : metric === 'avg' ? 'śr.' : 'pkt'}</small></span>
                     </li>
                   ))}

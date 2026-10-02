@@ -512,3 +512,60 @@ main, .card, .stack > *, .row > *, .toolbar > * { min-width: 0; }
 .recap-tile span { font-size: .78rem; opacity: .85; }
 .recap-top { margin: 14px 0 0; }
 @media (max-width: 480px) { .recap-grid { grid-template-columns: repeat(2, 1fr); } }
+
+/* ===== UX-3: szybkie akcje „Zużyłem” / „Wykupiłem” na wierzchu karty ===== */
+.quick { margin-top: 12px; display: grid; gap: 8px; }
+.quick-btns { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.quick-btn { min-height: 44px; padding-inline: 1.1rem; }
+.quick-btn.on { background: var(--hemp-deep); color: #eef1e2; border-color: var(--hemp-deep); }
+.quick-stock { font-size: .88rem; }
+.quick-panel { display: grid; gap: 8px; padding: 12px; border: 1px solid var(--hemp); border-radius: 14px; background: var(--card-alt); animation: quick-in .15s ease-out; }
+.quick-panel > label { font-weight: 600; font-size: .9rem; }
+.quick-chips { margin-top: 0; }
+.quick-chips .chip { min-height: 44px; padding-inline: 1rem; font-size: .95rem; cursor: pointer; }
+.quick-panel .use-row .input { flex: 1 1 110px; min-width: 0; font-size: 16px; min-height: 44px; }
+.quick-panel .btn.small { min-height: 44px; }
+.quick-msg { margin: 0; font-size: .9rem; color: var(--ok); font-weight: 600; }
+.quick-msg:empty { display: none; }
+.quick-msg.warn { color: var(--danger); }
+@keyframes quick-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .quick-panel { animation: none; } }
+.quick-panel .use-row { max-width: none; }
+.quick-chips .chip { background: var(--card); color: var(--ink); border-color: var(--line); }
+
+.history-item { border-top: 1px solid var(--line, #ddd); padding: 8px 0; }
+.history-item ul { margin: 4px 0 8px; padding-left: 18px; }
+
+/* ===== PAC-3: powiadomienia push (profil) ===== */
+.push-prefs { border: 0; margin: 0; padding: 0; display: grid; gap: 12px; min-width: 0; }
+.push-prefs[disabled] { opacity: .6; }
+.push-prefs .check { align-items: flex-start; min-height: 44px; padding-top: 10px; }
+.push-prefs .check input { flex: none; margin-top: 1px; }
+.push-row { display: grid; gap: 6px; }
+.push-row select.input { min-height: 44px; max-width: 260px; }
+
+/* Tryb dyskretny (ustawienie per urządzenie): nazwy odmian, producentów i terpenów rozmyte, dotknięcie odsłania na 5 s */
+.brand-alt { display: none; }
+html[data-discreet] .brand-name { display: none; }
+html[data-discreet] .brand-alt { display: inline; }
+html[data-discreet] .brand svg { display: none; }
+html[data-discreet] .dn:not([data-dn-open]), html[data-discreet] .dn-img:not([data-dn-open]) { filter: blur(7px); cursor: pointer; user-select: none; -webkit-user-select: none; }
+html[data-discreet] .dn, html[data-discreet] .dn-img { transition: filter .2s; }
+@media (prefers-reduced-motion: reduce) { html[data-discreet] .dn, html[data-discreet] .dn-img { transition: none; } }
+
+/* ===== MOB-16: natywna powłoka (mobile/), klasa ustawiana przez NativeShell ===== */
+/* Android 15+ rysuje stronę pod paskiem stanu: zielony nagłówek wchodzi pod pasek, treść zaczyna się niżej.
+   --safe-area-inset-* wstrzykuje Capacitor (SystemBars, insetsHandling: 'css'), env() działa w nowszych WebView. */
+html.native-app .topbar { padding-top: max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px)); }
+html.native-app body { padding-bottom: max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px)); }
+@media (max-width: 760px) {
+  html.native-app body { padding-bottom: calc(72px + max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px))); }
+  html.native-app .bottomnav { padding-bottom: calc(6px + max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px))); }
+}
+.native-lock { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 24px; background: var(--hemp-deep); color: #eef1e2; text-align: center; }
+.native-lock-in { max-width: 340px; display: grid; gap: 12px; justify-items: center; }
+.native-lock h2 { margin: 0; }
+.native-lock p { margin: 0; }
+.native-lock .btn { min-height: 48px; min-width: 180px; background: #eef1e2; color: var(--hemp-deep); border-color: #eef1e2; }
+.native-lock [role="alert"] { color: #ffd6cc; }
+.native-check { min-height: 44px; }

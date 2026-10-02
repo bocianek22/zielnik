@@ -25,19 +25,19 @@ export const POST = safe(async (req) => {
     const dup = await q`SELECT 1 FROM strains WHERE lower(name) = lower(${f.name}) AND lower(producer) = lower(${f.producer})`;
     if (dup.length) { skipped++; continue; }
 
-    const [s] = await q`INSERT INTO strains (producer, name, type, final_rating, taste, thc, cbd, kind, terpenes, description, price_per_g, batch, expires_on, form, created_by)
-      VALUES (${f.producer}, ${f.name}, ${f.type}, ${f.finalRating}, ${f.taste}, ${f.thc}, ${f.cbd}, ${f.kind},
-              ${JSON.stringify(f.terpenes)}::jsonb, '', ${f.price}, ${f.batch}, ${f.expires}::date, ${f.form}, ${user.id}) RETURNING id`;
-    await q`INSERT INTO user_strain (strain_id, user_id) SELECT ${s.id}, id FROM users ON CONFLICT DO NOTHING`;
-
     const rating = parseNumber(dec(r.rating), 0, 10);
     const current = parseNumber(dec(r.current), 0, 100000);
     const remaining = parseNumber(dec(r.remaining), 0, 100000);
-    await q`UPDATE user_strain SET rating = ${Number.isNaN(rating) ? null : rating}::numeric,
-              rated_at = CASE WHEN ${Number.isNaN(rating) ? null : rating}::numeric IS NULL THEN NULL ELSE now() END,
-              current_amount = ${Number.isNaN(current) || current == null ? 0 : current},
-              notes = ${String(r.notes ?? '').trim().slice(0, 1000)}
-            WHERE strain_id = ${s.id} AND user_id = ${user.id}`;
+    const rt = Number.isNaN(rating) ? null : rating;
+    // odmiana i wpis osobisty tylko importującego, w jednym zapytaniu (inni dostają wiersz przy pierwszym zapisie)
+    const [s] = await q`WITH s AS (
+        INSERT INTO strains (producer, name, type, final_rating, taste, thc, cbd, kind, terpenes, description, price_per_g, batch, expires_on, form, created_by)
+        VALUES (${f.producer}, ${f.name}, ${f.type}, ${f.finalRating}, ${f.taste}, ${f.thc}, ${f.cbd}, ${f.kind},
+                ${JSON.stringify(f.terpenes)}::jsonb, '', ${f.price}, ${f.batch}, ${f.expires}::date, ${f.form}, ${user.id}) RETURNING id)
+      INSERT INTO user_strain (strain_id, user_id, rating, rated_at, current_amount, notes)
+      SELECT id, ${user.id}::int, ${rt}::numeric, CASE WHEN ${rt}::numeric IS NULL THEN NULL ELSE now() END,
+             ${Number.isNaN(current) || current == null ? 0 : current}::numeric, ${String(r.notes ?? '').trim().slice(0, 1000)}
+      FROM s RETURNING strain_id AS id`;
     if (remaining > 0) {
       await q`INSERT INTO user_pool (user_id, pool_key, remaining_to_buy)
               SELECT ${user.id}::int, pool_key(s.id, s.producer, s.thc, s.cbd), ${remaining}::numeric FROM strains s WHERE s.id = ${s.id}

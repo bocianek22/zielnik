@@ -16,7 +16,7 @@ export default function Header({ user }) {
       <div className="topbar-in">
         <Link href="/" className="brand">
           <Leaf size={30} />
-          <span>Zielnik</span>
+          <span className="brand-name">Zielnik</span><span className="brand-alt">Notatnik</span>
         </Link>
         <nav className="nav" aria-label="Główna nawigacja">
           {navItems('main', admin).map((i) => <Link key={i.href} href={i.href}>{i.label}{i.badge && <NavBadge kind={i.badge} />}</Link>)}

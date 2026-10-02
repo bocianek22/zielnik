@@ -1,18 +1,20 @@
 'use client';
 import Link from 'next/link';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { api } from '@/lib/api';
 import { expiryInfo } from '@/lib/expiry';
 import { VIS } from '@/lib/visibility';
 import { formLabel } from '@/lib/forms';
 import Lightbox from './Lightbox';
+import QuickActions from './QuickActions';
 import { strainTags } from '@/lib/effects';
 
 export const LOW_STOCK = 3; // g: poniżej tej ilości odmiana dostaje znacznik "Kończy się"
 const fmt = (n) => (n == null ? '–' : String(Number(n)));
 
 // Edytowalne, osobiste pola zalogowanego użytkownika (autozapis po opuszczeniu pola)
-export function OwnEntry({ strainId, entry, onSaved, mates }) {
+// hidePrice: aplikacja natywna (lib/client.js); cena zostaje w stanie formularza, więc zapis jej nie kasuje
+export function OwnEntry({ strainId, entry, onSaved, mates, hidePrice = false }) {
   const [f, setF] = useState({
     rating: entry.rating ?? '', current: entry.current ?? 0, remaining: entry.remaining ?? 0, notes: entry.notes ?? '',
     visibility: entry.visibility ?? 'me',
@@ -20,6 +22,13 @@ export function OwnEntry({ strainId, entry, onSaved, mates }) {
   });
   const [status, setStatus] = useState({ kind: 'idle', msg: '' });
   const last = useRef(JSON.stringify(f));
+  // stan zmieniony z zewnątrz (szybkie akcje na wierzchu karty, wspólna pula) odświeża pola bez przeładowania
+  const extCur = entry.current ?? 0;
+  const extRem = entry.remaining ?? 0;
+  useEffect(() => {
+    setF((p) => (Number(p.current) === Number(extCur) && Number(p.remaining) === Number(extRem) ? p : { ...p, current: extCur, remaining: extRem }));
+    last.current = JSON.stringify({ ...JSON.parse(last.current), current: extCur, remaining: extRem });
+  }, [extCur, extRem]);
   const id = `e${strainId}`;
   const [buyG, setBuyG] = useState('');
   const [buyMsg, setBuyMsg] = useState('');
@@ -56,7 +65,12 @@ export function OwnEntry({ strainId, entry, onSaved, mates }) {
     if (key === last.current) return;
     setStatus({ kind: 'saving', msg: 'Zapisuję…' });
     try {
-      const r = await api(`/api/strains/${strainId}/entry`, 'PUT', f);
+      // ilości wysyłamy tylko, gdy zmienił je użytkownik w tym polu (szybkie akcje zmieniają je osobno)
+      const prev = JSON.parse(last.current);
+      const body = { ...f };
+      if (Number(body.current) === Number(prev.current)) delete body.current;
+      if (Number(body.remaining) === Number(prev.remaining)) delete body.remaining;
+      const r = await api(`/api/strains/${strainId}/entry`, 'PUT', body);
       last.current = key;
       onSaved(r.entry);
       setStatus({ kind: 'ok', msg: 'Zapisano' });
@@ -78,16 +92,18 @@ export function OwnEntry({ strainId, entry, onSaved, mates }) {
       <div className="entry-field">
         <label htmlFor={`${id}-m`}>Do wykupienia (g)</label>
         <input id={`${id}-m`} className="input" type="number" min="0" step="0.1" inputMode="decimal" {...bind('remaining')} />
-        {mates?.length > 0 && <small className="pool-note">Jedna pula z: {mates.join(', ')}</small>}
+        {mates?.length > 0 && <small className="pool-note">Jedna pula z: <span className="dn">{mates.join(', ')}</span></small>}
       </div>
       <div className="entry-field notes">
         <label htmlFor={`${id}-n`}>Spostrzeżenia</label>
         <textarea id={`${id}-n`} className="input" rows={2} maxLength={1000} {...bind('notes')} />
       </div>
-      <div className="entry-field price">
-        <label htmlFor={`${id}-pr`}>Cena u mnie (zł/g), tworzy średnią cen</label>
-        <input id={`${id}-pr`} className="input" type="number" min="0" step="0.01" inputMode="decimal" {...bind('price')} />
-      </div>
+      {!hidePrice && (
+        <div className="entry-field price">
+          <label htmlFor={`${id}-pr`}>Cena u mnie (zł/g), tworzy średnią cen</label>
+          <input id={`${id}-pr`} className="input" type="number" min="0" step="0.01" inputMode="decimal" {...bind('price')} />
+        </div>
+      )}
       <div className="entry-field vis">
         <label htmlFor={`${id}-v`}>Kto widzi Twoją ocenę i opinię</label>
         <select id={`${id}-v`} className="input" value={f.visibility} onChange={(e) => setF((p) => ({ ...p, visibility: e.target.value }))} onBlur={save}>
@@ -127,8 +143,9 @@ export function OtherEntry({ e }) {
   );
 }
 
-export default function StrainCard({ strain, meId, mates, low, cmpOn, onCmp, onEdit, onEntrySaved }) {
+export default function StrainCard({ strain, meId, hidePrice = false, mates, low, cmpOn, onCmp, onEdit, onEntrySaved }) {
   const [expanded, setExpanded] = useState(false); // na telefonie szczegóły są domyślnie zwinięte
+  const [quickUsed, setQuickUsed] = useState(false); // po zapisie panel zostaje, żeby komunikat nie zniknął przy stanie 0 g
   const mine = strain.entries.find((e) => e.userId === meId);
   const others = strain.entries.filter((e) => e.userId !== meId);
   const rated = strain.entries.filter((e) => e.rating != null);
@@ -141,12 +158,12 @@ export default function StrainCard({ strain, meId, mates, low, cmpOn, onCmp, onE
     <article className={`card strain k-${strain.kind || 'none'}${expanded ? ' expanded' : ''}`}>
       <header className="strain-head">
         {strain.photo_v && (
-<div className="photo-link"><Lightbox className="strain-photo" src={photoSrc} alt={`Zdjęcie: ${strain.name}`} /></div>
+<div className="photo-link dn-img"><Lightbox className="strain-photo" src={photoSrc} alt={`Zdjęcie: ${strain.name}`} /></div>
         )}
         <div className="strain-title">
-          <h3><Link href={`/strains/${strain.id}`}>{strain.name}</Link></h3>
+          <h3><Link href={`/strains/${strain.id}`} className="dn">{strain.name}</Link></h3>
           <p className="strain-meta">
-            <span>{strain.producer}</span>
+            <span className="dn">{strain.producer}</span>
             {strain.kind && <span className={`badge kind-${strain.kind}`}>{strain.kind}</span>}
             <span className="badge">{strain.type}</span>
             {strain.form && strain.form !== 'susz' && <span className="badge form">{formLabel(strain.form)}</span>}
@@ -157,7 +174,7 @@ export default function StrainCard({ strain, meId, mates, low, cmpOn, onCmp, onE
           <p className="strain-meta">
             {strain.thc != null && <span className="pill">THC {strain.thc}%</span>}
             {strain.cbd != null && <span className="pill">CBD {strain.cbd}%</span>}
-            {strain.price_per_g != null && <span className="pill">{strain.price_per_g} zł/g</span>}
+            {strain.price_per_g != null && !hidePrice && <span className="pill">{strain.price_per_g} zł/g</span>}
           </p>
           {(strain.batch || strain.expires_on) && (
             <p className="strain-taste">
@@ -167,7 +184,7 @@ export default function StrainCard({ strain, meId, mates, low, cmpOn, onCmp, onE
           {strain.taste && <p className="strain-taste">Smak: {strain.taste}</p>}
           {strainTags(strain).length > 0 && <div className="chips small">{strainTags(strain).map((t) => <span key={t} className="chip tag">{t}</span>)}</div>}
           {strain.terpenes?.length > 0 && (
-            <div className="chips small">{strain.terpenes.map((t) => <Link key={t} href={`/wiedza#t-${t.toLowerCase().split(' ')[0]}`} className="chip on static">{t}</Link>)}</div>
+            <div className="chips small">{strain.terpenes.map((t) => <Link key={t} href={`/wiedza#t-${t.toLowerCase().split(' ')[0]}`} className="chip on static dn">{t}</Link>)}</div>
           )}
           {strain.description && (
             <details className="strain-desc"><summary>Opis</summary><p>{strain.description}</p></details>
@@ -183,14 +200,18 @@ export default function StrainCard({ strain, meId, mates, low, cmpOn, onCmp, onE
         </div>
       </header>
 
+      {mine && (quickUsed || Number(mine.current) > 0 || Number(mine.remaining) > 0) && (
+        <QuickActions strainId={strain.id} name={strain.name} current={mine.current} remaining={mine.remaining} onSaved={(en) => { setQuickUsed(true); onEntrySaved(strain.id, en); }} />
+      )}
+
       <div className="entries">
-        {mine && <OwnEntry strainId={strain.id} entry={mine} mates={mates} onSaved={(en) => onEntrySaved(strain.id, en)} />}
+        {mine && <OwnEntry strainId={strain.id} entry={mine} mates={mates} hidePrice={hidePrice} onSaved={(en) => onEntrySaved(strain.id, en)} />}
         {others.map((e) => <OtherEntry key={e.userId} e={e} />)}
       </div>
 
       <div className="strain-foot">
         <button type="button" className="btn ghost small only-mobile" onClick={() => setExpanded((v) => !v)} aria-expanded={expanded}>
-          {expanded ? 'Zwiń szczegóły' : 'Więcej: opinia, cena, zakup, inni'}
+          {expanded ? 'Zwiń szczegóły' : hidePrice ? 'Więcej: opinia, zakup, inni' : 'Więcej: opinia, cena, zakup, inni'}
         </button>
         <label className="check"><input type="checkbox" checked={!!cmpOn} onChange={onCmp} /> Porównaj</label>
         <button className="btn ghost small" onClick={onEdit}>Edytuj pola wspólne</button>

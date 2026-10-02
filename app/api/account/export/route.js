@@ -1,7 +1,7 @@
 import { sql } from '@/lib/db';
 import { requireUser, safe } from '@/lib/guard';
 
-// Eksport wszystkich danych zalogowanego użytkownika (RODO). ?photos=1 dołącza awatar i zdjęcia testów.
+// Eksport wszystkich danych zalogowanego użytkownika (RODO). ?photos=1 dołącza awatar, zdjęcia testów i dodane zdjęcia odmian.
 export const GET = safe(async (req) => {
   const { user, res } = await requireUser();
   if (res) return res;
@@ -13,6 +13,9 @@ export const GET = safe(async (req) => {
     exportedAt: new Date().toISOString(),
     profile,
     strainsCreated: await q`SELECT id, name, producer FROM strains WHERE created_by = ${me}`,
+    strainPhotosAdded: withPhotos
+      ? await q`SELECT s.name AS strain, s.producer, p.updated_at, p.mime, p.data AS photo_base64 FROM strain_photos p JOIN strains s ON s.id = p.strain_id WHERE p.uploaded_by = ${me} ORDER BY s.name`
+      : await q`SELECT s.name AS strain, s.producer, p.updated_at FROM strain_photos p JOIN strains s ON s.id = p.strain_id WHERE p.uploaded_by = ${me} ORDER BY s.name`,
     entries: await q`SELECT s.name AS strain, s.producer, us.rating::float8 AS rating, us.rated_at, us.current_amount::float8 AS current_g,
         us.notes, us.effects, us.visibility, us.price_per_g::float8 AS price_per_g FROM user_strain us JOIN strains s ON s.id = us.strain_id
       WHERE us.user_id = ${me} AND (us.rating IS NOT NULL OR us.notes <> '' OR us.current_amount > 0 OR us.effects <> '{}'::jsonb)
@@ -23,11 +26,18 @@ export const GET = safe(async (req) => {
     tests: withPhotos
       ? await q`SELECT s.name AS strain, t.note, t.visibility, t.created_at, t.mime, t.data AS photo_base64 FROM strain_tests t JOIN strains s ON s.id = t.strain_id WHERE t.user_id = ${me} ORDER BY t.created_at`
       : await q`SELECT s.name AS strain, t.note, t.visibility, t.created_at, (t.data IS NOT NULL) AS has_photo FROM strain_tests t JOIN strains s ON s.id = t.strain_id WHERE t.user_id = ${me} ORDER BY t.created_at`,
+    strainEdits: await q`SELECT s.name AS strain, e.at, e.changes FROM strain_edits e JOIN strains s ON s.id = e.strain_id WHERE e.user_id = ${me} ORDER BY e.at`,
     friends: await q`SELECT u.username, f.status FROM friendships f JOIN users u ON u.id = CASE WHEN f.requester = ${me} THEN f.addressee ELSE f.requester END WHERE f.requester = ${me} OR f.addressee = ${me}`,
     groups: await q`SELECT g.name, gm.role, gm.status FROM group_members gm JOIN groups g ON g.id = gm.group_id WHERE gm.user_id = ${me}`,
     prescriptions: await q`SELECT issued_on, valid_until, grams::float8 AS grams, note FROM prescriptions WHERE user_id = ${me} ORDER BY issued_on`,
     symptoms: await q`SELECT to_char(day, 'YYYY-MM-DD') AS day, pain, sleep, anxiety, mood, note FROM symptom_log WHERE user_id = ${me} ORDER BY day`,
     blocked: await q`SELECT u.username FROM blocks b JOIN users u ON u.id = b.blocked WHERE b.blocker = ${me}`,
+    // adresów subskrypcji (endpointy i klucze urządzeń) nie eksportujemy: to dane techniczne przeglądarki,
+    // działają jak hasło do wysyłania powiadomień na urządzenie i nie mówią nic o użytkowniku; podajemy tylko ich liczbę i daty
+    pushNotifications: {
+      settings: (await q`SELECT notify_prescription, notify_stock, stock_days, notify_hour, show_details, updated_at FROM push_prefs WHERE user_id = ${me}`)[0] ?? null,
+      devices: await q`SELECT kind, created_at, last_ok_at FROM push_subscriptions WHERE user_id = ${me} ORDER BY created_at`,
+    },
   };
   if (withPhotos) data.avatar = (await q`SELECT avatar FROM users WHERE id = ${me}`)[0]?.avatar ?? null;
   return new Response(JSON.stringify(data, null, 1), {

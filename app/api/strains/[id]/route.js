@@ -1,50 +1,17 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
 import { requireUser, bad, safe, intId } from '@/lib/guard';
-import { parseCommon } from '@/lib/strains';
+import { parseCommon, updateStrain } from '@/lib/strains';
 
 // Edycja pól wspólnych (dostępna dla każdego zalogowanego)
 export const PATCH = safe(async (req, { params }) => {
-  const { res } = await requireUser();
+  const { user, res } = await requireUser();
   if (res) return res;
   const id = intId((await params).id);
   const { error, fields: f } = await parseCommon(await req.json().catch(() => ({})));
   if (error) return bad(error);
-  // Zmiana producenta/THC/CBD zmienia klucz puli "do wykupienia" (pool_key), więc w tym samym zapytaniu
-  // przenosimy wartości wszystkich osób na nowy klucz. Gdy inna odmiana nadal ma stary klucz, stara pula
-  // zostaje, a nowa dostaje tylko kopię (jeśli jej jeszcze nie ma). Przy kolizji z istniejącą nową pulą
-  // bierzemy większą wartość (GREATEST), jak migracja w init(): to ta sama recepta, więc sumowanie
-  // liczyłoby ją podwójnie.
-  // Dwa polecenia w jednej transakcji: najpierw blokada wiersza odmiany, potem właściwa zmiana. Drugie
-  // polecenie dostaje migawkę już po uzyskaniu blokady, więc równoległa edycja tej samej odmiany widzi pule
-  // przeniesione przez pierwszą (w jednym poleceniu migawka byłaby sprzed czekania na blokadę).
-  const q = sql();
-  const [, rows] = await q.transaction([q`SELECT 1 FROM strains WHERE id = ${id} FOR UPDATE`, q`WITH old AS (
-      SELECT id, pool_key(id, producer, thc, cbd) AS k FROM strains WHERE id = ${id} FOR UPDATE
-    ), upd AS (
-      UPDATE strains s SET producer = ${f.producer}, name = ${f.name}, type = ${f.type},
-             final_rating = ${f.finalRating}, taste = ${f.taste}, thc = ${f.thc}, cbd = ${f.cbd},
-             kind = ${f.kind}, terpenes = ${JSON.stringify(f.terpenes)}::jsonb, description = ${f.description},
-             price_per_g = ${f.price}, batch = ${f.batch}, expires_on = ${f.expires}::date, form = ${f.form}, sources = ${JSON.stringify(f.sources)}::jsonb, description_auto = ${f.descriptionAuto}
-      FROM old WHERE s.id = old.id
-      RETURNING s.id, old.k AS old_key, pool_key(s.id, s.producer, s.thc, s.cbd) AS new_key
-    ), mv AS (
-      SELECT u.old_key, u.new_key,
-             EXISTS (SELECT 1 FROM strains o WHERE o.id <> u.id AND pool_key(o.id, o.producer, o.thc, o.cbd) = u.old_key) AS shared
-      FROM upd u WHERE u.old_key <> u.new_key
-    ), moved AS (
-      INSERT INTO user_pool (user_id, pool_key, remaining_to_buy)
-      SELECT up.user_id, mv.new_key, up.remaining_to_buy FROM user_pool up JOIN mv ON up.pool_key = mv.old_key WHERE NOT mv.shared
-      ON CONFLICT (user_id, pool_key) DO UPDATE SET remaining_to_buy = GREATEST(user_pool.remaining_to_buy, EXCLUDED.remaining_to_buy)
-    ), copied AS (
-      INSERT INTO user_pool (user_id, pool_key, remaining_to_buy)
-      SELECT up.user_id, mv.new_key, up.remaining_to_buy FROM user_pool up JOIN mv ON up.pool_key = mv.old_key WHERE mv.shared
-      ON CONFLICT (user_id, pool_key) DO NOTHING
-    ), dropped AS (
-      DELETE FROM user_pool up USING mv WHERE up.pool_key = mv.old_key AND NOT mv.shared
-    )
-    SELECT id FROM upd`], { isolationMode: 'ReadCommitted' });
-  if (!rows.length) return bad('Nie znaleziono odmiany.', 404);
+  const row = await updateStrain(id, f, user.id);
+  if (!row) return bad('Nie znaleziono odmiany.', 404);
   return NextResponse.json({ ok: true });
 });
 

@@ -52,20 +52,20 @@ Tryb awaryjny (rozmowa bez dostępu do repozytorium):
 - Wybór bramki płatności i platformy wpłat (`DONATE_URL`), decyzja o `PREMIUM_ENFORCED`.
 - Źródło danych do katalogu (`CATALOG_FEED_URL`), plan Vercel Pro przy działalności komercyjnej.
 
-## 6. Następne kroki (aktualne dla wersji 0.29.0)
-Pełna lista z uzasadnieniem: `docs/PRZEGLAD-2026-10.md`. Praca z podziałem na subagentów: definicje w `.claude/agents/` (backend-db, security, frontend-mobile, reviewer); koordynator scala ich gałęzie, uruchamia wszystkie kontrole i prowadzi CHANGELOG/wersję.
-1. **Scalić PR do `main`** (0.28.2 i 0.29.0 razem) i włączyć ochronę `main` z wymaganym CI. Po wdrożeniu: pierwsze żądanie wykona pełną migrację jeden raz (nowa tabela `schema_meta`, kolumna `users.session_version`); sprawdzić „Dziennik błędów” i czy nikt nie został wylogowany. Ręcznie: „Wyloguj ze wszystkich urządzeń” na profilu, menu na telefonie i komputerze, plakietki Znajomi/Grupy.
-2. **DT-14 dokończenie:** ciasteczko „znane urządzenie” lub rosnące opóźnienie zamiast twardej blokady na nazwę.
-3. **MOB-10 / PLA-5 / DT-4:** lżejsza lista odmian i paginacja, koniec tworzenia wierszy `user_strain` dla każdego użytkownika. Najpierw test wydajności w `tests/db/` na dużych danych.
-4. **KAT-1 (DT-7):** propozycje zmian katalogu zamiast wspólnej edycji; historia edycji odmian w `audit_log`.
-5. **PLA-8 dokończenie:** pełny CSP z nonce; `includeSubDomains` w HSTS po zakupie domeny.
-6. **Admin usuwa odmianę z danymi wszystkich:** potwierdzenie z liczbą dotkniętych wpisów albo scalanie duplikatów.
-7. **PLA-4 / PLA-7:** zdjęcia i kopie poza bazą (Vercel Blob).
-8. **Po zakupie domeny:** KON-1, KON-3, MON-1, KON-7. `ANTHROPIC_API_KEY` w Vercel dla podpowiedzi.
-9. Każda zmiana SQL = nowy przypadek w `tests/db/`; CHANGELOG, ROADMAP i ta sekcja przy każdym wydaniu.
-10. Drobne z przeglądu (niski priorytet): `app/api/catalog` na `requireAdmin`; strony `app/strains/[id]`, `app/grupy/[id]`, `app/katalog/[id]` na `intId` (liczba > 2^31 daje błąd SQL); wspólne zdjęcie odmiany może zmienić lub usunąć każdy zalogowany (razem z KAT-1).
+## 6. Następne kroki (aktualne dla wersji 0.30.0)
+Pełna lista z uzasadnieniem: `docs/PRZEGLAD-2026-10.md`; aplikacje natywne: `docs/APLIKACJE-NATYWNE.md`. Praca z podziałem na subagentów (`.claude/agents/`): koordynator scala gałęzie, uruchamia kontrole, zleca przegląd (reviewer) i prowadzi CHANGELOG/wersję.
+1. **Scalić PR 0.30.0.** Po wdrożeniu: migracje dodają tabele `strain_edits`, `push_subscriptions`, `push_prefs`, `push_sent`, kolumny `strain_photos.uploaded_by`, `backups.blob_path` i indeksy (jednorazowo przy pierwszym żądaniu). Sprawdzić „Dziennik błędów”.
+2. **Właściciel - ustawienia w Vercel:**
+   - `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT=mailto:...` (z `node scripts/vapid-keys.js`) - bez nich push jest wyłączony.
+   - `BACKUP_ENCRYPTION_KEY` (`openssl rand -base64 32`, kopia klucza w menedżerze haseł) - zalecane, kopie zawierają dane zdrowotne. `BLOB_READ_WRITE_TOKEN` już ustawiony (magazyn `zielnik-kopie`, prywatny, fra1).
+   - Osobna gałąź bazy Neon dla podglądów (PLA-3): dziś podglądy działają na produkcyjnej bazie.
+   - Region funkcji: dziś `iad1` (USA). Jeśli baza Neon jest w UE, ustawić `"regions": ["fra1"]` w `vercel.json` (opóźnienia i RODO).
+3. **Ręcznie na telefonie:** szybkie akcje (klawiatura, podwójne dotknięcie), push na Androidzie i iOS (po dodaniu do ekranu głównego), tryb dyskretny (odsłanianie dotknięciem, dwuklik logo), historia zmian odmiany.
+4. **Aplikacje natywne (MOB-16):** szkielet w `mobile/` (Capacitor 8). Pierwszy build Gradle tylko w CI (workflow „Aplikacja Android”, artefakt APK) - sprawdzić przebieg i poprawić, jeśli trzeba. Właściciel: keystore i sekrety `ANDROID_KEYSTORE_*`, projekt Firebase (`GOOGLE_SERVICES_JSON`). Dalej: wysyłka FCM po stronie serwera (HTTP v1), test na telefonie wg checklisty w `mobile/README.md`, Google Play (12 testerów × 14 dni przy koncie prywatnym), iOS po założeniu konta Apple.
+5. **Z przeglądu 0.30.0 (niski priorytet):** idempotencja szybkich akcji przy ponowieniu po zerwanym połączeniu; przypomnienia o recepcie codziennie przez 8 dni (rozważyć progi 7/3/1/0); subskrypcja push na wspólnym urządzeniu po wygaśnięciu sesji; zakres kopii (kody zaproszeń, zgłoszenia) - świadoma decyzja; zdjęcia odmian po usunięciu konta (RODO).
+6. **Dalej:** KAT-1 krok 2 (propozycje zmian katalogu), PLA-5 (paginacja po stronie UI), PLA-4 (zdjęcia w Blob), pełny CSP (PLA-8), po zakupie domeny: KON-1, KON-3, MON-1.
 
-**Znane ograniczenia wdrożeniowe (0.29.0):**
-- *Wycofanie wdrożenia* (Vercel Instant Rollback do < 0.29.0): stary kod ignoruje `session_version`, więc sesje unieważnione przez „wyloguj wszędzie” lub reset hasła znów działają; po ponownym wdrożeniu osoby z `session_version > 0`, które logowały się w czasie wycofania, zostaną jednorazowo wylogowane.
-- *Podglądy Vercel na tej samej bazie co produkcja*: wersje z różnym schematem nadpisują sobie `schema_meta`, więc każdy zimny start robi pełną migrację (działa, ale bez zysku z DT-11). Rozwiązanie: osobna gałąź bazy Neon dla podglądów (PLA-3).
+**Znane ograniczenia wdrożeniowe:**
+- *Wycofanie do < 0.30.0*: najpierw SQL z sekcji „Uwaga przy wycofaniu wdrożenia” w CHANGELOG 0.30.0 (stary kod wymaga wpisów `user_strain` dla wszystkich par); do < 0.29.0 dodatkowo unieważnione sesje znów działają.
+- *Podglądy na wspólnej bazie*: wersje z różnym schematem nadpisują `schema_meta` (pełna migracja przy każdym zimnym starcie).
 - `SCHEMA_REV` w `lib/db.js`: suma kontrolna widzi tylko treść SQL w `init()`; zmiana samej logiki JS wymaga ręcznego podbicia.

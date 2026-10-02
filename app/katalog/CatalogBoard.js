@@ -61,9 +61,9 @@ export default function CatalogBoard({ items, owned, isAdmin }) {
       {shown.map((i) => (
         <article key={i.id} className={`card cat-item k-${i.kind || 'none'} ${i.active ? '' : 'inactive'}`}>
           <div>
-            <h3><Link href={`/katalog/${i.id}`}>{i.name}</Link></h3>
+            <h3><Link href={`/katalog/${i.id}`} className="dn">{i.name}</Link></h3>
             <p className="strain-meta">
-              <span>{i.producer}</span>
+              <span className="dn">{i.producer}</span>
               {i.kind && <span className={`badge kind-${i.kind}`}>{i.kind}</span>}
               {i.form && i.form !== 'susz' && <span className="badge form">{formLabel(i.form)}</span>}
               {i.thc != null && <span className="pill">THC {i.thc}%</span>}

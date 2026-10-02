@@ -1,6 +1,6 @@
 {
   "name": "zielnik",
-  "version": "0.29.0",
+  "version": "0.30.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -12,11 +12,13 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.0",
+    "@vercel/blob": "^2.8.0",
     "bcryptjs": "^3.0.2",
     "jose": "^6.0.0",
     "next": "^15.5.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "pg": "^8.23.1"

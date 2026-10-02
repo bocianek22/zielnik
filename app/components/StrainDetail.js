@@ -9,6 +9,7 @@ import dynamicImport from 'next/dynamic';
 const Effects = dynamicImport(() => import('./Effects'), { loading: () => <div className="card"><p className="muted">Wczytuję skalę odczuć…</p></div> });
 import CharacteristicCard from './CharacteristicCard';
 import Lightbox from './Lightbox';
+import StrainHistory from './StrainHistory';
 import { expiryInfo } from '@/lib/expiry';
 
 export default function StrainDetail({ strain, options, tastes, mates, tests, me }) {
@@ -26,19 +27,19 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, me
       <Link href="/" className="back">← Wszystkie odmiany</Link>
 
       {editing ? (
-        <StrainForm strain={strain} options={opts} tastes={tastes} canDelete={canDelete} onOptionsChange={setOpts}
+        <StrainForm strain={strain} options={opts} tastes={tastes} canDelete={canDelete} hidePrice={me.hidePrices} onOptionsChange={setOpts}
           onDone={() => { setEditing(false); router.refresh(); }} onDeleted={() => router.push('/')}
           onCancel={() => setEditing(false)} />
       ) : (
         <article className={`card strain detail k-${strain.kind || 'none'}`}>
           <div className="detail-top">
             {strain.photo_v && (
-              <Lightbox className="detail-photo" src={photo} alt={`Zdjęcie: ${strain.name}`} />
+              <Lightbox className="detail-photo dn-img" src={photo} alt={`Zdjęcie: ${strain.name}`} />
             )}
             <div className="strain-title">
-              <h1>{strain.name}</h1>
+              <h1 className="dn">{strain.name}</h1>
               <p className="strain-meta">
-                <span>{strain.producer}</span>
+                <span className="dn">{strain.producer}</span>
                 {strain.kind && <span className={`badge kind-${strain.kind}`}>{strain.kind}</span>}
                 <span className="badge">{strain.type}</span>
               </p>
@@ -46,7 +47,7 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, me
                 {strain.thc != null && <span className="pill">THC {strain.thc}%</span>}
                 {strain.cbd != null && <span className="pill">CBD {strain.cbd}%</span>}
                 {strain.final_rating != null && <span className="pill">Ocena końcowa {strain.final_rating}</span>}
-                {strain.price_per_g != null && <span className="pill">{strain.price_per_g} zł/g</span>}
+                {strain.price_per_g != null && !me.hidePrices && <span className="pill">{strain.price_per_g} zł/g</span>}
                 {ex?.expired && <span className="badge low">Po terminie</span>}
                 {ex?.soon && <span className="badge low">Ważne jeszcze {ex.days} dni</span>}
               </p>
@@ -55,7 +56,7 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, me
               {strain.terpenes?.length > 0 && (
                 <>
                   <p className="label">Profil terpenowy</p>
-                  <div className="chips small">{strain.terpenes.map((t) => <Link key={t} href={`/wiedza#t-${t.toLowerCase().split(' ')[0]}`} className="chip on static">{t}</Link>)}</div>
+                  <div className="chips small">{strain.terpenes.map((t) => <Link key={t} href={`/wiedza#t-${t.toLowerCase().split(' ')[0]}`} className="chip on static dn">{t}</Link>)}</div>
                 </>
               )}
               <button className="btn ghost small" onClick={() => setEditing(true)}>Edytuj odmianę</button>
@@ -64,12 +65,12 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, me
         </article>
       )}
 
-      <CharacteristicCard strain={strain} />
+      <CharacteristicCard strain={strain} hidePrice={me.hidePrices} />
 
       <section className="card">
         <h2>Stany i oceny</h2>
         <div className="entries">
-          {mine && <OwnEntry strainId={strain.id} entry={mine} mates={mates} onSaved={() => {}} />}
+          {mine && <OwnEntry strainId={strain.id} entry={mine} mates={mates} hidePrice={me.hidePrices} onSaved={() => {}} />}
           {others.map((e) => <OtherEntry key={e.userId} e={e} />)}
         </div>
       </section>
@@ -77,6 +78,8 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, me
       <Effects strain={strain} meId={me.id} />
 
       <Tests strainId={strain.id} initialTests={tests} me={me} />
+
+      <StrainHistory strainId={strain.id} isAdmin={me.isAdmin} hidePrice={me.hidePrices} />
     </div>
   );
 }

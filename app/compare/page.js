@@ -1,6 +1,9 @@
 import Link from 'next/link';
+import { intId } from '@/lib/ids';
+import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
+import { isNativeApp } from '@/lib/client';
 import { listStrains } from '@/lib/strains';
 import Header from '../components/Header';
 
@@ -16,24 +19,25 @@ export default async function Compare({ searchParams }) {
   if (!user) redirect('/login');
   if (user.must_change_password) redirect('/change-password');
 
-  const ids = String((await searchParams).ids || '').split(',').map(Number).filter(Number.isInteger).slice(0, 3);
-  const all = await listStrains(user.id);
+  const ids = String((await searchParams).ids || '').split(',').map(intId).filter(Boolean).slice(0, 3);
+  const all = ids.length ? await listStrains(user.id, { ids }) : [];
   const rows = ids.map((id) => all.find((s) => s.id === id)).filter(Boolean);
   const mine = (s) => s.entries.find((e) => e.userId === user.id);
   const v = (x, unit = '') => (x == null || x === '' ? '–' : `${x}${unit}`);
 
   const lines = [
-    ['Producent', (s) => s.producer],
+    ['Producent', (s) => <span className="dn">{s.producer}</span>],
     ['Rodzaj', (s) => v(s.kind)],
     ['Typ', (s) => s.type],
     ['THC', (s) => v(s.thc, '%')],
     ['CBD', (s) => v(s.cbd, '%')],
-    ['Cena za gram', (s) => v(s.price_per_g, ' zł')],
+    // w aplikacji natywnej bez cen (lib/client.js)
+    ...(isNativeApp(await headers()) ? [] : [['Cena za gram', (s) => v(s.price_per_g, ' zł')]]),
     ['Ocena końcowa', (s) => v(s.final_rating)],
     ['Średnia ocen', avg],
     ['Twoja ocena', (s) => v(mine(s)?.rating)],
     ['Smak', (s) => v(s.taste)],
-    ['Terpeny', (s) => (s.terpenes?.length ? s.terpenes.join(', ') : '–')],
+    ['Terpeny', (s) => (s.terpenes?.length ? <span className="dn">{s.terpenes.join(', ')}</span> : '–')],
     ['Mam teraz', (s) => v(mine(s)?.current, ' g')],
     ['Do wykupienia (pula)', (s) => v(mine(s)?.remaining, ' g')],
   ];
@@ -50,7 +54,7 @@ export default async function Compare({ searchParams }) {
           <div className="table-wrap card">
             <table className="cmp">
               <thead>
-                <tr><th />{rows.map((s) => <th key={s.id}><Link href={`/strains/${s.id}`}>{s.name}</Link></th>)}</tr>
+                <tr><th />{rows.map((s) => <th key={s.id}><Link href={`/strains/${s.id}`} className="dn">{s.name}</Link></th>)}</tr>
               </thead>
               <tbody>
                 {lines.map(([label, fn]) => (

@@ -150,3 +150,22 @@ test('podstawowe trasy odpowiadają bez błędów SQL', { skip }, async () => {
   const errors = await q`SELECT path, message FROM error_log`;
   assert.deepEqual(errors, []);
 });
+
+test('autozapis pól bez ilości nie nadpisuje stanu zmienionego szybką akcją', { skip }, async () => {
+  const A = ids.ania;
+  const s = (await call(A, 'strains', 'POST', { name: 'Autozapis', producer: 'Aurora', type: 'haze' })).json.id;
+  await call(A, 'strains/[id]/entry', 'PUT', { current: 10, remaining: 5 }, { id: String(s) });
+  await call(A, 'strains/[id]/usage', 'POST', { grams: 3 }, { id: String(s) });
+  // spóźniony autozapis notatki (bez current/remaining) nie może przywrócić 10 g ani wyzerować "do wykupienia"
+  const r = await call(A, 'strains/[id]/entry', 'PUT', { notes: 'nowa notatka', rating: 8 }, { id: String(s) });
+  assert.equal(r.status, 200);
+  assert.equal(r.json.entry.current, undefined, 'niewysłanego stanu nie odsyłamy');
+  const own = (await listStrains(A, { ids: [s] }))[0].entries.find((e) => e.userId === A);
+  assert.equal(Number(own.current), 7);
+  assert.equal(Number(own.remaining), 5);
+  assert.equal(own.notes, 'nowa notatka');
+});
+
+test('porównanie i listStrains: identyfikatory spoza zakresu INT są pomijane zamiast błędu SQL', { skip }, async () => {
+  assert.deepEqual(await listStrains(ids.ania, { ids: [99999999999, 'abc'] }), []);
+});
