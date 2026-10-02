@@ -1,27 +1,21 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireUser, bad, safe } from '@/lib/guard';
+import { requireAdmin, safe } from '@/lib/guard';
 import { randomPassword } from '@/lib/auth';
 import { logAudit } from '@/lib/audit';
 
-async function admin() {
-  const r = await requireUser();
-  if (r.res) return r;
-  if (!r.user.is_admin) return { res: bad('Tylko admin.', 403) };
-  return r;
-}
 const list = () => sql()`SELECT code, note, max_uses, uses,
   to_char(expires_at AT TIME ZONE 'Europe/Warsaw', 'YYYY-MM-DD') AS expires_at FROM invites ORDER BY created_at DESC LIMIT 50`;
 
 export const GET = safe(async () => {
-  const { res } = await admin();
+  const { res } = await requireAdmin();
   if (res) return res;
   return NextResponse.json({ invites: await list() });
 });
 
 // { note, maxUses (1-100), days (0-90; 0 = bez terminu) }
 export const POST = safe(async (req) => {
-  const { user, res } = await admin();
+  const { user, res } = await requireAdmin();
   if (res) return res;
   const b = await req.json().catch(() => ({}));
   const maxUses = Math.min(100, Math.max(1, Number(b.maxUses) || 1));
@@ -35,7 +29,7 @@ export const POST = safe(async (req) => {
 });
 
 export const DELETE = safe(async (req) => {
-  const { user, res } = await admin();
+  const { user, res } = await requireAdmin();
   if (res) return res;
   const { code } = await req.json().catch(() => ({}));
   await logAudit(user.username, 'usunął zaproszenie', String(code ?? ''));

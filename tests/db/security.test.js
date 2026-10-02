@@ -125,6 +125,43 @@ test('wyloguj ze wszystkich urządzeń', { skip }, async () => {
   assert.equal((await login('henio', 'haslo1234')).status, 200);
 });
 
+test('trasy admina: wymuszona zmiana hasła, zwykły użytkownik i brak sesji są odrzucane', { skip }, async () => {
+  const routes = [
+    ['admin/users', 'GET'], ['admin/users', 'POST', { username: 'nowy1' }],
+    ['admin/users/[id]', 'PATCH', null, { id: String(ids.ewa) }], ['admin/users/[id]', 'DELETE', null, { id: String(ids.ewa) }],
+    ['admin/stats', 'GET'], ['admin/audit', 'GET'], ['admin/errors', 'GET'], ['admin/errors', 'DELETE'],
+    ['admin/backups', 'GET'], ['admin/backups', 'POST'], ['admin/plan', 'GET'], ['admin/plan', 'POST', { userId: ids.ewa, plan: 'premium' }],
+    ['admin/invites', 'GET'], ['admin/invites', 'POST', {}], ['admin/invites', 'DELETE', { code: 'TEST' }],
+    ['admin/reports', 'GET'], ['admin/reports', 'POST', { id: 1 }], ['backup', 'GET'],
+  ];
+  const check = async (status, label) => {
+    for (const [route, method, body, params] of routes) {
+      const r = await req(route, method, body, params);
+      assert.equal(r.status, status, `${label}: ${method} ${route} -> ${r.status} ${JSON.stringify(r.json)}`);
+    }
+  };
+  await q`UPDATE users SET must_change_password = TRUE WHERE id = ${ids.bocian}`;
+  await as(ids.bocian);
+  await check(403, 'admin z wymuszoną zmianą hasła');
+  assert.equal((await req('admin/users', 'GET')).json.error, 'Najpierw ustaw nowe hasło.');
+  await q`UPDATE users SET must_change_password = FALSE WHERE id = ${ids.bocian}`;
+  await as(ids.ewa);
+  await check(403, 'zwykły użytkownik');
+  assert.equal((await req('admin/users', 'GET')).json.error, 'Brak uprawnień.');
+  assert.equal((await req('admin/stats', 'GET')).json.error, 'Tylko admin.');
+  assert.equal((await req('backup', 'GET')).json.error, 'Tylko admin może pobrać kopię zapasową.');
+  jar.clear();
+  await check(401, 'brak sesji');
+  // nic się nie zmieniło
+  const [e] = await q`SELECT plan FROM users WHERE id = ${ids.ewa}`;
+  assert.equal(e.plan, 'free');
+  assert.equal((await q`SELECT count(*)::int AS n FROM invites`)[0].n, 1);
+  assert.equal((await q`SELECT count(*)::int AS n FROM users WHERE username = 'nowy1'`)[0].n, 0);
+  // admin po zmianie hasła ma dostęp
+  await as(ids.bocian);
+  for (const [route] of routes.filter(([, m]) => m === 'GET')) assert.equal((await req(route, 'GET')).status, 200, route);
+});
+
 test('DT-14: blokada logowania z obcego IP nie blokuje właściciela', { skip }, async () => {
   for (let i = 0; i < 8; i++) assert.equal((await login('iga', 'zle-haslo', '66.6.6.6')).status, 401);
   assert.equal((await login('iga', 'zle-haslo', '66.6.6.6')).status, 429, 'atakujący zablokowany (para IP+nazwa)');

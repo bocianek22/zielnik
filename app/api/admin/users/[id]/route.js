@@ -1,16 +1,14 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { sql } from '@/lib/db';
-import { getUser, randomPassword } from '@/lib/auth';
+import { randomPassword } from '@/lib/auth';
 import { logAudit } from '@/lib/audit';
-import { intId } from '@/lib/guard';
-
-const forbidden = () => NextResponse.json({ error: 'Brak uprawnień.' }, { status: 403 });
+import { intId, requireAdmin, safe } from '@/lib/guard';
 
 // Reset hasła: nowe hasło tymczasowe + wymuszona zmiana przy logowaniu
-export async function PATCH(_req, { params }) {
-  const me = await getUser();
-  if (!me?.is_admin) return forbidden();
+export const PATCH = safe(async (_req, { params }) => {
+  const { user: me, res } = await requireAdmin('Brak uprawnień.');
+  if (res) return res;
   const id = intId((await params).id);
   if (id === me.id) {
     return NextResponse.json({ error: 'Własne hasło zmienisz w zakładce „Zmień hasło”.' }, { status: 400 });
@@ -24,11 +22,11 @@ export async function PATCH(_req, { params }) {
   if (!rows.length) return NextResponse.json({ error: 'Nie znaleziono użytkownika.' }, { status: 404 });
   await logAudit(me.username, 'zresetował hasło', rows[0].username);
   return NextResponse.json({ tempPassword: temp });
-}
+});
 
-export async function DELETE(_req, { params }) {
-  const me = await getUser();
-  if (!me?.is_admin) return forbidden();
+export const DELETE = safe(async (_req, { params }) => {
+  const { user: me, res } = await requireAdmin('Brak uprawnień.');
+  if (res) return res;
   const id = intId((await params).id);
   if (id === me.id) {
     return NextResponse.json({ error: 'Nie możesz usunąć własnego konta.' }, { status: 400 });
@@ -41,4 +39,4 @@ export async function DELETE(_req, { params }) {
   await sql()`DELETE FROM users WHERE id = ${id}`;
   await logAudit(me.username, 'usunął konto', target.username);
   return NextResponse.json({ ok: true });
-}
+});
