@@ -532,3 +532,6 @@ main, .card, .stack > *, .row > *, .toolbar > * { min-width: 0; }
 @media (prefers-reduced-motion: reduce) { .quick-panel { animation: none; } }
 .quick-panel .use-row { max-width: none; }
 .quick-chips .chip { background: var(--card); color: var(--ink); border-color: var(--line); }
+
+.history-item { border-top: 1px solid var(--line, #ddd); padding: 8px 0; }
+.history-item ul { margin: 4px 0 8px; padding-left: 18px; }

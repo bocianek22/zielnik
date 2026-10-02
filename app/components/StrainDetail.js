@@ -9,6 +9,7 @@ import dynamicImport from 'next/dynamic';
 const Effects = dynamicImport(() => import('./Effects'), { loading: () => <div className="card"><p className="muted">Wczytuję skalę odczuć…</p></div> });
 import CharacteristicCard from './CharacteristicCard';
 import Lightbox from './Lightbox';
+import StrainHistory from './StrainHistory';
 import { expiryInfo } from '@/lib/expiry';
 
 export default function StrainDetail({ strain, options, tastes, mates, tests, me }) {
@@ -77,6 +78,8 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, me
       <Effects strain={strain} meId={me.id} />
 
       <Tests strainId={strain.id} initialTests={tests} me={me} />
+
+      <StrainHistory strainId={strain.id} isAdmin={me.isAdmin} />
     </div>
   );
 }
