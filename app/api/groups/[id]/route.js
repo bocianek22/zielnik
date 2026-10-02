@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireUser, bad, safe } from '@/lib/guard';
+import { requireUser, bad, safe, intId } from '@/lib/guard';
 
 // { action: 'invite' | 'accept' | 'leave' | 'kick' | 'delete', username?, userId? }
 export const POST = safe(async (req, { params }) => {
   const { user, res } = await requireUser();
   if (res) return res;
-  const gid = Number((await params).id);
+  const gid = intId((await params).id);
   const b = await req.json().catch(() => ({}));
   const q = sql();
   const [m] = await q`SELECT role, status FROM group_members WHERE group_id = ${gid} AND user_id = ${user.id}`;

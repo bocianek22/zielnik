@@ -1,12 +1,11 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireUser, bad, safe } from '@/lib/guard';
+import { requireAdmin, safe } from '@/lib/guard';
 
 // Statystyki serwisu (tylko liczby, bez danych zdrowotnych)
 export const GET = safe(async () => {
-  const { user, res } = await requireUser();
+  const { res } = await requireAdmin();
   if (res) return res;
-  if (!user.is_admin) return bad('Tylko admin.', 403);
   const [s] = await sql()`SELECT
     (SELECT count(*)::int FROM users) AS users,
     (SELECT count(*)::int FROM users WHERE plan = 'premium') AS premium,

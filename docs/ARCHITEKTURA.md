@@ -1,7 +1,7 @@
 # Architektura
 
 ## Stos
-Next.js 15 (App Router) na Vercel, baza Neon (Postgres) przez `@neondatabase/serverless`, sesje w ciasteczku (`jose`), hasła `bcryptjs`. Testy: `npm test` (wbudowany runner Node, funkcje czyste w `tests/`) oraz kontrola statyczna `npm run check`. Błędy trafiają do tabeli `error_log` (`instrumentation.js`, `lib/errorlog.js`, panel admina).
+Next.js 15 (App Router) na Vercel, baza Neon (Postgres) przez `@neondatabase/serverless`, sesje w ciasteczku (`jose`), hasła `bcryptjs`. Testy: `npm test` (wbudowany runner Node, funkcje czyste w `tests/`), `npm run test:db` (integracyjne z lokalnym PostgreSQL w `tests/db/`: sterownik Neon podmieniony na `pg`, trasy API wywoływane bezpośrednio) oraz kontrola statyczna `npm run check`. CI: `.github/workflows/ci.yml`. Błędy trafiają do tabeli `error_log` (`instrumentation.js`, `lib/errorlog.js`, panel admina).
 
 ## Struktura
 - `app/`: strony (serwerowe) i komponenty klienckie, trasy API w `app/api/**/route.js`.

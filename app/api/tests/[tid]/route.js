@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireUser, bad, safe } from '@/lib/guard';
+import { requireUser, bad, safe, intId } from '@/lib/guard';
 import { listTests } from '@/lib/strains';
 import { VIS_VALUES } from '@/lib/visibility';
 
@@ -8,7 +8,7 @@ import { VIS_VALUES } from '@/lib/visibility';
 export const PATCH = safe(async (req, { params }) => {
   const { user, res } = await requireUser();
   if (res) return res;
-  const tid = Number((await params).tid);
+  const tid = intId((await params).tid);
   const b = await req.json().catch(() => ({}));
   const [t] = await sql()`SELECT user_id, strain_id, (data IS NOT NULL) AS has FROM strain_tests WHERE id = ${tid}`;
   if (!t) return bad('Nie znaleziono testu.', 404);
@@ -37,7 +37,7 @@ export const PATCH = safe(async (req, { params }) => {
 export const DELETE = safe(async (_req, { params }) => {
   const { user, res } = await requireUser();
   if (res) return res;
-  const tid = Number((await params).tid);
+  const tid = intId((await params).tid);
   const rows = await sql()`SELECT user_id FROM strain_tests WHERE id = ${tid}`;
   if (!rows.length) return bad('Nie znaleziono testu.', 404);
   if (!user.is_admin && rows[0].user_id !== user.id) return bad('Test może usunąć jego autor lub admin.', 403);

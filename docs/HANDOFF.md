@@ -9,6 +9,9 @@ Aktualizuj ten plik przy każdym wydaniu. Sekcja „Następne kroki” ma zawsze
 - Dokumenty: `ROADMAP.md` (plan wg działów i wersji), `CHANGELOG.md`, `CONTRIBUTING.md` (commity, wersje, wydania), `docs/ARCHITEKTURA.md`.
 
 ## 2. Jak zacząć nową rozmowę z Claude
+**Zalecane (od 0.28.2): Claude Code na claude.ai/code** z podłączonym repozytorium `bocianek22/zielnik`. Claude pracuje wtedy bezpośrednio na gałęzi w git, instaluje pakiety, uruchamia `npm run check`, `npm test`, `npm run test:db` (lokalny PostgreSQL) i `next build`, a zmiany trafiają przez Pull Request sprawdzany przez CI i podgląd Vercel. Odpada ręczne wgrywanie folderów przez github.dev, które dwukrotnie skasowało pliki (sekcja 4). Zasady pracy z sekcji 3 dotyczące paczek ZIP przestają wtedy obowiązywać.
+
+Tryb awaryjny (rozmowa bez dostępu do repozytorium):
 1. Na GitHubie: Code → Download ZIP. Wgraj ten plik do rozmowy.
 2. Wklej prompt startowy (niżej).
 3. Claude pracuje w piaskownicy bez dostępu do sieci: nie zainstaluje pakietów npm, nie połączy się z bazą i nie wdroży aplikacji. Zwraca paczkę ZIP ze zmianami, a Ty wgrywasz ją na GitHub (Add file → Upload files).
@@ -49,11 +52,20 @@ Aktualizuj ten plik przy każdym wydaniu. Sekcja „Następne kroki” ma zawsze
 - Wybór bramki płatności i platformy wpłat (`DONATE_URL`), decyzja o `PREMIUM_ENFORCED`.
 - Źródło danych do katalogu (`CATALOG_FEED_URL`), plan Vercel Pro przy działalności komercyjnej.
 
-## 6. Następne kroki (aktualne dla wersji 0.27.0)
-0. **Podpowiedzi z internetu (0.18.0):** ustaw w Vercel `ANTHROPIC_API_KEY` i zrób redeploy; przetestuj na kilku odmianach (źródła, koszt: limit 15 dziennie na użytkownika, cache 90 dni). Bez klucza funkcja zwraca komunikat o braku konfiguracji.
-1. **Ręcznie sprawdzić na telefonie** (iOS i Android): dolny pasek, arkusz „Więcej”, przycisk „+”, formularz odmiany, podgląd zdjęć (×), tryb ciemny, skróty aplikacji po przytrzymaniu ikony (po ponownym dodaniu aplikacji do ekranu głównego).
-2. **Stabilność (0.16.x):** testy funkcji SQL `can_see` i integracyjne API na gałęzi bazy Neon (PLA-1), alerty o błędach i uptime (PLA-2). To największa luka jakości: zapytania SQL były pisane bez uruchomienia.
-3. **MOB-10 (ryzykowne):** odchudzenie zapytania `listStrains` (lista bez pełnych wpisów innych osób). Nie robić bez możliwości uruchomienia i testu na koncie z wieloma znajomymi.
-4. **Po zakupie domeny:** e-mail i odzyskiwanie hasła (KON-1), Google i Apple (KON-3), potem płatności (MON-1) i adresy `nick.domena.pl` (KON-7).
-5. **Do rozważenia bez domeny:** komentarze pod testami (SPO-1), wersje partii i COA jako załącznik (PAC-1, PAC-2), przypomnienia dawek (PAC-9), wykresy cen w czasie (KAT-13), formularze testów w arkuszach (MOB-6).
-6. Utrzymywać `CHANGELOG.md`, `ROADMAP.md` i tę sekcję na bieżąco przy każdym wydaniu.
+## 6. Następne kroki (aktualne dla wersji 0.29.0)
+Pełna lista z uzasadnieniem: `docs/PRZEGLAD-2026-10.md`. Praca z podziałem na subagentów: definicje w `.claude/agents/` (backend-db, security, frontend-mobile, reviewer); koordynator scala ich gałęzie, uruchamia wszystkie kontrole i prowadzi CHANGELOG/wersję.
+1. **Scalić PR do `main`** (0.28.2 i 0.29.0 razem) i włączyć ochronę `main` z wymaganym CI. Po wdrożeniu: pierwsze żądanie wykona pełną migrację jeden raz (nowa tabela `schema_meta`, kolumna `users.session_version`); sprawdzić „Dziennik błędów” i czy nikt nie został wylogowany. Ręcznie: „Wyloguj ze wszystkich urządzeń” na profilu, menu na telefonie i komputerze, plakietki Znajomi/Grupy.
+2. **DT-14 dokończenie:** ciasteczko „znane urządzenie” lub rosnące opóźnienie zamiast twardej blokady na nazwę.
+3. **MOB-10 / PLA-5 / DT-4:** lżejsza lista odmian i paginacja, koniec tworzenia wierszy `user_strain` dla każdego użytkownika. Najpierw test wydajności w `tests/db/` na dużych danych.
+4. **KAT-1 (DT-7):** propozycje zmian katalogu zamiast wspólnej edycji; historia edycji odmian w `audit_log`.
+5. **PLA-8 dokończenie:** pełny CSP z nonce; `includeSubDomains` w HSTS po zakupie domeny.
+6. **Admin usuwa odmianę z danymi wszystkich:** potwierdzenie z liczbą dotkniętych wpisów albo scalanie duplikatów.
+7. **PLA-4 / PLA-7:** zdjęcia i kopie poza bazą (Vercel Blob).
+8. **Po zakupie domeny:** KON-1, KON-3, MON-1, KON-7. `ANTHROPIC_API_KEY` w Vercel dla podpowiedzi.
+9. Każda zmiana SQL = nowy przypadek w `tests/db/`; CHANGELOG, ROADMAP i ta sekcja przy każdym wydaniu.
+10. Drobne z przeglądu (niski priorytet): `app/api/catalog` na `requireAdmin`; strony `app/strains/[id]`, `app/grupy/[id]`, `app/katalog/[id]` na `intId` (liczba > 2^31 daje błąd SQL); wspólne zdjęcie odmiany może zmienić lub usunąć każdy zalogowany (razem z KAT-1).
+
+**Znane ograniczenia wdrożeniowe (0.29.0):**
+- *Wycofanie wdrożenia* (Vercel Instant Rollback do < 0.29.0): stary kod ignoruje `session_version`, więc sesje unieważnione przez „wyloguj wszędzie” lub reset hasła znów działają; po ponownym wdrożeniu osoby z `session_version > 0`, które logowały się w czasie wycofania, zostaną jednorazowo wylogowane.
+- *Podglądy Vercel na tej samej bazie co produkcja*: wersje z różnym schematem nadpisują sobie `schema_meta`, więc każdy zimny start robi pełną migrację (działa, ale bez zysku z DT-11). Rozwiązanie: osobna gałąź bazy Neon dla podglądów (PLA-3).
+- `SCHEMA_REV` w `lib/db.js`: suma kontrolna widzi tylko treść SQL w `init()`; zmiana samej logiki JS wymaga ręcznego podbicia.

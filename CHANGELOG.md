@@ -8,6 +8,41 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.29.0] - 2026-10
+### Dodano
+- „Wyloguj ze wszystkich urządzeń” na stronie Mój profil (`POST /api/auth/logout` z `{ all: true }`).
+### Zmieniono
+- Szybszy start aplikacji (DT-11): migracje bazy (`ensureDb`, ok. 85 zapytań) wykonują się tylko po zmianie schematu, rozpoznanej po sumie kontrolnej w nowej tabeli `schema_meta`. Zwykły zimny start funkcji to 1-2 zapytania. Pierwsze uruchomienie po wdrożeniu wykona pełną migrację jeden raz.
+- Sesje (DT-13): zmiana hasła, reset hasła przez admina, „wyloguj wszędzie” i nadpisanie hasła admina ze zmiennej środowiskowej unieważniają wcześniejsze sesje (nowa kolumna `users.session_version`). Dotychczasowe sesje działają dalej po wdrożeniu.
+- Limit prób logowania (DT-14): ścisły limit liczony dla pary adres IP + nazwa (8 / 15 min), więc obca osoba z innego adresu nie zablokuje już właściciela konta; dodatkowo 50 prób na godzinę na nazwę i bez zmian 30 / 15 min na adres.
+- Wszystkie trasy admina sprawdzają uprawnienia jedną funkcją `requireAdmin()`; admin z wymuszoną zmianą hasła nie korzysta z API admina, dopóki go nie zmieni.
+- Zmiana hasła: limit 10 prób / 15 min, maksymalnie 100 znaków.
+- Nagłówki bezpieczeństwa (PLA-8): `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options` i `frame-ancestors`, HSTS (bez `includeSubDomains` do czasu własnej domeny), `Permissions-Policy`.
+- Jedna lista pozycji menu dla górnego i dolnego paska oraz arkusza „Więcej” (MOB-17). Na komputerze „Wiedza” jest teraz przed „Premium i wsparcie”, jak na telefonie.
+- Strona Premium: wygasły plan pokazuje się jako „Darmowy (Premium wygasło …)” zamiast „Premium (ważny do <data z przeszłości>)”.
+### Naprawiono
+- Edycja producenta, THC lub CBD odmiany zerowała wszystkim „do wykupienia” w tej puli (DT-12). Wartości przechodzą teraz na nową pulę (przy kolizji zostaje większa, bo to ta sama recepta); gdy stara pula jest nadal używana przez inną odmianę, nowa dostaje kopię.
+- Ochrona przed usunięciem odmiany obejmuje też zakupy i „do wykupienia” innych osób; sprawdzenie i usunięcie to jedno zapytanie.
+- Równoległa edycja tej samej odmiany mogła zostawić osieroconą pulę „do wykupienia” (edycja w transakcji z blokadą wiersza, `sql.transaction`).
+- Zużycie/wykup odmiany usuniętej w międzyczasie zwraca 404 zamiast 500; wylogowanie odporne na błędy i puste ciało żądania.
+### Dla programistów
+- Testy z bazą: `tests/db/schema.test.js`, `pools.test.js`, `security.test.js` (razem 24 przypadki). Shim Neon w testach obsługuje leniwe zapytania i `sql.transaction`.
+- `SCHEMA_REV` w `lib/db.js`: podnieś ręcznie przy zmianie samej logiki JS w `init()`, której suma kontrolna SQL nie wykryje.
+- Niezależny przegląd całej gałęzi przez agenta reviewer: bez błędów blokujących; poprawki powyżej. Definicje subagentów w `.claude/agents/` i `CLAUDE.md`.
+
+## [0.28.2] - 2026-10
+### Naprawiono
+- Zużycie i wykup: dwa szybkie zapisy naraz (np. podwójne dotknięcie przycisku) nadpisywały się i stan po nich był błędny (8 równoczesnych zapisów zużycia po 1 g z 10 g zostawiało 8 g zamiast 2 g). Odejmowanie i dodawanie odbywa się teraz w jednym zapytaniu SQL.
+- Usunięcie odmiany przez jej twórcę kasowało kaskadowo oceny, opinie, testy i dziennik zużycia **innych osób**. Twórca może teraz usunąć tylko odmianę, której nikt inny nie używa (w przeciwnym razie komunikat i kod 409); admin bez zmian.
+- Błędny identyfikator w adresie (np. `/api/strains/abc`) kończył się błędem SQL 500 i wpisem w dzienniku błędów zamiast odpowiedzi 404 (nowa funkcja `intId` w `lib/guard.js`, użyta we wszystkich trasach z `[id]`/`[tid]`).
+- „Wykupione w tym miesiącu” liczyło początek miesiąca w UTC zamiast czasu polskiego (zakupy z 1. dnia miesiąca przed 1:00/2:00 trafiały do poprzedniego miesiąca).
+### Dodano
+- Testy integracyjne z prawdziwym PostgreSQL (`npm run test:db`, katalog `tests/db/`): schemat `ensureDb` (idempotentność), widoczność `can_see` (tylko ja / znajomi / znajomi znajomych / blokada), równoległe zapisy, ochrona przed usunięciem cudzych danych, trasy API bez błędów SQL. Realizuje część PLA-1.
+- CI w GitHub Actions (`.github/workflows/ci.yml`): `npm run check`, `npm test`, `next build` oraz testy z bazą na każdym PR i pushu do `main`. Workflow „Wydanie” (`release.yml`), opisany w `CONTRIBUTING.md`, którego dotąd nie było w repozytorium.
+- `package-lock.json` (powtarzalne instalacje na Vercel i w CI), `.gitignore`, `.env.example` (wymieniany w README, a nieobecny).
+### Dokumentacja
+- `docs/PRZEGLAD-2026-10.md`: przegląd projektu, lista znanych błędów i ryzyk oraz plan dalszych kroków. Zaktualizowane HANDOFF, ROADMAP i ARCHITEKTURA.
+
 ## [0.28.1] - 2026-09
 ### Naprawiono
 - Tryb ciemny: etykiety i siatka na wykresach SVG (zuzycie tygodniowe w Historii, radar skali odczuc, wykres w Dzienniku objawow) mialy na stale wpisane ciemne kolory tekstu, nieczytelne na ciemnym tle. Zamienione na zmienne motywu, ktore dopasowuja sie automatycznie.
@@ -223,7 +258,9 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 ### Dodano
 - Fundament: Next.js, baza Neon (Postgres), logowanie, konto admina Bocian, wymuszona zmiana hasła, zarządzanie kontami, motyw konopny.
 
-[Unreleased]: https://github.com/bocianek22/zielnik/compare/v0.28.1...HEAD
+[Unreleased]: https://github.com/bocianek22/zielnik/compare/v0.29.0...HEAD
+[0.29.0]: https://github.com/bocianek22/zielnik/compare/v0.28.2...v0.29.0
+[0.28.2]: https://github.com/bocianek22/zielnik/compare/v0.28.1...v0.28.2
 [0.28.1]: https://github.com/bocianek22/zielnik/compare/v0.28.0...v0.28.1
 [0.28.0]: https://github.com/bocianek22/zielnik/compare/v0.27.1...v0.28.0
 [0.27.1]: https://github.com/bocianek22/zielnik/compare/v0.27.0...v0.27.1

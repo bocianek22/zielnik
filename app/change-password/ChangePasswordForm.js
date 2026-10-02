@@ -37,7 +37,7 @@ export default function ChangePasswordForm({ forced }) {
       </div>
       <div className="field">
         <label htmlFor="n">Nowe hasło</label>
-        <input id="n" className="input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" minLength={8} required />
+        <input id="n" className="input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" minLength={8} maxLength={100} required />
       </div>
       <div className="field">
         <label htmlFor="r">Powtórz nowe hasło</label>

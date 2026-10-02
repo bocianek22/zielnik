@@ -1,0 +1,18 @@
+# zależności i build
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# sekrety i lokalne ustawienia
+.env
+.env*.local
+.vercel/
+
+# system
+.DS_Store
+*.log
+
+# katalogi robocze subagentów Claude Code
+.claude/worktrees/

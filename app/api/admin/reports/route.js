@@ -1,14 +1,8 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireUser, bad, safe } from '@/lib/guard';
+import { requireAdmin, bad, safe } from '@/lib/guard';
 import { logAudit } from '@/lib/audit';
 
-async function admin() {
-  const r = await requireUser();
-  if (r.res) return r;
-  if (!r.user.is_admin) return { res: bad('Tylko admin.', 403) };
-  return r;
-}
 const list = () => sql()`
   SELECT r.id, r.type, r.ref, r.reason, r.note, tu.username AS target, tu.id AS target_id, ru.username AS reporter,
          to_char(r.created_at AT TIME ZONE 'Europe/Warsaw', 'YYYY-MM-DD HH24:MI') AS at,
@@ -17,14 +11,14 @@ const list = () => sql()`
   WHERE r.status = 'open' ORDER BY r.created_at DESC LIMIT 50`;
 
 export const GET = safe(async () => {
-  const { res } = await admin();
+  const { res } = await requireAdmin();
   if (res) return res;
   return NextResponse.json({ reports: await list() });
 });
 
 // { id, deleteContent?: boolean } - zamyka zgłoszenie, opcjonalnie usuwa zgłoszony test
 export const POST = safe(async (req) => {
-  const { user, res } = await admin();
+  const { user, res } = await requireAdmin();
   if (res) return res;
   const { id, deleteContent } = await req.json().catch(() => ({}));
   const [r] = await sql()`SELECT type, ref FROM reports WHERE id = ${Number(id)}`;

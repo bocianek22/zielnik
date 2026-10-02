@@ -1,26 +1,20 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireUser, bad, safe } from '@/lib/guard';
+import { requireAdmin, bad, safe } from '@/lib/guard';
 import { logAudit } from '@/lib/audit';
 
-async function admin() {
-  const r = await requireUser();
-  if (r.res) return r;
-  if (!r.user.is_admin) return { res: bad('Tylko admin.', 403) };
-  return r;
-}
 const list = () => sql()`SELECT id, username, plan, to_char(plan_until AT TIME ZONE 'Europe/Warsaw', 'YYYY-MM-DD') AS plan_until
                          FROM users ORDER BY (plan = 'premium') DESC, lower(username)`;
 
 export const GET = safe(async () => {
-  const { res } = await admin();
+  const { res } = await requireAdmin();
   if (res) return res;
   return NextResponse.json({ users: await list() });
 });
 
 // { userId, plan: 'free' | 'premium', days? } - ręczne nadanie lub cofnięcie Premium
 export const POST = safe(async (req) => {
-  const { user, res } = await admin();
+  const { user, res } = await requireAdmin();
   if (res) return res;
   const b = await req.json().catch(() => ({}));
   if (!['free', 'premium'].includes(b.plan)) return bad('Nieprawidłowy plan.');
