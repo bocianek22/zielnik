@@ -124,3 +124,43 @@ test('wyloguj ze wszystkich urządzeń', { skip }, async () => {
   assert.equal((await req('auth/logout', 'POST', { all: true })).status, 200);
   assert.equal((await login('henio', 'haslo1234')).status, 200);
 });
+
+test('DT-14: blokada logowania z obcego IP nie blokuje właściciela', { skip }, async () => {
+  for (let i = 0; i < 8; i++) assert.equal((await login('iga', 'zle-haslo', '66.6.6.6')).status, 401);
+  assert.equal((await login('iga', 'zle-haslo', '66.6.6.6')).status, 429, 'atakujący zablokowany (para IP+nazwa)');
+  assert.equal((await login('iga', 'haslo1234', '66.6.6.6')).status, 429, 'nawet z dobrym hasłem z tego IP');
+  const own = await login('IGA', 'haslo1234', '10.9.9.9');
+  assert.equal(own.status, 200, 'właściciel z własnego IP loguje się');
+  assert.ok(own.token);
+  // udany login czyści licznik pary
+  for (let i = 0; i < 7; i++) assert.equal((await login('iga', 'zle', '10.9.9.9')).status, 401);
+  assert.equal((await login('iga', 'haslo1234', '10.9.9.9')).status, 200);
+  assert.equal((await login('iga', 'zle', '10.9.9.9')).status, 401);
+});
+
+test('DT-14: limit globalny na nazwę hamuje atak rozproszony, limit per IP zostaje', { skip }, async () => {
+  for (let i = 0; i < 50; i++) assert.equal((await login('jurek', 'zle', `172.16.${i}.1`)).status, 401);
+  assert.equal((await login('jurek', 'haslo1234', '172.17.0.1')).status, 429);
+  await q`DELETE FROM rate_limits`;
+  for (let i = 0; i < 30; i++) await login(`nieznany${i}`, 'x', '192.0.2.7');
+  assert.equal((await login('ewa', 'haslo1234', '192.0.2.7')).status, 429, 'limit na IP');
+  assert.equal((await login('ewa', 'haslo1234', '192.0.2.8')).status, 200);
+});
+
+test('zmiana hasła: limit prób i maksymalna długość', { skip }, async () => {
+  await q`DELETE FROM rate_limits`;
+  await as(ids.ewa);
+  let r = await req('auth/change-password', 'POST', { current: 'haslo1234', password: 'x'.repeat(101) });
+  assert.equal(r.status, 400);
+  r = await req('auth/change-password', 'POST', { current: 'haslo1234', password: 'x'.repeat(100) });
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  for (let i = 0; i < 9; i++) {
+    r = await req('auth/change-password', 'POST', { current: 'zle-haslo', password: 'nowehaslo1' });
+    assert.equal(r.status, 400);
+  }
+  r = await req('auth/change-password', 'POST', { current: 'x'.repeat(100), password: 'nowehaslo1' });
+  assert.equal(r.status, 429, 'jedenasta próba w oknie zablokowana, nawet z dobrym hasłem');
+  const [u] = await q`SELECT password_hash FROM users WHERE id = ${ids.ewa}`;
+  const bcrypt = (await import('bcryptjs')).default;
+  assert.ok(await bcrypt.compare('x'.repeat(100), u.password_hash), 'hasło bez zmian');
+});
