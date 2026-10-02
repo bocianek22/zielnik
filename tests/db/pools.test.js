@@ -143,7 +143,7 @@ test('równoległe edycje tej samej odmiany nie gubią puli', { skip }, async ()
   const [st] = await q`SELECT pool_key(id, producer, thc, cbd) AS k FROM strains WHERE id = ${s}`;
   assert.equal(await remaining(A, s), 10);
   assert.deepEqual(await poolRows(st.k), [[A, 10]]);
-  // pośrednie klucze (20 i 21 % THC) nie zostają osierocone
-  assert.deepEqual(await poolRows('tilray|20.0|1.0'), []);
-  assert.deepEqual(await poolRows('tilray|21.0|1.0'), []);
+  // zostaje tylko pula pod kluczem końcowym; kolejność edycji jest dowolna, więc końcowy może być 21 albo 22 % THC
+  const keys = (await q`SELECT pool_key FROM user_pool WHERE user_id = ${A} AND pool_key IN ('tilray|20.0|1.0', 'tilray|21.0|1.0', 'tilray|22.0|1.0')`).map((x) => x.pool_key);
+  assert.deepEqual(keys, [st.k]);
 });
