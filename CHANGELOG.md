@@ -15,6 +15,7 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 - Tryb dyskretny (PRA-7), osobno dla każdego urządzenia: tytuł „Notatnik”, rozmyte nazwy odmian odsłaniane dotknięciem, koło fortuny bez nazw; szybkie przełączanie dwuklikiem logo.
 - Historia zmian odmian z przywracaniem przez admina (KAT-1, krok 1). Nazwa edytującego jest widoczna zgodnie z widocznością jego profilu.
 - Kopie zapasowe poza bazą w prywatnym Vercel Blob (PLA-7): gzip, opcjonalne szyfrowanie AES-256-GCM (`BACKUP_ENCRYPTION_KEY`), retencja 12 tygodni, automatycznie wszystkie tabele z danymi; skrypt `scripts/backup-decrypt.js`.
+- Szkielet aplikacji natywnej (MOB-16, `mobile/`): Capacitor 8 dla Androida (najpierw) i iOS, ładuje produkcyjną aplikację; w aplikacji ukryte ceny aptek, blokada biometrią/PIN-em, przycisk wstecz, linki zewnętrzne w przeglądarce, rejestracja tokenu FCM. APK budowany w GitHub Actions („Aplikacja Android”). Instrukcja: `mobile/README.md`.
 - „Znane urządzenie” przy logowaniu (DT-14): atak z wielu adresów nie zablokuje logowania właściciela na jego urządzeniu.
 ### Zmieniono
 - Lżejsza lista odmian (MOB-10, DT-4): nowe odmiany i konta nie tworzą już pustych wpisów dla wszystkich użytkowników; strona odmiany pobiera wpisy tylko tej odmiany; „znajomi znajomych” w `can_see` przez indeksy (wyniki identyczne jak wcześniej).

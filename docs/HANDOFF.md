@@ -61,7 +61,7 @@ Pełna lista z uzasadnieniem: `docs/PRZEGLAD-2026-10.md`; aplikacje natywne: `do
    - Osobna gałąź bazy Neon dla podglądów (PLA-3): dziś podglądy działają na produkcyjnej bazie.
    - Region funkcji: dziś `iad1` (USA). Jeśli baza Neon jest w UE, ustawić `"regions": ["fra1"]` w `vercel.json` (opóźnienia i RODO).
 3. **Ręcznie na telefonie:** szybkie akcje (klawiatura, podwójne dotknięcie), push na Androidzie i iOS (po dodaniu do ekranu głównego), tryb dyskretny (odsłanianie dotknięciem, dwuklik logo), historia zmian odmiany.
-4. **Aplikacje natywne (MOB-16):** szkielet Capacitor (Android najpierw) w toku na osobnej gałęzi agenta; następnie wysyłka FCM po stronie serwera, test na telefonie, Google Play (12 testerów × 14 dni przy koncie prywatnym).
+4. **Aplikacje natywne (MOB-16):** szkielet w `mobile/` (Capacitor 8). Pierwszy build Gradle tylko w CI (workflow „Aplikacja Android”, artefakt APK) - sprawdzić przebieg i poprawić, jeśli trzeba. Właściciel: keystore i sekrety `ANDROID_KEYSTORE_*`, projekt Firebase (`GOOGLE_SERVICES_JSON`). Dalej: wysyłka FCM po stronie serwera (HTTP v1), test na telefonie wg checklisty w `mobile/README.md`, Google Play (12 testerów × 14 dni przy koncie prywatnym), iOS po założeniu konta Apple.
 5. **Z przeglądu 0.30.0 (niski priorytet):** idempotencja szybkich akcji przy ponowieniu po zerwanym połączeniu; przypomnienia o recepcie codziennie przez 8 dni (rozważyć progi 7/3/1/0); subskrypcja push na wspólnym urządzeniu po wygaśnięciu sesji; zakres kopii (kody zaproszeń, zgłoszenia) - świadoma decyzja; zdjęcia odmian po usunięciu konta (RODO).
 6. **Dalej:** KAT-1 krok 2 (propozycje zmian katalogu), PLA-5 (paginacja po stronie UI), PLA-4 (zdjęcia w Blob), pełny CSP (PLA-8), po zakupie domeny: KON-1, KON-3, MON-1.
 
