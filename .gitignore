@@ -13,3 +13,6 @@ next-env.d.ts
 # system
 .DS_Store
 *.log
+
+# katalogi robocze subagentów Claude Code
+.claude/worktrees/
