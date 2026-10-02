@@ -1,0 +1,32 @@
+name: Wydanie
+
+# Uruchamiane ręcznie (Actions → Wydanie → Run workflow) po wpisaniu wersji do package.json i CHANGELOG.md.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Wersja i notatki z CHANGELOG
+        id: v
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          node scripts/release-notes.js "$VERSION" > notes.md
+      - name: Znacznik i wydanie GitHub
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="v${{ steps.v.outputs.version }}"
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null; then
+            echo "Znacznik $TAG już istnieje - podnieś wersję w package.json." && exit 1
+          fi
+          gh release create "$TAG" --target "$GITHUB_SHA" --title "$TAG" --notes-file notes.md

@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { sql } from '@/lib/db';
 import { getUser, randomPassword } from '@/lib/auth';
 import { logAudit } from '@/lib/audit';
+import { intId } from '@/lib/guard';
 
 const forbidden = () => NextResponse.json({ error: 'Brak uprawnień.' }, { status: 403 });
 
@@ -10,7 +11,7 @@ const forbidden = () => NextResponse.json({ error: 'Brak uprawnień.' }, { statu
 export async function PATCH(_req, { params }) {
   const me = await getUser();
   if (!me?.is_admin) return forbidden();
-  const id = Number((await params).id);
+  const id = intId((await params).id);
   if (id === me.id) {
     return NextResponse.json({ error: 'Własne hasło zmienisz w zakładce „Zmień hasło”.' }, { status: 400 });
   }
@@ -26,7 +27,7 @@ export async function PATCH(_req, { params }) {
 export async function DELETE(_req, { params }) {
   const me = await getUser();
   if (!me?.is_admin) return forbidden();
-  const id = Number((await params).id);
+  const id = intId((await params).id);
   if (id === me.id) {
     return NextResponse.json({ error: 'Nie możesz usunąć własnego konta.' }, { status: 400 });
   }

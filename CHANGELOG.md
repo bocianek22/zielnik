@@ -8,6 +8,19 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.28.2] - 2026-10
+### Naprawiono
+- Zużycie i wykup: dwa szybkie zapisy naraz (np. podwójne dotknięcie przycisku) nadpisywały się i stan po nich był błędny (8 równoczesnych zapisów zużycia po 1 g z 10 g zostawiało 8 g zamiast 2 g). Odejmowanie i dodawanie odbywa się teraz w jednym zapytaniu SQL.
+- Usunięcie odmiany przez jej twórcę kasowało kaskadowo oceny, opinie, testy i dziennik zużycia **innych osób**. Twórca może teraz usunąć tylko odmianę, której nikt inny nie używa (w przeciwnym razie komunikat i kod 409); admin bez zmian.
+- Błędny identyfikator w adresie (np. `/api/strains/abc`) kończył się błędem SQL 500 i wpisem w dzienniku błędów zamiast odpowiedzi 404 (nowa funkcja `intId` w `lib/guard.js`, użyta we wszystkich trasach z `[id]`/`[tid]`).
+- „Wykupione w tym miesiącu” liczyło początek miesiąca w UTC zamiast czasu polskiego (zakupy z 1. dnia miesiąca przed 1:00/2:00 trafiały do poprzedniego miesiąca).
+### Dodano
+- Testy integracyjne z prawdziwym PostgreSQL (`npm run test:db`, katalog `tests/db/`): schemat `ensureDb` (idempotentność), widoczność `can_see` (tylko ja / znajomi / znajomi znajomych / blokada), równoległe zapisy, ochrona przed usunięciem cudzych danych, trasy API bez błędów SQL. Realizuje część PLA-1.
+- CI w GitHub Actions (`.github/workflows/ci.yml`): `npm run check`, `npm test`, `next build` oraz testy z bazą na każdym PR i pushu do `main`. Workflow „Wydanie” (`release.yml`), opisany w `CONTRIBUTING.md`, którego dotąd nie było w repozytorium.
+- `package-lock.json` (powtarzalne instalacje na Vercel i w CI), `.gitignore`, `.env.example` (wymieniany w README, a nieobecny).
+### Dokumentacja
+- `docs/PRZEGLAD-2026-10.md`: przegląd projektu, lista znanych błędów i ryzyk oraz plan dalszych kroków. Zaktualizowane HANDOFF, ROADMAP i ARCHITEKTURA.
+
 ## [0.28.1] - 2026-09
 ### Naprawiono
 - Tryb ciemny: etykiety i siatka na wykresach SVG (zuzycie tygodniowe w Historii, radar skali odczuc, wykres w Dzienniku objawow) mialy na stale wpisane ciemne kolory tekstu, nieczytelne na ciemnym tle. Zamienione na zmienne motywu, ktore dopasowuja sie automatycznie.
@@ -223,7 +236,8 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 ### Dodano
 - Fundament: Next.js, baza Neon (Postgres), logowanie, konto admina Bocian, wymuszona zmiana hasła, zarządzanie kontami, motyw konopny.
 
-[Unreleased]: https://github.com/bocianek22/zielnik/compare/v0.28.1...HEAD
+[Unreleased]: https://github.com/bocianek22/zielnik/compare/v0.28.2...HEAD
+[0.28.2]: https://github.com/bocianek22/zielnik/compare/v0.28.1...v0.28.2
 [0.28.1]: https://github.com/bocianek22/zielnik/compare/v0.28.0...v0.28.1
 [0.28.0]: https://github.com/bocianek22/zielnik/compare/v0.27.1...v0.28.0
 [0.27.1]: https://github.com/bocianek22/zielnik/compare/v0.27.0...v0.27.1

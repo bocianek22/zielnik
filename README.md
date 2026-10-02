@@ -7,6 +7,7 @@ Next.js (App Router) + Postgres (Neon) + własne logowanie (JWT w ciasteczku).
 1. `npm install`
 2. Skopiuj `.env.example` do `.env.local` i uzupełnij wartości.
 3. `npm run dev` (tabele i konto admina `Bocian` tworzą się automatycznie przy pierwszym żądaniu).
+4. Kontrole: `npm run check`, `npm test`, a z lokalnym PostgreSQL `TEST_DATABASE_URL=... npm run test:db` (baza testowa jest czyszczona).
 
 ## Wdrożenie na Vercel
 1. Wypchnij repozytorium na GitHub i zaimportuj je w Vercel (New Project).

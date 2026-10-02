@@ -2,7 +2,7 @@
 
 Legenda: **P0** krytyczne przed publicznym startem · **P1** ważne · **P2** wartościowe · **P3** pomysł.
 Rozmiar: **S** (godziny) · **M** (dzień lub dwa) · **L** (tydzień i więcej). Zależność: 🌐 domena · ⚖️ prawnik · 💳 firma i płatności · 📧 usługa e-mail.
-Bieżąca wersja: **0.28.1** (zamknięta beta, rejestracja z zaproszeniem).
+Bieżąca wersja: **0.28.2** (zamknięta beta, rejestracja z zaproszeniem).
 
 ## Kamienie milowe
 | Wersja | Cel | Zawartość |
@@ -73,7 +73,7 @@ Bieżąca wersja: **0.28.1** (zamknięta beta, rejestracja z zaproszeniem).
 - **MON-4 (P3, L, ⚖️)** Panel dla lekarzy i klinik (za zgodą pacjenta): udostępnianie raportów, konta zawodowe.
 
 ## 7. Platforma i infrastruktura
-- **PLA-1 (P0, M)** Testy automatyczne. ✅ 0.16.0: funkcje czyste (`npm test`, CI). Do zrobienia: testy funkcji SQL widoczności (`can_see`) i integracyjne API na osobnej gałęzi bazy Neon.
+- **PLA-1 (P0, M)** Testy automatyczne. ✅ 0.16.0: funkcje czyste (`npm test`). ✅ 0.28.2: testy z lokalnym PostgreSQL (`npm run test:db`: `ensureDb`, `can_see`, wybrane trasy API) i CI w GitHub Actions. Do zrobienia: rozszerzać `tests/db/` przy każdej zmianie SQL (rankingi, pule, grupy, eksport, kopia), testy komponentów.
 - **PLA-2 (P0, S)** Monitoring błędów. ✅ 0.16.0: własny dziennik błędów w panelu admina. Do zrobienia: alerty (e-mail lub komunikator) i uptime.
 - **PLA-3 (P0, S)** Przejście na plan Vercel Pro (użycie komercyjne) i osobna gałąź bazy dla podglądów.
 - **PLA-4 (P1, M)** Zdjęcia poza bazą (magazyn obiektów, np. Vercel Blob lub S3) z miniaturami.
@@ -99,7 +99,12 @@ Bieżąca wersja: **0.28.1** (zamknięta beta, rejestracja z zaproszeniem).
 - **ADM-4 (P2, S)** Rozszerzone statystyki i eksport (bez danych zdrowotnych).
 
 ## 10. Poprawki i dług techniczny (znane ograniczenia)
-- **DT-1** Zapytania SQL o widoczność i pule powstały bez zautomatyzowanych testów (patrz PLA-1).
+- **DT-1** Zapytania SQL o widoczność i pule powstały bez zautomatyzowanych testów (patrz PLA-1). Częściowo ✅ 0.28.2 (`can_see`, zapisy zużycia i wykupu).
+- **DT-11** `ensureDb` wykonuje ok. 85 zapytań po kolei przy każdym zimnym starcie funkcji (na Neon HTTP to prawdopodobnie 1-3 s opóźnienia pierwszego żądania). Patrz PLA-6 i `docs/PRZEGLAD-2026-10.md`.
+- **DT-12** Edycja producenta, THC lub CBD odmiany zmienia jej klucz puli (`pool_key`), przez co „do wykupienia” wszystkich osób dla tej puli wraca po cichu do 0.
+- **DT-13** Sesje (JWT na 30 dni) nie są unieważniane po zmianie lub resecie hasła (KON-4).
+- **DT-14** Limit prób logowania na nazwę użytkownika pozwala każdemu zablokować logowanie wybranej osoby (także admina) na 15 minut.
+- ~~**DT-15** Twórca odmiany mógł ją usunąć razem z ocenami, testami i zużyciem innych osób~~ ✅ 0.28.2 (admin nadal może, patrz `docs/PRZEGLAD-2026-10.md`).
 - ~~**DT-2** Tryb ciemny odwracał kolory całej strony~~ ✅ 0.21.0 (przepisany na zmienne CSS).
 - **DT-3** Zdjęcia są przechowywane jako base64 w bazie (PLA-4).
 - **DT-4** Rankingi i filtry liczą się w przeglądarce ze wszystkich odmian (PLA-5).

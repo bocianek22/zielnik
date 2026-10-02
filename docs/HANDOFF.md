@@ -9,6 +9,9 @@ Aktualizuj ten plik przy każdym wydaniu. Sekcja „Następne kroki” ma zawsze
 - Dokumenty: `ROADMAP.md` (plan wg działów i wersji), `CHANGELOG.md`, `CONTRIBUTING.md` (commity, wersje, wydania), `docs/ARCHITEKTURA.md`.
 
 ## 2. Jak zacząć nową rozmowę z Claude
+**Zalecane (od 0.28.2): Claude Code na claude.ai/code** z podłączonym repozytorium `bocianek22/zielnik`. Claude pracuje wtedy bezpośrednio na gałęzi w git, instaluje pakiety, uruchamia `npm run check`, `npm test`, `npm run test:db` (lokalny PostgreSQL) i `next build`, a zmiany trafiają przez Pull Request sprawdzany przez CI i podgląd Vercel. Odpada ręczne wgrywanie folderów przez github.dev, które dwukrotnie skasowało pliki (sekcja 4). Zasady pracy z sekcji 3 dotyczące paczek ZIP przestają wtedy obowiązywać.
+
+Tryb awaryjny (rozmowa bez dostępu do repozytorium):
 1. Na GitHubie: Code → Download ZIP. Wgraj ten plik do rozmowy.
 2. Wklej prompt startowy (niżej).
 3. Claude pracuje w piaskownicy bez dostępu do sieci: nie zainstaluje pakietów npm, nie połączy się z bazą i nie wdroży aplikacji. Zwraca paczkę ZIP ze zmianami, a Ty wgrywasz ją na GitHub (Add file → Upload files).
@@ -49,11 +52,14 @@ Aktualizuj ten plik przy każdym wydaniu. Sekcja „Następne kroki” ma zawsze
 - Wybór bramki płatności i platformy wpłat (`DONATE_URL`), decyzja o `PREMIUM_ENFORCED`.
 - Źródło danych do katalogu (`CATALOG_FEED_URL`), plan Vercel Pro przy działalności komercyjnej.
 
-## 6. Następne kroki (aktualne dla wersji 0.27.0)
-0. **Podpowiedzi z internetu (0.18.0):** ustaw w Vercel `ANTHROPIC_API_KEY` i zrób redeploy; przetestuj na kilku odmianach (źródła, koszt: limit 15 dziennie na użytkownika, cache 90 dni). Bez klucza funkcja zwraca komunikat o braku konfiguracji.
-1. **Ręcznie sprawdzić na telefonie** (iOS i Android): dolny pasek, arkusz „Więcej”, przycisk „+”, formularz odmiany, podgląd zdjęć (×), tryb ciemny, skróty aplikacji po przytrzymaniu ikony (po ponownym dodaniu aplikacji do ekranu głównego).
-2. **Stabilność (0.16.x):** testy funkcji SQL `can_see` i integracyjne API na gałęzi bazy Neon (PLA-1), alerty o błędach i uptime (PLA-2). To największa luka jakości: zapytania SQL były pisane bez uruchomienia.
-3. **MOB-10 (ryzykowne):** odchudzenie zapytania `listStrains` (lista bez pełnych wpisów innych osób). Nie robić bez możliwości uruchomienia i testu na koncie z wieloma znajomymi.
-4. **Po zakupie domeny:** e-mail i odzyskiwanie hasła (KON-1), Google i Apple (KON-3), potem płatności (MON-1) i adresy `nick.domena.pl` (KON-7).
-5. **Do rozważenia bez domeny:** komentarze pod testami (SPO-1), wersje partii i COA jako załącznik (PAC-1, PAC-2), przypomnienia dawek (PAC-9), wykresy cen w czasie (KAT-13), formularze testów w arkuszach (MOB-6).
-6. Utrzymywać `CHANGELOG.md`, `ROADMAP.md` i tę sekcję na bieżąco przy każdym wydaniu.
+## 6. Następne kroki (aktualne dla wersji 0.28.2)
+Pełna lista z uzasadnieniem: `docs/PRZEGLAD-2026-10.md`.
+1. **Scalić PR z wersją 0.28.2**, a w GitHub → Settings → Branches włączyć ochronę `main` (wymagany zielony CI przed scaleniem). Po wdrożeniu: dwukrotne szybkie „zużyłem” na telefonie zapisuje oba wpisy; próba usunięcia cudzej-używanej odmiany pokazuje komunikat.
+2. **Szybki start funkcji (DT-11, PLA-6):** pominięcie `ensureDb` przy niezmienionym schemacie (znacznik wersji schematu w bazie). Duży zysk dla telefonu (pierwsze żądanie po bezczynności), małe ryzyko, testowalne w `tests/db/`.
+3. **Bezpieczeństwo sesji i nagłówki (DT-13, DT-14, PLA-8):** `session_version` w `users` (zmiana/reset hasła wylogowuje inne urządzenia), łagodniejsza blokada logowania (opóźnienie zamiast blokady konta), nagłówki `X-Content-Type-Options`, `Referrer-Policy`, `frame-ancestors`, HSTS.
+4. **Pule i katalog (DT-12, KAT-1/DT-7):** przenoszenie „do wykupienia” przy zmianie klucza puli; potem propozycje zmian katalogu zamiast wspólnej edycji.
+5. **MOB-10 i PLA-5:** odchudzenie `listStrains` i paginacja. Teraz da się to bezpiecznie sprawdzić testem z wieloma kontami w `tests/db/`.
+6. **Podpowiedzi z internetu (0.18.0):** ustaw w Vercel `ANTHROPIC_API_KEY` i zrób redeploy; przetestuj na kilku odmianach.
+7. **Ręcznie na telefonie** (iOS i Android): dolny pasek, arkusz „Więcej”, „+”, formularz odmiany, podgląd zdjęć, tryb ciemny, skróty aplikacji.
+8. **Po zakupie domeny:** KON-1 (e-mail, odzyskiwanie hasła), KON-3 (Google, Apple), MON-1 (płatności), KON-7.
+9. Utrzymywać `CHANGELOG.md`, `ROADMAP.md` i tę sekcję na bieżąco przy każdym wydaniu; każda zmiana SQL = nowy przypadek w `tests/db/`.

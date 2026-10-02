@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireUser, bad, safe } from '@/lib/guard';
+import { requireUser, bad, safe, intId } from '@/lib/guard';
 import { parseCommon } from '@/lib/strains';
 
 // Edycja pól wspólnych (dostępna dla każdego zalogowanego)
 export const PATCH = safe(async (req, { params }) => {
   const { res } = await requireUser();
   if (res) return res;
-  const id = Number((await params).id);
+  const id = intId((await params).id);
   const { error, fields: f } = await parseCommon(await req.json().catch(() => ({})));
   if (error) return bad(error);
   const rows = await sql()`UPDATE strains SET producer = ${f.producer}, name = ${f.name}, type = ${f.type},
@@ -23,11 +23,21 @@ export const PATCH = safe(async (req, { params }) => {
 export const DELETE = safe(async (_req, { params }) => {
   const { user, res } = await requireUser();
   if (res) return res;
-  const id = Number((await params).id);
+  const id = intId((await params).id);
   const found = await sql()`SELECT created_by FROM strains WHERE id = ${id}`;
   if (!found.length) return bad('Nie znaleziono odmiany.', 404);
   if (!user.is_admin && found[0].created_by !== user.id) {
     return bad('Odmianę może usunąć jej twórca lub admin.', 403);
+  }
+  // usunięcie kasuje kaskadowo oceny, testy i dziennik zużycia wszystkich osób, więc twórca może usunąć
+  // tylko odmianę, której nikt inny jeszcze nie używa
+  if (!user.is_admin) {
+    const [o] = await sql()`SELECT
+        EXISTS (SELECT 1 FROM user_strain WHERE strain_id = ${id} AND user_id <> ${user.id}
+                AND (rating IS NOT NULL OR notes <> '' OR effects <> '{}'::jsonb OR current_amount > 0)) OR
+        EXISTS (SELECT 1 FROM usage_log WHERE strain_id = ${id} AND user_id <> ${user.id}) OR
+        EXISTS (SELECT 1 FROM strain_tests WHERE strain_id = ${id} AND user_id IS DISTINCT FROM ${user.id}) AS used`;
+    if (o.used) return bad('Tej odmiany używają już inne osoby (oceny, zużycie lub testy). Usunąć ją może tylko admin.', 409);
   }
   await sql()`DELETE FROM strains WHERE id = ${id}`;
   return NextResponse.json({ ok: true });

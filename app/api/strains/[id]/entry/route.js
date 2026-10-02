@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireUser, bad, safe } from '@/lib/guard';
+import { requireUser, bad, safe, intId } from '@/lib/guard';
 import { parseNumber } from '@/lib/strains';
 import { VIS_VALUES } from '@/lib/visibility';
 
@@ -8,7 +8,7 @@ import { VIS_VALUES } from '@/lib/visibility';
 export const PUT = safe(async (req, { params }) => {
   const { user, res } = await requireUser();
   if (res) return res;
-  const id = Number((await params).id);
+  const id = intId((await params).id);
   const b = await req.json().catch(() => ({}));
 
   const rating = parseNumber(b.rating, 0, 10);

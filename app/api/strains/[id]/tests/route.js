@@ -1,20 +1,20 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireUser, bad, safe } from '@/lib/guard';
+import { requireUser, bad, safe, intId } from '@/lib/guard';
 import { listTests } from '@/lib/strains';
 import { VIS_VALUES } from '@/lib/visibility';
 
 export const GET = safe(async (_req, { params }) => {
   const { user, res } = await requireUser();
   if (res) return res;
-  return NextResponse.json({ tests: await listTests(Number((await params).id), user.id) });
+  return NextResponse.json({ tests: await listTests(intId((await params).id), user.id) });
 });
 
 // Nowy test: opis i/lub zdjęcie
 export const POST = safe(async (req, { params }) => {
   const { user, res } = await requireUser();
   if (res) return res;
-  const id = Number((await params).id);
+  const id = intId((await params).id);
   const { note, image, visibility } = await req.json().catch(() => ({}));
   const vis = VIS_VALUES.includes(visibility) ? visibility : null;
   const text = String(note ?? '').trim().slice(0, 1500);

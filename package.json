@@ -1,13 +1,14 @@
 {
   "name": "zielnik",
-  "version": "0.28.1",
+  "version": "0.28.2",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "check": "node scripts/check.js",
-    "test": "node --experimental-default-type=module --test tests/*.test.js"
+    "test": "node --experimental-default-type=module --test tests/*.test.js",
+    "test:db": "node --experimental-default-type=module --import ./tests/db/register.mjs --test tests/db/*.test.js"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.0",
@@ -16,5 +17,8 @@
     "next": "^15.5.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "pg": "^8.23.1"
   }
 }
