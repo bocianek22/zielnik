@@ -1,11 +1,12 @@
 'use client';
 import Link from 'next/link';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { api } from '@/lib/api';
 import { expiryInfo } from '@/lib/expiry';
 import { VIS } from '@/lib/visibility';
 import { formLabel } from '@/lib/forms';
 import Lightbox from './Lightbox';
+import QuickActions from './QuickActions';
 import { strainTags } from '@/lib/effects';
 
 export const LOW_STOCK = 3; // g: poniżej tej ilości odmiana dostaje znacznik "Kończy się"
@@ -20,6 +21,13 @@ export function OwnEntry({ strainId, entry, onSaved, mates }) {
   });
   const [status, setStatus] = useState({ kind: 'idle', msg: '' });
   const last = useRef(JSON.stringify(f));
+  // stan zmieniony z zewnątrz (szybkie akcje na wierzchu karty, wspólna pula) odświeża pola bez przeładowania
+  const extCur = entry.current ?? 0;
+  const extRem = entry.remaining ?? 0;
+  useEffect(() => {
+    setF((p) => (Number(p.current) === Number(extCur) && Number(p.remaining) === Number(extRem) ? p : { ...p, current: extCur, remaining: extRem }));
+    last.current = JSON.stringify({ ...JSON.parse(last.current), current: extCur, remaining: extRem });
+  }, [extCur, extRem]);
   const id = `e${strainId}`;
   const [buyG, setBuyG] = useState('');
   const [buyMsg, setBuyMsg] = useState('');
@@ -129,6 +137,7 @@ export function OtherEntry({ e }) {
 
 export default function StrainCard({ strain, meId, mates, low, cmpOn, onCmp, onEdit, onEntrySaved }) {
   const [expanded, setExpanded] = useState(false); // na telefonie szczegóły są domyślnie zwinięte
+  const [quickUsed, setQuickUsed] = useState(false); // po zapisie panel zostaje, żeby komunikat nie zniknął przy stanie 0 g
   const mine = strain.entries.find((e) => e.userId === meId);
   const others = strain.entries.filter((e) => e.userId !== meId);
   const rated = strain.entries.filter((e) => e.rating != null);
@@ -182,6 +191,10 @@ export default function StrainCard({ strain, meId, mates, low, cmpOn, onCmp, onE
           </div>}
         </div>
       </header>
+
+      {mine && (quickUsed || Number(mine.current) > 0 || Number(mine.remaining) > 0) && (
+        <QuickActions strainId={strain.id} name={strain.name} current={mine.current} remaining={mine.remaining} onSaved={(en) => { setQuickUsed(true); onEntrySaved(strain.id, en); }} />
+      )}
 
       <div className="entries">
         {mine && <OwnEntry strainId={strain.id} entry={mine} mates={mates} onSaved={(en) => onEntrySaved(strain.id, en)} />}

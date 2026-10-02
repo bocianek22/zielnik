@@ -512,3 +512,23 @@ main, .card, .stack > *, .row > *, .toolbar > * { min-width: 0; }
 .recap-tile span { font-size: .78rem; opacity: .85; }
 .recap-top { margin: 14px 0 0; }
 @media (max-width: 480px) { .recap-grid { grid-template-columns: repeat(2, 1fr); } }
+
+/* ===== UX-3: szybkie akcje „Zużyłem” / „Wykupiłem” na wierzchu karty ===== */
+.quick { margin-top: 12px; display: grid; gap: 8px; }
+.quick-btns { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.quick-btn { min-height: 44px; padding-inline: 1.1rem; }
+.quick-btn.on { background: var(--hemp-deep); color: #eef1e2; border-color: var(--hemp-deep); }
+.quick-stock { font-size: .88rem; }
+.quick-panel { display: grid; gap: 8px; padding: 12px; border: 1px solid var(--hemp); border-radius: 14px; background: var(--card-alt); animation: quick-in .15s ease-out; }
+.quick-panel > label { font-weight: 600; font-size: .9rem; }
+.quick-chips { margin-top: 0; }
+.quick-chips .chip { min-height: 44px; padding-inline: 1rem; font-size: .95rem; cursor: pointer; }
+.quick-panel .use-row .input { flex: 1 1 110px; min-width: 0; font-size: 16px; min-height: 44px; }
+.quick-panel .btn.small { min-height: 44px; }
+.quick-msg { margin: 0; font-size: .9rem; color: var(--ok); font-weight: 600; }
+.quick-msg:empty { display: none; }
+.quick-msg.warn { color: var(--danger); }
+@keyframes quick-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .quick-panel { animation: none; } }
+.quick-panel .use-row { max-width: none; }
+.quick-chips .chip { background: var(--card); color: var(--ink); border-color: var(--line); }
