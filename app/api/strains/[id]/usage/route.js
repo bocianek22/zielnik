@@ -22,6 +22,7 @@ export const POST = safe(async (req, { params }) => {
     UPDATE user_strain us SET current_amount = GREATEST(old.current_amount - ${g}::numeric, 0), updated_at = now()
     FROM old WHERE us.strain_id = ${id} AND us.user_id = ${user.id}
     RETURNING us.current_amount::float8 AS current, old.current_amount::float8 AS stock`;
+  if (!row) return bad('Nie znaleziono odmiany.', 404); // usunięta w międzyczasie
   await q`INSERT INTO usage_log (user_id, strain_id, grams) VALUES (${user.id}, ${id}, ${g})`;
   // zużycie zawsze trafia do dziennika, nawet gdy zapisany stan był mniejszy
   return NextResponse.json({ current: row.current, used: g, stockShort: g > row.stock });

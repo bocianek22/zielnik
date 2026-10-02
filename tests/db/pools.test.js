@@ -117,3 +117,33 @@ test('kolizja z istniejącą pulą: zostaje większa wartość (ta sama recepta)
   assert.equal(await remaining(A, s1), 9);
   assert.equal(await remaining(B, s2), 6);
 });
+
+test('równoległe edycje tej samej odmiany nie gubią puli', { skip }, async () => {
+  const { ania: A } = ids;
+  const s = await create(A, { name: 'Równoległa', producer: 'Tilray', thc: 20, cbd: 1 });
+  await setRemaining(A, s, 10);
+  const route = await import('../../app/api/strains/[id]/route.js');
+  jar.clear();
+  await createSession(A);
+  const patch = (thc) => route.PATCH(new Request('http://localhost/', { method: 'PATCH', body: JSON.stringify({ name: 'Równoległa', producer: 'Tilray', type: 'haze', thc, cbd: 1 }) }),
+    { params: Promise.resolve({ id: String(s) }) });
+  // trzymamy blokadę odmiany, aż obie edycje będą na nią czekać, i dopiero wtedy puszczamy
+  const lock = await pool.connect();
+  await lock.query('BEGIN');
+  await lock.query('SELECT 1 FROM strains WHERE id = $1 FOR UPDATE', [s]);
+  const both = Promise.all([patch(21), patch(22)]);
+  for (let i = 0; i < 100; i++) {
+    const { rows } = await pool.query("SELECT count(*)::int AS n FROM pg_stat_activity WHERE wait_event_type = 'Lock' AND datname = current_database()");
+    if (rows[0].n >= 2) break;
+    await new Promise((r) => setTimeout(r, 20));
+  }
+  await lock.query('COMMIT');
+  lock.release();
+  for (const r of await both) assert.equal(r.status, 200);
+  const [st] = await q`SELECT pool_key(id, producer, thc, cbd) AS k FROM strains WHERE id = ${s}`;
+  assert.equal(await remaining(A, s), 10);
+  assert.deepEqual(await poolRows(st.k), [[A, 10]]);
+  // pośrednie klucze (20 i 21 % THC) nie zostają osierocone
+  assert.deepEqual(await poolRows('tilray|20.0|1.0'), []);
+  assert.deepEqual(await poolRows('tilray|21.0|1.0'), []);
+});

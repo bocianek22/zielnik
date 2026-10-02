@@ -115,6 +115,19 @@ test('twórca nie usunie odmiany, której używają inni; admin może', { skip }
   assert.equal((await call(A, 'strains/[id]', 'DELETE', null, { id: String(own) })).status, 200);
 });
 
+test('ochrona usuwania obejmuje też zakupy i "do wykupienia" innych osób', { skip }, async () => {
+  const { ania: A, bartek: B } = ids;
+  const bought = (await call(A, 'strains', 'POST', { name: 'Kupiona', producer: 'S-Lab', type: 'haze' })).json.id;
+  await call(B, 'strains/[id]/purchase', 'POST', { grams: 2 }, { id: String(bought) });
+  await call(B, 'strains/[id]/usage', 'POST', { grams: 2 }, { id: String(bought) });
+  await q`DELETE FROM usage_log WHERE strain_id = ${bought}`; // zostaje tylko historia zakupu
+  assert.equal((await call(A, 'strains/[id]', 'DELETE', null, { id: String(bought) })).status, 409);
+  // odmiana bez THC ma własną pulę 'strain:<id>'
+  const planned = (await call(A, 'strains', 'POST', { name: 'Planowana', producer: 'S-Lab', type: 'haze' })).json.id;
+  await call(B, 'strains/[id]/entry', 'PUT', { remaining: 5 }, { id: String(planned) });
+  assert.equal((await call(A, 'strains/[id]', 'DELETE', null, { id: String(planned) })).status, 409);
+});
+
 test('błędny identyfikator w adresie daje 404, a nie błąd serwera', { skip }, async () => {
   const A = ids.ania;
   assert.equal((await call(A, 'strains/[id]', 'PATCH', { name: 'x', producer: 'Aurora', type: 'haze' }, { id: 'abc' })).status, 404);

@@ -15,7 +15,11 @@ export const PATCH = safe(async (req, { params }) => {
   // zostaje, a nowa dostaje tylko kopię (jeśli jej jeszcze nie ma). Przy kolizji z istniejącą nową pulą
   // bierzemy większą wartość (GREATEST), jak migracja w init(): to ta sama recepta, więc sumowanie
   // liczyłoby ją podwójnie.
-  const rows = await sql()`WITH old AS (
+  // Dwa polecenia w jednej transakcji: najpierw blokada wiersza odmiany, potem właściwa zmiana. Drugie
+  // polecenie dostaje migawkę już po uzyskaniu blokady, więc równoległa edycja tej samej odmiany widzi pule
+  // przeniesione przez pierwszą (w jednym poleceniu migawka byłaby sprzed czekania na blokadę).
+  const q = sql();
+  const [, rows] = await q.transaction([q`SELECT 1 FROM strains WHERE id = ${id} FOR UPDATE`, q`WITH old AS (
       SELECT id, pool_key(id, producer, thc, cbd) AS k FROM strains WHERE id = ${id} FOR UPDATE
     ), upd AS (
       UPDATE strains s SET producer = ${f.producer}, name = ${f.name}, type = ${f.type},
@@ -39,7 +43,7 @@ export const PATCH = safe(async (req, { params }) => {
     ), dropped AS (
       DELETE FROM user_pool up USING mv WHERE up.pool_key = mv.old_key AND NOT mv.shared
     )
-    SELECT id FROM upd`;
+    SELECT id FROM upd`], { isolationMode: 'ReadCommitted' });
   if (!rows.length) return bad('Nie znaleziono odmiany.', 404);
   return NextResponse.json({ ok: true });
 });
@@ -54,16 +58,20 @@ export const DELETE = safe(async (_req, { params }) => {
   if (!user.is_admin && found[0].created_by !== user.id) {
     return bad('Odmianę może usunąć jej twórca lub admin.', 403);
   }
-  // usunięcie kasuje kaskadowo oceny, testy i dziennik zużycia wszystkich osób, więc twórca może usunąć
-  // tylko odmianę, której nikt inny jeszcze nie używa
-  if (!user.is_admin) {
-    const [o] = await sql()`SELECT
-        EXISTS (SELECT 1 FROM user_strain WHERE strain_id = ${id} AND user_id <> ${user.id}
-                AND (rating IS NOT NULL OR notes <> '' OR effects <> '{}'::jsonb OR current_amount > 0)) OR
-        EXISTS (SELECT 1 FROM usage_log WHERE strain_id = ${id} AND user_id <> ${user.id}) OR
-        EXISTS (SELECT 1 FROM strain_tests WHERE strain_id = ${id} AND user_id IS DISTINCT FROM ${user.id}) AS used`;
-    if (o.used) return bad('Tej odmiany używają już inne osoby (oceny, zużycie lub testy). Usunąć ją może tylko admin.', 409);
+  if (user.is_admin) {
+    await sql()`DELETE FROM strains WHERE id = ${id}`;
+    return NextResponse.json({ ok: true });
   }
-  await sql()`DELETE FROM strains WHERE id = ${id}`;
+  // usunięcie kasuje kaskadowo oceny, testy i dziennik zużycia wszystkich osób, więc twórca może usunąć
+  // tylko odmianę, której nikt inny jeszcze nie używa; sprawdzenie i usunięcie w jednym zapytaniu
+  const del = await sql()`DELETE FROM strains WHERE id = ${id} AND NOT (
+      EXISTS (SELECT 1 FROM user_strain WHERE strain_id = ${id} AND user_id <> ${user.id}
+              AND (rating IS NOT NULL OR notes <> '' OR effects <> '{}'::jsonb OR current_amount > 0)) OR
+      EXISTS (SELECT 1 FROM usage_log WHERE strain_id = ${id} AND user_id <> ${user.id}) OR
+      EXISTS (SELECT 1 FROM purchases WHERE strain_id = ${id} AND user_id <> ${user.id}) OR
+      EXISTS (SELECT 1 FROM user_pool WHERE pool_key = 'strain:' || ${id}::int AND user_id <> ${user.id} AND remaining_to_buy > 0) OR
+      EXISTS (SELECT 1 FROM strain_tests WHERE strain_id = ${id} AND user_id IS DISTINCT FROM ${user.id})
+    ) RETURNING id`;
+  if (!del.length) return bad('Tej odmiany używają już inne osoby (oceny, zakupy, zużycie lub testy). Usunąć ją może tylko admin.', 409);
   return NextResponse.json({ ok: true });
 });

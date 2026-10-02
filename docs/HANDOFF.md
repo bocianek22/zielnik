@@ -63,3 +63,9 @@ Pełna lista z uzasadnieniem: `docs/PRZEGLAD-2026-10.md`. Praca z podziałem na 
 7. **PLA-4 / PLA-7:** zdjęcia i kopie poza bazą (Vercel Blob).
 8. **Po zakupie domeny:** KON-1, KON-3, MON-1, KON-7. `ANTHROPIC_API_KEY` w Vercel dla podpowiedzi.
 9. Każda zmiana SQL = nowy przypadek w `tests/db/`; CHANGELOG, ROADMAP i ta sekcja przy każdym wydaniu.
+10. Drobne z przeglądu (niski priorytet): `app/api/catalog` na `requireAdmin`; strony `app/strains/[id]`, `app/grupy/[id]`, `app/katalog/[id]` na `intId` (liczba > 2^31 daje błąd SQL); wspólne zdjęcie odmiany może zmienić lub usunąć każdy zalogowany (razem z KAT-1).
+
+**Znane ograniczenia wdrożeniowe (0.29.0):**
+- *Wycofanie wdrożenia* (Vercel Instant Rollback do < 0.29.0): stary kod ignoruje `session_version`, więc sesje unieważnione przez „wyloguj wszędzie” lub reset hasła znów działają; po ponownym wdrożeniu osoby z `session_version > 0`, które logowały się w czasie wycofania, zostaną jednorazowo wylogowane.
+- *Podglądy Vercel na tej samej bazie co produkcja*: wersje z różnym schematem nadpisują sobie `schema_meta`, więc każdy zimny start robi pełną migrację (działa, ale bez zysku z DT-11). Rozwiązanie: osobna gałąź bazy Neon dla podglądów (PLA-3).
+- `SCHEMA_REV` w `lib/db.js`: suma kontrolna widzi tylko treść SQL w `init()`; zmiana samej logiki JS wymaga ręcznego podbicia.

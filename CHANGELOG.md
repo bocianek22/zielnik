@@ -22,8 +22,13 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 - Strona Premium: wygasły plan pokazuje się jako „Darmowy (Premium wygasło …)” zamiast „Premium (ważny do <data z przeszłości>)”.
 ### Naprawiono
 - Edycja producenta, THC lub CBD odmiany zerowała wszystkim „do wykupienia” w tej puli (DT-12). Wartości przechodzą teraz na nową pulę (przy kolizji zostaje większa, bo to ta sama recepta); gdy stara pula jest nadal używana przez inną odmianę, nowa dostaje kopię.
+- Ochrona przed usunięciem odmiany obejmuje też zakupy i „do wykupienia” innych osób; sprawdzenie i usunięcie to jedno zapytanie.
+- Równoległa edycja tej samej odmiany mogła zostawić osieroconą pulę „do wykupienia” (edycja w transakcji z blokadą wiersza, `sql.transaction`).
+- Zużycie/wykup odmiany usuniętej w międzyczasie zwraca 404 zamiast 500; wylogowanie odporne na błędy i puste ciało żądania.
 ### Dla programistów
-- Testy z bazą: `tests/db/schema.test.js`, `pools.test.js`, `security.test.js` (razem 22 przypadki). Definicje subagentów w `.claude/agents/` i `CLAUDE.md`.
+- Testy z bazą: `tests/db/schema.test.js`, `pools.test.js`, `security.test.js` (razem 24 przypadki). Shim Neon w testach obsługuje leniwe zapytania i `sql.transaction`.
+- `SCHEMA_REV` w `lib/db.js`: podnieś ręcznie przy zmianie samej logiki JS w `init()`, której suma kontrolna SQL nie wykryje.
+- Niezależny przegląd całej gałęzi przez agenta reviewer: bez błędów blokujących; poprawki powyżej. Definicje subagentów w `.claude/agents/` i `CLAUDE.md`.
 
 ## [0.28.2] - 2026-10
 ### Naprawiono

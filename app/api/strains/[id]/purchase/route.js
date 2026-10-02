@@ -19,8 +19,10 @@ export const POST = safe(async (req, { params }) => {
   const cost = rows[0].price != null ? Math.round(rows[0].price * g * 100) / 100 : null;
 
   // dodawanie w samym zapytaniu (nie z odczytanej wcześniej wartości), żeby równoległe zapisy się nie nadpisywały
-  const [{ current }] = await sql()`UPDATE user_strain SET current_amount = current_amount + ${g}::numeric, updated_at = now()
+  const [upd] = await sql()`UPDATE user_strain SET current_amount = current_amount + ${g}::numeric, updated_at = now()
                                     WHERE strain_id = ${id} AND user_id = ${user.id} RETURNING current_amount::float8 AS current`;
+  if (!upd) return bad('Nie znaleziono odmiany.', 404); // usunięta w międzyczasie
+  const { current } = upd;
   const pool = await sql()`UPDATE user_pool SET remaining_to_buy = GREATEST(remaining_to_buy - ${g}::numeric, 0)
                            WHERE user_id = ${user.id}
                              AND pool_key = (SELECT pool_key(s.id, s.producer, s.thc, s.cbd) FROM strains s WHERE s.id = ${id})
