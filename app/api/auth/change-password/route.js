@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { sql } from '@/lib/db';
-import { getUser } from '@/lib/auth';
+import { createSession, getUser, revokeSessions } from '@/lib/auth';
 
 export async function POST(req) {
   try {
@@ -20,6 +20,9 @@ export async function POST(req) {
     }
     const hash = await bcrypt.hash(String(password), 10);
     await sql()`UPDATE users SET password_hash = ${hash}, must_change_password = FALSE WHERE id = ${me.id}`;
+    // Wylogowanie innych urządzeń; to urządzenie dostaje nową sesję z aktualną wersją.
+    await revokeSessions(me.id);
+    await createSession(me.id);
     return NextResponse.json({ ok: true });
   } catch (e) {
     console.error(e);

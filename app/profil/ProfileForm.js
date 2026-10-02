@@ -45,6 +45,12 @@ export default function ProfileForm({ me, initial }) {
     catch (err) { setMsg(err.message); }
   }
 
+  async function logoutAll() {
+    if (!confirm('Wylogować ze wszystkich urządzeń, także z tego?')) return;
+    try { await api('/api/auth/logout', 'POST', { all: true }); router.replace('/login'); router.refresh(); }
+    catch (err) { setMsg(err.message); }
+  }
+
   return (
     <div className="stack">
       <form className="card stack" onSubmit={save}>
@@ -82,6 +88,12 @@ export default function ProfileForm({ me, initial }) {
           <a className="btn ghost" href="/api/account/export?photos=1">Pobierz ze zdjęciami</a>
           <a className="btn ghost" href="/api/export">Moje odmiany (CSV)</a>
         </div>
+      </section>
+
+      <section className="card">
+        <h2>Sesje</h2>
+        <p className="muted">Jeśli logowałeś się na cudzym lub zgubionym urządzeniu, wyloguj się wszędzie. Zmiana hasła robi to samo dla pozostałych urządzeń.</p>
+        <div className="row"><button type="button" className="btn ghost" onClick={logoutAll}>Wyloguj ze wszystkich urządzeń</button></div>
       </section>
 
       <section className="card">

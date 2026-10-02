@@ -17,7 +17,9 @@ export async function PATCH(_req, { params }) {
   }
   const temp = randomPassword();
   const hash = await bcrypt.hash(temp, 10);
-  const rows = await sql()`UPDATE users SET password_hash = ${hash}, must_change_password = TRUE
+  // Podniesienie session_version wylogowuje użytkownika na wszystkich urządzeniach.
+  const rows = await sql()`UPDATE users SET password_hash = ${hash}, must_change_password = TRUE,
+                             session_version = session_version + 1
                            WHERE id = ${id} RETURNING id, username`;
   if (!rows.length) return NextResponse.json({ error: 'Nie znaleziono użytkownika.' }, { status: 404 });
   await logAudit(me.username, 'zresetował hasło', rows[0].username);
