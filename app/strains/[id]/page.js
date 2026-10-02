@@ -1,5 +1,6 @@
 import { notFound, redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
+import { intId } from '@/lib/ids';
 import { listStrains, listOptions, listTests } from '@/lib/strains';
 import Header from '../../components/Header';
 import StrainDetail from '../../components/StrainDetail';
@@ -11,8 +12,8 @@ export default async function StrainPage({ params }) {
   if (!user) redirect('/login');
   if (user.must_change_password) redirect('/change-password');
 
-  const id = Number((await params).id);
-  if (!Number.isInteger(id)) notFound();
+  const id = intId((await params).id);
+  if (!id) notFound();
   const [strains, options, tests] = await Promise.all([listStrains(user.id), listOptions(), listTests(id, user.id)]);
   const strain = strains.find((s) => s.id === id);
   if (!strain) notFound();

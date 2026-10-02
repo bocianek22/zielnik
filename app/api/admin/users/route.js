@@ -22,8 +22,9 @@ export const POST = safe(async (req) => {
     return NextResponse.json({ error: 'Nazwa: 3–24 znaki (litery, cyfry, . _ -).' }, { status: 400 });
   }
   const temp = String(password).trim() || randomPassword();
-  if (temp.length < 8) {
-    return NextResponse.json({ error: 'Hasło tymczasowe musi mieć co najmniej 8 znaków.' }, { status: 400 });
+  // Górna granica jak przy rejestracji (bcrypt bierze tylko 72 bajty)
+  if (temp.length < 8 || temp.length > 100) {
+    return NextResponse.json({ error: 'Hasło tymczasowe musi mieć od 8 do 100 znaków.' }, { status: 400 });
   }
   const hash = await bcrypt.hash(temp, 10);
   let row;
