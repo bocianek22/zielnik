@@ -18,7 +18,7 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Zbyt wiele prób zmiany hasła. Spróbuj ponownie za kilka minut.' }, { status: 429 });
     }
     const rows = await sql()`SELECT password_hash FROM users WHERE id = ${me.id}`;
-    if (!(await bcrypt.compare(String(current), rows[0].password_hash))) {
+    if (String(current).length > 1000 || !(await bcrypt.compare(String(current), rows[0].password_hash))) {
       return NextResponse.json({ error: 'Obecne hasło jest nieprawidłowe.' }, { status: 400 });
     }
     if (current === password) {
@@ -27,8 +27,9 @@ export async function POST(req) {
     const hash = await bcrypt.hash(String(password), 10);
     await sql()`UPDATE users SET password_hash = ${hash}, must_change_password = FALSE WHERE id = ${me.id}`;
     // Wylogowanie innych urządzeń; to urządzenie dostaje nową sesję z aktualną wersją.
+    // Ciasteczko „znane urządzenie” też dostaje nową wersję (inne przeglądarki tracą ten status).
     await revokeSessions(me.id);
-    await createSession(me.id);
+    await createSession(me.id, { device: true });
     return NextResponse.json({ ok: true });
   } catch (e) {
     console.error(e);

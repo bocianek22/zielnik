@@ -1,7 +1,7 @@
 import { sql } from '@/lib/db';
 import { requireUser, safe } from '@/lib/guard';
 
-// Eksport wszystkich danych zalogowanego użytkownika (RODO). ?photos=1 dołącza awatar i zdjęcia testów.
+// Eksport wszystkich danych zalogowanego użytkownika (RODO). ?photos=1 dołącza awatar, zdjęcia testów i dodane zdjęcia odmian.
 export const GET = safe(async (req) => {
   const { user, res } = await requireUser();
   if (res) return res;
@@ -13,6 +13,9 @@ export const GET = safe(async (req) => {
     exportedAt: new Date().toISOString(),
     profile,
     strainsCreated: await q`SELECT id, name, producer FROM strains WHERE created_by = ${me}`,
+    strainPhotosAdded: withPhotos
+      ? await q`SELECT s.name AS strain, s.producer, p.updated_at, p.mime, p.data AS photo_base64 FROM strain_photos p JOIN strains s ON s.id = p.strain_id WHERE p.uploaded_by = ${me} ORDER BY s.name`
+      : await q`SELECT s.name AS strain, s.producer, p.updated_at FROM strain_photos p JOIN strains s ON s.id = p.strain_id WHERE p.uploaded_by = ${me} ORDER BY s.name`,
     entries: await q`SELECT s.name AS strain, s.producer, us.rating::float8 AS rating, us.rated_at, us.current_amount::float8 AS current_g,
         us.notes, us.effects, us.visibility, us.price_per_g::float8 AS price_per_g FROM user_strain us JOIN strains s ON s.id = us.strain_id
       WHERE us.user_id = ${me} AND (us.rating IS NOT NULL OR us.notes <> '' OR us.current_amount > 0 OR us.effects <> '{}'::jsonb)

@@ -14,6 +14,9 @@ Next.js 15 (App Router) na Vercel, baza Neon (Postgres) przez `@neondatabase/ser
 ## Prywatność
 Funkcja SQL `can_see(viewer, owner, visibility)` decyduje o dostępie (tylko ja, znajomi, znajomi znajomych, wszyscy zalogowani; blokada działa w obie strony). Stany, zakupy, zużycie, recepty i objawy są zawsze prywatne. Każda nowa treść użytkownika musi przechodzić przez `can_see` i trafić do eksportu oraz kopii zapasowej.
 
+## Sesje i limity
+Ciasteczko `zielnik_session` (JWT, 30 dni, `sv` = `users.session_version`; zmiana/reset hasła i „wyloguj wszędzie” podnoszą wersję). Logowanie: limity na IP (30/15 min), parę IP+nazwa (8/15 min) i nazwę (50/h). Ciasteczko `zielnik_device` („znane urządzenie”, JWT z osobnym kluczem wyprowadzonym z `AUTH_SECRET`, `aud`, 1 rok, `httpOnly`, `sameSite=strict`, ścieżka `/api/auth`) wystawiane po udanym logowaniu, rejestracji i zmianie hasła pomija tylko limit na nazwę; nie loguje bez hasła, a podniesienie `session_version` je unieważnia. Wspólne zdjęcie odmiany (`strain_photos.uploaded_by`): dodać może każdy, podmienić lub usunąć dodający, autor odmiany albo admin.
+
 ## Zmienne środowiskowe
 `DATABASE_URL` (baza), `AUTH_SECRET` (sesje), `BOCIAN_INITIAL_PASSWORD` (hasło startowe admina), `CRON_SECRET` (zadania cykliczne), `CATALOG_FEED_URL` (źródło katalogu), `DONATE_URL` (wpłaty), `PREMIUM_ENFORCED=1` (włącza płatny plan), `ANTHROPIC_API_KEY` (podpowiedzi z internetu; bez klucza funkcja zwraca komunikat o braku konfiguracji), `ANTHROPIC_MODEL` (opcjonalnie, domyślnie `claude-haiku-4-5-20251001`), `SUGGEST_DOMAINS` (opcjonalnie, lista serwisów oddzielona przecinkami).
 

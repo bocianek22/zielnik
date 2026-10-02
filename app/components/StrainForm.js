@@ -55,8 +55,16 @@ export default function StrainForm({ strain, options, tastes, canDelete, onOptio
       const body = { ...f, sources, descriptionAuto: auto };
       if (strain) await api(`/api/strains/${id}`, 'PATCH', body);
       else id = (await api('/api/strains', 'POST', body)).id;
-      if (photo.data) await api(`/api/strains/${id}/photo`, 'PUT', { image: photo.data });
-      else if (photo.remove) await api(`/api/strains/${id}/photo`, 'DELETE');
+      try {
+        if (photo.data) await api(`/api/strains/${id}/photo`, 'PUT', { image: photo.data });
+        else if (photo.remove) await api(`/api/strains/${id}/photo`, 'DELETE');
+      } catch (err) {
+        // Dane odmiany są już zapisane; zdjęcie mogło zostać odrzucone (np. brak uprawnień do podmiany).
+        setPhoto({ data: null, remove: false });
+        setError(`Zmiany zapisano, ale zdjęcia nie: ${err.message}`);
+        setBusy(false);
+        return;
+      }
       await onDone();
     } catch (err) { setError(err.message); setBusy(false); }
   }
