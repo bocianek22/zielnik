@@ -1,6 +1,8 @@
+import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getUser } from '@/lib/auth';
+import { isNativeApp } from '@/lib/client';
 import { listStrains, listOptions, dailyUse, purchaseStats, prescriptionAlerts } from '@/lib/strains';
 import Header from './components/Header';
 import StrainsBoard from './components/StrainsBoard';
@@ -38,7 +40,7 @@ export default async function Home() {
           initialOptions={options}
           usage={daily}
           bought={bought}
-          me={{ id: user.id, username: user.username, isAdmin: user.is_admin }}
+          me={{ id: user.id, username: user.username, isAdmin: user.is_admin, hidePrices: isNativeApp(await headers()) }}
         />
       </main>
     </>

@@ -1,6 +1,7 @@
 import { Fraunces, Figtree } from 'next/font/google';
 import './globals.css';
 import RegisterSW from './components/RegisterSW';
+import NativeShell from './components/NativeShell';
 
 const display = Fraunces({ subsets: ['latin', 'latin-ext'], variable: '--font-display', display: 'swap' });
 const body = Figtree({ subsets: ['latin', 'latin-ext'], variable: '--font-body' });
@@ -23,7 +24,7 @@ export default function RootLayout({ children }) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: "try{var t=localStorage.getItem('zielnik.theme');if(t==='dark'||t==='light')document.documentElement.dataset.theme=t}catch(e){}" }} />
       </head>
-      <body>{children}<RegisterSW /></body>
+      <body>{children}<RegisterSW /><NativeShell /></body>
     </html>
   );
 }

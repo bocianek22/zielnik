@@ -543,3 +543,20 @@ main, .card, .stack > *, .row > *, .toolbar > * { min-width: 0; }
 .push-prefs .check input { flex: none; margin-top: 1px; }
 .push-row { display: grid; gap: 6px; }
 .push-row select.input { min-height: 44px; max-width: 260px; }
+
+/* ===== MOB-16: natywna powłoka (mobile/), klasa ustawiana przez NativeShell ===== */
+/* Android 15+ rysuje stronę pod paskiem stanu: zielony nagłówek wchodzi pod pasek, treść zaczyna się niżej.
+   --safe-area-inset-* wstrzykuje Capacitor (SystemBars, insetsHandling: 'css'), env() działa w nowszych WebView. */
+html.native-app .topbar { padding-top: max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px)); }
+html.native-app body { padding-bottom: max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px)); }
+@media (max-width: 760px) {
+  html.native-app body { padding-bottom: calc(72px + max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px))); }
+  html.native-app .bottomnav { padding-bottom: calc(6px + max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px))); }
+}
+.native-lock { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 24px; background: var(--hemp-deep); color: #eef1e2; text-align: center; }
+.native-lock-in { max-width: 340px; display: grid; gap: 12px; justify-items: center; }
+.native-lock h2 { margin: 0; }
+.native-lock p { margin: 0; }
+.native-lock .btn { min-height: 48px; min-width: 180px; background: #eef1e2; color: var(--hemp-deep); border-color: #eef1e2; }
+.native-lock [role="alert"] { color: #ffd6cc; }
+.native-check { min-height: 44px; }

@@ -40,7 +40,7 @@ module.exports = {
   },
   plugins: {
     SplashScreen: {
-      launchShowDuration: 1500,
+      launchShowDuration: 3000, // górny limit: strona chowa ekran startowy wcześniej (app/components/NativeShell.js)
       launchAutoHide: true,
       backgroundColor: '#1d3b27',
       androidScaleType: 'CENTER_CROP',

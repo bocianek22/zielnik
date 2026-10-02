@@ -8,7 +8,7 @@
     "sync": "node scripts/prepare-www.js && cap sync",
     "sync:android": "node scripts/prepare-www.js && cap sync android",
     "sync:ios": "node scripts/prepare-www.js && cap sync ios",
-    "assets": "capacitor-assets generate --android --ios --iconBackgroundColor '#1d3b27' --iconBackgroundColorDark '#1d3b27' --splashBackgroundColor '#1d3b27' --splashBackgroundColorDark '#14261a'",
+    "assets": "capacitor-assets generate --android --ios --iconBackgroundColor '#1d3b27' --iconBackgroundColorDark '#1d3b27' --splashBackgroundColor '#1d3b27' --splashBackgroundColorDark '#1d3b27'",
     "apk": "npm run sync:android && cd android && ./gradlew assembleDebug"
   },
   "dependencies": {
