@@ -36,7 +36,6 @@ export async function POST(req) {
       await q`UPDATE invites SET uses = GREATEST(uses - 1, 0) WHERE code = ${code}`; // zwrot użycia kodu
       throw e;
     }
-    await q`INSERT INTO user_strain (strain_id, user_id) SELECT id, ${u.id}::int FROM strains ON CONFLICT DO NOTHING`;
     await createSession(u.id);
     return NextResponse.json({ ok: true });
   } catch (e) {

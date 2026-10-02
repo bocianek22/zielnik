@@ -37,9 +37,6 @@ export const POST = safe(async (req) => {
     }
     throw e;
   }
-  // Automatycznie utwórz osobiste pola (ocena, ilości, spostrzeżenia) dla wszystkich istniejących odmian
-  await sql()`INSERT INTO user_strain (strain_id, user_id)
-              SELECT id, ${row.id} FROM strains ON CONFLICT DO NOTHING`;
   await logAudit(me.username, 'utworzył konto', row.username);
   return NextResponse.json({ user: row, tempPassword: temp });
 });
