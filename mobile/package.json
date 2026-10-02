@@ -1,0 +1,33 @@
+{
+  "name": "zielnik-mobile",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Natywna powłoka Zielnika (Capacitor): Android i iOS ładujące produkcyjną aplikację webową.",
+  "scripts": {
+    "prepare-www": "node scripts/prepare-www.js",
+    "sync": "node scripts/prepare-www.js && cap sync",
+    "sync:android": "node scripts/prepare-www.js && cap sync android",
+    "sync:ios": "node scripts/prepare-www.js && cap sync ios",
+    "assets": "capacitor-assets generate --android --ios --iconBackgroundColor '#1d3b27' --iconBackgroundColorDark '#1d3b27' --splashBackgroundColor '#1d3b27' --splashBackgroundColorDark '#14261a'",
+    "apk": "npm run sync:android && cd android && ./gradlew assembleDebug"
+  },
+  "dependencies": {
+    "@aparajita/capacitor-biometric-auth": "^10.0.0",
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/browser": "^8.0.5",
+    "@capacitor/core": "^8.5.2",
+    "@capacitor/ios": "^8.5.2",
+    "@capacitor/preferences": "^8.0.1",
+    "@capacitor/push-notifications": "^8.1.3",
+    "@capacitor/splash-screen": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.4"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^8.5.2"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

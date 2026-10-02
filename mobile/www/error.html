@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Zielnik — brak połączenia</title>
+<style>
+  :root { --bg: #eef1e2; --ink: #1c2b21; --btn: #1d3b27; --btn-ink: #eef1e2; color-scheme: light dark; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #161c14; --ink: #e7ecdd; --btn: #7fbd7a; --btn-ink: #161c14; } }
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box;
+    background: var(--bg); color: var(--ink); font: 17px/1.5 system-ui, sans-serif; text-align: center; }
+  .box { max-width: 360px; }
+  h1 { font-size: 1.4rem; }
+  button { min-height: 48px; margin-top: 12px; padding: .7rem 1.6rem; border: 0; border-radius: 99px;
+    background: var(--btn); color: var(--btn-ink); font: inherit; font-weight: 600; cursor: pointer; }
+</style>
+<script src="config.js"></script>
+</head>
+<body>
+  <div class="box">
+    <h1>Nie można połączyć się z Zielnikiem</h1>
+    <p>Sprawdź połączenie z internetem i spróbuj ponownie. Twoje dane są bezpieczne na serwerze.</p>
+    <button type="button" onclick="location.href = window.ZIELNIK_URL || '/'">Spróbuj ponownie</button>
+  </div>
+</body>
+</html>
