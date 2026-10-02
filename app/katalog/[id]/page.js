@@ -3,7 +3,7 @@ import { notFound, redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
 import { intId } from '@/lib/ids';
 import { sql, ensureDb } from '@/lib/db';
-import { listStrains } from '@/lib/strains';
+import { listStrains, strainIndex } from '@/lib/strains';
 import { formLabel } from '@/lib/forms';
 import Header from '../../components/Header';
 import CharacteristicCard from '../../components/CharacteristicCard';
@@ -21,8 +21,8 @@ export default async function KatalogItem({ params }) {
   const [item] = await sql()`SELECT id, producer, name, thc::float8 AS thc, cbd::float8 AS cbd, kind, form, availability, active,
       to_char(last_seen AT TIME ZONE 'Europe/Warsaw', 'YYYY-MM-DD') AS last_seen FROM market_catalog WHERE id = ${id}`;
   if (!item) notFound();
-  const strains = await listStrains(me.id);
-  const match = strains.find((s) => s.producer.toLowerCase() === item.producer.toLowerCase() && s.name.toLowerCase() === item.name.toLowerCase());
+  const found = (await strainIndex()).find((s) => s.producer.toLowerCase() === item.producer.toLowerCase() && s.name.toLowerCase() === item.name.toLowerCase());
+  const [match] = found ? await listStrains(me.id, { ids: [found.id] }) : [];
 
   return (
     <>

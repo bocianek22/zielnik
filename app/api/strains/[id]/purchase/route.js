@@ -12,15 +12,17 @@ export const POST = safe(async (req, { params }) => {
   const g = parseNumber(grams, 0.01, 100000);
   if (g == null || Number.isNaN(g)) return bad('Podaj ilość w gramach.');
 
-  const rows = await sql()`SELECT s.name, s.price_per_g::float8 AS price
-                           FROM strains s JOIN user_strain us ON us.strain_id = s.id AND us.user_id = ${user.id}
-                           WHERE s.id = ${id}`;
+  const rows = await sql()`SELECT s.name, s.price_per_g::float8 AS price FROM strains s WHERE s.id = ${id}`;
   if (!rows.length) return bad('Nie znaleziono odmiany.', 404);
   const cost = rows[0].price != null ? Math.round(rows[0].price * g * 100) / 100 : null;
 
-  // dodawanie w samym zapytaniu (nie z odczytanej wcześniej wartości), żeby równoległe zapisy się nie nadpisywały
-  const [upd] = await sql()`UPDATE user_strain SET current_amount = current_amount + ${g}::numeric, updated_at = now()
-                                    WHERE strain_id = ${id} AND user_id = ${user.id} RETURNING current_amount::float8 AS current`;
+  // dodawanie w samym zapytaniu (nie z odczytanej wcześniej wartości), żeby równoległe zapisy się nie nadpisywały;
+  // wpis osobisty powstaje przy pierwszym zapisie (MOB-10), a SELECT z strains pomija odmianę usuniętą w międzyczasie
+  const [upd] = await sql()`INSERT INTO user_strain (strain_id, user_id, current_amount)
+                            SELECT s.id, ${user.id}::int, ${g}::numeric FROM strains s WHERE s.id = ${id}::int
+                            ON CONFLICT (strain_id, user_id) DO UPDATE
+                              SET current_amount = user_strain.current_amount + EXCLUDED.current_amount, updated_at = now()
+                            RETURNING current_amount::float8 AS current`;
   if (!upd) return bad('Nie znaleziono odmiany.', 404); // usunięta w międzyczasie
   const { current } = upd;
   const pool = await sql()`UPDATE user_pool SET remaining_to_buy = GREATEST(remaining_to_buy - ${g}::numeric, 0)
