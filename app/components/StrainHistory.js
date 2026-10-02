@@ -18,7 +18,7 @@ function show(field, v) {
 }
 
 // Historia zmian pól wspólnych odmiany (wczytywana dopiero po rozwinięciu)
-export default function StrainHistory({ strainId, isAdmin }) {
+export default function StrainHistory({ strainId, isAdmin, hidePrice = false }) {
   const router = useRouter();
   const [items, setItems] = useState(null);
   const [error, setError] = useState('');
@@ -60,7 +60,7 @@ export default function StrainHistory({ strainId, isAdmin }) {
         <div key={h.id} className="history-item">
           <p className="muted"><b>{h.mine ? 'Ty' : h.who}</b>, {h.at}</p>
           <ul>
-            {Object.entries(h.changes).map(([f, [a, b]]) => (
+            {Object.entries(h.changes).filter(([f]) => !(hidePrice && f === 'price_per_g')).map(([f, [a, b]]) => (
               <li key={f}>{LABELS[f] || f}: {show(f, a)} → {show(f, b)}</li>
             ))}
           </ul>

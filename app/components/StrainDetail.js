@@ -27,7 +27,7 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, me
       <Link href="/" className="back">← Wszystkie odmiany</Link>
 
       {editing ? (
-        <StrainForm strain={strain} options={opts} tastes={tastes} canDelete={canDelete} onOptionsChange={setOpts}
+        <StrainForm strain={strain} options={opts} tastes={tastes} canDelete={canDelete} hidePrice={me.hidePrices} onOptionsChange={setOpts}
           onDone={() => { setEditing(false); router.refresh(); }} onDeleted={() => router.push('/')}
           onCancel={() => setEditing(false)} />
       ) : (
@@ -47,7 +47,7 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, me
                 {strain.thc != null && <span className="pill">THC {strain.thc}%</span>}
                 {strain.cbd != null && <span className="pill">CBD {strain.cbd}%</span>}
                 {strain.final_rating != null && <span className="pill">Ocena końcowa {strain.final_rating}</span>}
-                {strain.price_per_g != null && <span className="pill">{strain.price_per_g} zł/g</span>}
+                {strain.price_per_g != null && !me.hidePrices && <span className="pill">{strain.price_per_g} zł/g</span>}
                 {ex?.expired && <span className="badge low">Po terminie</span>}
                 {ex?.soon && <span className="badge low">Ważne jeszcze {ex.days} dni</span>}
               </p>
@@ -65,12 +65,12 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, me
         </article>
       )}
 
-      <CharacteristicCard strain={strain} />
+      <CharacteristicCard strain={strain} hidePrice={me.hidePrices} />
 
       <section className="card">
         <h2>Stany i oceny</h2>
         <div className="entries">
-          {mine && <OwnEntry strainId={strain.id} entry={mine} mates={mates} onSaved={() => {}} />}
+          {mine && <OwnEntry strainId={strain.id} entry={mine} mates={mates} hidePrice={me.hidePrices} onSaved={() => {}} />}
           {others.map((e) => <OtherEntry key={e.userId} e={e} />)}
         </div>
       </section>
@@ -79,7 +79,7 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, me
 
       <Tests strainId={strain.id} initialTests={tests} me={me} />
 
-      <StrainHistory strainId={strain.id} isAdmin={me.isAdmin} />
+      <StrainHistory strainId={strain.id} isAdmin={me.isAdmin} hidePrice={me.hidePrices} />
     </div>
   );
 }

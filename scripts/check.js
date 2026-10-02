@@ -7,7 +7,7 @@ const problems = [];
 const files = [];
 (function walk(d) {
   for (const f of fs.readdirSync(d, { withFileTypes: true })) {
-    if (['node_modules', '.next', '.git', '.data', '.claude', 'scripts'].includes(f.name)) continue;
+    if (['node_modules', '.next', '.git', '.data', '.claude', 'scripts', 'mobile'].includes(f.name)) continue;
     const p = path.join(d, f.name);
     if (f.isDirectory()) walk(p);
     else if (f.name.endsWith('.js')) files.push(p);

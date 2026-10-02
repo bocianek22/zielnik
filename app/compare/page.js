@@ -1,7 +1,9 @@
 import Link from 'next/link';
 import { intId } from '@/lib/ids';
+import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
+import { isNativeApp } from '@/lib/client';
 import { listStrains } from '@/lib/strains';
 import Header from '../components/Header';
 
@@ -29,7 +31,8 @@ export default async function Compare({ searchParams }) {
     ['Typ', (s) => s.type],
     ['THC', (s) => v(s.thc, '%')],
     ['CBD', (s) => v(s.cbd, '%')],
-    ['Cena za gram', (s) => v(s.price_per_g, ' zł')],
+    // w aplikacji natywnej bez cen (lib/client.js)
+    ...(isNativeApp(await headers()) ? [] : [['Cena za gram', (s) => v(s.price_per_g, ' zł')]]),
     ['Ocena końcowa', (s) => v(s.final_rating)],
     ['Średnia ocen', avg],
     ['Twoja ocena', (s) => v(mine(s)?.rating)],

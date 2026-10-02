@@ -13,7 +13,8 @@ export const LOW_STOCK = 3; // g: poniżej tej ilości odmiana dostaje znacznik 
 const fmt = (n) => (n == null ? '–' : String(Number(n)));
 
 // Edytowalne, osobiste pola zalogowanego użytkownika (autozapis po opuszczeniu pola)
-export function OwnEntry({ strainId, entry, onSaved, mates }) {
+// hidePrice: aplikacja natywna (lib/client.js); cena zostaje w stanie formularza, więc zapis jej nie kasuje
+export function OwnEntry({ strainId, entry, onSaved, mates, hidePrice = false }) {
   const [f, setF] = useState({
     rating: entry.rating ?? '', current: entry.current ?? 0, remaining: entry.remaining ?? 0, notes: entry.notes ?? '',
     visibility: entry.visibility ?? 'me',
@@ -97,10 +98,12 @@ export function OwnEntry({ strainId, entry, onSaved, mates }) {
         <label htmlFor={`${id}-n`}>Spostrzeżenia</label>
         <textarea id={`${id}-n`} className="input" rows={2} maxLength={1000} {...bind('notes')} />
       </div>
-      <div className="entry-field price">
-        <label htmlFor={`${id}-pr`}>Cena u mnie (zł/g), tworzy średnią cen</label>
-        <input id={`${id}-pr`} className="input" type="number" min="0" step="0.01" inputMode="decimal" {...bind('price')} />
-      </div>
+      {!hidePrice && (
+        <div className="entry-field price">
+          <label htmlFor={`${id}-pr`}>Cena u mnie (zł/g), tworzy średnią cen</label>
+          <input id={`${id}-pr`} className="input" type="number" min="0" step="0.01" inputMode="decimal" {...bind('price')} />
+        </div>
+      )}
       <div className="entry-field vis">
         <label htmlFor={`${id}-v`}>Kto widzi Twoją ocenę i opinię</label>
         <select id={`${id}-v`} className="input" value={f.visibility} onChange={(e) => setF((p) => ({ ...p, visibility: e.target.value }))} onBlur={save}>
@@ -140,7 +143,7 @@ export function OtherEntry({ e }) {
   );
 }
 
-export default function StrainCard({ strain, meId, mates, low, cmpOn, onCmp, onEdit, onEntrySaved }) {
+export default function StrainCard({ strain, meId, hidePrice = false, mates, low, cmpOn, onCmp, onEdit, onEntrySaved }) {
   const [expanded, setExpanded] = useState(false); // na telefonie szczegóły są domyślnie zwinięte
   const [quickUsed, setQuickUsed] = useState(false); // po zapisie panel zostaje, żeby komunikat nie zniknął przy stanie 0 g
   const mine = strain.entries.find((e) => e.userId === meId);
@@ -171,7 +174,7 @@ export default function StrainCard({ strain, meId, mates, low, cmpOn, onCmp, onE
           <p className="strain-meta">
             {strain.thc != null && <span className="pill">THC {strain.thc}%</span>}
             {strain.cbd != null && <span className="pill">CBD {strain.cbd}%</span>}
-            {strain.price_per_g != null && <span className="pill">{strain.price_per_g} zł/g</span>}
+            {strain.price_per_g != null && !hidePrice && <span className="pill">{strain.price_per_g} zł/g</span>}
           </p>
           {(strain.batch || strain.expires_on) && (
             <p className="strain-taste">
@@ -202,13 +205,13 @@ export default function StrainCard({ strain, meId, mates, low, cmpOn, onCmp, onE
       )}
 
       <div className="entries">
-        {mine && <OwnEntry strainId={strain.id} entry={mine} mates={mates} onSaved={(en) => onEntrySaved(strain.id, en)} />}
+        {mine && <OwnEntry strainId={strain.id} entry={mine} mates={mates} hidePrice={hidePrice} onSaved={(en) => onEntrySaved(strain.id, en)} />}
         {others.map((e) => <OtherEntry key={e.userId} e={e} />)}
       </div>
 
       <div className="strain-foot">
         <button type="button" className="btn ghost small only-mobile" onClick={() => setExpanded((v) => !v)} aria-expanded={expanded}>
-          {expanded ? 'Zwiń szczegóły' : 'Więcej: opinia, cena, zakup, inni'}
+          {expanded ? 'Zwiń szczegóły' : hidePrice ? 'Więcej: opinia, zakup, inni' : 'Więcej: opinia, cena, zakup, inni'}
         </button>
         <label className="check"><input type="checkbox" checked={!!cmpOn} onChange={onCmp} /> Porównaj</label>
         <button className="btn ghost small" onClick={onEdit}>Edytuj pola wspólne</button>

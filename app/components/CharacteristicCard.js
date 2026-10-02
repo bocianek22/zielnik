@@ -4,7 +4,8 @@ import { formLabel } from '@/lib/forms';
 const fx = (n) => String(Number(n.toFixed(1))).replace('.', ',');
 
 // Karta charakterystyki odmiany: opis, dane, terpeny, odczucia użytkowników, średnia cena, źródła
-export default function CharacteristicCard({ strain }) {
+// hidePrice: aplikacja natywna (lib/client.js), bez średniej ceny
+export default function CharacteristicCard({ strain, hidePrice = false }) {
   const tags = strainTags(strain);
   const feel = EFFECTS.map(([k, label]) => {
     const v = (strain.entries || []).map((e) => e.effects?.[k]).filter((x) => x != null);
@@ -29,7 +30,7 @@ export default function CharacteristicCard({ strain }) {
         {(strain.thc != null || strain.cbd != null) && <div><dt>Stężenie</dt><dd>{strain.thc != null && `THC ${strain.thc}%`}{strain.thc != null && strain.cbd != null && ', '}{strain.cbd != null && `CBD ${strain.cbd}%`}</dd></div>}
         {strain.terpenes?.length > 0 && <div><dt>Terpeny</dt><dd>{strain.terpenes.join(', ')}</dd></div>}
         {strain.taste && <div><dt>Smak i aromat</dt><dd>{strain.taste}</dd></div>}
-        <div><dt>Średnia cena</dt><dd>{price}</dd></div>
+        {!hidePrice && <div><dt>Średnia cena</dt><dd>{price}</dd></div>}
       </dl>
       {feel.length > 0 && (
         <>

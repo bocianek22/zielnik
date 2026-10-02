@@ -1,5 +1,7 @@
+import { headers } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
+import { isNativeApp } from '@/lib/client';
 import { intId } from '@/lib/ids';
 import { listStrains, listOptions, listTests, strainIndex } from '@/lib/strains';
 import Header from '../../components/Header';
@@ -26,7 +28,7 @@ export default async function StrainPage({ params }) {
       <Header user={user} />
       <main className="page">
         <StrainDetail strain={strain} options={options} tastes={tastes} mates={mates} tests={tests}
-          me={{ id: user.id, isAdmin: user.is_admin }} />
+          me={{ id: user.id, isAdmin: user.is_admin, hidePrices: isNativeApp(await headers()) }} />
       </main>
     </>
   );

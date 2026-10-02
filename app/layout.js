@@ -3,6 +3,7 @@ import './globals.css';
 import { cookies } from 'next/headers';
 import RegisterSW from './components/RegisterSW';
 import DiscreetGuard from './components/DiscreetGuard';
+import NativeShell from './components/NativeShell';
 
 const display = Fraunces({ subsets: ['latin', 'latin-ext'], variable: '--font-display', display: 'swap' });
 const body = Figtree({ subsets: ['latin', 'latin-ext'], variable: '--font-body' });
@@ -29,7 +30,7 @@ export default async function RootLayout({ children }) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: "try{var t=localStorage.getItem('zielnik.theme');if(t==='dark'||t==='light')document.documentElement.dataset.theme=t}catch(e){}try{if(localStorage.getItem('zielnik.discreet')==='1'&&document.documentElement.dataset.discreet!=='1'){document.documentElement.dataset.discreet='1';document.cookie='zielnik_discreet=1; path=/; max-age=31536000; SameSite=Lax'}}catch(e){}" }} />
       </head>
-      <body>{children}<RegisterSW /><DiscreetGuard /></body>
+      <body>{children}<RegisterSW /><DiscreetGuard /><NativeShell /></body>
     </html>
   );
 }

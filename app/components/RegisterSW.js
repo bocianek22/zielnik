@@ -18,7 +18,13 @@ async function syncPush(reg) {
 // Rejestruje service worker (powłoka offline i powiadomienia push, patrz public/sw.js)
 export default function RegisterSW() {
   useEffect(() => {
-    if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').then(syncPush).catch(() => {});
+    if (!('serviceWorker' in navigator)) return;
+    // Aplikacja natywna (mobile/) ma własną stronę offline i push FCM; service worker pośredniczyłby tylko w ładowaniu stron
+    if (/\bZielnikApp\//.test(navigator.userAgent)) {
+      navigator.serviceWorker.getRegistrations().then((rs) => rs.forEach((r) => r.unregister())).catch(() => {});
+      return;
+    }
+    navigator.serviceWorker.register('/sw.js').then(syncPush).catch(() => {});
   }, []);
   return null;
 }

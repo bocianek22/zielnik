@@ -16,3 +16,15 @@ next-env.d.ts
 
 # katalogi robocze subagentów Claude Code
 .claude/worktrees/
+
+# aplikacja natywna (mobile/): projekty android/ i ios/ commitujemy, buildy i pliki lokalne nie
+mobile/node_modules/
+mobile/android/local.properties
+mobile/android/.gradle/
+mobile/android/**/build/
+mobile/android/app/google-services.json
+mobile/ios/App/Pods/
+mobile/ios/App/build/
+mobile/ios/DerivedData/
+*.jks
+*.keystore

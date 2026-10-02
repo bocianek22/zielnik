@@ -1,6 +1,8 @@
 import Link from 'next/link';
+import { headers } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
+import { isNativeApp } from '@/lib/client';
 import { intId } from '@/lib/ids';
 import { sql, ensureDb } from '@/lib/db';
 import { listStrains, strainIndex } from '@/lib/strains';
@@ -43,7 +45,7 @@ export default async function KatalogItem({ params }) {
           <p className="muted small">Ostatnio widziana w katalogu: {item.last_seen}. Dostępność zmienia się często i nie jest gwarancją.</p>
           {match ? <Link className="btn" href={`/strains/${match.id}`}>Otwórz pełną kartę odmiany</Link> : <AddFromCatalog item={item} />}
         </section>
-        {match ? <CharacteristicCard strain={match} /> : (
+        {match ? <CharacteristicCard strain={match} hidePrice={isNativeApp(await headers())} /> : (
           <section className="card"><h2>Karta charakterystyki</h2>
             <p className="muted">Ta odmiana nie ma jeszcze karty w Zielniku. Dodaj ją do swoich odmian, a potem uzupełnij opis, terpeny i dane przyciskiem „Uzupełnij z internetu” w edycji odmiany. Informacje mają charakter poglądowy, ustal je z lekarzem.</p></section>
         )}

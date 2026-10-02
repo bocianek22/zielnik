@@ -1,0 +1,103 @@
+name: Aplikacja Android
+
+# APK powłoki natywnej (mobile/, Capacitor). Instrukcja: mobile/README.md.
+on:
+  push:
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/mobile-android.yml'
+  workflow_dispatch:
+    inputs:
+      zielnik_url:
+        description: 'Adres aplikacji webowej (puste = zmienna repozytorium ZIELNIK_URL albo domyślny z mobile/capacitor.config.js)'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mobile-android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    name: Build APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: mobile
+    env:
+      ZIELNIK_URL: ${{ inputs.zielnik_url || vars.ZIELNIK_URL }}
+      ZIELNIK_VERSION_CODE: ${{ github.run_number }}
+      HAS_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+      HAS_FIREBASE: ${{ secrets.GOOGLE_SERVICES_JSON != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+
+      # AGP 8.13 wymaga JDK 17+; 21 to wersja LTS wspierana przez Gradle 8.14
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - name: Firebase (google-services.json z sekretu, opcjonalnie)
+        if: env.HAS_FIREBASE == 'true'
+        run: printf '%s' "$GOOGLE_SERVICES_JSON" > android/app/google-services.json
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+
+      - run: npm ci
+      - run: npm run sync:android
+
+      - name: Wersja aplikacji
+        run: echo "ZIELNIK_VERSION_NAME=$(node -p "require('./package.json').version")" >> "$GITHUB_ENV"
+
+      - name: APK debug
+        working-directory: mobile/android
+        run: ./gradlew --no-daemon assembleDebug
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zielnik-debug-${{ env.ZIELNIK_VERSION_NAME }}-${{ github.run_number }}
+          path: mobile/android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
+
+      # Podpisany release tylko, gdy w sekretach jest keystore (mobile/README.md, „Podpisany release”)
+      - name: Keystore z sekretu
+        if: env.HAS_KEYSTORE == 'true'
+        run: |
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/zielnik-release.jks"
+          echo "ANDROID_KEYSTORE_FILE=$RUNNER_TEMP/zielnik-release.jks" >> "$GITHUB_ENV"
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+
+      - name: APK i AAB release (podpisane)
+        if: env.HAS_KEYSTORE == 'true'
+        working-directory: mobile/android
+        run: ./gradlew --no-daemon assembleRelease bundleRelease
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+
+      - uses: actions/upload-artifact@v4
+        if: env.HAS_KEYSTORE == 'true'
+        with:
+          name: zielnik-release-${{ env.ZIELNIK_VERSION_NAME }}-${{ github.run_number }}
+          path: |
+            mobile/android/app/build/outputs/apk/release/app-release.apk
+            mobile/android/app/build/outputs/bundle/release/app-release.aab
+          retention-days: 90
+
+      - name: Usuń keystore z dysku runnera
+        if: always() && env.HAS_KEYSTORE == 'true'
+        run: rm -f "$RUNNER_TEMP/zielnik-release.jks"

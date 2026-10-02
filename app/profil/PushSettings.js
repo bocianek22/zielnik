@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
+import { fcmToken, hasFcm, isNative, pushPermission, removeFcm, requestPushPermission, saveFcm, storedFcm } from '../components/native/bridge';
 
 // Klucz VAPID (base64url) w postaci wymaganej przez pushManager.subscribe
 function keyBytes(b64) {
@@ -33,11 +34,17 @@ export default function PushSettings() {
     const supported = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
     const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
-    setEnv({ supported, ios, standalone });
+    const native = isNative();
+    setEnv({ supported, ios, standalone, native, fcm: hasFcm() });
     (async () => {
       try {
         const c = await api('/api/push/config');
         setCfg(c); setPrefs(c.prefs);
+        // aplikacja natywna: token FCM zamiast Web Push (mobile/README.md)
+        if (native) {
+          if (hasFcm() && storedFcm() && (await pushPermission()) === 'granted') setSub({ native: true });
+          return;
+        }
         if (!c.enabled || !supported) return;
         const reg = await navigator.serviceWorker.getRegistration();
         const s = reg && await reg.pushManager.getSubscription();
@@ -50,7 +57,20 @@ export default function PushSettings() {
     })();
   }, []);
 
+  async function enableNative() {
+    setBusy(true); setMsg('');
+    try {
+      if ((await requestPushPermission()) !== 'granted') throw new Error('Powiadomienia są zablokowane. Zezwól na nie dla Zielnika w ustawieniach telefonu i spróbuj ponownie.');
+      await saveFcm(await fcmToken(), true);
+      setSub({ native: true });
+      setPrefs((p) => ({ ...p, devices: Math.max(1, p.devices || 0) }));
+      setMsg('Telefon zapisany do powiadomień.');
+    } catch (e) { setMsg(e.message); }
+    setBusy(false);
+  }
+
   async function enable() {
+    if (env.native) return enableNative();
     setBusy(true); setMsg('');
     try {
       const perm = await Notification.requestPermission();
@@ -72,9 +92,12 @@ export default function PushSettings() {
   async function disable() {
     setBusy(true); setMsg('');
     try {
-      const endpoint = sub.endpoint;
-      await sub.unsubscribe().catch(() => {});
-      await api('/api/push/subscription', 'DELETE', { endpoint });
+      if (sub.native) await removeFcm();
+      else {
+        const endpoint = sub.endpoint;
+        await sub.unsubscribe().catch(() => {});
+        await api('/api/push/subscription', 'DELETE', { endpoint });
+      }
       setSub(null);
       setPrefs((p) => ({ ...p, devices: Math.max(0, (p.devices || 0) - 1) }));
       setMsg('Powiadomienia wyłączone na tym urządzeniu.');
@@ -98,18 +121,21 @@ export default function PushSettings() {
 
   let body;
   if (!env || !cfg) body = <p className="muted">Sprawdzanie…</p>;
-  else if (!cfg.enabled) body = <p className="muted">Powiadomienia nie są jeszcze włączone na serwerze. Gdy administrator je skonfiguruje, ustawisz je tutaj.</p>;
+  else if (env.native) {
+    if (!env.fcm) body = <p className="muted">Powiadomienia w aplikacji wymagają konfiguracji Firebase. Pojawią się w jednej z kolejnych wersji aplikacji.</p>;
+  } else if (!cfg.enabled) body = <p className="muted">Powiadomienia nie są jeszcze włączone na serwerze. Gdy administrator je skonfiguruje, ustawisz je tutaj.</p>;
   else if (env.ios && !env.standalone) body = (
     <p className="alert note">Na iPhonie i iPadzie powiadomienia działają tylko w aplikacji dodanej do ekranu głównego (iOS 16.4 lub nowszy):
       w Safari stuknij „Udostępnij”, potem „Do ekranu początk.”, otwórz Zielnik z ikony i wróć tutaj.</p>);
   else if (!env.supported) body = <p className="muted">Ta przeglądarka nie obsługuje powiadomień push.</p>;
-  else body = (
+  body ??= (
     <>
+      {env.native && <p className="muted small">Wysyłka do aplikacji (Firebase) jest w przygotowaniu: telefon zostanie zapisany, a przypomnienia zaczną docierać, gdy serwer ją obsłuży.</p>}
       <div className="row">
         {sub
           ? <button type="button" className="btn ghost" onClick={disable} disabled={busy}>Wyłącz na tym urządzeniu</button>
           : <button type="button" className="btn" onClick={enable} disabled={busy}>Włącz powiadomienia</button>}
-        {sub && <button type="button" className="btn ghost" onClick={test} disabled={busy}>Wyślij testowe powiadomienie</button>}
+        {sub && !sub.native && <button type="button" className="btn ghost" onClick={test} disabled={busy}>Wyślij testowe powiadomienie</button>}
       </div>
       {prefs && (
         <fieldset className="push-prefs" aria-label="Rodzaje przypomnień" disabled={!sub && !prefs.devices}>
