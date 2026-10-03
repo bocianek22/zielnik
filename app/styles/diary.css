@@ -54,3 +54,31 @@
 .rx-dates { margin: 0; font-size: var(--fs-sm); color: var(--text-2); }
 .rx-foot { display: flex; justify-content: flex-end; }
 .rx-foot .btn { margin-right: calc(var(--s-2) * -1); }
+
+/* Moje obserwacje (app/obserwacje, POM-06) */
+.obs-lead { margin: calc(var(--s-2) * -1) 0 var(--s-4); color: var(--text-2); max-width: 68ch; }
+.obs-page .alert.note { margin-bottom: var(--s-4); }
+.obs-period { margin-bottom: var(--s-4); }
+/* przełącznik okresu z linkami (adres ?okres=…) w tym samym wyglądzie co .seg button */
+.seg a { flex: 1 1 auto; display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 0 var(--s-4); border-radius: 8px; font-size: var(--fs-sm); font-weight: 600; color: var(--text-2); text-decoration: none; white-space: nowrap; }
+.seg a.on { background: var(--surface); color: var(--text); box-shadow: var(--shadow-1), 0 0 0 1px var(--sep); }
+:root[data-theme="dark"] .seg a.on { background: var(--surface-3); box-shadow: 0 0 0 1px var(--sep-strong); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .seg a.on { background: var(--surface-3); box-shadow: 0 0 0 1px var(--sep-strong); } }
+@media (max-width: 480px) { .seg a { padding: 0 var(--s-3); } }
+@media (pointer: coarse) { .seg a { min-height: var(--tap); } }
+.obs-summary { margin: 0; color: var(--text-2); font-size: var(--fs-sm); font-variant-numeric: tabular-nums; }
+.obs-summary b { color: var(--text); font-weight: 600; }
+.obs-sym { margin-top: var(--s-5); }
+.obs-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px var(--s-3); }
+.obs-head span { font-weight: 500; color: var(--text-3); font-size: var(--fs-xs); }
+.obs-row .lr-main > span:first-child { font-weight: 500; }
+.obs-val { flex: none; margin-left: auto; display: inline-flex; align-items: center; gap: var(--s-3); }
+.obs-val b { font-family: var(--font-display), Georgia, serif; font-size: 1.375rem; font-weight: 600; font-variant-numeric: tabular-nums lining-nums; min-width: 2.6ch; text-align: right; }
+.obs-val.none { color: var(--text-3); padding-right: var(--s-2); }
+.obs-row.few .lr-sub { color: var(--text-3); }
+/* skala 0–10: tor i punkt średniej, ten sam kolor w każdej grupie (bez oceniania kolorem) */
+.obs-track { position: relative; width: 56px; height: 4px; border-radius: var(--r-pill); background: var(--surface-3); }
+.obs-track i { position: absolute; top: 50%; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: var(--text-2); box-shadow: 0 0 0 2px var(--surface); }
+@media (max-width: 359px) { .obs-track { display: none; } }
+.obs-none { margin-top: 0; }
+.obs-rules ul { margin: 0; padding-left: 1.1em; display: grid; gap: var(--s-2); font-size: var(--fs-sm); color: var(--text-2); max-width: 68ch; }
