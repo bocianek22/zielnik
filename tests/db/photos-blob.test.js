@@ -36,6 +36,7 @@ before(async () => {
   process.env.AUTH_SECRET ||= 'test-secret-0123456789';
   process.env.BOCIAN_INITIAL_PASSWORD ||= 'startowe-haslo';
   process.env.BLOB_READ_WRITE_TOKEN = 'test-token';
+  process.env.PHOTOS_BLOB = '1';
   ({ pool } = await import('./neon-shim.mjs'));
   ({ jar } = await import('./headers-shim.mjs'));
   blob = await import('./blob-shim.mjs');
@@ -236,8 +237,12 @@ test('skrypt photos-to-blob: --dry-run nic nie zmienia, uruchomienie przenosi, p
   const [v0] = await q`SELECT updated_at FROM strain_photos WHERE strain_id = ${sid}`;
 
   const run = (...args) => spawnSync(process.execPath, ['--experimental-default-type=module', '--import', './tests/db/register.mjs', 'scripts/photos-to-blob.js', ...args], {
-    cwd: new URL('../..', import.meta.url), encoding: 'utf8', env: { ...process.env, DATABASE_URL: URL_, BLOB_READ_WRITE_TOKEN: 'test-token' },
+    cwd: new URL('../..', import.meta.url), encoding: 'utf8', env: { ...process.env, DATABASE_URL: URL_, BLOB_READ_WRITE_TOKEN: 'test-token', PHOTOS_BLOB: '1' },
   });
+  const noFlag = spawnSync(process.execPath, ['--experimental-default-type=module', '--import', './tests/db/register.mjs', 'scripts/photos-to-blob.js'], {
+    cwd: new URL('../..', import.meta.url), encoding: 'utf8', env: { ...process.env, DATABASE_URL: URL_, BLOB_READ_WRITE_TOKEN: 'test-token', PHOTOS_BLOB: '' },
+  });
+  assert.equal(noFlag.status, 2, 'bez PHOTOS_BLOB=1 skrypt odmawia');
   const dry = run('--dry-run');
   assert.equal(dry.status, 0, dry.stderr);
   assert.match(dry.stdout, /\[dry-run\] Znaleziono [2-9]/);
@@ -253,4 +258,34 @@ test('skrypt photos-to-blob: --dry-run nic nie zmienia, uruchomienie przenosi, p
   const again = run();
   assert.equal(again.status, 0, again.stderr);
   assert.match(again.stdout, /Znaleziono 0, przeniesiono 0/);
+});
+
+test('z tokenem, ale bez PHOTOS_BLOB=1 nowe zdjęcia idą do bazy; odczyt blob_path bez tokenu daje 404', { skip }, async () => {
+  const { ania: A, bartek: B } = ids;
+  blob.store.clear();
+  const puts = blob.calls.put.length;
+  process.env.PHOTOS_BLOB = '';
+  let sid;
+  try {
+    sid = (await call(A, 'strains', 'POST', { name: 'Opt-in', producer: 'Aurora', type: 'haze' })).json.id;
+    assert.equal((await call(A, 'strains/[id]/photo', 'PUT', { image: img('flaga') }, { id: String(sid) })).status, 200);
+  } finally { process.env.PHOTOS_BLOB = '1'; }
+  const [row] = await q`SELECT blob_path, data FROM strain_photos WHERE strain_id = ${sid}`;
+  assert.equal(row.blob_path, null);
+  assert.equal(Buffer.from(row.data, 'base64').toString(), 'flaga');
+  assert.equal(blob.calls.put.length, puts);
+
+  // blob_path w bazie, ale brak tokenu: 404 (z logiem), nie 500
+  await q`UPDATE strain_photos SET blob_path = 'zielnik-photos/x.png', data = '' WHERE strain_id = ${sid}`;
+  const tok = process.env.BLOB_READ_WRITE_TOKEN;
+  delete process.env.BLOB_READ_WRITE_TOKEN;
+  const err = console.error;
+  const logged = [];
+  console.error = (...a) => logged.push(a.join(' '));
+  try {
+    assert.equal((await call(B, 'strains/[id]/photo', 'GET', null, { id: String(sid) })).status, 404);
+  } finally { console.error = err; process.env.BLOB_READ_WRITE_TOKEN = tok; }
+  assert.ok(logged.length > 0);
+  // z tokenem, ale bez obiektu (get() zwraca null): też 404
+  assert.equal((await call(B, 'strains/[id]/photo', 'GET', null, { id: String(sid) })).status, 404);
 });

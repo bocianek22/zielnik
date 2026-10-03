@@ -8,7 +8,7 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 ### Dodano
-- Zdjęcia odmian i testów w prywatnym Vercel Blob (PLA-4, krok 1): gdy jest `BLOB_READ_WRITE_TOKEN`, nowe zdjęcie trafia do `zielnik-photos/<losowy-uuid>.<rozszerzenie>` (`access: 'private'`), a w bazie zostaje tylko ścieżka w nowej kolumnie `blob_path` (`strain_photos`, `strain_tests`; `data = ''`). Odczyt dalej idzie przez trasy `/api/strains/[id]/photo` i `/api/tests/[tid]/photo` z tą samą kontrolą uprawnień (`can_see` dla testów) i prywatnym cache. Bez tokenu działa jak dotąd (base64 w bazie).
+- Zdjęcia odmian i testów w prywatnym Vercel Blob (PLA-4, krok 1): gdy jest `BLOB_READ_WRITE_TOKEN` i `PHOTOS_BLOB=1` (opt-in), nowe zdjęcie trafia do `zielnik-photos/<losowy-uuid>.<rozszerzenie>` (`access: 'private'`), a w bazie zostaje tylko ścieżka w nowej kolumnie `blob_path` (`strain_photos`, `strain_tests`; `data = ''`). Odczyt dalej idzie przez trasy `/api/strains/[id]/photo` i `/api/tests/[tid]/photo` z tą samą kontrolą uprawnień (`can_see` dla testów) i prywatnym cache. Bez tokenu lub bez flagi działa jak dotąd (base64 w bazie); sam token (używany przez kopie) włącza tylko odczyt i usuwanie. Brak obiektu lub tokenu przy odczycie daje 404.
 - Usunięcie lub podmiana zdjęcia, testu, odmiany (także przez admina i zgłoszenie) oraz konta usuwa obiekt z Blob (best effort, błąd tylko w logu).
 - `scripts/photos-to-blob.js`: jednorazowa, idempotentna migracja istniejących zdjęć base64 do Blob, partiami, z trybem `--dry-run` (patrz `docs/ARCHITEKTURA.md`).
 ### Zmieniono

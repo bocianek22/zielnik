@@ -1,6 +1,6 @@
 // Jednorazowa migracja zdjęć odmian i testów z base64 w bazie do prywatnego Vercel Blob.
-// Użycie (Node 20+), DATABASE_URL i BLOB_READ_WRITE_TOKEN w środowisku:
-//   node --experimental-default-type=module scripts/photos-to-blob.js [--dry-run] [--batch=20] [--limit=N]
+// Użycie (Node 20+), DATABASE_URL, BLOB_READ_WRITE_TOKEN i PHOTOS_BLOB=1 w środowisku:
+//   PHOTOS_BLOB=1 node --experimental-default-type=module scripts/photos-to-blob.js [--dry-run] [--batch=20] [--limit=N]
 // Idempotentny: przenosi tylko wiersze z blob_path IS NULL i niepustym data, więc można go powtarzać i wznawiać po przerwaniu.
 // Kolejność: najpierw wdróż wersję z obsługą blob_path (kolumny tworzy ensureDb przy pierwszym żądaniu), potem uruchom skrypt.
 // Wiersz jest aktualizowany tylko wtedy, gdy nadal nie ma blob_path (zdjęcie zmienione w międzyczasie zostaje nietknięte,
@@ -15,6 +15,7 @@ const limit = Number(arg('limit', 0)) || Infinity;
 const token = process.env.BLOB_READ_WRITE_TOKEN;
 if (!process.env.DATABASE_URL) { console.error('Brak DATABASE_URL.'); process.exit(2); }
 if (!dry && !token) { console.error('Brak BLOB_READ_WRITE_TOKEN (albo użyj --dry-run).'); process.exit(2); }
+if (!dry && process.env.PHOTOS_BLOB !== '1') { console.error('Ustaw PHOTOS_BLOB=1 (opt-in; albo użyj --dry-run).'); process.exit(2); }
 
 const EXT = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' };
 const sql = neon(process.env.DATABASE_URL);
