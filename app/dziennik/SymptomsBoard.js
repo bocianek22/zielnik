@@ -36,7 +36,7 @@ function Chart({ rows, usage }) {
         return <g key={k}>{segs.map((s, i) => <polyline key={i} points={s.join(' ')} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" />)}
           {pts.map((p, i) => p && <circle key={i} cx={p[0]} cy={p[1]} r="2.5" fill={color} />)}</g>;
       })}
-      {[0, 10, 20, 29].map((i) => <text key={i} x={x(i)} y={H - 6} textAnchor="middle">{xs[i].slice(5).split('-').reverse().join('.')}</text>)}
+      {[0, 10, 20, 29].map((i) => <text key={i} x={x(i)} y={H - 6} textAnchor={i === 29 ? 'end' : 'middle'}>{xs[i].slice(5).split('-').reverse().join('.')}</text>)}
     </svg>
   );
 }

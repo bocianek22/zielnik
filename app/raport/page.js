@@ -85,7 +85,7 @@ export default async function Raport({ searchParams }) {
           <div className="summary">
             <dl className="stat-strip">
               <div><dt>Zużycie</dt><dd><b>{nf(total, 2)}</b> g</dd></div>
-              <div><dt>Średnio</dt><dd><b>{nf(total / daysSpan, 2)}</b> g/dzień</dd></div>
+              <div><dt>Średnio na dzień</dt><dd><b>{nf(total / daysSpan, 2)}</b> g</dd></div>
               <div><dt>Wykupiono</dt><dd><b>{nf(bought, 2)}</b> g{cost > 0 && <span className="stat-sub">ok. {nf(cost, 2)} zł</span>}</dd></div>
             </dl>
           </div>

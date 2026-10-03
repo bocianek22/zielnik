@@ -38,6 +38,7 @@
 @media (min-width: 640px) {
   .hist-list { display: none; }
   .hist-table { display: block; }
+  .hist-table.card { padding: 0; }
   .hist-table .table-wrap { padding: var(--s-2) var(--s-4) var(--s-3); }
   .cmp.hist-cmp { min-width: 0; }
   .cmp .num, .cmp th.num { text-align: right; white-space: nowrap; }
@@ -52,7 +53,8 @@
 .report-sheet h3 { margin: var(--s-6) 0 var(--s-2); font-size: var(--fs-lg); }
 .report-sheet .report-meta { margin: 0 0 var(--s-2); }
 .report-sheet .summary { padding: 0; overflow: hidden; border: 1px solid var(--sep); border-radius: var(--r-lg); margin-top: var(--s-3); }
-.report-sheet .stat-strip dd { white-space: normal; }
+.report-sheet .stat-strip dd b { font-size: 1.375rem; }
+.report-filter .input { min-width: 0; }
 .report-sheet .list, .report-sheet .facts { margin-top: var(--s-2); }
 .report-wide { display: none; }
 @media (min-width: 640px) {

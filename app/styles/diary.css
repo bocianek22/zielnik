@@ -39,8 +39,13 @@
 .rx-title { margin: 0; font-family: var(--font-display), Georgia, serif; font-size: var(--fs-xl); font-weight: 600; font-variant-numeric: tabular-nums lining-nums; }
 .rx-title small { margin-left: var(--s-2); font-family: var(--font-body), system-ui, sans-serif; font-size: var(--fs-sm); font-weight: 500; color: var(--text-2); }
 .rx-state { font-size: var(--fs-sm); color: var(--text-2); text-align: right; flex: none; }
-.rx-row progress { width: 100%; height: 8px; accent-color: var(--accent); border-radius: var(--r-pill); }
-.rx-row.done progress, .rx-row.expired progress { accent-color: var(--text-3); }
+.rx-row progress { appearance: none; -webkit-appearance: none; width: 100%; height: 8px; border: 0; border-radius: var(--r-pill); overflow: hidden; background: var(--surface-3); color: var(--accent); accent-color: var(--accent); }
+.rx-row progress::-webkit-progress-bar { background: var(--surface-3); }
+.rx-row progress::-webkit-progress-value { background: var(--accent); border-radius: var(--r-pill); }
+.rx-row progress::-moz-progress-bar { background: var(--accent); border-radius: var(--r-pill); }
+.rx-row.done progress, .rx-row.expired progress { color: var(--text-3); accent-color: var(--text-3); }
+.rx-row.done progress::-webkit-progress-value, .rx-row.expired progress::-webkit-progress-value { background: var(--text-3); }
+.rx-row.done progress::-moz-progress-bar, .rx-row.expired progress::-moz-progress-bar { background: var(--text-3); }
 .rx-amount { margin: 0; font-variant-numeric: tabular-nums; }
 .rx-amount b { font-weight: 600; }
 .rx-dates { margin: 0; font-size: var(--fs-sm); color: var(--text-2); }
