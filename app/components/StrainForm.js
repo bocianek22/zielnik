@@ -7,6 +7,7 @@ import { FORMS } from '@/lib/forms';
 import OptionSelect from './OptionSelect';
 import TerpenePicker from './TerpenePicker';
 import Icon from './Icon';
+import { parseNum, decimalProps } from './num';
 
 // Formularz pól wspólnych: producent, odmiana, rodzaj, typ, THC/CBD, terpeny, opis, smak, zdjęcie
 // hidePrice: aplikacja natywna (lib/client.js); pole ceny znika, ale wartość zostaje w stanie, więc zapis jej nie kasuje
@@ -60,9 +61,14 @@ export default function StrainForm({ strain, options, tastes, canDelete, hidePri
     if (!String(f.name).trim()) m.name = 'Podaj nazwę odmiany.';
     if (!String(f.producer).trim()) m.producer = 'Wybierz producenta.';
     if (!String(f.type).trim()) m.type = 'Wybierz typ.';
-    const rng = (k, label, max) => { const v = f[k]; if (v !== '' && v != null && !(Number(v) >= 0 && Number(v) <= max)) m[k] = `${label}: wartość od 0 do ${max}.`; };
+    const rng = (k, label, max) => {
+      const v = parseNum(f[k]);
+      if (v === null) return;
+      if (Number.isNaN(v)) m[k] = `${label}: wpisz liczbę, np. 0,5.`;
+      else if (v > max) m[k] = `${label}: wartość od 0 do ${max}.`;
+    };
     rng('thc', 'THC', 100); rng('cbd', 'CBD', 100); rng('finalRating', 'Ocena', 10);
-    if (f.price !== '' && f.price != null && !(Number(f.price) >= 0)) m.price = 'Cena nie może być ujemna.';
+    if (Number.isNaN(parseNum(f.price))) m.price = 'Cena: wpisz liczbę, np. 49,90.';
     return m;
   }
 
@@ -78,7 +84,7 @@ export default function StrainForm({ strain, options, tastes, canDelete, hidePri
     setError(''); setBusy(true);
     try {
       let id = strain?.id;
-      const body = { ...f, sources, descriptionAuto: auto };
+      const body = { ...f, thc: parseNum(f.thc) ?? '', cbd: parseNum(f.cbd) ?? '', finalRating: parseNum(f.finalRating) ?? '', price: parseNum(f.price) ?? '', sources, descriptionAuto: auto };
       if (strain) await api(`/api/strains/${id}`, 'PATCH', body);
       else id = (await api('/api/strains', 'POST', body)).id;
       try {
@@ -182,12 +188,12 @@ export default function StrainForm({ strain, options, tastes, canDelete, hidePri
       <div className="row nums">
         <div className="field grow">
           <label htmlFor={`${uid}-thc`}>THC (%)</label>
-          <input id={`${uid}-thc`} className="input" type="number" min="0" max="100" step="0.1" inputMode="decimal" {...bad('thc')} {...inp('thc')} />
+          <input id={`${uid}-thc`} className="input" {...decimalProps} {...bad('thc')} {...inp('thc')} />
           {err('thc')}
         </div>
         <div className="field grow">
           <label htmlFor={`${uid}-cbd`}>CBD (%)</label>
-          <input id={`${uid}-cbd`} className="input" type="number" min="0" max="100" step="0.1" inputMode="decimal" {...bad('cbd')} {...inp('cbd')} />
+          <input id={`${uid}-cbd`} className="input" {...decimalProps} {...bad('cbd')} {...inp('cbd')} />
           {err('cbd')}
         </div>
       </div>
@@ -207,7 +213,7 @@ export default function StrainForm({ strain, options, tastes, canDelete, hidePri
         {!hidePrice && (
           <div className="field grow">
             <label htmlFor={`${uid}-price`}>Cena za gram (zł)</label>
-            <input id={`${uid}-price`} className="input" type="number" min="0" step="0.01" inputMode="decimal" {...bad('price')} {...inp('price')} />
+            <input id={`${uid}-price`} className="input" {...decimalProps} {...bad('price')} {...inp('price')} />
             {err('price')}
           </div>
         )}
@@ -224,7 +230,7 @@ export default function StrainForm({ strain, options, tastes, canDelete, hidePri
       <h3 className="section-label">Opis i ocena</h3>
       <div className="field">
         <label htmlFor={`${uid}-finalRating`}>Ocena końcowa (0–10)</label>
-        <input id={`${uid}-finalRating`} className="input narrow-input" type="number" min="0" max="10" step="0.5" inputMode="decimal" {...bad('finalRating')} {...inp('finalRating')} />
+        <input id={`${uid}-finalRating`} className="input narrow-input" {...decimalProps} {...bad('finalRating')} {...inp('finalRating')} />
         {err('finalRating')}
       </div>
       <div className="field">

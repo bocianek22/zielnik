@@ -75,10 +75,10 @@
 .strain-more { margin-top: var(--s-3); }
 .strain-taste { margin: 4px 0 0; color: var(--text-2); font-size: var(--fs-sm); }
 .strain-desc { margin-top: var(--s-2); }
-.strain-desc summary { cursor: pointer; font-weight: 600; font-size: var(--fs-sm); color: var(--accent-text); min-height: 32px; display: flex; align-items: center; }
+.strain-desc summary { cursor: pointer; font-weight: 600; font-size: var(--fs-sm); color: var(--accent-text); min-height: var(--tap); display: flex; align-items: center; }
 .strain-desc p { margin: 6px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .strain-foot { margin-top: var(--s-3); padding-top: var(--s-2); border-top: 1px solid var(--sep); display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); flex-wrap: wrap; }
-.strain-foot .check { font-size: var(--fs-sm); min-height: 40px; }
+.strain-foot .check { font-size: var(--fs-sm); min-height: var(--tap); }
 .strain-foot .chev { transition: transform var(--dur-2) var(--ease); }
 .strain.expanded .strain-foot .chev { transform: rotate(180deg); }
 .pool-note { color: var(--text-2); font-size: var(--fs-xs); line-height: 1.35; }
@@ -95,7 +95,18 @@
   .strain-foot .hide-narrow { display: none; }
   .strain-foot .cmp-check { padding-inline: var(--s-2); gap: 8px; white-space: nowrap; }
 }
-@media (max-width: 359px) { .strain-foot .cmp-check span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); } }
+/* 320 px: stopka karty mieści trzy cele; etykiety się nie łamią, „Porównaj” ma własne miejsce i zwęża się razem z przyciskami */
+@media (max-width: 359px) {
+  .strain-foot { margin-inline: calc(var(--s-1) * -1); }
+  .strain-foot > * { min-width: 0; }
+  .strain-foot .btn.text { padding-inline: var(--s-1); font-size: var(--fs-xs); gap: 2px; }
+  .strain-foot .cmp-check { padding-inline: var(--s-1); gap: 6px; font-size: var(--fs-xs); flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis; }
+  .strain-meta > * + *::before, .strain-facts > * + *::before { margin: 0 4px; }
+  .strain-facts { font-size: var(--fs-xs); }
+  .strain-head { gap: var(--s-2); }
+  .score { min-width: 44px; }
+  .score small { white-space: normal; text-align: right; line-height: 1.2; }
+}
 
 /* ===== Pola użytkownika w karcie ===== */
 .entries { display: grid; gap: var(--s-2); margin-top: var(--s-3); }
@@ -111,12 +122,13 @@
 .entry-field label, .entry-field .lbl { font-size: var(--fs-xs); font-weight: 600; color: var(--text-2); }
 .entry-field b { padding-top: 6px; font-variant-numeric: tabular-nums; }
 .entry-field .notes-text, .entry-field.notes > span:last-child { padding-top: 6px; overflow-wrap: anywhere; }
-.entry-field .input { padding: 8px 10px; background: var(--field-bg); }
+.entry-field .input { padding: 8px 10px; background: var(--field-bg); min-height: var(--tap); font-size: 16px; }
+.entry-field .btn.small, .use-row .btn { min-height: var(--tap); }
 .entry-field.use, .entry-field.buy, .entry-field.vis, .entry-field.price { grid-column: 1 / -1; }
 .entry-field.price .input, .vis-select, .entry-field.vis .input { max-width: 260px; }
 .entry.other { grid-template-columns: 120px 100px 1fr; background: transparent; border-top: 1px solid var(--sep); border-radius: 0; padding-inline: 0; }
 .use-row { display: flex; gap: var(--s-2); max-width: 340px; }
-.entry .chips.small .use-chip { border: 1px solid var(--sep-strong); background: var(--surface); color: var(--text); border-radius: var(--r-pill); padding: 4px 12px; font-size: var(--fs-sm); font-variant-numeric: tabular-nums; }
+.entry .chips.small .use-chip { border: 1px solid var(--sep-strong); background: var(--surface); color: var(--text); border-radius: var(--r-pill); min-height: var(--tap); padding: 0 14px; font-size: var(--fs-sm); font-variant-numeric: tabular-nums; }
 .use-row .input { min-width: 0; }
 @media (max-width: 820px) {
   .entry { grid-template-columns: repeat(3, 1fr); }

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import useNativeRefresh from '@/app/components/native/useNativeRefresh';
 import Icon from '@/app/components/Icon';
+import { parseNum, decimalProps } from '@/app/components/num';
 
 const today = () => new Date().toISOString().slice(0, 10);
 const daysLeft = (iso) => Math.ceil((new Date(`${iso}T23:59:59`) - Date.now()) / 864e5);
@@ -20,7 +21,9 @@ export default function Prescriptions() {
 
   async function add(e) {
     e.preventDefault();
-    try { setList((await api('/api/prescriptions', 'POST', f)).prescriptions); setF({ ...f, grams: '', note: '' }); setMsg(''); setOpen(false); }
+    const grams = parseNum(f.grams);
+    if (!(grams > 0)) { setMsg('Podaj przepisaną ilość w gramach, np. 10 lub 7,5.'); return; }
+    try { setList((await api('/api/prescriptions', 'POST', { ...f, grams })).prescriptions); setF({ ...f, grams: '', note: '' }); setMsg(''); setOpen(false); }
     catch (err) { setMsg(err.message); }
   }
   async function remove(id) {
@@ -78,7 +81,7 @@ export default function Prescriptions() {
           <div className="row">
             <div className="field grow"><label htmlFor="rx-from">Data wystawienia</label><input id="rx-from" className="input" type="date" required value={f.issuedOn} onChange={set('issuedOn')} /></div>
             <div className="field grow"><label htmlFor="rx-to">Ważna do (opcjonalnie)</label><input id="rx-to" className="input" type="date" value={f.validUntil} onChange={set('validUntil')} /></div>
-            <div className="field grow"><label htmlFor="rx-g">Przepisana ilość (g)</label><input id="rx-g" className="input" type="number" min="0.1" step="0.1" inputMode="decimal" required value={f.grams} onChange={set('grams')} /></div>
+            <div className="field grow"><label htmlFor="rx-g">Przepisana ilość (g)</label><input id="rx-g" className="input" {...decimalProps} required value={f.grams} onChange={set('grams')} /></div>
           </div>
           <div className="field"><label htmlFor="rx-n">Notatka (np. lekarz, numer)</label><input id="rx-n" className="input" maxLength={120} value={f.note} onChange={set('note')} /></div>
           {msg && <div className="alert error" role="alert">{msg}</div>}

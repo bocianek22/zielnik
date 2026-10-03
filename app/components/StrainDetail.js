@@ -26,7 +26,7 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, me
   const canDelete = me.isAdmin || strain.created_by === me.id;
 
   return (
-    <div className="stack">
+    <div className="stack detail-page">
       <Link href="/" className="back"><Icon name="chevronLeft" size={20} />Wszystkie odmiany</Link>
 
       {editing ? (

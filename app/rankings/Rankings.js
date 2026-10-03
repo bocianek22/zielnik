@@ -5,6 +5,7 @@ import { KINDS } from '@/lib/kinds';
 import { FORMS } from '@/lib/forms';
 import { TAG_LIST } from '@/lib/effects';
 import Icon from '../components/Icon';
+import { parseNum, decimalProps } from '../components/num';
 
 function startOf(period) {
   const d = new Date();
@@ -66,8 +67,9 @@ export default function Rankings({ strains, meId }) {
     if (form && s.form !== form) return false;
     if (tag && !s.tags.includes(tag)) return false;
     if (producer && s.producer !== producer) return false;
-    if (minThc !== '' && !(s.thc != null && s.thc >= Number(minThc))) return false;
-    if (maxThc !== '' && !(s.thc != null && s.thc <= Number(maxThc))) return false;
+    if (minThc !== '' && !(s.thc != null && s.thc >= (parseNum(minThc) || 0))) return false;
+    const mx = parseNum(maxThc);
+    if (mx != null && !Number.isNaN(mx) && !(s.thc != null && s.thc <= mx)) return false;
     return true;
   }), [strains, kind, form, tag, producer, minThc, maxThc]);
 
@@ -103,9 +105,9 @@ export default function Rankings({ strains, meId }) {
               <select id="rk-prod" className="input" value={producer} onChange={(e) => setProducer(e.target.value)}>
                 <option value="">Wszyscy</option>{producers.map((p) => <option key={p} value={p}>{p}</option>)}</select></div>
             <div className="field"><label htmlFor="rk-min">THC od (%)</label>
-              <input id="rk-min" className="input" type="number" min="0" max="100" step="0.5" inputMode="decimal" value={minThc} onChange={(e) => setMinThc(e.target.value)} /></div>
+              <input id="rk-min" className="input" {...decimalProps} value={minThc} onChange={(e) => setMinThc(e.target.value)} /></div>
             <div className="field"><label htmlFor="rk-max">THC do (%)</label>
-              <input id="rk-max" className="input" type="number" min="0" max="100" step="0.5" inputMode="decimal" value={maxThc} onChange={(e) => setMaxThc(e.target.value)} /></div>
+              <input id="rk-max" className="input" {...decimalProps} value={maxThc} onChange={(e) => setMaxThc(e.target.value)} /></div>
           </div>
           {active > 0 && <button type="button" className="btn text" onClick={clear}>Wyczyść filtry</button>}
         </div>

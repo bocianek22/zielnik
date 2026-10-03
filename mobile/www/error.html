@@ -6,21 +6,21 @@
 <meta name="theme-color" content="#1d3b27">
 <title>Zielnik — brak połączenia</title>
 <style>
-  /* kolory jak w aplikacji (app/globals.css): --paper, --card, --hemp-deep; ciemny według ustawienia telefonu */
-  :root { --bg: #eef1e2; --card: #fbfaf2; --line: #d5dcc0; --ink: #1c2b21; --muted: #5d6c5f; --accent: #1d3b27; --accent-ink: #eef1e2; --leaf: #78a952; color-scheme: light dark; }
+  /* tokeny jak w aplikacji (app/globals.css); ciemny według ustawienia telefonu */
+  :root { --bg: #f4f5f1; --surface: #ffffff; --sep: #e0e3da; --text: #18211b; --text-2: #566158; --accent: #2f6b45; --on-accent: #ffffff; --bar: #1d3b27; --bar-mark: #a7cf8a; color-scheme: light dark; }
   @media (prefers-color-scheme: dark) {
-    :root { --bg: #161c14; --card: #202b1c; --line: #35452f; --ink: #e7ecdd; --muted: #a3b09a; --accent: #7fbd7a; --accent-ink: #161c14; --leaf: #8fc766; }
+    :root { --bg: #0f1411; --surface: #171d19; --sep: #28312b; --text: #e7ece5; --text-2: #a5afa6; --accent: #86c597; --on-accent: #0c1a10; --bar: #1d3b27; --bar-mark: #a7cf8a; }
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; background: var(--bg); }
-  body { min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; color: var(--ink);
+  body { min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; color: var(--text);
     padding: max(24px, env(safe-area-inset-top)) 24px max(24px, env(safe-area-inset-bottom));
     font: 17px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; text-align: center; -webkit-tap-highlight-color: transparent; }
-  .box { width: 100%; max-width: 380px; padding: 32px 24px 28px; border-radius: 24px; background: var(--card); border: 1px solid var(--line); }
-  .icon { width: 72px; height: 72px; margin: 0 auto 16px; border-radius: 50%; display: grid; place-items: center; background: #1d3b27; color: var(--leaf); }
+  .box { width: 100%; max-width: 380px; padding: 32px 24px 28px; border-radius: 24px; background: var(--surface); border: 1px solid var(--sep); }
+  .icon { width: 72px; height: 72px; margin: 0 auto 16px; border-radius: 50%; display: grid; place-items: center; background: var(--bar); color: var(--bar-mark); }
   h1 { margin: 0 0 8px; font-size: 1.35rem; line-height: 1.25; }
-  p { margin: 0 0 20px; color: var(--muted); font-size: 1rem; }
-  button { width: 100%; min-height: 52px; padding: .7rem 1.6rem; border: 0; border-radius: 99px; background: var(--accent); color: var(--accent-ink);
+  p { margin: 0 0 20px; color: var(--text-2); font-size: 1rem; }
+  button { width: 100%; min-height: 52px; padding: .7rem 1.6rem; border: 0; border-radius: 99px; background: var(--accent); color: var(--on-accent);
     font: inherit; font-weight: 600; cursor: pointer; touch-action: manipulation; }
   button:active { opacity: .75; transform: scale(.98); }
   button[disabled] { opacity: .6; }

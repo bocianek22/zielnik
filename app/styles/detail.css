@@ -19,6 +19,8 @@
 .detail-actions { margin-top: var(--s-2); }
 .detail-desc { white-space: pre-wrap; overflow-wrap: anywhere; margin: 0 0 var(--s-3); }
 @media (max-width: 760px) {
+  /* FAB (56 px + 16 px odstępu) nie może zasłaniać ostatniej treści (np. historii zmian) */
+  .detail-page { padding-bottom: calc(56px + var(--s-6)); }
   .detail { padding: 0; overflow: hidden; }
   .detail-top { gap: 0; }
   .detail .photo-open, .detail-photo { width: 100%; border-radius: 0; }
@@ -76,3 +78,7 @@
 .lightbox { position: fixed; inset: 0; z-index: 90; background: rgba(8, 10, 8, .94); display: grid; place-items: center; padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)); cursor: zoom-out; }
 .lightbox img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: var(--r-md); cursor: default; }
 .lightbox-close { position: fixed; top: calc(12px + env(safe-area-inset-top)); right: 12px; z-index: 91; width: 44px; height: 44px; border-radius: 50%; border: 0; background: rgba(255,255,255,.16); color: #fff; font-size: 1.6rem; line-height: 1; display: grid; place-items: center; cursor: pointer; }
+
+/* cele dotykowe >= 44 px: przyciski ikon i chipy w szczegółach */
+.detail .chip, .detail .btn.small, .detail .btn.text.small { min-height: var(--tap); }
+.detail .chips.small .chip, .detail .chip.tag { min-height: 0; }

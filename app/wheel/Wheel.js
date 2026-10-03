@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { KINDS } from '@/lib/kinds';
 import Icon from '../components/Icon';
+import { parseNum, decimalProps } from '../components/num';
 
 const TAU = Math.PI * 2;
 const dec = (n) => Number(n).toLocaleString('pl-PL', { maximumFractionDigits: 1 });
@@ -54,7 +55,7 @@ export default function Wheel({ items: all }) {
   const [kind, setKind] = useState('');
   const [minThc, setMinThc] = useState('');
   const items = useMemo(
-    () => all.filter((i) => (!kind || i.kind === kind) && (minThc === '' || (i.thc != null && i.thc >= Number(minThc)))),
+    () => all.filter((i) => (!kind || i.kind === kind) && (minThc === '' || (i.thc != null && i.thc >= (parseNum(minThc) || 0)))),
     [all, kind, minThc],
   );
 
@@ -113,7 +114,7 @@ export default function Wheel({ items: all }) {
       </div>
       <div className="sortbox">
         <label htmlFor="minthc">Minimalne THC (%)</label>
-        <input id="minthc" className="input" type="number" min="0" max="100" step="0.5" inputMode="decimal" value={minThc}
+        <input id="minthc" className="input" {...decimalProps} value={minThc}
           onChange={(e) => { setMinThc(e.target.value); setWinner(null); }} />
       </div>
     </div>
