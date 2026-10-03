@@ -22,3 +22,8 @@ Gałąź: claude/project-review-planning-rcakq1. Na koniec: jeden PR z opisem i 
 - Kolejność scalania: najpierw natywne (dotyka StrainsBoard, profil, globals.css, grupy, znajomi, recepty), potem design lead robi merge gałęzi przed dalszymi zmianami tych plików.
 - Przed scaleniem redesignu koordynator SAM ogląda 4-6 par zrzutów przed/po (lista, karta, profil, logowanie, tryb ciemny, tryb dyskretny) i sprawdza .dn, brand-alt, html.native-app. Reviewer dostaje te same trzy kontrole.
 - Rano: PR otwarty, NIE scalony (brak zgody właściciela). W podsumowaniu wysłać pary zrzutów (SendUserFile) i link do przebiegu APK.
+
+## Stan 02:35 UTC
+- Scalone i wypchnięte: natywne dopracowanie (59cf4b2), redesign 1 - system projektowy, nawigacja, lista, karta, szczegóły, profil, logowanie (39887a1). Zrzuty przed/po: scratchpad/design/{before,after}.
+- W toku (Sonnet): paczka H (formularze + poprawki karty: „+” zasłania „Edytuj”, przecinki w podpowiedziach i szybkich wartościach, przerwa pod „Twoje pola”), paczki C+D (historia, raport, dziennik, recepty, tokeny --chart-*).
+- Po 07:20 UTC: paczki A (katalog, szukaj), B (rankingi, koło), E (społeczność), F (wiedza, premium, prywatność), G (admin), I (systemowe, porównanie); potem reviewer (Opus) z kontrolą trybu ciemnego, dyskretnego i native-app; wersja 0.31.0, PR.
