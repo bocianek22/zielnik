@@ -213,7 +213,7 @@ export default function StrainCard({ strain, meId, hidePrice = false, mates, low
     <article className={`card strain k-${strain.kind || 'none'}${expanded ? ' expanded' : ''}`}>
       <header className="strain-head">
         {strain.photo_v && (
-          <div className="photo-link dn-img"><Lightbox className="strain-photo" src={photoSrc} alt={`Zdjęcie: ${strain.name}`} /></div>
+          <div className="photo-link dn-img"><Lightbox className="strain-photo" src={photoSrc} alt={`Zdjęcie: ${strain.name}`} attr={strain.photo_attr} /></div>
         )}
         <div className="strain-title">
           <h3><Link href={`/strains/${strain.id}`} className="dn">{strain.name}</Link></h3>

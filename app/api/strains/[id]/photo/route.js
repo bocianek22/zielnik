@@ -38,7 +38,8 @@ export const PUT = safe(async (req, { params }) => {
               INSERT INTO strain_photos (strain_id, mime, data, uploaded_by, blob_path)
               VALUES (${id}, ${m[1]}, ${path ? '' : m[2]}, ${user.id}, ${path}::text)
               ON CONFLICT (strain_id) DO UPDATE SET mime = EXCLUDED.mime, data = EXCLUDED.data, uploaded_by = EXCLUDED.uploaded_by,
-                blob_path = EXCLUDED.blob_path, updated_at = now()
+                blob_path = EXCLUDED.blob_path, updated_at = now(),
+                credit = NULL, license = NULL, license_url = NULL, source_url = NULL
               WHERE ${privileged}::boolean OR strain_photos.uploaded_by = ${user.id}
               RETURNING strain_id, (SELECT blob_path FROM old) AS old_path`;
     if (!rows.length) { await deletePhotos(path); return bad(NO_RIGHTS, 403); }
