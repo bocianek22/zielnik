@@ -83,7 +83,38 @@
 .trx-bar > span { display: block; height: 100%; background: var(--accent); border-radius: 2px; }
 .trx.soon .trx-bar > span { background: var(--warn); }
 
+/* ===== Szybki wpis objawów (SymptomsQuick.js) ===== */
+.tsym { padding: 0; }
+.tsym-form { display: grid; gap: var(--s-4); padding: var(--s-1) var(--s-5) var(--s-4); }
+.tsym-hint { margin: 0; font-size: var(--fs-sm); color: var(--text-2); line-height: 1.45; }
+.tsym-row { display: grid; gap: 6px; min-width: 0; }
+.tsym-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-2); }
+.tsym-label { font-weight: 600; }
+.tsym-val { font-size: var(--fs-sm); color: var(--text-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tsym-val b { font-family: var(--font-display), Georgia, serif; font-size: var(--fs-xl); font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums lining-nums; }
+.tsym-val.unset { color: var(--text-3); }
+.tsym-btns { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.tsym-btns button { min-height: var(--tap); min-width: 0; padding: 0; border: 1px solid var(--sep); border-radius: var(--r-md); background: var(--surface-2); color: var(--text);
+  font: inherit; font-weight: 600; font-variant-numeric: tabular-nums lining-nums; cursor: pointer; transition: background var(--dur-1) var(--ease), color var(--dur-1) var(--ease); }
+.tsym-btns button.on { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.tsym-btns button:active { background: var(--press-bg); }
+.tsym-btns button.on:active { background: var(--accent); }
+@media (hover: hover) { .tsym-btns button:not(.on):hover { background: var(--hover-bg); } }
+.tsym-scale { display: flex; justify-content: space-between; gap: var(--s-2); font-size: var(--fs-xs); color: var(--text-3); }
+.tsym-foot { display: flex; justify-content: flex-end; margin: calc(var(--s-2) * -1) calc(var(--s-3) * -1) calc(var(--s-2) * -1) 0; }
+.tsym-foot .btn.text, .tsym-done .btn.text { color: var(--accent-text); }
+.tsym-done { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: 0 var(--s-2) var(--s-3) var(--s-5); }
+.tsym-sum { margin: 0; display: grid; gap: 2px; min-width: 0; }
+.tsym-ok { font-weight: 600; }
+.tsym-vals { font-size: var(--fs-sm); color: var(--text-2); font-variant-numeric: tabular-nums; }
+.tsym-status { margin: 0; padding: 0 var(--s-5) var(--s-3); font-size: var(--fs-sm); color: var(--text-2); }
+.tsym-status:empty { padding: 0; }
+.tsym-status.error { color: var(--danger); }
+
 @media (max-width: 760px) {
+  .tsym-form { padding-inline: var(--s-4); }
+  .tsym-done { padding-left: var(--s-4); }
+  .tsym-status { padding-inline: var(--s-4); }
   .today-stock, .usage { padding-inline: var(--s-4); }
   .today-quick { padding-inline: var(--s-4); }
   .trx { padding-inline: var(--s-4); }
@@ -103,6 +134,10 @@
   .today-quick { grid-column: 1; grid-row: 2; padding-inline: var(--s-6); align-self: end; }
   .today-card .prefs { grid-column: 1 / -1; }
   .kpi-big b { font-size: 3.5rem; }
+  .tsym-form { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-5) var(--s-8); padding: var(--s-1) var(--s-6) var(--s-5); }
+  .tsym-hint, .tsym-foot { grid-column: 1 / -1; }
+  .tsym-done { padding-left: var(--s-6); }
+  .tsym-status { padding-inline: var(--s-6); }
   .trx-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .trx + .trx { border-top: 0; }
   .trx:nth-child(n + 3) { border-top: 1px solid var(--sep); }
