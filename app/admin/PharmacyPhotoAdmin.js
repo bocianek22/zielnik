@@ -4,7 +4,7 @@ import { api } from '@/lib/api';
 import { fileToDataUrl } from '@/lib/image';
 import { FORMS, formLabel } from '@/lib/forms';
 import { KINDS } from '@/lib/kinds';
-import { IMAGE_MAX_PX, MAX_IMAGES, concText, toCatalogRow, toCsv, unitFor } from '@/lib/pharmacy-ocr';
+import { IMAGE_MAX_PX, MAX_IMAGES, MAX_TOTAL_BYTES, concText, toCatalogRow, toCsv, unitFor } from '@/lib/pharmacy-ocr';
 import Icon from '../components/Icon';
 
 const LABELS = {
@@ -53,7 +53,10 @@ export default function PharmacyPhotoAdmin() {
   }
 
   async function read() {
-    setBusy('read'); setErr(''); setMsg('');
+    setErr(''); setMsg('');
+    // ten sam limit co na serwerze; większe żądanie Vercel odrzuca bez czytelnego komunikatu
+    if (photos.reduce((n, p) => n + p.length, 0) * 0.75 > MAX_TOTAL_BYTES) return setErr('Zdjęcia są razem za duże. Usuń jedno i spróbuj ponownie.');
+    setBusy('read');
     try {
       const r = await api('/api/admin/pharmacy-photo', 'POST', { images: photos });
       setRows(r.rows.map((x, i) => ({ ...x, id: i, startOpen: x.uncertain.length > 0 })));

@@ -95,6 +95,21 @@ test('parser odpowiedzi: odmowa, ucięcie, zły JSON', () => {
   assert.match(parseModelResponse(null).error, /Pusta/);
 });
 
+test('parser odpowiedzi: po przełączeniu modelu liczy się tylko tekst za blokiem fallback', () => {
+  const ok = JSON.stringify({ items: [item({ registeredName: 'Cannabis flos THC 18%', producer: 'Tilray', thc: '18', concUnit: '%' })] });
+  const out = parseModelResponse({ stop_reason: 'end_turn', content: [
+    { type: 'text', text: '{"items":[{"cann' }, { type: 'fallback', from: { model: 'a' }, to: { model: 'b' } }, { type: 'text', text: ok },
+  ] });
+  assert.equal(out.rows?.length, 1);
+});
+
+test('wiersz poprawiony ręcznie: stężenia czyszczone przed importem', () => {
+  const c = toCatalogRow({ producer: 'Tilray', name: 'X', thc: '22,5 %', cbd: '≤1', concUnit: '%', form: 'susz', kind: '' });
+  assert.equal(c.thc, '22.5');
+  assert.equal(c.cbd, '');
+  assert.equal(toCatalogRow({ producer: 'T', name: 'X', thc: 'ok. 20', cbd: '', concUnit: '%', form: 'susz' }).thc, '');
+});
+
 test('walidacja zdjęć: format, liczba, rozmiar', () => {
   assert.ok(validateImages([IMG]).images);
   assert.match(validateImages([]).error, /co najmniej/);
