@@ -8,6 +8,6 @@ export const maxDuration = 60;
 export const GET = safe(async (req) => {
   const secret = process.env.CRON_SECRET;
   if (!secret || req.headers.get('authorization') !== `Bearer ${secret}`) return bad('Brak autoryzacji.', 401);
-  if (!pushConfig().enabled) return NextResponse.json({ ok: true, skipped: NOT_CONFIGURED });
+  if (!pushConfig().any) return NextResponse.json({ ok: true, skipped: NOT_CONFIGURED });
   return NextResponse.json({ ok: true, ...(await sendReminders()) });
 });

@@ -7,7 +7,7 @@ import { NOT_CONFIGURED, TEST_PAYLOAD, deliver, pushConfig } from '@/lib/push';
 export const POST = safe(async () => {
   const { user, res } = await requireUser();
   if (res) return res;
-  if (!pushConfig().enabled) return bad(NOT_CONFIGURED, 503);
+  if (!pushConfig().any) return bad(NOT_CONFIGURED, 503);
   if (!(await hit(`push-test:${user.id}`, 5, 600))) return bad('Za dużo prób. Spróbuj za kilka minut.', 429);
   const r = await deliver(user.id, TEST_PAYLOAD);
   if (r.ok === 0) return bad(r.removed ? 'Subskrypcja wygasła. Wyłącz i włącz powiadomienia ponownie.' : 'Nie udało się wysłać powiadomienia na żadne urządzenie.', 502);

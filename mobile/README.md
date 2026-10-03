@@ -74,7 +74,7 @@ Albo `npx cap open android` i Run w Android Studio. Po zmianie ikony: podmień `
    1. [console.firebase.google.com](https://console.firebase.google.com/) (konto Google, plan Spark za 0 zł), nowy projekt, „Dodaj aplikację” Android z nazwą pakietu `pl.zielnik.app`.
    2. Pobierz `google-services.json` i dodaj jego zawartość jako sekret `GOOGLE_SERVICES_JSON` (albo lokalnie zapisz w `mobile/android/app/google-services.json`; plik jest w `.gitignore`).
    3. Zbuduj aplikację ponownie: powłoka dopisze `ZielnikPush/fcm` i w profilu pojawi się „Włącz powiadomienia”.
-   4. Wysyłka po stronie serwera to **następny krok** (niżej): do tego czasu tokeny tylko się zapisują.
+   4. Wysyłka po stronie serwera: w Firebase, Ustawienia projektu, Konta usług, „Generuj nowy klucz prywatny” (plik JSON). Całą zawartość pliku ustaw na serwerze (Vercel, Environment Variables) jako `FIREBASE_SERVICE_ACCOUNT` (może być też zakodowana w base64) i wdróż ponownie. Konto usługi musi mieć rolę „Firebase Cloud Messaging API Admin” (domyślne konto `firebase-adminsdk-...` ją ma), a w Google Cloud włączone „Firebase Cloud Messaging API”. Bez zmiennej tokeny tylko się zapisują.
 4. **iOS** (później): konto Apple Developer (99 USD/rok), patrz „iOS”.
 
 ## Push: kontrakt z serwerem
@@ -84,7 +84,7 @@ Powłoka (kod strony w `bridge.js`) rejestruje urządzenie w FCM i wysyła token
 - Serwer (`lib/push.js`, `parseFcmToken`) zapisuje wiersz `push_subscriptions(kind = 'fcm', endpoint = 'fcm:<token>', keys = {})`; walidacja: 20-4096 znaków `[A-Za-z0-9_:-]`. Test: `tests/db/push-fcm.test.js`.
 - Stuknięcie w powiadomienie otwiera `data.url` (ścieżka zaczynająca się od `/`), więc wysyłka powinna dołączać `url` jak w Web Push (`buildPayload`).
 
-**Następny krok (serwer)**: wysyłka FCM HTTP v1 (`https://fcm.googleapis.com/v1/projects/<projekt>/messages:send`, konto serwisowe z Firebase jako zmienna środowiskowa, token OAuth2), dodanie `'fcm'` do `SUPPORTED_KINDS` i obsługa `UNREGISTERED`/`404` jak 410 w `deliver()`. Do tego czasu `deliver()` pomija tokeny FCM, więc testowe powiadomienie w aplikacji jest ukryte.
+**Wysyłka (serwer)**: `lib/fcm.js` podpisuje JWT (RS256, `jose`) kluczem z `FIREBASE_SERVICE_ACCOUNT`, wymienia go na token OAuth2 (zakres `firebase.messaging`, cache do wygaśnięcia) i wysyła `POST https://fcm.googleapis.com/v1/projects/<project_id>/messages:send`. `deliver()` (`lib/push.js`) używa jej dla wierszy `kind = 'fcm'`, więc dostają je cron przypomnień i powiadomienie testowe z profilu. Treść jest ta sama, neutralna co w Web Push („Masz 2 przypomnienia…”, bez nazw odmian, szczegóły tylko przy włączonym `showDetails`); `url` i `tag` idą w `data`. Token z odpowiedzią `UNREGISTERED`/404 jest usuwany, inne błędy liczą się jak w Web Push (po 30 usuwany). Bez zmiennej wysyłka FCM jest pomijana bez błędów. Testy: `tests/fcm.test.js`, `tests/db/push-fcm.test.js`.
 
 ## iOS
 Projekt `ios/` jest wygenerowany (Swift Package Manager, bez CocoaPods) z `NSFaceIDUsageDescription` w `Info.plist`. Workflow „Aplikacja iOS (symulator)” (ręczny, macOS) buduje go bez podpisu na symulator; artefakt to `App.app` do uruchomienia w symulatorze Xcode.
