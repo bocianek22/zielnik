@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { KINDS } from '@/lib/kinds';
+import { unitOf } from '@/lib/units';
 import Icon from '../components/Icon';
 import { parseNum, decimalProps } from '../components/num';
 
@@ -138,7 +139,7 @@ export default function Wheel({ items: all }) {
               <li><Link href={`/strains/${winner.id}`} className="list-row wheel-result">
                 <span className="lr-main"><b className="cat-name dn">{winner.name}</b>
                   <span className="lr-sub"><span className="dn">{winner.producer}</span>{winner.kind && <> · <span className={`kind kind-${winner.kind}`}><i className="kind-dot" aria-hidden="true" />{cap(winner.kind)}</span></>}{winner.thc != null && <span className="num"> · THC {dec(winner.thc)}%</span>}</span></span>
-                <span className="lr-value">{dec(winner.current)} g<small>na stanie</small></span>
+                <span className="lr-value">{dec(winner.current)} {unitOf(winner.form)}<small>na stanie</small></span>
                 <Icon name="chevronRight" size={20} className="lr-chev" /></Link></li>
             </ul>
             <button type="button" className="btn ghost wheel-again" onClick={spin} disabled={spinning}>Losuj jeszcze raz</button>

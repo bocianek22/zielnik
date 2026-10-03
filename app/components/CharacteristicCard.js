@@ -1,5 +1,6 @@
 import { EFFECTS, strainTags } from '@/lib/effects';
 import { formLabel } from '@/lib/forms';
+import { unitOf } from '@/lib/units';
 
 const dec = (n) => String(n).replace('.', ','); // jak dec() w StrainCard.js (ten plik renderuje też strona serwerowa katalogu)
 const fx = (n) => String(Number(n.toFixed(1))).replace('.', ',');
@@ -14,7 +15,7 @@ export default function CharacteristicCard({ strain, hidePrice = false, compact 
     return v.length ? [label, v.reduce((a, b) => a + b, 0) / v.length, v.length] : null;
   }).filter(Boolean);
   const price = strain.avg_price != null
-    ? `${strain.avg_price.toFixed(2).replace('.', ',')} zł/g (średnia z ${strain.price_n} zgłoszeń użytkowników)`
+    ? `${strain.avg_price.toFixed(2).replace('.', ',')} zł/${unitOf(strain.form)} (średnia z ${strain.price_n} zgłoszeń użytkowników)`
     : strain.price_n ? `za mało zgłoszeń do średniej (${strain.price_n}, potrzeba co najmniej 3)` : 'brak zgłoszeń cen';
 
   return (

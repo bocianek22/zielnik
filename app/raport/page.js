@@ -8,6 +8,7 @@ import Header from '../components/Header';
 import Icon from '../components/Icon';
 import PrintButton from './PrintButton';
 import { formatDay, todayPL, addDaysIso } from '@/lib/date';
+import { doctorReport } from '@/lib/report';
 
 export const dynamic = 'force-dynamic';
 
@@ -36,29 +37,17 @@ export default async function Raport({ searchParams }) {
   const from = validDate(sp.from) ? sp.from : addDaysIso(to, -30);
   const withNotes = sp.notes === '1';
 
-  const usage = await q`SELECT s.name, s.producer, s.thc::float8 AS thc, s.cbd::float8 AS cbd, SUM(l.grams)::float8 AS grams,
-      COUNT(DISTINCT (l.created_at AT TIME ZONE 'Europe/Warsaw')::date)::int AS days
-    FROM usage_log l JOIN strains s ON s.id = l.strain_id
-    WHERE l.user_id = ${me.id} AND (l.created_at AT TIME ZONE 'Europe/Warsaw')::date BETWEEN ${from}::date AND ${to}::date
-    GROUP BY s.id ORDER BY grams DESC`;
-  const weekly = await q`SELECT to_char(date_trunc('week', l.created_at AT TIME ZONE 'Europe/Warsaw'), 'DD.MM') AS week, SUM(l.grams)::float8 AS grams
-    FROM usage_log l WHERE l.user_id = ${me.id} AND (l.created_at AT TIME ZONE 'Europe/Warsaw')::date BETWEEN ${from}::date AND ${to}::date
-    GROUP BY date_trunc('week', l.created_at AT TIME ZONE 'Europe/Warsaw') ORDER BY date_trunc('week', l.created_at AT TIME ZONE 'Europe/Warsaw')`;
-  const purchases = await q`SELECT strain_name AS name, grams::float8 AS grams, cost::float8 AS cost,
-      to_char(created_at AT TIME ZONE 'Europe/Warsaw', 'YYYY-MM-DD') AS at
-    FROM purchases WHERE user_id = ${me.id} AND (created_at AT TIME ZONE 'Europe/Warsaw')::date BETWEEN ${from}::date AND ${to}::date ORDER BY created_at`;
-  const feel = await q`SELECT s.name, us.effects, us.rating::float8 AS rating, us.notes
-    FROM user_strain us JOIN strains s ON s.id = us.strain_id
-    WHERE us.user_id = ${me.id} AND s.id IN (SELECT strain_id FROM usage_log WHERE user_id = ${me.id}
-      AND (created_at AT TIME ZONE 'Europe/Warsaw')::date BETWEEN ${from}::date AND ${to}::date) ORDER BY s.name`;
-
-  const [sym] = await q`SELECT COUNT(*)::int AS days, AVG(pain)::float8 AS pain, AVG(sleep)::float8 AS sleep, AVG(anxiety)::float8 AS anxiety, AVG(mood)::float8 AS mood
-    FROM symptom_log WHERE user_id = ${me.id} AND day BETWEEN ${from}::date AND ${to}::date`;
+  const { usage, weekly, purchases, feel, sym, totals } = await doctorReport(me.id, from, to);
   const av = (v) => (v == null ? '–' : nf(v));
-  const total = usage.reduce((a, u) => a + u.grams, 0);
   const daysSpan = Math.max(1, Math.round((Date.parse(to) - Date.parse(from)) / 864e5) + 1);
-  const bought = purchases.reduce((a, p) => a + p.grams, 0);
-  const cost = purchases.reduce((a, p) => a + (p.cost || 0), 0);
+  const { used, bought, cost } = totals;
+  // gramy (susz) i ml (olej, pen) zawsze osobno; ml tylko gdy są wpisy w ml
+  const hasMl = used.ml > 0 || bought.ml > 0;
+  const units = [(!hasMl || used.g > 0 || bought.g > 0) && 'g', hasMl && 'ml'].filter(Boolean);
+  const uLabel = { g: 'susz', ml: 'olej i pen' };
+  const hasMlWeek = weekly.some((w) => w.ml > 0);
+  const hasGWeek = !hasMlWeek || weekly.some((w) => w.grams > 0);
+  const weekText = (w) => [hasGWeek && `${nf(w.grams, 2)} g`, hasMlWeek && `${nf(w.ml, 2)} ml`].filter(Boolean).join(', ');
   const fx = (o, k) => (o && o[k] != null ? o[k] : null);
   const meta = (u) => [u.producer, u.thc != null && `THC ${nf(u.thc)}%`, u.cbd != null && `CBD ${nf(u.cbd)}%`, `${u.days} ${u.days === 1 ? 'dzień' : 'dni'} użycia`].filter(Boolean).join(' · ');
   const feelLine = (f) => EFFECTS.map(([k, l]) => (fx(f.effects, k) != null ? `${l} ${nf(fx(f.effects, k))}` : null)).filter(Boolean).join(' · ');
@@ -83,11 +72,13 @@ export default async function Raport({ searchParams }) {
 
           <h3>Podsumowanie</h3>
           <div className="summary">
-            <dl className="stat-strip">
-              <div><dt>Zużycie</dt><dd><b>{nf(total, 2)}</b> g</dd></div>
-              <div><dt>Średnio na dzień</dt><dd><b>{nf(total / daysSpan, 2)}</b> g</dd></div>
-              <div><dt>Wykupiono</dt><dd><b>{nf(bought, 2)}</b> g{cost > 0 && <span className="stat-sub">ok. {nf(cost, 2)} zł</span>}</dd></div>
-            </dl>
+            {units.map((u, i) => (
+              <dl key={u} className="stat-strip">
+                <div><dt>Zużycie{units.length > 1 && `, ${uLabel[u]}`}</dt><dd><b>{nf(used[u], 2)}</b> {u}</dd></div>
+                <div><dt>Średnio na dzień</dt><dd><b>{nf(used[u] / daysSpan, 2)}</b> {u}</dd></div>
+                <div><dt>Wykupiono</dt><dd><b>{nf(bought[u], 2)}</b> {u}{i === units.length - 1 && cost > 0 && <span className="stat-sub">łącznie ok. {nf(cost, 2)} zł</span>}</dd></div>
+              </dl>
+            ))}
           </div>
           <p className="muted small">Liczba użytych odmian: {usage.length}.</p>
 
@@ -96,18 +87,18 @@ export default async function Raport({ searchParams }) {
             <>
               <ul className="list report-narrow">
                 {usage.map((u, i) => (
-                  <li key={i} className="list-row"><span className="lr-main"><span className="dn">{u.name}</span><span className="lr-sub">{meta(u)}</span></span><span className="lr-value">{nf(u.grams, 2)} g</span></li>
+                  <li key={i} className="list-row"><span className="lr-main"><span className="dn">{u.name}</span><span className="lr-sub">{meta(u)}</span></span><span className="lr-value">{nf(u.grams, 2)} {u.unit}</span></li>
                 ))}
               </ul>
-              <div className="table-wrap report-wide"><table className="cmp"><thead><tr><th>Odmiana</th><th>Producent</th><th>THC</th><th>CBD</th><th>Dni użycia</th><th>Razem</th></tr></thead>
-                <tbody>{usage.map((u, i) => (<tr key={i}><td><span className="dn">{u.name}</span></td><td><span className="dn">{u.producer}</span></td><td>{u.thc != null ? `${nf(u.thc)}%` : '–'}</td><td>{u.cbd != null ? `${nf(u.cbd)}%` : '–'}</td><td>{u.days}</td><td>{nf(u.grams, 2)} g</td></tr>))}</tbody></table></div>
+              <div className="table-wrap report-wide"><table className="cmp"><thead><tr><th>Odmiana</th><th>Producent</th><th>THC</th><th>CBD</th><th>Dni użycia</th><th>Razem (g / ml)</th></tr></thead>
+                <tbody>{usage.map((u, i) => (<tr key={i}><td><span className="dn">{u.name}</span></td><td><span className="dn">{u.producer}</span></td><td>{u.thc != null ? `${nf(u.thc)}%` : '–'}</td><td>{u.cbd != null ? `${nf(u.cbd)}%` : '–'}</td><td>{u.days}</td><td>{nf(u.grams, 2)} {u.unit}</td></tr>))}</tbody></table></div>
             </>
           )}
 
           {weekly.length > 0 && (<><h3>Zużycie tygodniowe</h3>
-            <dl className="facts report-narrow">{weekly.map((w) => <div key={w.week}><dt>Tydzień od {w.week}</dt><dd>{nf(w.grams, 2)} g</dd></div>)}</dl>
-            <div className="table-wrap report-wide"><table className="cmp"><thead><tr><th>Tydzień od</th><th>Gramy</th></tr></thead>
-              <tbody>{weekly.map((w) => <tr key={w.week}><td>{w.week}</td><td>{nf(w.grams, 2)} g</td></tr>)}</tbody></table></div></>)}
+            <dl className="facts report-narrow">{weekly.map((w) => <div key={w.week}><dt>Tydzień od {w.week}</dt><dd>{weekText(w)}</dd></div>)}</dl>
+            <div className="table-wrap report-wide"><table className="cmp"><thead><tr><th>Tydzień od</th>{hasGWeek && <th>Susz (g)</th>}{hasMlWeek && <th>Olej i pen (ml)</th>}</tr></thead>
+              <tbody>{weekly.map((w) => <tr key={w.week}><td>{w.week}</td>{hasGWeek && <td>{nf(w.grams, 2)} g</td>}{hasMlWeek && <td>{nf(w.ml, 2)} ml</td>}</tr>)}</tbody></table></div></>)}
 
           {sym.days > 0 && (<><h3>Dziennik objawów</h3>
             <p className="muted small">Średnie z {sym.days} {sym.days === 1 ? 'dnia' : 'dni'} wpisów, skala 0–10.</p>
@@ -122,11 +113,11 @@ export default async function Raport({ searchParams }) {
           {purchases.length > 0 && (<><h3>Zakupy</h3>
             <ul className="list report-narrow">
               {purchases.map((p, i) => (
-                <li key={i} className="list-row"><span className="lr-main"><span className="dn">{p.name}</span><span className="lr-sub">{day(p.at)}</span></span><span className="lr-value">{nf(p.grams, 2)} g{p.cost != null && <small>{nf(p.cost, 2)} zł</small>}</span></li>
+                <li key={i} className="list-row"><span className="lr-main"><span className="dn">{p.name}</span><span className="lr-sub">{day(p.at)}</span></span><span className="lr-value">{nf(p.grams, 2)} {p.unit}{p.cost != null && <small>{nf(p.cost, 2)} zł</small>}</span></li>
               ))}
             </ul>
-            <div className="table-wrap report-wide"><table className="cmp"><thead><tr><th>Data</th><th>Odmiana</th><th>Ilość</th><th>Koszt</th></tr></thead>
-              <tbody>{purchases.map((p, i) => <tr key={i}><td>{day(p.at)}</td><td><span className="dn">{p.name}</span></td><td>{nf(p.grams, 2)} g</td><td>{p.cost != null ? `${nf(p.cost, 2)} zł` : '–'}</td></tr>)}</tbody></table></div></>)}
+            <div className="table-wrap report-wide"><table className="cmp"><thead><tr><th>Data</th><th>Odmiana</th><th>Ilość (g / ml)</th><th>Koszt</th></tr></thead>
+              <tbody>{purchases.map((p, i) => <tr key={i}><td>{day(p.at)}</td><td><span className="dn">{p.name}</span></td><td>{nf(p.grams, 2)} {p.unit}</td><td>{p.cost != null ? `${nf(p.cost, 2)} zł` : '–'}</td></tr>)}</tbody></table></div></>)}
 
           {feel.length > 0 && (<><h3>Odczucia pacjenta (skala 0–10)</h3>
             <ul className="list report-narrow">

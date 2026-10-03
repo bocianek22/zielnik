@@ -8,7 +8,7 @@ const DISCREET_FIELDS = new Set(['name', 'producer', 'terpenes', 'batch']);
 
 const LABELS = {
   producer: 'Producent', name: 'Nazwa', type: 'Typ', final_rating: 'Ocena końcowa', taste: 'Smak', thc: 'THC (%)', cbd: 'CBD (%)',
-  kind: 'Rodzaj', terpenes: 'Terpeny', description: 'Opis', price_per_g: 'Cena za gram (zł)', batch: 'Partia',
+  kind: 'Rodzaj', terpenes: 'Terpeny', description: 'Opis', price_per_g: 'Cena za gram lub ml (zł)', batch: 'Partia',
   expires_on: 'Ważne do', form: 'Postać', sources: 'Źródła', description_auto: 'Opis automatyczny',
 };
 

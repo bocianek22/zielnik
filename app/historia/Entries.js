@@ -9,6 +9,8 @@ const nf = (n, max = 2) => Number(n).toLocaleString('pl-PL', { maximumFractionDi
 // 1 zakup, 2-4 zakupy (bez 12-14), 5 zakupów
 const zakupy = (n) => (n === 1 ? 'zakup' : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 'zakupy' : 'zakupów');
 const dec = (n) => (n == null || n === '' ? '' : String(Math.round(Number(n) * 100) / 100).replace('.', ','));
+const uOf = (r) => (r?.unit === 'ml' ? 'ml' : 'g'); // jednostka wpisu: susz w g, olej i pen w ml
+const perUnit = (u) => (u === 'ml' ? 'ml' : 'gram');
 
 // Zakupy albo zużycie w Historii z korektą: „Popraw” (gramy, data; przy zakupie cena za gram albo łączny koszt)
 // i „Usuń” z potwierdzeniem. Lista (telefon) i tabela (szeroki ekran) są w DOM obie naraz, więc edytor jest jeden,
@@ -55,7 +57,7 @@ export default function Entries({ kind, rows }) {
       const r = await api(`${base}/${row.id}`, 'PATCH', body);
       setEdit(null);
       setMsg('Zapisano poprawkę.');
-      if (purchase && r.missingCost > 0 && body.pricePerG > 0) setOffer({ strainId: r.strainId, price: body.pricePerG, n: r.missingCost, name: row.name });
+      if (purchase && r.missingCost > 0 && body.pricePerG > 0) setOffer({ strainId: r.strainId, price: body.pricePerG, n: r.missingCost, name: row.name, unit: uOf(row) });
       router.refresh();
     } catch (e2) { setErr(e2.message); }
     finally { setBusy(false); }
@@ -84,7 +86,8 @@ export default function Entries({ kind, rows }) {
   }
 
   const missing = purchase ? rows.filter((r) => r.cost == null).length : 0;
-  const label = (r) => `${r.name}, ${formatDay(r.at)}, ${nf(r.grams)} g`;
+  const label = (r) => `${r.name}, ${formatDay(r.at)}, ${nf(r.grams)} ${uOf(r)}`;
+  const eu = uOf(edit?.row);
   const actions = (r) => (
     <span className="hist-actions">
       <button type="button" className="btn small ghost" aria-label={`Popraw: ${label(r)}`} onClick={(e) => open(r, false, e)}>Popraw</button>
@@ -97,12 +100,12 @@ export default function Entries({ kind, rows }) {
   return (
     <>
       {missing > 0 && (
-        <p className="alert note">{missing} {zakupy(missing)} na tej liście {zakupy(missing) === 'zakupy' ? 'nie mają' : 'nie ma'} ceny, więc nie wlicza się do kosztów. Użyj „Popraw” i wpisz cenę za gram albo łączny koszt.</p>
+        <p className="alert note">{missing} {zakupy(missing)} na tej liście {zakupy(missing) === 'zakupy' ? 'nie mają' : 'nie ma'} ceny, więc nie wlicza się do kosztów. Użyj „Popraw” i wpisz cenę za gram (ml) albo łączny koszt.</p>
       )}
       <p className="hist-msg" role="status" aria-live="polite">{msg}</p>
       {offer && (
         <div className="alert note hist-offer">
-          <p>Jeszcze {offer.n} {zakupy(offer.n)} odmiany <span className="dn">{offer.name}</span> bez ceny. Uzupełnić po {nf(offer.price)} zł/g?</p>
+          <p>Jeszcze {offer.n} {zakupy(offer.n)} odmiany <span className="dn">{offer.name}</span> bez ceny. Uzupełnić po {nf(offer.price)} zł/{offer.unit}?</p>
           <div className="hist-offer-btns">
             <button type="button" className="btn small" disabled={busy} onClick={fill}>Uzupełnij</button>
             <button type="button" className="btn small ghost" onClick={() => setOffer(null)}>Nie teraz</button>
@@ -112,12 +115,12 @@ export default function Entries({ kind, rows }) {
       {edit && (
         <div ref={box} className="card hist-edit" role="group" aria-label={`${edit.confirm ? 'Usuń' : 'Popraw'}: ${label(edit.row)}`}
           onKeyDown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); close(); } }}>
-          <p className="hist-edit-title"><span className="dn">{edit.row.name}</span>, {formatDay(edit.row.at)}, {nf(edit.row.grams)} g</p>
+          <p className="hist-edit-title"><span className="dn">{edit.row.name}</span>, {formatDay(edit.row.at)}, {nf(edit.row.grams)} {eu}</p>
           {edit.confirm ? (
             <>
               <p>{purchase
-                ? 'Usunąć ten zakup? Stan zmniejszy się o wykupione gramy, a pula „do wykupienia” wróci o tyle, ile z niej zdjęto.'
-                : 'Usunąć ten wpis zużycia? Gramy wrócą do stanu.'}</p>
+                ? `Usunąć ten zakup? Stan zmniejszy się o wykupione ${eu === 'ml' ? 'ml' : 'gramy'}, a pula „do wykupienia” wróci o tyle, ile z niej zdjęto.`
+                : `Usunąć ten wpis zużycia? ${eu === 'ml' ? 'Mililitry wrócą' : 'Gramy wrócą'} do stanu.`}</p>
               <div className="hist-edit-btns">
                 <button type="button" className="btn small danger" disabled={busy} onClick={remove}>{busy ? 'Usuwam…' : 'Tak, usuń'}</button>
                 <button type="button" className="btn small ghost" onClick={close}>Anuluj</button>
@@ -126,7 +129,7 @@ export default function Entries({ kind, rows }) {
           ) : (
             <form onSubmit={save} className="hist-edit-form">
               <div className="field">
-                <label htmlFor={`${id}-g`}>Ilość (g)</label>
+                <label htmlFor={`${id}-g`}>Ilość ({eu})</label>
                 <input id={`${id}-g`} className="input" {...decimalProps} value={f.grams} onChange={(e) => setF((p) => ({ ...p, grams: e.target.value }))} />
               </div>
               <div className="field">
@@ -137,10 +140,10 @@ export default function Entries({ kind, rows }) {
                 <fieldset className="field hist-cost">
                   <legend>Koszt</legend>
                   <div className="hist-cost-modes">
-                    <label><input type="radio" name={`${id}-m`} checked={f.costMode === 'price'} onChange={() => setF((p) => ({ ...p, costMode: 'price', cost: p.cost && toPrice(p) }))} /> cena za gram (zł/g)</label>
+                    <label><input type="radio" name={`${id}-m`} checked={f.costMode === 'price'} onChange={() => setF((p) => ({ ...p, costMode: 'price', cost: p.cost && toPrice(p) }))} /> cena za {perUnit(eu)} (zł/{eu})</label>
                     <label><input type="radio" name={`${id}-m`} checked={f.costMode === 'total'} onChange={() => setF((p) => ({ ...p, costMode: 'total', cost: p.cost && toTotal(p) }))} /> łączny koszt (zł)</label>
                   </div>
-                  <input id={`${id}-c`} className="input" {...decimalProps} aria-label={f.costMode === 'price' ? 'Cena za gram w złotych' : 'Łączny koszt w złotych'}
+                  <input id={`${id}-c`} className="input" {...decimalProps} aria-label={f.costMode === 'price' ? `Cena za ${perUnit(eu)} w złotych` : 'Łączny koszt w złotych'}
                     placeholder={f.costMode === 'price' ? 'np. 45' : 'np. 450'} value={f.cost} onChange={(e) => setF((p) => ({ ...p, cost: e.target.value }))} />
                   {edit.row.cost == null && <small className="muted">Ten zakup nie ma ceny.</small>}
                 </fieldset>
@@ -161,7 +164,7 @@ export default function Entries({ kind, rows }) {
         {rows.map((r) => (
           <li key={r.id} className={`list-row${r.id === edit?.row.id ? ' editing' : ''}`}>
             <span className="lr-main"><span className="dn">{r.name}</span><span className="lr-sub">{formatDay(r.at)}</span>{actions(r)}</span>
-            <span className="lr-value">{nf(r.grams)} g{purchase && (r.cost != null ? <small>{nf(r.cost)} zł</small> : <small>{noPrice}</small>)}</span>
+            <span className="lr-value">{nf(r.grams)} {uOf(r)}{purchase && (r.cost != null ? <small>{nf(r.cost)} zł</small> : <small>{noPrice}</small>)}</span>
           </li>
         ))}
       </ul>
@@ -169,7 +172,7 @@ export default function Entries({ kind, rows }) {
         <thead><tr><th>Data</th><th>Odmiana</th><th className="num">Ilość</th>{purchase && <th className="num">Koszt</th>}<th><span className="sr-only">Akcje</span></th></tr></thead>
         <tbody>{rows.map((r) => (
           <tr key={r.id} className={r.id === edit?.row.id ? 'editing' : undefined}>
-            <td>{formatDay(r.at)}</td><td><span className="dn">{r.name}</span></td><td className="num">{nf(r.grams)} g</td>
+            <td>{formatDay(r.at)}</td><td><span className="dn">{r.name}</span></td><td className="num">{nf(r.grams)} {uOf(r)}</td>
             {purchase && <td className="num">{r.cost != null ? `${nf(r.cost)} zł` : noPrice}</td>}
             <td className="hist-act-cell">{actions(r)}</td>
           </tr>

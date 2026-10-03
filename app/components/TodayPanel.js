@@ -4,9 +4,11 @@ import { useState } from 'react';
 import QuickActions from './QuickActions';
 import Icon from './Icon';
 import SymptomsQuick from './SymptomsQuick';
+import { unitOf } from '@/lib/units';
 
 // Panel „Dziś” na stronie głównej: zapas i prognoza, zużycie z 14 dni, szybkie „Zużyłem”, szybki wpis objawów, recepty.
 // Daty liczy z dni z serwera (czas polski), a nie z zegara przeglądarki, żeby serwer i klient renderowały to samo.
+// Gramy (susz) i ml (olej, pen) nigdy się nie sumują: osobny zapas i prognoza, wykres z przełącznikiem jednostki.
 
 const HORIZON = 30; // pełny miernik = zapas na 30 dni
 const WD = ['niedz.', 'pon.', 'wt.', 'śr.', 'czw.', 'pt.', 'sob.'];
@@ -16,6 +18,7 @@ const utc = (day) => new Date(`${day}T12:00:00Z`);
 const ddmm = (day) => `${day.slice(8, 10)}.${day.slice(5, 7)}`;
 const longDate = (d) => d.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', timeZone: 'UTC' });
 const addDays = (day, n) => { const d = utc(day); d.setUTCDate(d.getUTCDate() + n); return d; };
+const UNIT_NAME = { g: 'Susz', ml: 'Olej i pen' };
 
 // słupek z zaokrągloną górą (4 px), zakotwiczony do linii bazowej
 function barPath(x, w, h, base) {
@@ -24,7 +27,14 @@ function barPath(x, w, h, base) {
   return `M${x},${base}V${y + r}Q${x},${y} ${x + r},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${base}Z`;
 }
 
-function UsageChart({ series }) {
+function UsageChart({ series: raw }) {
+  const sumOf = (k) => raw.reduce((a, d) => a + (Number(d[k]) || 0), 0);
+  const hasMl = sumOf('ml') > 0;
+  // domyślnie gramy; same wpisy w ml (bez suszu) od razu pokazują ml
+  const [pick, setPick] = useState(null);
+  const unit = pick ?? (hasMl && !(sumOf('grams') > 0) ? 'ml' : 'g');
+  const key = unit === 'ml' ? 'ml' : 'grams';
+  const series = raw.map((d) => ({ day: d.day, grams: Number(d[key]) || 0 }));
   const last = series.length - 1;
   const [sel, setSel] = useState(last);
   const i = Math.min(sel, last);
@@ -32,16 +42,23 @@ function UsageChart({ series }) {
   const total = series.reduce((a, d) => a + d.grams, 0);
   const W = 280, H = 76, slot = W / series.length, bw = slot - 6;
   const label = (k) => (k === last ? 'Dziś' : k === last - 1 ? 'Wczoraj' : `${WD[utc(series[k].day).getUTCDay()]} ${ddmm(series[k].day)}`);
-  const spoken = (d, k) => `${k === last ? 'dziś' : longDate(utc(d.day))}: ${n2(d.grams)} g`;
+  const spoken = (d, k) => `${k === last ? 'dziś' : longDate(utc(d.day))}: ${n2(d.grams)} ${unit}`;
 
   return (
     <div className="usage">
       <div className="usage-head">
         <h3 className="today-h">Zużycie, 14 dni</h3>
-        <p className="usage-sel" aria-live="polite"><span>{label(i)}</span> <b>{n2(series[i].grams)} g</b></p>
+        <p className="usage-sel" aria-live="polite"><span>{label(i)}</span> <b>{n2(series[i].grams)} {unit}</b></p>
       </div>
+      {hasMl && (
+        <div className="seg usage-unit" role="group" aria-label="Jednostka wykresu">
+          {['g', 'ml'].map((u) => (
+            <button key={u} type="button" aria-pressed={unit === u} className={unit === u ? 'on' : ''} onClick={() => setPick(u)}>{UNIT_NAME[u]} ({u})</button>
+          ))}
+        </div>
+      )}
       <svg className="usage-chart" viewBox={`0 0 ${W} ${H}`} role="img"
-        aria-label={`Zużycie z ostatnich 14 dni: razem ${n2(total)} g, dziś ${n2(series[last].grams)} g`}>
+        aria-label={`Zużycie ${unit === 'ml' ? 'oleju i pena' : 'suszu'} z ostatnich 14 dni: razem ${n2(total)} ${unit}, dziś ${n2(series[last].grams)} ${unit}`}>
         {series.map((d, k) => {
           const x = k * slot + 3;
           const h = max > 0 && d.grams > 0 ? Math.max(3, (d.grams / max) * (H - 2)) : 0;
@@ -59,7 +76,7 @@ function UsageChart({ series }) {
         {last >= 7 && <span className="mid" style={{ left: `${((last - 7 + 0.5) / series.length) * 100}%` }}>{ddmm(series[last - 7].day)}</span>}
         <span className="end">dziś</span>
       </div>
-      {max === 0 && <p className="usage-empty">W ostatnich 14 dniach nie zapisano zużycia.</p>}
+      {max === 0 && <p className="usage-empty">W ostatnich 14 dniach nie zapisano zużycia{hasMl ? (unit === 'ml' ? ' oleju ani pena' : ' suszu') : ''}.</p>}
       <ul className="sr-only">{series.map((d, k) => <li key={d.day}>{spoken(d, k)}</li>)}</ul>
     </div>
   );
@@ -79,6 +96,7 @@ function Prescriptions({ items, total }) {
           const n = Math.abs(r.days_left);
           const soon = !expired && r.days_left <= 7;
           const pct = Math.min(100, (r.bought / r.grams) * 100);
+          const u = r.unit === 'ml' ? 'ml' : 'g';
           return (
             <li key={r.id} className={`trx${expired ? ' expired' : ''}${soon ? ' soon' : ''}`}>
               <div className="trx-count" aria-hidden="true">
@@ -88,14 +106,14 @@ function Prescriptions({ items, total }) {
               <div className="trx-main">
                 <p className="trx-title">
                   {expired
-                    ? <>Recepta na {n2(r.grams)} g wygasła {n} {days(n)} temu</>
-                    : r.days_left === 0 ? <>Recepta na {n2(r.grams)} g: ostatni dzień ważności</>
-                      : <>Recepta na {n2(r.grams)} g wygasa za {n} {days(n)}</>}
+                    ? <>Recepta na {n2(r.grams)} {u} wygasła {n} {days(n)} temu</>
+                    : r.days_left === 0 ? <>Recepta na {n2(r.grams)} {u}: ostatni dzień ważności</>
+                      : <>Recepta na {n2(r.grams)} {u} wygasa za {n} {days(n)}</>}
                 </p>
                 <p className="trx-sub">
                   {expired
-                    ? <>Niewykorzystane <b>{n2(r.remaining)} g</b>, ważna była do {longDate(utc(r.valid_until))}</>
-                    : <>Do wykupienia <b>{n2(r.remaining)} g</b> z {n2(r.grams)} g, ważna do {longDate(utc(r.valid_until))}</>}
+                    ? <>Niewykorzystane <b>{n2(r.remaining)} {u}</b>, ważna była do {longDate(utc(r.valid_until))}</>
+                    : <>Do wykupienia <b>{n2(r.remaining)} {u}</b> z {n2(r.grams)} {u}, ważna do {longDate(utc(r.valid_until))}</>}
                 </p>
                 {!expired && <div className="trx-bar" aria-hidden="true"><span style={{ width: `${pct}%` }} /></div>}
               </div>
@@ -107,48 +125,69 @@ function Prescriptions({ items, total }) {
   );
 }
 
-export default function TodayPanel({ stock, dailyUse, boughtG, low, series, prescriptions, symptoms, quick, onUsed, settings }) {
-  const today = series.at(-1).day;
+// Zapas i prognoza jednej jednostki; `named`: podpis jednostki, gdy w panelu są dwa bloki (g i ml)
+function StockBlock({ unit, stock, dailyUse, bought, today, named, ok, id }) {
   const daysLeft = dailyUse > 0 && stock > 0 ? Math.floor(stock / dailyUse) : null;
-  const warn = stock > 0 && ((low > 0 && stock <= low) || (daysLeft != null && daysLeft < 7));
   const pct = daysLeft != null ? Math.min(daysLeft / HORIZON, 1) * 100 : 0;
   const notes = [
-    dailyUse > 0 && `średnio ${n2(dailyUse)} g dziennie`,
+    dailyUse > 0 && `średnio ${n2(dailyUse)} ${unit} dziennie`,
     daysLeft != null && `do ok. ${longDate(addDays(today, daysLeft))}`,
-    boughtG > 0 && `wykupiono ${n2(boughtG)} g w tym miesiącu`,
+    bought > 0 && `wykupiono ${n2(bought)} ${unit} w tym miesiącu`,
   ].filter(Boolean);
+  const what = unit === 'ml' ? 'oleju i pena' : named ? 'suszu' : '';
+  return (
+    <div className={`today-stock${named ? ` today-stock-${unit}` : ''}${ok ? ' ok' : ''}`}>
+      <div className="kpi">
+        <div>
+          <h2 id={id} className="kpi-label">Zapas{what && ` ${what}`}</h2>
+          <p className="kpi-big"><b>{n2(stock)}</b> {unit}</p>
+        </div>
+        <div className="kpi-days">
+          <p className="kpi-label">Starczy na</p>
+          <p className="kpi-mid">{daysLeft != null ? <><b>{daysLeft}</b> {days(daysLeft)}</> : <b>–</b>}</p>
+        </div>
+      </div>
+      {daysLeft != null ? (
+        <div className="gauge" role="meter" aria-label={`Zapas${what && ` ${what}`} w dniach (pełny pasek: 30 dni)`} aria-valuemin={0} aria-valuemax={HORIZON}
+          aria-valuenow={Math.min(daysLeft, HORIZON)} aria-valuetext={`${daysLeft} ${days(daysLeft)}`}>
+          <span style={{ width: `${pct}%` }} />
+          <i style={{ left: `${(7 / HORIZON) * 100}%` }} /><i style={{ left: `${(14 / HORIZON) * 100}%` }} />
+        </div>
+      ) : (
+        <div className="gauge empty" aria-hidden="true" />
+      )}
+      {daysLeft != null && <div className="gauge-scale" aria-hidden="true"><span>0</span><span className="mid" style={{ left: `${(7 / HORIZON) * 100}%` }}>7</span>
+        <span className="mid" style={{ left: `${(14 / HORIZON) * 100}%` }}>14</span><span className="end">30 dni</span></div>}
+      <p className="today-note">
+        {notes.length > 0 ? notes.join(' · ') : stock > 0 ? 'Zapisuj zużycie przyciskiem „Zużyłem”, a policzę, na ile dni starczy zapasu.' : 'Brak zapasu. Wpisz stan w karcie odmiany albo zapisz wykup.'}
+      </p>
+    </div>
+  );
+}
+
+// stock, dailyUse, bought: { g, ml }; low: próg „Kończy się” w gramach (tylko susz)
+export default function TodayPanel({ stock, dailyUse, bought, low, series, prescriptions, symptoms, quick, onUsed, settings }) {
+  const today = series.at(-1).day;
+  const hasMl = stock.ml > 0 || dailyUse.ml > 0;
+  const hasG = !hasMl || stock.g > 0 || dailyUse.g > 0;
+  const units = [hasG && 'g', hasMl && 'ml'].filter(Boolean);
+  const warnOf = (u) => {
+    const d = dailyUse[u] > 0 && stock[u] > 0 ? Math.floor(stock[u] / dailyUse[u]) : null;
+    return stock[u] > 0 && ((u === 'g' && low > 0 && stock[u] <= low) || (d != null && d < 7));
+  };
+  const warn = units.some(warnOf);
 
   // pilne recepty (wygasa w ≤ 7 dni albo wygasła z resztą) nad zapasem, żeby były na pierwszym ekranie
   const rx = prescriptions.items.length > 0 && <Prescriptions items={prescriptions.items} total={prescriptions.total} />;
   return (
     <div className="today">
       {prescriptions.urgent && rx}
-      <section className={`card today-card${warn ? ' warn' : ''}`} aria-labelledby="today-stock-h">
-        <div className="today-stock">
-          <div className="kpi">
-            <div>
-              <h2 id="today-stock-h" className="kpi-label">Zapas</h2>
-              <p className="kpi-big"><b>{n2(stock)}</b> g</p>
-            </div>
-            <div className="kpi-days">
-              <p className="kpi-label">Starczy na</p>
-              <p className="kpi-mid">{daysLeft != null ? <><b>{daysLeft}</b> {days(daysLeft)}</> : <b>–</b>}</p>
-            </div>
-          </div>
-          {daysLeft != null ? (
-            <div className="gauge" role="meter" aria-label="Zapas w dniach (pełny pasek: 30 dni)" aria-valuemin={0} aria-valuemax={HORIZON}
-              aria-valuenow={Math.min(daysLeft, HORIZON)} aria-valuetext={`${daysLeft} ${days(daysLeft)}`}>
-              <span style={{ width: `${pct}%` }} />
-              <i style={{ left: `${(7 / HORIZON) * 100}%` }} /><i style={{ left: `${(14 / HORIZON) * 100}%` }} />
-            </div>
-          ) : (
-            <div className="gauge empty" aria-hidden="true" />
-          )}
-          {daysLeft != null && <div className="gauge-scale" aria-hidden="true"><span>0</span><span className="mid" style={{ left: `${(7 / HORIZON) * 100}%` }}>7</span>
-            <span className="mid" style={{ left: `${(14 / HORIZON) * 100}%` }}>14</span><span className="end">30 dni</span></div>}
-          <p className="today-note">
-            {notes.length > 0 ? notes.join(' · ') : stock > 0 ? 'Zapisuj zużycie przyciskiem „Zużyłem”, a policzę, na ile dni starczy zapasu.' : 'Brak zapasu. Wpisz stan w karcie odmiany albo zapisz wykup.'}
-          </p>
+      <section className={`card today-card${warn ? ' warn' : ''}`} aria-labelledby={`today-stock-h-${units[0]}`}>
+        <div className={`today-stocks${units.length > 1 ? ' two' : ''}`}>
+          {units.map((u) => (
+            <StockBlock key={u} id={`today-stock-h-${u}`} unit={u} stock={stock[u]} dailyUse={dailyUse[u]} bought={bought[u]}
+              today={today} named={units.length > 1} ok={warn && !warnOf(u)} />
+          ))}
         </div>
 
         <UsageChart series={series} />
@@ -157,9 +196,9 @@ export default function TodayPanel({ stock, dailyUse, boughtG, low, series, pres
           <div className="today-quick">
             <div className="tq-name">
               <span className="kpi-label">Ostatnio używana</span>
-              <span className="tq-strain"><span className="dn">{quick.name}</span><span className="tq-stock">, mam {n2(quick.current)} g</span></span>
+              <span className="tq-strain"><span className="dn">{quick.name}</span><span className="tq-stock">, mam {n2(quick.current)} {unitOf(quick.form)}</span></span>
             </div>
-            <QuickActions key={quick.id} idPrefix="today-q" buy={false} strainId={quick.id} name={quick.name} current={quick.current}
+            <QuickActions key={quick.id} idPrefix="today-q" buy={false} strainId={quick.id} name={quick.name} form={quick.form} current={quick.current}
               remaining={0} onSaved={(en) => onUsed(quick.id, en)} />
           </div>
         )}
