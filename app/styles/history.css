@@ -1,0 +1,90 @@
+/* Historia (app/historia), raport dla lekarza (app/raport) i historia zmian odmiany (StrainHistory.js).
+   Zasada: na telefonie wiersze list, od 640 px (i na wydruku) tabele. */
+
+.hist-page > .section-label, .report-page .section-label { margin-top: var(--s-6); }
+.hist-page > .section-label:first-of-type { margin-top: 0; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* Twój miesiąc: pasek liczb (.stat-strip z strains.css) w układzie 2 x 2 na telefonie */
+.recap.summary .stat-strip { grid-template-columns: repeat(2, 1fr); }
+.recap.summary .stat-strip > div:nth-child(odd) { border-left: 0; }
+.recap.summary .stat-strip > div:nth-child(n+3) { border-top: 1px solid var(--sep); }
+.recap-top { margin: 0; padding: var(--s-3) var(--s-4); border-top: 1px solid var(--sep); font-size: .9375rem; color: var(--text-2); }
+.recap-top b { color: var(--text); }
+@media (min-width: 640px) {
+  .recap.summary .stat-strip { grid-template-columns: repeat(4, 1fr); }
+  .recap.summary .stat-strip > div:nth-child(odd) { border-left: 1px solid var(--sep); }
+  .recap.summary .stat-strip > div:first-child { border-left: 0; }
+  .recap.summary .stat-strip > div:nth-child(n+3) { border-top: 0; }
+}
+
+/* Wykres słupkowy */
+.usage-chart { padding-bottom: var(--s-3); }
+.bars { width: 100%; max-width: 520px; height: auto; display: block; margin: 0 auto; }
+.bars text { font-family: var(--font-body), system-ui, sans-serif; font-variant-numeric: tabular-nums lining-nums; }
+.bars .axis { stroke: var(--sep-strong); stroke-width: 1; }
+.bars .bar { fill: var(--accent); }
+.bars .val { fill: var(--text); font-size: 12px; font-weight: 600; }
+.bars .tick { fill: var(--text-2); font-size: 11px; }
+.empty .btn { margin-top: var(--s-4); }
+.empty p { margin: 0 auto; max-width: 36ch; }
+
+/* Zakupy i zużycie: lista na telefonie, tabela na szerokim ekranie */
+.hist-table { display: none; }
+.hist-list .list-row { align-items: flex-start; }
+.hist-list .lr-value { white-space: nowrap; }
+.hist-list .lr-value small { display: block; font-size: var(--fs-sm); color: var(--text-3); }
+.hist-cols { display: grid; gap: 0; }
+@media (min-width: 640px) {
+  .hist-list { display: none; }
+  .hist-table { display: block; }
+  .hist-table .table-wrap { padding: var(--s-2) var(--s-4) var(--s-3); }
+  .cmp.hist-cmp { min-width: 0; }
+  .cmp .num, .cmp th.num { text-align: right; white-space: nowrap; }
+}
+
+/* Raport */
+.report-filter { align-items: flex-end; }
+.report-filter .field { margin-bottom: 0; flex: 1 1 140px; }
+.report-filter .check { flex: 1 1 100%; min-height: var(--tap); }
+.report-filter .btn { flex: 1 1 140px; }
+.report-sheet h2 { margin-bottom: var(--s-2); }
+.report-sheet h3 { margin: var(--s-6) 0 var(--s-2); font-size: var(--fs-lg); }
+.report-sheet .report-meta { margin: 0 0 var(--s-2); }
+.report-sheet .summary { padding: 0; overflow: hidden; border: 1px solid var(--sep); border-radius: var(--r-lg); margin-top: var(--s-3); }
+.report-sheet .stat-strip dd { white-space: normal; }
+.report-sheet .list, .report-sheet .facts { margin-top: var(--s-2); }
+.report-wide { display: none; }
+@media (min-width: 640px) {
+  .report-narrow { display: none; }
+  .report-wide { display: block; }
+}
+.fx-line { color: var(--text-2); font-size: var(--fs-sm); line-height: 1.5; }
+
+@media print {
+  .report-narrow { display: none !important; }
+  .report-wide { display: block !important; }
+  .hist-list { display: none !important; }
+  .report-sheet .summary { border-color: #000; }
+  .report-sheet .stat-strip > div + div { border-color: #000; }
+  .report-sheet, .report-sheet * { color: #000 !important; }
+  .report-sheet h3 { break-after: avoid; }
+  .report-sheet tr { break-inside: avoid; }
+}
+
+/* Historia zmian odmiany */
+.hist-details { padding: 0; overflow: hidden; }
+.hist-details > summary { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); min-height: var(--tap); padding: 0 var(--s-4); cursor: pointer; list-style: none; font-weight: 600; }
+.hist-details > summary::-webkit-details-marker { display: none; }
+.hist-details > summary .icon { color: var(--text-3); transition: transform var(--dur-2) var(--ease); }
+.hist-details[open] > summary .icon { transform: rotate(180deg); }
+.hist-details > .alert, .hist-details > p { margin: 0 var(--s-4) var(--s-3); }
+.hist-entry { border-top: 1px solid var(--sep); padding: var(--s-3) var(--s-4); }
+.hist-who { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s-3); font-size: var(--fs-sm); color: var(--text-2); }
+.hist-who b { color: var(--text); font-weight: 600; }
+.hist-changes { list-style: none; margin: var(--s-2) 0 0; padding: 0; display: grid; gap: var(--s-2); }
+.hist-changes li { display: grid; gap: 2px; font-size: .9375rem; }
+.hist-field { font-size: var(--fs-xs); font-weight: 600; color: var(--text-2); }
+.hist-old { color: var(--text-3); text-decoration: line-through; overflow-wrap: anywhere; }
+.hist-new { color: var(--text); overflow-wrap: anywhere; }
+.hist-entry .btn { margin-top: var(--s-2); margin-left: calc(var(--s-2) * -1); }

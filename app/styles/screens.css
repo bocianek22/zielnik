@@ -65,27 +65,8 @@
 .person a { text-decoration: none; color: inherit; font-weight: 600; }
 .result-group { margin-top: 6px; }
 
-/* ===== Historia (app/historia) ===== */
-.recap h2 { margin-bottom: 14px; }
-.recap-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0; border: 1px solid var(--sep); border-radius: var(--r-md); overflow: hidden; }
-.recap-tile { display: grid; gap: 4px; padding: 14px 12px; background: var(--surface); border-left: 1px solid var(--sep); }
-.recap-tile:first-child { border-left: 0; }
-.recap-tile b { font-family: var(--font-display), Georgia, serif; font-size: 1.6rem; line-height: 1; font-variant-numeric: tabular-nums lining-nums; }
-.recap-tile span { font-size: var(--fs-xs); color: var(--text-2); }
-.recap-top { margin: 14px 0 0; }
-@media (max-width: 480px) { .recap-grid { grid-template-columns: repeat(2, 1fr); } .recap-tile:nth-child(odd) { border-left: 0; } .recap-tile:nth-child(n+3) { border-top: 1px solid var(--sep); } }
-.bars { width: 100%; max-width: 480px; height: auto; display: block; }
-.usage-chart { margin-bottom: 20px; }
-.toplist { margin: 6px 0 0; padding-left: 1.2rem; font-variant-numeric: tabular-nums; }
-
-/* ===== Dziennik objawów (app/dziennik) ===== */
-.sym-chart { width: 100%; max-width: 640px; height: auto; display: block; }
-
 /* ===== Panel admina (app/admin): statystyki ===== */
 .stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--s-3); }
 .stat { display: grid; padding: 12px 14px; border: 1px solid var(--sep); border-radius: var(--r-md); background: var(--surface); }
 .stat b { font-family: var(--font-display), Georgia, serif; font-size: 1.7rem; font-variant-numeric: tabular-nums lining-nums; }
 .stat span { color: var(--text-2); font-size: var(--fs-sm); }
-
-/* ===== Raport dla lekarza (app/raport) ===== */
-.report-sheet h3 { margin-top: 1.2em; }

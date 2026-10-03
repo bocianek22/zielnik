@@ -1,11 +1,26 @@
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
 import { history, monthlyRecap, purchaseStats } from '@/lib/strains';
 import Header from '../components/Header';
+import Icon from '../components/Icon';
 
 export const dynamic = 'force-dynamic';
 
-const MONTHS = ['stycznia', 'lutego', 'marca', 'kwietnia', 'maja', 'czerwca', 'lipca', 'sierpnia', 'września', 'października', 'listopada', 'grudnia'];
+const nf = (n, max = 1) => Number(n).toLocaleString('pl-PL', { maximumFractionDigits: max });
+const day = (at) => new Date(`${String(at).slice(0, 10)}T12:00:00`).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
+const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+function Empty({ icon, title, text }) {
+  return (
+    <div className="card empty">
+      <Icon name={icon} size={32} />
+      <h2>{title}</h2>
+      <p>{text}</p>
+      <Link className="btn ghost" href="/">Przejdź do odmian</Link>
+    </div>
+  );
+}
 
 export default async function Historia() {
   const user = await getUser();
@@ -15,71 +30,105 @@ export default async function Historia() {
     history(user.id), monthlyRecap(user.id), purchaseStats(user.id),
   ]);
   const max = Math.max(1, ...weekly.map((w) => w.grams));
-  const monthLabel = MONTHS[new Date().getMonth()];
+  const monthLabel = cap(new Date().toLocaleDateString('pl-PL', { month: 'long', year: 'numeric' }));
   const hasRecap = recap.totalGrams > 0 || recap.ratedCount > 0 || bought.grams > 0;
+  const weeklyTotal = weekly.reduce((a, w) => a + w.grams, 0);
+  const peak = weekly.reduce((a, w) => (w.grams > a.grams ? w : a), weekly[0] || { grams: 0, label: '' });
+  const chartLabel = `Zużycie tygodniowe w gramach, ostatnie ${weekly.length} tygodni: razem ${nf(weeklyTotal)} g, najwięcej ${nf(peak.grams)} g w tygodniu od ${peak.label}.`;
 
   return (
     <>
       <Header user={user} />
-      <main className="page">
+      <main className="page hist-page">
         <h1>Historia</h1>
         {hasRecap && (
-          <section className="card recap">
-            <h2>Twój miesiąc — {monthLabel}</h2>
-            <div className="recap-grid">
-              <div className="recap-tile"><b>{Number(recap.totalGrams.toFixed(1))} g</b><span>zużyte</span></div>
-              <div className="recap-tile"><b>{recap.activeDays}</b><span>{recap.activeDays === 1 ? 'aktywny dzień' : 'aktywne dni'}</span></div>
-              <div className="recap-tile"><b>{Number(bought.grams.toFixed(1))} g</b><span>wykupione{bought.cost > 0 ? ` (${Number(bought.cost.toFixed(0))} zł)` : ''}</span></div>
-              <div className="recap-tile"><b>{recap.avgRating != null ? recap.avgRating.toFixed(1) : '–'}</b><span>średnia ocena{recap.ratedCount ? ` (${recap.ratedCount})` : ''}</span></div>
-            </div>
-            {recap.topStrain && (
-              <p className="recap-top">Najczęściej sięgałeś po <b className="dn">{recap.topStrain.name}</b> — {Number(recap.topStrain.grams.toFixed(1))} g w tym miesiącu.</p>
-            )}
-          </section>
+          <>
+            <h2 className="section-label">Twój miesiąc: {monthLabel}</h2>
+            <section className="card recap summary">
+              <dl className="stat-strip">
+                <div><dt>Zużyte</dt><dd><b>{nf(recap.totalGrams)}</b> g</dd></div>
+                <div><dt>{recap.activeDays === 1 ? 'Aktywny dzień' : 'Aktywne dni'}</dt><dd><b>{recap.activeDays}</b></dd></div>
+                <div><dt>Wykupione</dt><dd><b>{nf(bought.grams)}</b> g{bought.cost > 0 && <span className="stat-sub">{nf(bought.cost, 0)} zł</span>}</dd></div>
+                <div><dt>Średnia ocena</dt><dd><b>{recap.avgRating != null ? nf(recap.avgRating) : '–'}</b>{recap.ratedCount > 0 && <span className="stat-sub">z {recap.ratedCount} {recap.ratedCount === 1 ? 'oceny' : 'ocen'}</span>}</dd></div>
+              </dl>
+              {recap.topStrain && (
+                <p className="recap-top">Najczęściej sięgałeś po <b className="dn">{recap.topStrain.name}</b>: {nf(recap.topStrain.grams)} g w tym miesiącu.</p>
+              )}
+            </section>
+          </>
         )}
-        <section className="card usage-chart">
-          <h2>Zużycie tygodniowe (ostatnie 8 tygodni)</h2>
-          {weekly.every((w) => w.grams === 0) ? <p className="muted">Brak danych. Wpisuj zużycie w karcie odmiany.</p> : (
-            <svg viewBox="0 0 400 170" className="bars" role="img" aria-label="Wykres zużycia tygodniowego w gramach">
+
+        <h2 className="section-label">Zużycie tygodniowe, ostatnie {weekly.length} tygodni</h2>
+        {weekly.every((w) => w.grams === 0) ? (
+          <Empty icon="chart" title="Brak zużycia" text="Wpisuj zużycie w karcie odmiany, a tu pojawi się wykres tygodniowy." />
+        ) : (
+          <section className="card usage-chart">
+            <svg viewBox="0 0 400 160" className="bars" role="img" aria-label={chartLabel}>
+              <line className="axis" x1="6" x2="394" y1="130" y2="130" />
               {weekly.map((w, i) => {
-                const h = (w.grams / max) * 110, x = 12 + i * 47;
+                const h = (w.grams / max) * 100, x = 12 + i * 47, y = 130 - h, r = Math.min(4, h);
                 return (
                   <g key={w.label}>
-                    <rect x={x} y={130 - h} width="34" height={h} rx="5" fill="var(--hemp)" />
-                    <text x={x + 17} y={124 - h} textAnchor="middle" fontSize="11" fill="var(--ink)">{w.grams ? Number(w.grams.toFixed(1)) : ''}</text>
-                    <text x={x + 17} y={150} textAnchor="middle" fontSize="10" fill="var(--muted)">{w.label}</text>
+                    {w.grams > 0 && <path className="bar" d={`M${x} 130V${y + r}a${r} ${r} 0 0 1 ${r} ${-r}h${34 - 2 * r}a${r} ${r} 0 0 1 ${r} ${r}V130z`} />}
+                    <text className="val" x={x + 17} y={y - 6} textAnchor="middle">{w.grams ? nf(w.grams) : ''}</text>
+                    <text className="tick" x={x + 17} y={148} textAnchor="middle">{w.label}</text>
                   </g>
                 );
               })}
             </svg>
-          )}
-          {top.length > 0 && (
-            <>
-              <h3>Najczęściej używane (30 dni)</h3>
-              <ol className="toplist">{top.map((t) => <li key={t.name}><b className="dn">{t.name}</b> {Number(t.grams.toFixed(2))} g</li>)}</ol>
-            </>
-          )}
-        </section>
-        <div className="rank-grid two">
-          <section className="card">
-            <h2>Zakupy</h2>
-            {purchases.length === 0 ? <p className="muted">Brak zakupów. Dodaj je w karcie odmiany (pole „Wykupiłem”).</p> : (
-              <div className="table-wrap"><table className="cmp"><thead><tr><th>Data</th><th>Odmiana</th><th>Ilość</th><th>Koszt</th></tr></thead>
-                <tbody>{purchases.map((p, i) => (
-                  <tr key={i}><td>{p.at}</td><td><span className="dn">{p.name}</span></td><td>{p.grams} g</td><td>{p.cost != null ? `${p.cost} zł` : '–'}</td></tr>
-                ))}</tbody></table></div>
-            )}
           </section>
-          <section className="card">
-            <h2>Zużycie</h2>
-            {usage.length === 0 ? <p className="muted">Brak wpisów. Dodaj je w karcie odmiany (pole „Zużycie”).</p> : (
-              <div className="table-wrap"><table className="cmp"><thead><tr><th>Data</th><th>Odmiana</th><th>Ilość</th></tr></thead>
-                <tbody>{usage.map((u, i) => (
-                  <tr key={i}><td>{u.at}</td><td><span className="dn">{u.name}</span></td><td>{u.grams} g</td></tr>
-                ))}</tbody></table></div>
-            )}
-          </section>
-        </div>
+        )}
+
+        {top.length > 0 && (
+          <>
+            <h2 className="section-label">Najczęściej używane, 30 dni</h2>
+            <ol className="list">
+              {top.map((t) => (
+                <li key={t.name} className="list-row"><span className="lr-main dn">{t.name}</span><span className="lr-value">{nf(t.grams, 2)} g</span></li>
+              ))}
+            </ol>
+          </>
+        )}
+
+        <h2 className="section-label">Zakupy</h2>
+        {purchases.length === 0 ? (
+          <Empty icon="list" title="Brak zakupów" text="Dodaj je w karcie odmiany, w polu „Wykupiłem”." />
+        ) : (
+          <>
+            <ul className="list hist-list">
+              {purchases.map((p, i) => (
+                <li key={i} className="list-row">
+                  <span className="lr-main"><span className="dn">{p.name}</span><span className="lr-sub">{day(p.at)}</span></span>
+                  <span className="lr-value">{nf(p.grams, 2)} g{p.cost != null && <small>{nf(p.cost, 2)} zł</small>}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="card hist-table"><div className="table-wrap"><table className="cmp hist-cmp"><thead><tr><th>Data</th><th>Odmiana</th><th className="num">Ilość</th><th className="num">Koszt</th></tr></thead>
+              <tbody>{purchases.map((p, i) => (
+                <tr key={i}><td>{day(p.at)}</td><td><span className="dn">{p.name}</span></td><td className="num">{nf(p.grams, 2)} g</td><td className="num">{p.cost != null ? `${nf(p.cost, 2)} zł` : '–'}</td></tr>
+              ))}</tbody></table></div></div>
+          </>
+        )}
+
+        <h2 className="section-label">Zużycie</h2>
+        {usage.length === 0 ? (
+          <Empty icon="clipboard" title="Brak wpisów" text="Dodaj je w karcie odmiany, w polu „Zużycie”." />
+        ) : (
+          <>
+            <ul className="list hist-list">
+              {usage.map((u, i) => (
+                <li key={i} className="list-row">
+                  <span className="lr-main"><span className="dn">{u.name}</span><span className="lr-sub">{day(u.at)}</span></span>
+                  <span className="lr-value">{nf(u.grams, 2)} g</span>
+                </li>
+              ))}
+            </ul>
+            <div className="card hist-table"><div className="table-wrap"><table className="cmp hist-cmp"><thead><tr><th>Data</th><th>Odmiana</th><th className="num">Ilość</th></tr></thead>
+              <tbody>{usage.map((u, i) => (
+                <tr key={i}><td>{day(u.at)}</td><td><span className="dn">{u.name}</span></td><td className="num">{nf(u.grams, 2)} g</td></tr>
+              ))}</tbody></table></div></div>
+          </>
+        )}
       </main>
     </>
   );
