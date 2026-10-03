@@ -7,11 +7,23 @@ Wersje 0.1.0 do 0.14.0 zostały odtworzone z historii prac (wgrywanych paczkami 
 Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow „Wydanie” (patrz `CONTRIBUTING.md`).
 
 ## [Unreleased]
+
+## [0.33.0] - 2026-10
 ### Dodano
+- Korekta wpisów w Historii: „Popraw” i „Usuń” przy zużyciu i wykupie (gramy, data, cena za gram lub łączny koszt). Zmiana gramów przelicza zapas i pulę „do wykupienia”; zmiana daty nie zmienia stanu. Zakupy bez ceny są oznaczone, a po wpisaniu „Ceny u mnie” aplikacja proponuje uzupełnienie ich kosztu.
+- „Cofnij” po szybkim zapisie zużycia i wykupu (8 s w aplikacji, do 10 min po stronie serwera) oraz ochrona przed podwójnym zapisem przy ponowieniu po zerwanym połączeniu (`requestId`).
+- Szybki wpis objawów w panelu „Dziś”: ból, sen, lęk i nastrój jednym dotknięciem (0/3/5/7/10), bez nadpisywania notatki z dziennika.
+- Katalog Zielnika (`data/odmiany.json`, 16 odmian z polskich aptek ze źródłami) i przycisk admina „Uzupełnij dane z katalogu Zielnika” (tylko puste pola: smak, terpeny, opis; w historii zmian jako „Zielnik (katalog)”).
+- Wiedza: artykuły o kannabinoidach, waporyzacji, przechowywaniu, interakcjach z lekami i prawie pacjenta w Polsce, rozszerzony słowniczek, źródła przy artykułach.
+- Agenci `innowacje` (lista pomysłów `docs/POMYSLY.md`) i `tresci` (dane odmian, zdjęcia na wolnych licencjach, Wiedza).
 - Panel admina, zakładka System: „Zdjęcie z apteki → CSV”. Zdjęcie (aparat lub galeria, do 4 naraz) listy, półki albo cennika apteki odczytuje Claude API (`ANTHROPIC_API_KEY`, model `ZIELNIK_VISION_MODEL`, domyślnie `claude-opus-5-5`): nazwa rejestrowa, producent, odmiana, THC, CBD, postać, opakowanie, cena. Edytowalny podgląd z oznaczeniem „Niepewne”, usuwanie wierszy, „Pobierz CSV”, „Kopiuj CSV” i „Importuj do katalogu” (scalanie bez duplikatów po producencie i nazwie, bez oznaczania innych pozycji jako „Brak w źródle”). Oleje („Extractum…”) i wkłady mają opakowanie w ml. Zdjęcia nie są zapisywane.
-- „Sprawdź dostępność w aptekach” (wyszukiwarka gdziepolek.pl) na stronie odmiany i w katalogu, z neutralnym tekstem odnośnika; w Wiedzy nowa sekcja „Gdzie sprawdzić dostępność w aptekach”.
+- „Sprawdź dostępność w aptekach” (strona produktu na gdziepolek.pl albo wyszukiwanie w obrębie serwisu) na stronie odmiany i w katalogu, z neutralnym tekstem odnośnika; w Wiedzy nowa sekcja „Gdzie sprawdzić dostępność w aptekach”.
 ### Zmieniono
+- Wykres objawów w dzienniku: linie odróżnialne kreską i kształtem punktu, tabela dla czytnika ekranu; opisy skal przy suwakach.
+- „Dziś” w dzienniku, receptach i raporcie liczone w czasie polskim (wcześniej UTC: tuż po północy wpis trafiał pod wczoraj).
 - `syncCatalog` ma tryb scalania (`merge`), a `POST /api/catalog` przyjmuje `mode: 'zdjecie'`. Testy z bazą wczytują JSON importowany bez atrybutu (hak `load` w `tests/db/loader.mjs`).
+### Uwaga przy wdrożeniu
+- Migracje addytywne: `usage_log.request_id`, `usage_log.stock_delta`, `purchases.request_id`, `purchases.pool_delta` (z unikalnymi indeksami), `strain_edits.actor`. Funkcja „Zdjęcie z apteki → CSV” wymaga `ANTHROPIC_API_KEY` w Vercel.
 
 ## [0.32.0] - 2026-10
 ### Dodano
