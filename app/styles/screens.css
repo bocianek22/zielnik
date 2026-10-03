@@ -1,0 +1,91 @@
+/* Pozostałe ekrany: reguły przeniesione z dawnego globals.css na tokeny (bez przeprojektowania).
+   Każdy blok ma właściciela w docs/DESIGN.md („Do przeniesienia na system”); przy przenoszeniu ekranu
+   wydziel jego blok do osobnego pliku app/styles/<ekran>.css i dopisz import w app/layout.js. */
+
+/* ===== Koło fortuny (app/wheel) ===== */
+.wheel-wrap { display: grid; grid-template-columns: minmax(280px, 460px) 1fr; gap: 28px; align-items: center; }
+.wheel-box { position: relative; width: 100%; aspect-ratio: 1; }
+.wheel-canvas { width: 100%; height: 100%; display: block; }
+.wheel-pointer { position: absolute; top: -6px; left: 50%; z-index: 2; transform: translateX(-50%); border-left: 14px solid transparent; border-right: 14px solid transparent; border-top: 30px solid var(--kind-sativa); filter: drop-shadow(0 2px 2px rgba(0,0,0,.35)); }
+.wheel-hub { position: absolute; inset: 50% auto auto 50%; transform: translate(-50%, -50%); width: 88px; height: 88px; border-radius: 50%; border: 4px solid var(--kind-sativa); background: var(--bar); color: var(--on-bar); display: grid; place-items: center; align-content: center; cursor: pointer; font: inherit; font-weight: 700; }
+.wheel-hub svg { color: var(--kind-sativa); margin-bottom: -4px; }
+.wheel-hub:hover:not(:disabled) { background: var(--accent); }
+.wheel-hub:disabled { cursor: wait; }
+.wheel-side h2 { margin-bottom: .3em; }
+@media (max-width: 760px) { .wheel-wrap { grid-template-columns: 1fr; } }
+
+/* ===== Rankingi (app/rankings), także historia i grupy ===== */
+.rank-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-4); align-items: start; }
+.rank-grid.two { grid-template-columns: repeat(2, 1fr); }
+.rank { padding: var(--s-5); }
+.rank h2 { margin-bottom: 0; }
+.rank-hint { margin: 2px 0 14px; font-size: var(--fs-sm); }
+.rank-list { list-style: none; margin: 0; padding: 0; display: grid; }
+.rank-list li { display: grid; grid-template-columns: 34px 1fr auto; gap: 10px; align-items: center; padding: 10px 0; border-top: 1px solid var(--sep); }
+.rank-list li:first-child { border-top: 0; }
+.rank-list .pos { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--surface-2); color: var(--text-2); font-weight: 700; font-size: var(--fs-sm); font-variant-numeric: tabular-nums; }
+.rank-list .top-1 .pos, .rank-list .top-2 .pos, .rank-list .top-3 .pos { background: var(--accent-soft); color: var(--on-accent-soft); }
+.rank-list .who { display: grid; min-width: 0; }
+.rank-list .who b, .rank-list .who small { overflow-wrap: anywhere; }
+.rank-list small { color: var(--text-2); font-size: var(--fs-xs); }
+.rank-list .pts { display: grid; text-align: right; font-weight: 700; font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+@media (max-width: 900px) { .rank-grid, .rank-grid.two { grid-template-columns: 1fr; } }
+
+/* ===== Wiedza (app/wiedza), polityka prywatności ===== */
+.knav { display: flex; gap: var(--s-2); flex-wrap: wrap; margin: 18px 0 22px; }
+.knav a { display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border-radius: var(--r-pill); background: var(--surface); border: 1px solid var(--sep-strong); color: var(--text); text-decoration: none; font-weight: 500; font-size: var(--fs-sm); }
+.knav a:hover { background: var(--hover-bg); }
+.knowledge { scroll-margin-top: 90px; }
+.knowledge h2 { margin-bottom: .5em; }
+.knowledge p { max-width: 72ch; }
+#katalog-terpenow { scroll-margin-top: 90px; }
+.terp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--s-4); margin-top: 14px; }
+.terp-card { padding: 18px 20px; scroll-margin-top: 90px; }
+.terp-card h3 { margin-bottom: .4em; }
+.terp-card p { margin: .35em 0; font-size: .94rem; }
+
+/* ===== Katalog (app/katalog) ===== */
+.cat-item { display: flex; justify-content: space-between; align-items: center; gap: var(--s-4); padding: var(--s-4) var(--s-5); }
+.cat-item.inactive { opacity: .6; }
+.cat-item h3 { margin: 0 0 .2em; }
+
+/* ===== Profil publiczny, znajomi, grupy, wyszukiwanie (app/u, app/znajomi, app/grupy, app/szukaj) ===== */
+.avatar { width: 88px; height: 88px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background: var(--surface-2); }
+.avatar.ph { display: grid; place-items: center; background: var(--accent-soft); color: var(--on-accent-soft); font-family: var(--font-display), Georgia, serif; font-size: 2rem; font-weight: 600; }
+.profile-head { display: flex; gap: 22px; align-items: flex-start; flex-wrap: wrap; }
+.profile-info { flex: 1 1 260px; display: grid; gap: 8px; justify-items: start; }
+.profile-info h1, .profile-info p { margin: 0; }
+.plinks { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; }
+.wall { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
+.wall li p { margin: 0 0 4px; }
+.wall-test { display: flex; gap: 14px; align-items: flex-start; }
+.people { list-style: none; padding: 0; margin: 0; display: grid; }
+.person { display: flex; justify-content: space-between; align-items: center; gap: var(--s-3); flex-wrap: wrap; padding: var(--s-3) 0; border-top: 1px solid var(--sep); }
+.people > .person:first-child { border-top: 0; }
+.person a { text-decoration: none; color: inherit; font-weight: 600; }
+.result-group { margin-top: 6px; }
+
+/* ===== Historia (app/historia) ===== */
+.recap h2 { margin-bottom: 14px; }
+.recap-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0; border: 1px solid var(--sep); border-radius: var(--r-md); overflow: hidden; }
+.recap-tile { display: grid; gap: 4px; padding: 14px 12px; background: var(--surface); border-left: 1px solid var(--sep); }
+.recap-tile:first-child { border-left: 0; }
+.recap-tile b { font-family: var(--font-display), Georgia, serif; font-size: 1.6rem; line-height: 1; font-variant-numeric: tabular-nums lining-nums; }
+.recap-tile span { font-size: var(--fs-xs); color: var(--text-2); }
+.recap-top { margin: 14px 0 0; }
+@media (max-width: 480px) { .recap-grid { grid-template-columns: repeat(2, 1fr); } .recap-tile:nth-child(odd) { border-left: 0; } .recap-tile:nth-child(n+3) { border-top: 1px solid var(--sep); } }
+.bars { width: 100%; max-width: 480px; height: auto; display: block; }
+.usage-chart { margin-bottom: 20px; }
+.toplist { margin: 6px 0 0; padding-left: 1.2rem; font-variant-numeric: tabular-nums; }
+
+/* ===== Dziennik objawów (app/dziennik) ===== */
+.sym-chart { width: 100%; max-width: 640px; height: auto; display: block; }
+
+/* ===== Panel admina (app/admin): statystyki ===== */
+.stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--s-3); }
+.stat { display: grid; padding: 12px 14px; border: 1px solid var(--sep); border-radius: var(--r-md); background: var(--surface); }
+.stat b { font-family: var(--font-display), Georgia, serif; font-size: 1.7rem; font-variant-numeric: tabular-nums lining-nums; }
+.stat span { color: var(--text-2); font-size: var(--fs-sm); }
+
+/* ===== Raport dla lekarza (app/raport) ===== */
+.report-sheet h3 { margin-top: 1.2em; }

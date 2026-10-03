@@ -1,5 +1,13 @@
 import { Fraunces, Figtree } from 'next/font/google';
+// Kolejność ma znaczenie: tokeny i komponenty bazowe, potem ekrany, na końcu wydruk/tryb dyskretny/natywna powłoka
 import './globals.css';
+import './styles/nav.css';
+import './styles/strains.css';
+import './styles/detail.css';
+import './styles/profile.css';
+import './styles/auth.css';
+import './styles/screens.css';
+import './styles/platform.css';
 import { cookies, headers } from 'next/headers';
 import { isNativeApp } from '@/lib/client';
 import RegisterSW from './components/RegisterSW';
