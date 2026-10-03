@@ -10,7 +10,7 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [0.31.0] - 2026-10
 ### Dodano
-- Powiadomienia push do aplikacji natywnej przez Firebase Cloud Messaging (HTTP v1): `lib/fcm.js` (token OAuth z konta usługi w `FIREBASE_SERVICE_ACCOUNT`, podpis RS256, cache tokenu). Przypomnienia i powiadomienie testowe trafiają też na tokeny FCM, z tą samą neutralną treścią co Web Push. Token z `UNREGISTERED`/404 jest usuwany. Bez zmiennej wysyłka FCM jest wyłączona.
+- Powiadomienia push do aplikacji natywnej przez Firebase Cloud Messaging (HTTP v1): `lib/fcm.js` (token OAuth z konta usługi w `FIREBASE_SERVICE_ACCOUNT`, podpis RS256, cache tokenu). Przypomnienia i powiadomienie testowe trafiają też na tokeny FCM, z neutralną treścią (do FCM zawsze bez szczegółów, bo przechodzi przez Google). Token z `UNREGISTERED`/404/`SENDER_ID_MISMATCH` jest usuwany; błędy konfiguracji i usługi (OAuth, 403, 429, 5xx, timeout) nie liczą się jako porażka tokenu, a nieudane OAuth jest pamiętane 60 s. Bez zmiennej wysyłka FCM jest wyłączona.
 - ESLint 9 (`npm run lint`, `eslint.config.mjs`) z regułami `no-undef`, `no-unused-vars` i reguł hooków Reacta, uruchamiany w CI po `npm run check`; reguły React Compiler działają jako ostrzeżenia.
 - System projektowy (`docs/DESIGN.md`): tokeny kolorów, typografii, odstępów i promieni w `app/globals.css` (jasny i ciemny motyw), jeden zestaw ikon SVG (`Icon.js`), style podzielone na pliki obszarów w `app/styles/`.
 - Aplikacja Android wygląda natywnie: bez pasków przewijania i efektu przeciągnięcia przeglądarki, haptyka, odświeżanie przeciągnięciem, przejścia między ekranami, ekran startowy i ikona, ekran offline, obsługa klawiatury, ciasteczko sesji zapisywane przy zejściu do tła.

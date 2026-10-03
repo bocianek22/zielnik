@@ -67,9 +67,11 @@ test('token OAuth: JWT RS256 z właściwymi polami, cache do wygaśnięcia, odś
   assert.equal(await accessToken(), 'tok2');
 });
 
-test('błąd tokenu OAuth nie zostaje w cache', async () => {
+test('błąd tokenu OAuth nie zostaje w cache jako token', async () => {
+  const err = console.error; console.error = () => {};
   globalThis.fetch = async () => json(400, { error: 'invalid_grant' });
-  await assert.rejects(accessToken(), /tokenu OAuth \(400\)/);
+  try { await assert.rejects(accessToken(), /tokenu OAuth \(400\)/); } finally { console.error = err; }
+  resetFcmCache(); // pamięć błędu (60 s) zostaje, jej wygaśnięcie symulujemy resetem
   stub(() => json(200, {}));
   assert.equal(await accessToken(), 'tok1');
 });
@@ -104,4 +106,65 @@ test('401 od FCM: jednorazowa ponowna próba z nowym tokenem OAuth', async () =>
   assert.equal(await sendFcm('T'.repeat(40), { title: 'a' }), true);
   const auth = calls.filter((c) => c.url.includes('messages:send')).map((c) => c.init.headers.Authorization);
   assert.deepEqual(auth, ['Bearer tok1', 'Bearer tok2']);
+});
+
+const quiet = async (fn) => { const e = console.error; console.error = () => {}; try { return await fn(); } finally { console.error = e; } };
+const send = () => sendFcm('T'.repeat(40), { title: 'a' });
+
+test('klasyfikacja: 403, 429, 5xx, timeout i błąd sieci są transient, usuwanie tylko dla nieważnego tokenu', async () => {
+  await quiet(async () => {
+    for (const [status, body] of [[403, { error: { status: 'PERMISSION_DENIED' } }], [429, { error: { status: 'QUOTA_EXCEEDED' } }], [500, {}], [503, {}]]) {
+      stub(() => json(status, body));
+      await assert.rejects(send(), (e) => e.transient === true && e.statusCode === status, String(status));
+    }
+    globalThis.fetch = async (url) => { if (String(url).includes('oauth2')) return json(200, { access_token: 't', expires_in: 3600 }); throw Object.assign(new Error('x'), { name: 'TimeoutError' }); };
+    await assert.rejects(send(), (e) => e.transient === true && e.statusCode === undefined);
+    stub(() => json(403, { error: { status: 'PERMISSION_DENIED', details: [{ errorCode: 'SENDER_ID_MISMATCH' }] } }));
+    await assert.rejects(send(), (e) => e.statusCode === 404 && !e.transient);
+    const violation = { '@type': 'type.googleapis.com/google.rpc.BadRequest', fieldViolations: [{ field: 'message.token' }] };
+    stub(() => json(400, { error: { status: 'INVALID_ARGUMENT', details: [violation] } }));
+    await assert.rejects(send(), (e) => e.statusCode === 404);
+    stub(() => json(400, { error: { status: 'INVALID_ARGUMENT', details: [{ fieldViolations: [{ field: 'message.android.ttl' }] }] } }));
+    await assert.rejects(send(), (e) => e.statusCode === 400 && !e.transient);
+  });
+});
+
+test('nieudane OAuth: transient i zapamiętane na minutę (kolejne wywołania bez żądań)', async () => {
+  await quiet(async () => {
+    let n = 0;
+    globalThis.fetch = async () => { n++; return json(500, {}); };
+    await assert.rejects(send(), (e) => e.transient === true && !e.skipped);
+    await assert.rejects(send(), (e) => e.transient === true && e.skipped === true);
+    await assert.rejects(send(), (e) => e.skipped === true);
+    assert.equal(n, 1);
+    resetFcmCache(); // po wygaśnięciu pamięci (tu: reset) próbujemy znowu
+    stub(() => json(200, {}));
+    assert.equal(await send(), true);
+  });
+});
+
+test('private_key z dosłownym "\\n" jest naprawiany, uszkodzony klucz wyłącza FCM', async () => {
+  process.env.FIREBASE_SERVICE_ACCOUNT = JSON.stringify({ ...ACCOUNT, private_key: privateKey.replace(/\n/g, '\\n') });
+  assert.equal(fcmConfig().privateKey, privateKey);
+  stub(() => json(200, {}));
+  assert.equal(await send(), true);
+  await quiet(async () => {
+    process.env.FIREBASE_SERVICE_ACCOUNT = JSON.stringify({ ...ACCOUNT, private_key: '-----BEGIN PRIVATE KEY-----\nzepsuty\n-----END PRIVATE KEY-----\n' });
+    assert.equal(fcmEnabled(), false);
+  });
+});
+
+test('401 unieważnia tylko użyty token OAuth, nie cały cache', async () => {
+  let n = 0;
+  stub(() => (++n === 1 ? json(401, {}) : json(200, {})));
+  assert.equal(await send(), true);
+  assert.equal(await accessToken(), 'tok2'); // nowy token zostaje w cache
+  assert.equal(tokenCount, 2);
+  // token zdążył już wymienić ktoś inny: cudzego tokenu nie kasujemy
+  resetFcmCache(); tokenCount = 0; n = 0;
+  let other;
+  stub(async () => { if (++n === 1) { resetFcmCache(); other = await accessToken(); return json(401, {}); } return json(200, {}); });
+  assert.equal(await send(), true);
+  assert.equal(other, 'tok2');
+  assert.equal(tokenCount, 2); // retry użył tokenu z cache, bez trzeciej wymiany
 });

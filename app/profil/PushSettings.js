@@ -160,6 +160,7 @@ export default function PushSettings() {
           {!cfg.hourly && <p className="muted small">Na razie serwer wysyła przypomnienia raz dziennie, ok. 9:00 (zimą ok. 8:00).</p>}
           <label className="switch-row"><span>Pokazuj szczegóły w powiadomieniu</span>
             <input type="checkbox" className="switch" role="switch" checked={prefs.showDetails} onChange={(e) => save({ showDetails: e.target.checked })} /></label>
+          <p className="muted small">W aplikacji na Androida powiadomienia zawsze są bez szczegółów (treść przechodzi przez serwery Google).</p>
           <p className="muted small">Bez tej opcji powiadomienie brzmi tylko „Masz 2 przypomnienia”, bo jego treść może być widoczna na zablokowanym ekranie.
             Nazwy odmian nie trafiają do powiadomień nigdy.</p>
         </fieldset>
