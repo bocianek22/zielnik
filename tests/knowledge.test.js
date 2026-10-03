@@ -12,6 +12,7 @@ test('artykuły wiedzy: unikalne identyfikatory, tytuły i treść', () => {
     assert.ok(Array.isArray(a.text) && a.text.length > 0, `treść: ${a.id}`);
     for (const p of a.text) assert.ok(typeof p === 'string' && p.length > 10);
     for (const [term, desc] of a.list || []) assert.ok(term && desc, `lista: ${a.id}`);
+    for (const x of a.sources || []) assert.ok(x.title && /^https:\/\/\S+$/.test(x.url), `źródło: ${a.id}`);
   }
 });
 
@@ -19,4 +20,11 @@ test('katalog terpenów: komplet pól i unikalne kotwice linków', () => {
   for (const t of TERPENES) assert.ok(t.name && t.aroma && t.found && t.known, `terpen: ${t.name}`);
   const anchors = TERPENES.map((t) => t.name.toLowerCase().split(' ')[0]);
   assert.equal(new Set(anchors).size, anchors.length);
+});
+
+test('nowe artykuły mają źródła', () => {
+  for (const id of ['kannabinoidy', 'waporyzacja', 'przechowywanie', 'interakcje', 'prawo-pacjenta']) {
+    const a = ARTICLES.find((x) => x.id === id);
+    assert.ok(a && a.sources.length >= 2, `źródła: ${id}`);
+  }
 });

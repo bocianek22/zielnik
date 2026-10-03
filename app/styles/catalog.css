@@ -34,3 +34,8 @@
 .search-hint { margin: 0 var(--s-1) var(--s-2); font-size: var(--fs-sm); color: var(--text-2); }
 .person-row .avatar-sm { width: 40px; height: 40px; border-radius: 50%; flex: none; display: grid; place-items: center; background: var(--accent-soft); color: var(--on-accent-soft); font-family: var(--font-display), Georgia, serif; font-weight: 600; }
 @media (min-width: 761px) { .cat-head .btn, .cat-add .btn { width: auto; } }
+
+/* odnośnik „Sprawdź dostępność w aptekach” (katalog i szczegóły odmiany) */
+.pharmacy-link { display: grid; justify-items: start; gap: 2px; margin: var(--s-2) var(--s-1) 0; }
+.pharmacy-link a { display: inline-flex; align-items: center; min-height: var(--tap); color: var(--accent-text); font-weight: 600; }
+.pharmacy-link .small { font-size: var(--fs-sm); }

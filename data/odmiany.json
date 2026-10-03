@@ -1,0 +1,722 @@
+{
+  "_info": "Katalog Zielnika: dane z publicznych źródeł (rejestr produktów w aptekach: gdziepolek.pl, DOZ.pl oraz serwisy tematyczne). thc to wartość nominalna z nazwy produktu (dopuszczalne odchylenie ±10% tej wartości), cbdMax to górna granica CBD z nazwy produktu. Opisy są neutralne: genetyka i aromat, bez wskazań leczniczych.",
+  "verification": "websearch: treści potwierdzano na podstawie wyników wyszukiwarki (strony źródłowe nie były pobierane, część domen jest zablokowana w środowisku redakcyjnym). Terpeny wpisano tylko, gdy wymieniało je co najmniej dwóch niezależnych wydawców. Przed użyciem poza aplikacją zalecana weryfikacja z charakterystyką produktu i certyfikatem (COA) konkretnej partii.",
+  "updated": "2026-10-03",
+  "strains": [
+    {
+      "producer": "Aurora",
+      "producerAliases": [
+        "Aurora Deutschland",
+        "Aurora Deutschland GmbH"
+      ],
+      "name": "Delahaze",
+      "aliases": [
+        "Delahaze 22",
+        "Delahaze 22/1",
+        "Aurora Delahaze"
+      ],
+      "registeredName": "Cannabis flos Aurora THC 22%, CBD <1%",
+      "kind": "sativa",
+      "genetics": "Mango Haze × Lemon Skunk",
+      "thc": 22,
+      "cbd": null,
+      "cbdMax": 1,
+      "form": "susz",
+      "terpenes": [
+        "Terpinolen",
+        "Mircen"
+      ],
+      "taste": "owocowy z nutą sosny; opisywany jako mango i cytryna",
+      "description": "Odmiana o dominacji sativa, wywodzona z krzyżowania Mango Haze i Lemon Skunk. W profilu terpenowym przeważają terpinolen i mircen, a aromat opisuje się jako owocowy z nutą sosny.",
+      "sources": [
+        {
+          "title": "gdziepolek.pl: Aurora THC 22%, CBD <1% (Delahaze) (nazwa rejestrowa)",
+          "url": "https://www.gdziepolek.pl/produkty/119767/cannabis-flos-aurora-thc-22-cbd-1-delahaze-marihuana-lecznicza-medyczna/apteki"
+        },
+        {
+          "title": "BudCare: Cannabis flos Aurora 22 Delahaze",
+          "url": "https://budcare.pl/odmiany/cannabis-flos-aurora-22-delahaze/"
+        },
+        {
+          "title": "OdmianyMarihuany.pl: Aurora Delahaze 22/1",
+          "url": "https://odmianymarihuany.pl/medyczna-marihuana/aurora-delahaze-22-1/"
+        }
+      ],
+      "discrepancies": [
+        "Nazwa rejestrowa „Aurora THC 22%” bywa używana także dla Ghost Train Haze (inne partie lub okresy)."
+      ]
+    },
+    {
+      "producer": "Aurora",
+      "producerAliases": [
+        "Aurora Deutschland",
+        "Aurora Deutschland GmbH"
+      ],
+      "name": "Ghost Train Haze",
+      "aliases": [
+        "Ghost Train Haze 22",
+        "GTH",
+        "Aurora Ghost Train Haze"
+      ],
+      "registeredName": "Cannabis flos Aurora Deutschland GmbH THC 22%, CBD 1%",
+      "kind": "sativa",
+      "genetics": "Ghost OG × Nevil's Wreck",
+      "thc": 22,
+      "cbd": 1,
+      "cbdMax": 1,
+      "form": "susz",
+      "terpenes": [
+        "Terpinolen",
+        "Limonen",
+        "Mircen"
+      ],
+      "taste": "cytrusowy, cytrynowy, z nutą kwiatową i ziemistą",
+      "description": "Hybryda o wyraźnej dominacji sativa, powstała z krzyżowania Ghost OG i Nevil's Wreck. Dominującym terpenem jest terpinolen, a aromat bywa opisywany jako cytrynowy.",
+      "sources": [
+        {
+          "title": "gdziepolek.pl: Aurora Deutschland GmbH THC 22%, CBD 1% (Ghost Train Haze) (nazwa rejestrowa)",
+          "url": "https://www.gdziepolek.pl/produkty/100242/cannabis-flos-thc-22-cbd-1-aurora-deutschland-gmbh-ghost-train-haze-marihuana-lecznicza-medyczna/apteki"
+        },
+        {
+          "title": "Vaporshop.pl: Cannabis flos Aurora 22% THC (Ghost Train Haze)",
+          "url": "https://vaporshop.pl/en/blog/odmiany-medycznej-marihuany/cannabis-flos-aurora-22-thc-ghost-train-haze-najwazniejsze-informacje"
+        },
+        {
+          "title": "OdmianyMarihuany.pl: Ghost Train Haze Aurora THC 22%",
+          "url": "https://odmianymarihuany.pl/medyczna-marihuana/aurora-22-1/"
+        },
+        {
+          "title": "Medweed: Aurora Deutschland THC 22% Ghost Train Haze",
+          "url": "https://medweed.pl/odmiany-marihuany/cannabis-flos-aurora-deutschland-gmbh-thc-22-cbd-%e2%89%a41-ghost-train-haze/"
+        }
+      ],
+      "discrepancies": [
+        "CBD: rejestr aptek podaje 1%, część serwisów „<1%” lub „≤1%”.",
+        "Pochodzenie krzyżówki (Ghost OG × Nevil's Wreck) podają głównie serwisy o odmianie ogólnie, nie o produkcie Aurory."
+      ],
+      "gdziepolek": "https://www.gdziepolek.pl/produkty/100242/cannabis-flos-thc-22-cbd-1-aurora-deutschland-gmbh-ghost-train-haze-marihuana-lecznicza-medyczna/apteki"
+    },
+    {
+      "producer": "Aurora",
+      "producerAliases": [
+        "Aurora Deutschland",
+        "Aurora Deutschland GmbH"
+      ],
+      "name": "Farm Gas",
+      "aliases": [
+        "Farm Gas 27",
+        "Farm Gas 27/1",
+        "Aurora Farm Gas"
+      ],
+      "registeredName": "Cannabis flos Aurora THC 27%, CBD <1%",
+      "kind": null,
+      "genetics": null,
+      "thc": 27,
+      "cbd": null,
+      "cbdMax": 1,
+      "form": "susz",
+      "terpenes": [
+        "Limonen",
+        "Kariofilen"
+      ],
+      "taste": "wyraźnie paliwowy (diesel) z lekko słodkim, owocowym finiszem",
+      "description": "Odmiana o wysokiej deklarowanej zawartości THC i dużym udziale terpenów. W profilu wymieniane są limonen i kariofilen, a aromat opisuje się jako paliwowy z owocowym zakończeniem.",
+      "sources": [
+        {
+          "title": "gdziepolek.pl: Aurora THC 27%, CBD <1% (nazwa rejestrowa)",
+          "url": "https://www.gdziepolek.pl/produkty/131723/cannabis-flos-aurora-thc-27-cbd1-marihuana-lecznicza-medyczna/apteki"
+        },
+        {
+          "title": "BudCare: Aurora Farm Gas",
+          "url": "https://budcare.pl/odmiany/aurora-farm-gas-thc-27-10-cbd-1/"
+        },
+        {
+          "title": "Vaporshop.pl: Aurora Farm Gas 27",
+          "url": "https://vaporshop.pl/pl/blog/odmiany-medycznej-marihuany/aurora-farm-gas-27-opis-dzialanie-odmiany"
+        },
+        {
+          "title": "OdmianyMarihuany.pl: Farm Gas Aurora THC 27%",
+          "url": "https://odmianymarihuany.pl/medyczna-marihuana/farm-gas-aurora-thc-27-cbd/"
+        }
+      ],
+      "discrepancies": [
+        "Ta sama nazwa rejestrowa („Aurora THC 27%”) obejmuje też Black Jelly.",
+        "Rodzaj Farm Gas podawany niespójnie (jedno źródło: indica), dlatego pominięty. Dalsze terpeny z jednego źródła (nerolidol, humulen) pominięte."
+      ]
+    },
+    {
+      "producer": "Aurora",
+      "producerAliases": [
+        "Aurora Deutschland",
+        "Aurora Deutschland GmbH"
+      ],
+      "name": "Black Jelly",
+      "aliases": [
+        "Black Jelly 27",
+        "Aurora Black Jelly"
+      ],
+      "registeredName": "Cannabis flos Aurora THC 27%, CBD <1%",
+      "kind": "hybryda",
+      "genetics": "Alien Cake 3030 × MAC (Miracle Alien Cookies)",
+      "thc": 27,
+      "cbd": null,
+      "cbdMax": 1,
+      "form": "susz",
+      "terpenes": [
+        "Limonen",
+        "Mircen",
+        "Kariofilen"
+      ],
+      "taste": "owocowa słodycz, lukrecja, lekka przyprawowość i cytrusowy akcent",
+      "description": "Hybryda z przewagą cech sativa, powstała z krzyżowania Alien Cake 3030 i MAC. Aromat łączy nuty owocowe, lukrecjowe i słodkie; dominują limonen, mircen i kariofilen.",
+      "sources": [
+        {
+          "title": "gdziepolek.pl: Aurora THC 27%, CBD <1% (nazwa rejestrowa)",
+          "url": "https://www.gdziepolek.pl/produkty/131723/cannabis-flos-aurora-thc-27-cbd1-marihuana-lecznicza-medyczna/apteki"
+        },
+        {
+          "title": "BudCare: Aurora 27 Black Jelly",
+          "url": "https://budcare.pl/odmiany/aurora-27-black-jelly/"
+        },
+        {
+          "title": "Vaporshop.pl: Black Jelly (Cannabis flos Aurora THC 27%)",
+          "url": "https://vaporshop.pl/en/blog/medical-cannabis-strains/black-jelly-cannabis-flos-aurora-thc-27-characteristics-effects-and-terpene-profile"
+        },
+        {
+          "title": "OdmianyMarihuany.pl: Black Jelly Aurora THC 27%",
+          "url": "https://odmianymarihuany.pl/medyczna-marihuana/black-jelly-aurora-thc-27-cbd-1/"
+        }
+      ],
+      "discrepancies": [
+        "Ta sama nazwa rejestrowa („Aurora THC 27%”) obejmuje też Farm Gas."
+      ]
+    },
+    {
+      "producer": "Aurora",
+      "producerAliases": [
+        "Aurora Deutschland",
+        "Aurora Deutschland GmbH"
+      ],
+      "name": "Sourdough",
+      "aliases": [
+        "Sourdough 29",
+        "Aurora Sourdough",
+        "Sour Dough"
+      ],
+      "registeredName": "Cannabis flos Aurora THC 29%, CBD <1%",
+      "kind": "indica",
+      "genetics": "Cake × Sour Diesel (producent: ok. 75% indica, 25% sativa)",
+      "thc": 29,
+      "cbd": null,
+      "cbdMax": 1,
+      "form": "susz",
+      "terpenes": [
+        "Limonen",
+        "Kariofilen",
+        "Mircen"
+      ],
+      "taste": "chleb na zakwasie, paliwo, przyprawy (pieprz), cytrusy",
+      "description": "Odmiana o dominacji indica, wywodzona z krzyżowania Cake i Sour Diesel. Dominują limonen, kariofilen i mircen, a aromat przypomina zakwas z paliwową, pikantną nutą.",
+      "sources": [
+        {
+          "title": "gdziepolek.pl: Aurora THC 29%, CBD<1% (Sourdough) (nazwa rejestrowa)",
+          "url": "https://www.gdziepolek.pl/produkty/131724/cannabis-flos-aurora-thc-29-cbd1-sourdough-marihuana-lecznicza-medyczna/apteki"
+        },
+        {
+          "title": "BudCare: Aurora Sourdough",
+          "url": "https://budcare.pl/odmiany/aurora-29-sourdough/"
+        },
+        {
+          "title": "OdmianyMarihuany.pl: Sourdough Aurora 29% THC",
+          "url": "https://odmianymarihuany.pl/medyczna-marihuana/sourdough-aurora-29-1/"
+        },
+        {
+          "title": "AnandaMed: Cannabis flos Aurora THC 29%",
+          "url": "https://anandamed.pl/baza-odmian/aurora-29/"
+        }
+      ],
+      "discrepancies": []
+    },
+    {
+      "producer": "Aurora",
+      "producerAliases": [
+        "Aurora Deutschland",
+        "Aurora Deutschland GmbH"
+      ],
+      "name": "Equiposa",
+      "aliases": [
+        "Equiposa 8/8",
+        "Aurora 8/8",
+        "Aurora Equiposa"
+      ],
+      "registeredName": "Cannabis flos Aurora Deutschland GmbH THC 8%, CBD 8%",
+      "kind": "hybryda",
+      "genetics": "hybryda z przewagą indica",
+      "thc": 8,
+      "cbd": 8,
+      "cbdMax": 8,
+      "form": "susz",
+      "terpenes": [
+        "Mircen",
+        "Limonen",
+        "Pinen"
+      ],
+      "taste": "łagodny, owocowo-kwiatowy",
+      "description": "Zrównoważona odmiana o zbliżonej zawartości THC i CBD (po ok. 8%), hybryda z przewagą indica. Wśród terpenów dominuje mircen, a aromat opisywany jest jako łagodny, owocowo-kwiatowy.",
+      "sources": [
+        {
+          "title": "gdziepolek.pl: Aurora Deutschland GmbH THC 8%, CBD 8% (Equiposa) (nazwa rejestrowa)",
+          "url": "https://www.gdziepolek.pl/produkty/100241/cannabis-flos-aurora-deutschland-gmbh-thc-8-cbd-8-equiposa-marihuana-lecznicza-medyczna/apteki"
+        },
+        {
+          "title": "Vaporshop.pl: Aurora 8/8",
+          "url": "https://vaporshop.pl/en/blog/odmiany-medycznej-marihuany/-aurora-88-or-medical-cannabis-from-germany"
+        },
+        {
+          "title": "Medweed: Aurora 8/8 (Equiposa)",
+          "url": "https://medweed.pl/odmiany-marihuany/equiposa/"
+        },
+        {
+          "title": "Kliniki-konopne.pl: Aurora 8/8 (Equiposa)",
+          "url": "https://kliniki-konopne.pl/odmiany-marihuany/aurora-equiposa-thc-8-cbd-8/"
+        }
+      ],
+      "discrepancies": [
+        "Jeden z serwisów (Canna Therapy) w tytule podaje „CBD ≤1%”; rejestr aptek i pozostałe źródła: CBD 8%.",
+        "Udział mircenu (jedno źródło podaje ok. 47%) niezweryfikowany, pominięty."
+      ]
+    },
+    {
+      "producer": "Canopy Growth",
+      "producerAliases": [
+        "Spectrum",
+        "Spectrum Therapeutics",
+        "Canopy"
+      ],
+      "name": "Bakerstreet",
+      "aliases": [
+        "Bakerstreet 20",
+        "Baker Street",
+        "Canopy Bakerstreet"
+      ],
+      "registeredName": "Cannabis flos Canopy Growth THC 20%, CBD ≤0,5%",
+      "kind": "indica",
+      "genetics": "fenotyp Hindu Kush (deklaracja producenta: 100% indica)",
+      "thc": 20,
+      "cbd": null,
+      "cbdMax": 0.5,
+      "form": "susz",
+      "terpenes": [
+        "Mircen",
+        "Kariofilen",
+        "Limonen",
+        "Pinen"
+      ],
+      "taste": "drzewny, ziemisty; po rozdrobnieniu nuty haszyszu i kadzidła",
+      "description": "Indica wywodzona z regionu Hindukuszu. Dominującym terpenem jest mircen; aromat jest drzewny i ziemisty, z przyprawowo-kadzidlanymi akcentami.",
+      "sources": [
+        {
+          "title": "gdziepolek.pl: Canopy Growth THC 20%, CBD ≤0,5% (Bakerstreet) (nazwa rejestrowa)",
+          "url": "https://www.gdziepolek.pl/produkty/115281/cannabis-flos-canopy-growth-thc-20-cbd-0-5-bakerstreet-marihuana-lecznicza-medyczna/apteki"
+        },
+        {
+          "title": "OdmianyMarihuany.pl: Bakerstreet Spectrum THC 20%",
+          "url": "https://odmianymarihuany.pl/medyczna-marihuana/canopy-growth-20/"
+        },
+        {
+          "title": "Medweed: Canopy Growth THC 20% Bakerstreet",
+          "url": "https://medweed.pl/odmiany-marihuany/cannabis-flos-canopy-growth-thc-20-cbd-%E2%89%A4-05-bakerstreet/"
+        },
+        {
+          "title": "Canna Therapy: Bakerstreet Canopy Growth 20/1",
+          "url": "https://cannatherapy.pl/bakerstreet-canopy-growth-20-1/"
+        }
+      ],
+      "discrepancies": [
+        "CBD: rejestr aptek ≤0,5%, serwisy 420market i Canna Therapy podają ≤1%."
+      ]
+    },
+    {
+      "producer": "Canopy Growth",
+      "producerAliases": [
+        "Spectrum",
+        "Spectrum Therapeutics",
+        "Canopy"
+      ],
+      "name": "Blood Orange Kush",
+      "aliases": [
+        "Blood Orange Kush 29",
+        "BOK"
+      ],
+      "registeredName": "Cannabis flos Canopy Growth THC 29%, CBD <0,5%",
+      "kind": "indica",
+      "genetics": "Lemon Kush × Guava Kush (producent wskazuje też Tiger Cake)",
+      "thc": 29,
+      "cbd": null,
+      "cbdMax": 0.5,
+      "form": "susz",
+      "terpenes": [
+        "Limonen",
+        "Mircen",
+        "Linalol"
+      ],
+      "taste": "pomarańcza i cytrusy, słodki owoc, ziemisty finisz",
+      "description": "Odmiana o dominacji indica z rodziny Kush. Dominują limonen, mircen i linalol; aromat jest cytrusowy z ziemistym, paliwowym zakończeniem.",
+      "sources": [
+        {
+          "title": "DOZ.pl: Cannabis flos Canopy Growth THC 29%, CBD <0,5%, 15 g (nazwa rejestrowa)",
+          "url": "https://www.doz.pl/p/cannabis-flos-canopy-growth-thc-29-cbd--0515g-203078"
+        },
+        {
+          "title": "BudCare: Blood Orange Kush Canopy Growth 29",
+          "url": "https://budcare.pl/odmiany/blood-orange-kush-canopy-growth-29/"
+        },
+        {
+          "title": "Medweed: Blood Orange Kush 29% THC",
+          "url": "https://medweed.pl/odmiany-marihuany/blood-orange-kush-canopy-29-thc/"
+        }
+      ],
+      "discrepancies": [
+        "MedCan Clinics w tytule podaje „27% THC”; rejestr aptek i pozostałe serwisy: 29%."
+      ]
+    },
+    {
+      "producer": "Canopy Growth",
+      "producerAliases": [
+        "Spectrum",
+        "Spectrum Therapeutics",
+        "Canopy"
+      ],
+      "name": "Kush Mints",
+      "aliases": [
+        "Kush Mints 28"
+      ],
+      "registeredName": "Cannabis flos Canopy Growth THC 28%, CBD <0,5%",
+      "kind": "hybryda",
+      "genetics": "Bubba Kush × Animal Mints (producent: 50% sativa, 50% indica)",
+      "thc": 28,
+      "cbd": null,
+      "cbdMax": 0.5,
+      "form": "susz",
+      "terpenes": [
+        "Limonen",
+        "Kariofilen",
+        "Linalol"
+      ],
+      "taste": "miętowy, sosnowy, ziemisty, ziołowy",
+      "description": "Hybryda Bubba Kush i Animal Mints o zrównoważonym pochodzeniu (50/50). Dominuje limonen; aromat opisuje się jako miętowo-sosnowy, ziołowy.",
+      "sources": [
+        {
+          "title": "gdziepolek.pl: Canopy Growth THC 28% CBD <0,5% (Kush Mints) (nazwa rejestrowa)",
+          "url": "https://www.gdziepolek.pl/produkty/135071/cannabis-flos-canopy-growth-thc-28-cbd-0-5-kush-mints-marihuana-lecznicza-medyczna/zamienniki"
+        },
+        {
+          "title": "OdmianyMarihuany.pl: Kush Mints Canopy Growth THC 28%",
+          "url": "https://odmianymarihuany.pl/medyczna-marihuana/kush-mints-canopy-growth-thc-28/"
+        },
+        {
+          "title": "AnandaMed: Kush Mints 28% THC",
+          "url": "https://anandamed.pl/baza-odmian/canopy-growth-kush-mints-28-thc/"
+        }
+      ],
+      "discrepancies": []
+    },
+    {
+      "producer": "Canopy Growth",
+      "producerAliases": [
+        "Spectrum",
+        "Spectrum Therapeutics",
+        "Canopy"
+      ],
+      "name": "Red Velvet Cake",
+      "aliases": [
+        "Red Velvet Cake 27",
+        "RVC"
+      ],
+      "registeredName": "Cannabis flos Canopy Growth THC 27%, CBD <0,5%",
+      "kind": "sativa",
+      "genetics": "Red Headed Stranger × Cookies N' Cream",
+      "thc": 27,
+      "cbd": null,
+      "cbdMax": 0.5,
+      "form": "susz",
+      "terpenes": [
+        "Limonen",
+        "Mircen",
+        "Kariofilen"
+      ],
+      "taste": "słodka wanilia i śmietanka, orzechowe nuty, lekko ostry finisz",
+      "description": "Odmiana o dominacji sativa, krzyżówka Red Headed Stranger i Cookies N' Cream. Dominują limonen, mircen i kariofilen; aromat jest deserowy: wanilia, śmietanka i orzechy.",
+      "sources": [
+        {
+          "title": "gdziepolek.pl: Canopy Growth THC 27%, CBD <0,5% (Red Velvet Cake) (nazwa rejestrowa)",
+          "url": "https://www.gdziepolek.pl/produkty/135179/cannabis-flos-canopy-growth-thc-27-cbd-0-5-red-velvet-cake-marihuana-lecznicza-medyczna/apteki"
+        },
+        {
+          "title": "AnandaMed: Cannabis flos Red Velvet Cake Canopy Growth",
+          "url": "https://anandamed.pl/canopy-growth-thc27-cbd-1-red-velvet-cake/"
+        },
+        {
+          "title": "WeedWeek: Red Velvet Cake 27%",
+          "url": "https://www.weedweek.pl/red-velvet-cake/"
+        }
+      ],
+      "discrepancies": [
+        "Adres strony AnandaMed sugeruje „CBD 1”, rejestr aptek: CBD <0,5%."
+      ]
+    },
+    {
+      "producer": "Canopy Growth",
+      "producerAliases": [
+        "Spectrum",
+        "Spectrum Therapeutics",
+        "Canopy"
+      ],
+      "name": "Snowtorious Krypton",
+      "aliases": [
+        "Krypton",
+        "Snowtorious Krypton 25"
+      ],
+      "registeredName": "Cannabis flos Canopy Growth THC 25%, CBD <0,5%",
+      "kind": "hybryda",
+      "genetics": "Krypton (91 Krypt) × Kush Mints",
+      "thc": 25,
+      "cbd": null,
+      "cbdMax": 0.5,
+      "form": "susz",
+      "terpenes": [
+        "Mircen",
+        "Limonen",
+        "Kariofilen"
+      ],
+      "taste": "ziołowo-ziemisty; aromat ziemisty, piżmowy, z nutą paliwa",
+      "description": "Hybryda z przewagą indica, krzyżówka Krypton i Kush Mints. Dominują mircen, limonen i kariofilen; aromat jest ziemisty z paliwowym akcentem.",
+      "sources": [
+        {
+          "title": "gdziepolek.pl: Canopy Growth THC 25%, CBD <0,5% (Krypton) (nazwa rejestrowa)",
+          "url": "https://www.gdziepolek.pl/produkty/126179/cannabis-flos-thc-25-cbd-0-5-canopy-growth-krypton-marihuana-lecznicza-medyczna/apteki"
+        },
+        {
+          "title": "BudCare: Snowtorious Krypton, Canopy Growth 25",
+          "url": "https://budcare.pl/odmiany/snowtorious-krypton-canopy-growth-25/"
+        },
+        {
+          "title": "OdmianyMarihuany.pl: Snowtorious Krypton THC 25%",
+          "url": "https://odmianymarihuany.pl/medyczna-marihuana/snowtorious-krypton-canopy-growth-thc-25/"
+        }
+      ],
+      "discrepancies": [
+        "Udział indica: źródła podają od ok. 60% do ok. 80%."
+      ],
+      "gdziepolek": "https://www.gdziepolek.pl/produkty/126179/cannabis-flos-thc-25-cbd-0-5-canopy-growth-krypton-marihuana-lecznicza-medyczna/apteki"
+    },
+    {
+      "producer": "Tilray",
+      "producerAliases": [],
+      "name": "Pink Kush",
+      "aliases": [
+        "Pink Kush 22",
+        "Tilray Pink Kush"
+      ],
+      "registeredName": "Cannabis flos Tilray THC 22%, CBD ≤1%",
+      "kind": "indica",
+      "genetics": "OG Kush × Hindu Kush",
+      "thc": 22,
+      "cbd": null,
+      "cbdMax": 1,
+      "form": "susz",
+      "terpenes": [
+        "Nerolidol",
+        "Kariofilen"
+      ],
+      "taste": "korzenno-kwiatowy, z nutą chmielu",
+      "description": "Odmiana o dominacji indica, opisywana jako krzyżówka OG Kush i Hindu Kush. W profilu wymieniane są nerolidol i kariofilen, a aromat jest korzenno-kwiatowy.",
+      "sources": [
+        {
+          "title": "gdziepolek.pl: Tilray THC 22%, CBD ≤1% (nazwa rejestrowa)",
+          "url": "https://www.gdziepolek.pl/produkty/129656/cannabis-flos-tilray-thc-22-cbd-1-marihuana-lecznicza-medyczna/apteki"
+        },
+        {
+          "title": "BudCare: Tilray 22 Pink Kush",
+          "url": "https://budcare.pl/odmiany/tilray-pink-kush-22/"
+        },
+        {
+          "title": "AnandaMed: Pink Kush THC 22% CBD ≤1% Tilray",
+          "url": "https://anandamed.pl/pink-kush-thc-22-cbd-%E2%89%A41-tilray/"
+        }
+      ],
+      "discrepancies": [
+        "Nazwa rejestrowa „Tilray THC 22%” obejmuje kilka odmian (m.in. Cataract Kush, Master Kush), więc nazwa produktu nie wskazuje odmiany.",
+        "Pink Kush Tilray występował też w wersji 18% THC."
+      ]
+    },
+    {
+      "producer": "Tilray",
+      "producerAliases": [],
+      "name": "Cataract Kush",
+      "aliases": [
+        "Cataract Kush 22",
+        "Tilray Cataract Kush"
+      ],
+      "registeredName": "Cannabis flos Tilray THC 22%, CBD ≤1%",
+      "kind": "indica",
+      "genetics": "LA Confidential × OG Kush",
+      "thc": 22,
+      "cbd": null,
+      "cbdMax": 1,
+      "form": "susz",
+      "terpenes": [
+        "Mircen",
+        "Kariofilen",
+        "Limonen"
+      ],
+      "taste": "drzewny, ziemisty, lekko pikantny, z owocową słodyczą",
+      "description": "Odmiana typu indica, krzyżówka LA Confidential i OG Kush. Dominują mircen, kariofilen i limonen; aromat jest drzewny, ziemisty i lekko przyprawowy.",
+      "sources": [
+        {
+          "title": "gdziepolek.pl: Tilray THC 22%, CBD ≤1% (nazwa rejestrowa)",
+          "url": "https://www.gdziepolek.pl/produkty/129656/cannabis-flos-tilray-thc-22-cbd-1-marihuana-lecznicza-medyczna/apteki"
+        },
+        {
+          "title": "OdmianyMarihuany.pl: Cataract Kush Tilray THC 22%",
+          "url": "https://odmianymarihuany.pl/medyczna-marihuana/cataract-kush-tilray-thc-22/"
+        },
+        {
+          "title": "BudCare: Tilray 22 Cataract Kush",
+          "url": "https://budcare.pl/odmiany/tilray-22-cataract-kush/"
+        }
+      ],
+      "discrepancies": [
+        "Nazwa rejestrowa wspólna z Pink Kush i innymi odmianami Tilray 22%."
+      ]
+    },
+    {
+      "producer": "Cosma",
+      "producerAliases": [
+        "Cosma S.A."
+      ],
+      "name": "Black R",
+      "aliases": [
+        "Black R 22",
+        "Cosma Black R"
+      ],
+      "registeredName": "Cannabis flos Cosma THC 22%, CBD ≤1%",
+      "kind": "hybryda",
+      "genetics": "Black Domina × White Russian (50% indica, 50% sativa)",
+      "thc": 22,
+      "cbd": null,
+      "cbdMax": 1,
+      "form": "susz",
+      "terpenes": [
+        "Kariofilen",
+        "Humulen",
+        "Mircen",
+        "Limonen"
+      ],
+      "taste": "ziemisty, przyprawowy, z lekką cytrusową nutą",
+      "description": "Hybryda o zrównoważonym pochodzeniu indica i sativa, wywodzona z krzyżówki Black Domina i White Russian. Dominuje kariofilen z humulenem; aromat jest ziemisty i przyprawowy.",
+      "sources": [
+        {
+          "title": "gdziepolek.pl: Cosma THC 22%, CBD ≤1% (nazwa rejestrowa)",
+          "url": "https://www.gdziepolek.pl/produkty/136121/cannabis-flos-cosma-thc-22-cbd-1-marihuana-lecznicza-medyczna/apteki"
+        },
+        {
+          "title": "Medweed: Cannabis flos Cosma THC 22% Black R",
+          "url": "https://medweed.pl/odmiany-marihuany/cannabis-flos-cosma-thc-22-black-r/"
+        },
+        {
+          "title": "Konopna Terapia: Cannabis flos COSMA THC 22 (Black R)",
+          "url": "https://konopnaterapia.com/baza-odmian/cannabis-flos-cosma-thc-22-cbd-%E2%89%A41-black-r-medyczna-marihuana/"
+        }
+      ],
+      "discrepancies": [
+        "Nazwa rejestrowa „Cosma THC 22%” użyta także dla innej odmiany (Hindu Kush 22%).",
+        "Procentowe udziały terpenów podane w jednym źródle pominięto."
+      ]
+    },
+    {
+      "producer": "Cosma",
+      "producerAliases": [
+        "Cosma S.A."
+      ],
+      "name": "Blue Monkey",
+      "aliases": [
+        "Mac Monkey",
+        "Mac Monkey 21",
+        "Blue Monkey 21"
+      ],
+      "registeredName": "Cannabis flos Cosma THC 21%, CBD ≤1%",
+      "kind": "hybryda",
+      "genetics": "Gorilla Glue #4 × Black Blueberry (ok. 70% indica, 30% sativa)",
+      "thc": 21,
+      "cbd": null,
+      "cbdMax": 1,
+      "form": "susz",
+      "terpenes": [
+        "Limonen",
+        "Kariofilen",
+        "Mircen"
+      ],
+      "taste": "sosnowy z lekką cytrusową nutą, ziemisty",
+      "description": "Hybryda z przewagą indica (ok. 70/30), krzyżówka Gorilla Glue #4 i Black Blueberry. Dominują limonen, kariofilen i mircen; aromat jest sosnowo-ziemisty z cytrusowym akcentem.",
+      "sources": [
+        {
+          "title": "BudCare: Cannabis flos Cosma THC 21% (Blue Monkey)",
+          "url": "https://budcare.pl/odmiany/cannabis-flos-cosma-thc-21-cbd-%E2%89%A41/"
+        },
+        {
+          "title": "AnandaMed: Mac Monkey 21% Cosma",
+          "url": "https://anandamed.pl/baza-odmian/cosma-21-mac-monkey/"
+        },
+        {
+          "title": "WeedWeek: Cosma THC 21% (Blue Monkey)",
+          "url": "https://www.weedweek.pl/medyczna-marihuana-cannabis-flos-cosma-thc-21-cbd-%E2%89%A4-1-blue-monkey/"
+        }
+      ],
+      "discrepancies": [
+        "Ten sam produkt występuje pod dwiema nazwami (Blue Monkey i Mac Monkey).",
+        "Brak potwierdzenia w rejestrze aptek (gdziepolek, DOZ), tylko serwisy tematyczne."
+      ]
+    },
+    {
+      "producer": "Cosma",
+      "producerAliases": [
+        "Cosma S.A."
+      ],
+      "name": "Gorilla Girl",
+      "aliases": [
+        "Balasa",
+        "Gorilla Girl 20"
+      ],
+      "registeredName": "Cannabis flos Cosma THC 20%, CBD <1%",
+      "kind": "hybryda",
+      "genetics": "Gorilla Glue #4 × Girl Scout Cookies",
+      "thc": 20,
+      "cbd": null,
+      "cbdMax": 1,
+      "form": "susz",
+      "terpenes": [],
+      "taste": "",
+      "description": "Hybryda z przewagą sativa, krzyżówka Gorilla Glue #4 i Girl Scout Cookies. Profil terpenowy nie został zweryfikowany.",
+      "sources": [
+        {
+          "title": "AnandaMed: Nowa odmiana Gorilla Girl THC 20%",
+          "url": "https://anandamed.pl/nowa-odmiana-medycznej-marihuany-gorilla-girl-thc-20/"
+        },
+        {
+          "title": "MedCan Clinics: Cannabis flos COSMA THC 20%",
+          "url": "https://medcanclinics.pl/2024/10/25/cannabis-flos-cosma-odmiana-medycznej-marihuany/"
+        },
+        {
+          "title": "Medweed: Nowy producent Cosma wprowadza Cannabis flos THC 20%",
+          "url": "https://medweed.pl/nowy-producent-cosma-wprowadza-cannabis-flos-thc-20-na-polski-rynek/"
+        }
+      ],
+      "discrepancies": [
+        "Nazwa „Balasa” pojawia się w części źródeł jako nazwa tej samej odmiany; powiązanie niepewne.",
+        "Brak potwierdzonych terpenów i smaku."
+      ],
+      "gdziepolek": "https://www.gdziepolek.pl/produkty/130323/cannabis-flos-cosma-thc-20-cbd-1-balasa-gorilla-girl-marihuana-lecznicza-medyczna/apteki"
+    }
+  ]
+}

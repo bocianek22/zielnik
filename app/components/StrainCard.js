@@ -7,6 +7,7 @@ import { VIS } from '@/lib/visibility';
 import { formLabel } from '@/lib/forms';
 import Lightbox from './Lightbox';
 import QuickActions from './QuickActions';
+import { useQuickSave, SaveNote } from './useQuickSave';
 import Icon from './Icon';
 import { parseNum, decimalProps } from './num';
 import { strainTags } from '@/lib/effects';
@@ -37,35 +38,43 @@ export function OwnEntry({ strainId, entry, onSaved, mates, hidePrice = false })
   }, [extCur, extRem]);
   const id = `e${strainId}`;
   const [buyG, setBuyG] = useState('');
-  const [buyMsg, setBuyMsg] = useState('');
   const [use, setUse] = useState('');
-  const [useMsg, setUseMsg] = useState('');
+  // osobne komunikaty (i „Cofnij”) przy polach zużycia i wykupu
+  const useQs = useQuickSave(strainId);
+  const buyQs = useQuickSave(strainId);
+  // stan po zapisie lub cofnięciu: pola formularza i lista (onSaved) bez przeładowania
+  function applyStock(r, extra) {
+    const next = { ...f, current: r.current, ...(r.remaining !== undefined ? { remaining: r.remaining } : {}) };
+    setF(next); last.current = JSON.stringify(next);
+    onSaved({ current: r.current, ...(r.remaining !== undefined ? { remaining: r.remaining } : {}), ...extra });
+  }
 
   async function buy() {
     const g = parseNum(buyG);
     if (g == null) return;
-    if (!(g > 0)) { setBuyMsg('Podaj ilość w gramach, np. 10 lub 0,5.'); return; }
+    if (!(g > 0)) { buyQs.show('Podaj ilość w gramach, np. 10 lub 0,5.', true); return; }
     try {
-      const r = await api(`/api/strains/${strainId}/purchase`, 'POST', { grams: g });
-      const next = { ...f, current: r.current, remaining: r.remaining };
-      setF(next); last.current = JSON.stringify(next);
-      onSaved({ current: r.current, remaining: r.remaining, bought: g });
-      setBuyG(''); setBuyMsg(`Zapisano zakup: ${dec(g)} g`);
-    } catch (e) { setBuyMsg(e.message); }
+      const r = await buyQs.save('purchase', g);
+      applyStock(r, { bought: r.bought ?? g });
+      setBuyG(''); buyQs.show(`Zapisano zakup: ${dec(r.bought ?? g)} g`, false, r.id ? { kind: 'purchase', id: r.id } : null);
+    } catch (e) { buyQs.show(e.message, true); }
   }
 
   async function consume() {
     const g = parseNum(use);
     if (g == null) return;
-    if (!(g > 0)) { setUseMsg('Podaj ilość w gramach, np. 0,5.'); return; }
+    if (!(g > 0)) { useQs.show('Podaj ilość w gramach, np. 0,5.', true); return; }
     try {
-      const r = await api(`/api/strains/${strainId}/usage`, 'POST', { grams: g });
-      const next = { ...f, current: r.current };
-      setF(next); last.current = JSON.stringify(next);
-      onSaved({ current: r.current });
+      const r = await useQs.save('usage', g);
+      applyStock(r, { used: r.used });
       setUse('');
-      setUseMsg(r.stockShort ? `Zapisano zużycie ${dec(r.used)} g (zapisany stan był mniejszy, ustawiono 0 g)` : `Zapisano zużycie ${dec(r.used)} g, zostało ${dec(r.current)} g`);
-    } catch (e) { setUseMsg(e.message); }
+      useQs.show(r.stockShort ? `Zapisano zużycie ${dec(r.used)} g (zapisany stan był mniejszy, ustawiono 0 g)` : `Zapisano zużycie ${dec(r.used)} g, zostało ${dec(r.current)} g`,
+        false, r.id ? { kind: 'usage', id: r.id } : null);
+    } catch (e) { useQs.show(e.message, true); }
+  }
+  async function undoWith(qs, key) {
+    const r = await qs.undo();
+    if (r) applyStock(r, { [key]: r[key] });
   }
 
   async function save() {
@@ -89,7 +98,16 @@ export function OwnEntry({ strainId, entry, onSaved, mates, hidePrice = false })
       last.current = key;
       onSaved(r.entry);
       setStatus({ kind: 'ok', msg: 'Zapisano' });
+      // nowa cena za gram, a są zakupy tej odmiany bez kosztu (np. cenę wpisano po wykupie): propozycja uzupełnienia
+      if (r.missingCost > 0 && nums.price > 0 && parseNum(prev.price) !== nums.price) setFill({ n: r.missingCost, price: nums.price, msg: '' });
     } catch (e) { setStatus({ kind: 'err', msg: e.message }); }
+  }
+  const [fill, setFill] = useState(null); // { n, price, msg }
+  async function fillCosts() {
+    try {
+      const r = await api('/api/history/purchases/fill', 'POST', { strainId, pricePerG: fill.price });
+      setFill({ n: 0, price: fill.price, msg: `Uzupełniono koszt zakupów: ${r.filled}.` });
+    } catch (e) { setFill((p) => ({ ...p, msg: e.message })); }
   }
   const bind = (k) => ({ value: f[k], onChange: (e) => setF((p) => ({ ...p, [k]: e.target.value })), onBlur: save });
 
@@ -117,6 +135,14 @@ export function OwnEntry({ strainId, entry, onSaved, mates, hidePrice = false })
         <div className="entry-field price">
           <label htmlFor={`${id}-pr`}>Cena u mnie (zł/g), tworzy średnią cen</label>
           <input id={`${id}-pr`} className="input" {...decimalProps} {...bind('price')} />
+          {fill && (
+            <div className="pool-note fill-offer" role="status">
+              {fill.n > 0 && <>Zakupy tej odmiany bez ceny: {fill.n}. Uzupełnić po {dec(fill.price)} zł/g?{' '}
+                <button type="button" className="btn small ghost" onClick={fillCosts}>Uzupełnij</button>{' '}
+                <button type="button" className="btn small text" onClick={() => setFill(null)}>Nie</button></>}
+              {fill.msg}
+            </div>
+          )}
         </div>
       )}
       <div className="entry-field vis">
@@ -133,7 +159,7 @@ export function OwnEntry({ strainId, entry, onSaved, mates, hidePrice = false })
           <button type="button" className="btn small" onClick={consume}>Zużyj</button>
         </div>
         <div className="chips small">{[0.1, 0.25, 0.5, 1].map((v) => <button key={v} type="button" className="chip use-chip" onClick={() => setUse(String(v))}>{dec(v)} g</button>)}</div>
-        {useMsg && <small className="pool-note" role="status">{useMsg}</small>}
+        <SaveNote note={useQs.note} undoing={useQs.undoing} onUndo={() => undoWith(useQs, 'used')} className="pool-note" />
       </div>
       <div className="entry-field buy">
         <label htmlFor={`${id}-b`}>Wykupiłem (g)</label>
@@ -142,7 +168,7 @@ export function OwnEntry({ strainId, entry, onSaved, mates, hidePrice = false })
             onChange={(e) => setBuyG(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); buy(); } }} />
           <button type="button" className="btn small" onClick={buy}>Dodaj zakup</button>
         </div>
-        {buyMsg && <small className="pool-note" role="status">{buyMsg}</small>}
+        <SaveNote note={buyQs.note} undoing={buyQs.undoing} onUndo={() => undoWith(buyQs, 'bought')} className="pool-note" />
       </div>
     </div>
   );

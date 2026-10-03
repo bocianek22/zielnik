@@ -42,6 +42,14 @@ export default async function Wiedza() {
               </dl>
             )}
             {a.after && <p>{a.after}</p>}
+            {a.sources && (
+              <>
+                <h3 className="section-label">Źródła</h3>
+                <ul className="sources small">
+                  {a.sources.map((x) => <li key={x.url}><a href={x.url} target="_blank" rel="noopener noreferrer">{x.title}</a></li>)}
+                </ul>
+              </>
+            )}
             <a className="to-top" href="#top">Do spisu treści</a>
           </article>
         ))}

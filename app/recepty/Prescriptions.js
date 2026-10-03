@@ -4,9 +4,8 @@ import { api } from '@/lib/api';
 import useNativeRefresh from '@/app/components/native/useNativeRefresh';
 import Icon from '@/app/components/Icon';
 import { parseNum, decimalProps } from '@/app/components/num';
-import { formatDay } from '@/lib/date';
+import { formatDay, todayPL } from '@/lib/date';
 
-const today = () => new Date().toISOString().slice(0, 10);
 const daysLeft = (iso) => Math.ceil((new Date(`${iso}T23:59:59`) - Date.now()) / 864e5);
 const nf = (n) => Number(n).toLocaleString('pl-PL', { maximumFractionDigits: 2 });
 const fmt = formatDay;
@@ -14,7 +13,7 @@ const dni = (n) => (n === 1 ? '1 dzień' : `${n} dni`);
 
 export default function Prescriptions() {
   const [list, setList] = useState(null);
-  const [f, setF] = useState({ issuedOn: today(), validUntil: '', grams: '', note: '' });
+  const [f, setF] = useState({ issuedOn: todayPL(), validUntil: '', grams: '', note: '' });
   const [msg, setMsg] = useState('');
   const [open, setOpen] = useState(false);
   useEffect(() => { api('/api/prescriptions').then((r) => setList(r.prescriptions)).catch((e) => setMsg(e.message)); }, []);

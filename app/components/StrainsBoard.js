@@ -17,7 +17,7 @@ const avgOf = (s) => {
 };
 
 export default function StrainsBoard({ initialStrains, initialOptions, me, usage = { perDay: 0, cost: 0 }, bought = { grams: 0, cost: 0 },
-  series: initialSeries = [], prescriptions = { items: [], total: 0, urgent: false }, recent: initialRecent = [] }) {
+  series: initialSeries = [], prescriptions = { items: [], total: 0, urgent: false }, recent: initialRecent = [], symptoms = null }) {
   const [boughtG, setBoughtG] = useState(bought.grams);
   const [series, setSeries] = useState(initialSeries);
   const [recent, setRecent] = useState(initialRecent);
@@ -80,10 +80,9 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
     const { bought: b, used, ...entry } = rawEntry;
     if (b) setBoughtG((x) => x + b);
     // zapisane zużycie trafia do dzisiejszego słupka wykresu w panelu „Dziś”
-    if (used > 0) {
-      setSeries((list) => list.map((d, i) => (i === list.length - 1 ? { ...d, grams: d.grams + Number(used) } : d)));
-      setRecent((ids) => [strainId, ...ids.filter((x) => x !== strainId)]);
-    }
+    // ujemne used: „Cofnij” zdejmuje cofnięte zużycie ze słupka (wpis był z ostatnich minut, więc z dzisiaj)
+    if (used) setSeries((list) => list.map((d, i) => (i === list.length - 1 ? { ...d, grams: Math.max(d.grams + Number(used), 0) } : d)));
+    if (used > 0) setRecent((ids) => [strainId, ...ids.filter((x) => x !== strainId)]);
     setStrains((list) => {
       const key = list.find((s) => s.id === strainId)?.pool_key;
       return list.map((s) => ({
@@ -168,7 +167,7 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
   return (
     <div className="stack">
       {series.length > 0 && (
-        <TodayPanel stock={totalStock} dailyUse={dailyUse} boughtG={boughtG} low={low} series={series} prescriptions={prescriptions}
+        <TodayPanel stock={totalStock} dailyUse={dailyUse} boughtG={boughtG} low={low} series={series} prescriptions={prescriptions} symptoms={symptoms}
           quick={quick} onUsed={entrySaved} settings={(
             <details className="prefs">
               <summary>Szczegóły i ustawienia <Icon name="chevronDown" size={18} /></summary>
