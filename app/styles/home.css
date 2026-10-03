@@ -1,0 +1,111 @@
+/* Strona główna: nagłówek „Dziś” i panel „Dziś” (zapas, prognoza, zużycie z 14 dni, szybkie „Zużyłem”, recepty).
+   Komponenty: app/page.js, app/components/TodayPanel.js (lista odmian pod panelem: strains.css) */
+
+.home-head { margin-bottom: var(--s-4); }
+.home-head h1 { margin: 0; }
+.home-date { margin: 0 0 2px; font-size: var(--fs-sm); font-weight: 600; color: var(--text-2); }
+.home-date::first-letter { text-transform: uppercase; }
+.home-section { margin: var(--s-4) 0 calc(var(--s-1) * -1); }
+
+.today { display: grid; gap: var(--s-4); }
+.today-card { padding: 0; overflow: hidden; }
+.today-h { margin: 0; font-family: var(--font-body), system-ui, sans-serif; font-size: var(--fs-sm); font-weight: 600; color: var(--text-2); letter-spacing: .01em; }
+
+/* ===== Zapas i prognoza ===== */
+.today-stock { padding: var(--s-4) var(--s-5) var(--s-4); }
+.kpi { display: flex; justify-content: space-between; align-items: flex-end; gap: var(--s-4); }
+.kpi > div { min-width: 0; }
+.kpi-label { margin: 0; font-family: var(--font-body), system-ui, sans-serif; font-size: var(--fs-sm); font-weight: 600; color: var(--text-2); letter-spacing: .01em; line-height: 1.4; }
+.kpi-big, .kpi-mid { margin: 0; color: var(--text-2); white-space: nowrap; font-size: var(--fs-lg); }
+.kpi-big b, .kpi-mid b { font-family: var(--font-display), Georgia, serif; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums lining-nums; letter-spacing: -.02em; }
+.kpi-big b { font-size: 3rem; line-height: 1.05; }
+.kpi-days { text-align: right; }
+.kpi-mid b { font-size: 1.875rem; line-height: 1.1; }
+.today-card.warn .kpi-mid b { color: var(--warn); }
+
+/* miernik: zapas w dniach względem 30 dni, podziałka 7 i 14 dni */
+.gauge { position: relative; height: 8px; margin-top: var(--s-4); border-radius: 4px; background: var(--surface-2); overflow: hidden; }
+.gauge > span { display: block; height: 100%; background: var(--accent); border-radius: 4px; transition: width var(--dur-2) var(--ease); }
+.gauge > i { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--surface); }
+.today-card.warn .gauge > span { background: var(--warn); }
+.gauge-scale { position: relative; height: 16px; margin-top: 4px; font-size: var(--fs-xs); color: var(--text-3); font-variant-numeric: tabular-nums; line-height: 16px; }
+.gauge-scale > span, .usage-axis > span { position: absolute; left: 0; top: 0; white-space: nowrap; }
+.gauge-scale > .mid, .usage-axis > .mid { transform: translateX(-50%); }
+.gauge-scale > .end, .usage-axis > .end { left: auto; right: 0; }
+.today-note { margin: var(--s-3) 0 0; font-size: var(--fs-sm); color: var(--text-2); line-height: 1.45; }
+
+/* ===== Zużycie z 14 dni ===== */
+.usage { padding: var(--s-4) var(--s-5); border-top: 1px solid var(--sep); }
+.usage-head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s-3); }
+.usage-sel { margin: 0; font-size: var(--fs-sm); color: var(--text-2); white-space: nowrap; }
+.usage-sel b { font-family: var(--font-display), Georgia, serif; font-size: var(--fs-xl); font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums lining-nums; margin-left: 2px; }
+.usage-chart { display: block; width: 100%; height: auto; max-height: 132px; margin-top: var(--s-3); overflow: visible; }
+.ubar { cursor: pointer; }
+.ubar path { fill: var(--chart-4); fill-opacity: .38; transition: fill-opacity var(--dur-1) var(--ease); }
+.ubar.on path { fill-opacity: 1; }
+.ubar-zero { fill: var(--sep-strong); }
+.ubar.on .ubar-zero { fill: var(--text-3); }
+@media (hover: hover) { .ubar:hover path { fill-opacity: .7; } .ubar.on:hover path { fill-opacity: 1; } }
+.usage-axis { position: relative; height: 16px; margin-top: 6px; font-size: var(--fs-xs); color: var(--text-3); font-variant-numeric: tabular-nums; line-height: 16px; }
+.usage-axis > .end { color: var(--text-2); font-weight: 600; }
+.usage-empty { margin: var(--s-2) 0 0; font-size: var(--fs-sm); color: var(--text-2); }
+
+/* ===== Szybkie „Zużyłem” ===== */
+.today-quick { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-2) var(--s-3); padding: var(--s-3) var(--s-5); border-top: 1px solid var(--sep); }
+.today-quick .quick { display: contents; }
+.today-quick .quick-btns { flex: none; }
+.today-quick .quick-btn { min-width: 112px; }
+.today-quick .quick-stock { display: none; }
+.today-quick .quick-panel, .today-quick .quick-msg { flex: 1 1 100%; }
+.tq-name { display: grid; min-width: 0; flex: 1 1 0; }
+.tq-strain { font-weight: 600; overflow-wrap: anywhere; }
+.tq-stock { font-weight: 400; color: var(--text-2); font-variant-numeric: tabular-nums; }
+.today-card .prefs { border-top: 1px solid var(--sep); }
+
+/* ===== Recepty ===== */
+.today-rx { padding: 0; }
+.today-card-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); padding: var(--s-1) var(--s-2) 0 var(--s-5); min-height: var(--tap); }
+.today-card-head .btn.text { color: var(--accent-text); gap: 2px; padding-inline: var(--s-3); }
+.trx-list { list-style: none; margin: 0; padding: 0 0 var(--s-1); }
+.trx { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: var(--s-3); align-items: start; padding: var(--s-3) var(--s-5) var(--s-4); }
+.trx:first-child { padding-top: var(--s-1); }
+.trx + .trx { border-top: 1px solid var(--sep); }
+.trx-count { display: grid; justify-items: center; text-align: center; padding-top: 2px; }
+.trx-count b { font-family: var(--font-display), Georgia, serif; font-size: 1.75rem; font-weight: 600; line-height: 1; color: var(--text); font-variant-numeric: tabular-nums lining-nums; }
+.trx-count span { margin-top: 3px; font-size: var(--fs-xs); color: var(--text-2); white-space: nowrap; }
+.trx.soon .trx-count b { color: var(--warn); }
+.trx.expired .trx-count b { color: var(--text-3); }
+.trx-title { margin: 0; font-weight: 600; line-height: 1.35; }
+.trx-sub { margin: 2px 0 0; font-size: var(--fs-sm); color: var(--text-2); line-height: 1.45; }
+.trx-sub b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.trx.expired .trx-sub b { color: var(--warn); }
+.trx-bar { height: 4px; margin-top: var(--s-2); border-radius: 2px; background: var(--surface-2); overflow: hidden; }
+.trx-bar > span { display: block; height: 100%; background: var(--accent); border-radius: 2px; }
+.trx.soon .trx-bar > span { background: var(--warn); }
+
+@media (max-width: 760px) {
+  .today-stock, .usage { padding-inline: var(--s-4); }
+  .today-quick { padding-inline: var(--s-4); }
+  .trx { padding-inline: var(--s-4); }
+  .today-card-head { padding-left: var(--s-4); }
+}
+@media (max-width: 359px) {
+  .kpi-big b { font-size: 2.5rem; }
+  .kpi-mid b { font-size: 1.625rem; }
+  .today-quick .quick-btn { min-width: 0; }
+}
+
+/* Desktop: zapas i szybka akcja po lewej, wykres po prawej */
+@media (min-width: 900px) {
+  .today-card { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .today-stock { grid-column: 1; grid-row: 1; padding: var(--s-5) var(--s-6); }
+  .usage { grid-column: 2; grid-row: 1 / span 2; border-top: 0; border-left: 1px solid var(--sep); padding: var(--s-5) var(--s-6); }
+  .today-quick { grid-column: 1; grid-row: 2; padding-inline: var(--s-6); align-self: end; }
+  .today-card .prefs { grid-column: 1 / -1; }
+  .kpi-big b { font-size: 3.5rem; }
+  .trx-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .trx + .trx { border-top: 0; }
+  .trx:nth-child(n + 3) { border-top: 1px solid var(--sep); }
+  .trx:nth-child(2n) { border-left: 1px solid var(--sep); }
+  .trx:nth-child(2) { padding-top: var(--s-1); }
+}

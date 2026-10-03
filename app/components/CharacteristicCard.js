@@ -6,7 +6,8 @@ const fx = (n) => String(Number(n.toFixed(1))).replace('.', ',');
 
 // Karta charakterystyki odmiany: opis, dane, terpeny, odczucia użytkowników, średnia cena, źródła
 // hidePrice: aplikacja natywna (lib/client.js), bez średniej ceny
-export default function CharacteristicCard({ strain, hidePrice = false }) {
+// compact: strona odmiany pokazuje rodzaj, stężenia, terpeny i smak w nagłówku, więc tu ich nie powtarzamy
+export default function CharacteristicCard({ strain, hidePrice = false, compact = false }) {
   const tags = strainTags(strain);
   const feel = EFFECTS.map(([k, label]) => {
     const v = (strain.entries || []).map((e) => e.effects?.[k]).filter((x) => x != null);
@@ -24,15 +25,15 @@ export default function CharacteristicCard({ strain, hidePrice = false }) {
         ? <p className="detail-desc">{strain.description}</p>
         : <p className="muted">Brak opisu. Dodaj go w edycji odmiany, możesz użyć podpowiedzi z internetu.</p>}
       {strain.description_auto && <p><span className="badge">Opis z internetu, poglądowy</span></p>}
-      <dl className="klist">
-        {strain.kind && <div><dt>Rodzaj</dt><dd>{strain.kind}</dd></div>}
-        {strain.type && strain.type !== 'nieokreślony' && <div><dt>Typ</dt><dd>{strain.type}</dd></div>}
-        {strain.form && strain.form !== 'susz' && <div><dt>Postać</dt><dd>{formLabel(strain.form)}</dd></div>}
-        {(strain.thc != null || strain.cbd != null) && <div><dt>Stężenie</dt><dd>{strain.thc != null && `THC ${dec(strain.thc)}%`}{strain.thc != null && strain.cbd != null && ', '}{strain.cbd != null && `CBD ${dec(strain.cbd)}%`}</dd></div>}
-        {strain.terpenes?.length > 0 && <div><dt>Terpeny</dt><dd>{strain.terpenes.join(', ')}</dd></div>}
-        {strain.taste && <div><dt>Smak i aromat</dt><dd>{strain.taste}</dd></div>}
+      {(!compact || !hidePrice) && <dl className="klist">
+        {!compact && strain.kind && <div><dt>Rodzaj</dt><dd>{strain.kind}</dd></div>}
+        {!compact && strain.type && strain.type !== 'nieokreślony' && <div><dt>Typ</dt><dd>{strain.type}</dd></div>}
+        {!compact && strain.form && strain.form !== 'susz' && <div><dt>Postać</dt><dd>{formLabel(strain.form)}</dd></div>}
+        {!compact && (strain.thc != null || strain.cbd != null) && <div><dt>Stężenie</dt><dd>{strain.thc != null && `THC ${dec(strain.thc)}%`}{strain.thc != null && strain.cbd != null && ', '}{strain.cbd != null && `CBD ${dec(strain.cbd)}%`}</dd></div>}
+        {!compact && strain.terpenes?.length > 0 && <div><dt>Terpeny</dt><dd>{strain.terpenes.join(', ')}</dd></div>}
+        {!compact && strain.taste && <div><dt>Smak i aromat</dt><dd>{strain.taste}</dd></div>}
         {!hidePrice && <div><dt>Średnia cena</dt><dd>{price}</dd></div>}
-      </dl>
+      </dl>}
       {feel.length > 0 && (
         <>
           <h3>Odczucia użytkowników</h3>
