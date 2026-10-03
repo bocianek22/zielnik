@@ -32,7 +32,7 @@ Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnieni
 | POM-06 | Moje obserwacje: objawy a odmiany | 5 | M | P, Pr | – | nowy | PAC-7 (zawężenie) |
 | POM-07 | Własne objawy i skale (np. VAS, nudności, apetyt) | 4 | M | P | – | nowy | PAC-14, PAC-6 |
 | POM-08 | Nawyki bez presji: seria wpisów objawów | 3 | S | Pr | – | nowy | – |
-| POM-09 | Raport dla lekarza 2.0 | 5 | M | P | – | nowy | MON-4 (przedsionek) |
+| POM-09 | Raport dla lekarza 2.0 | 5 | M | P | – | zrobiony (czeka na wydanie) | MON-4 (przedsionek) |
 | POM-10 | Bezpieczne udostępnienie raportu lekarzowi linkiem | 4 | M | P, Pr | ⚖️ | nowy | MON-4 |
 | POM-11 | Eksport CSV dziennika (objawy + zużycie) | 3 | S | P | – | nowy | – |
 | POM-12 | Skróty aplikacji w APK i głęboki link „Zużyłem” | 3 | S | P | – | nowy | MOB-14 (APK) |
@@ -134,6 +134,7 @@ Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnieni
 - Problem: objawy to jedna średnia z okresu (lekarz nie zobaczy, czy jest lepiej, czy gorzej), brak recept i ich wykorzystania, brak powiązania objawów z odmianami, domyślny zakres liczony w UTC (POM-01).
 - Propozycja: tabela tygodniowa (gramy, liczba dni z użyciem, średnie objawów w tym samym wierszu), sekcja „Recepty w okresie” (przepisano / wykupiono / niewykorzystane), przy odmianach „dni użycia” i średnie objawów w te dni (zasady POM-06), wybór gotowego okresu (30/90 dni, od ostatniej wizyty). Tekst o charakterze zestawienia zostaje. Funkcja dalej w planie Premium (`doctor_report`), decyzja o udostępnieniu darmowo należy do właściciela.
 - Jak zmierzyć: wydruk do PDF na telefonie mieści się na 2 stronach A4 dla 90 dni; test zapytań w `tests/db/report.test.js`.
+- Stan: zrobiony (czeka na wydanie). `lib/report.js` liczy tygodnie od poniedziałku w czasie polskim (zużycie i wykup osobno w g i ml, dni z użyciem, dni z wpisem i średnie objawów), recepty w okresie ze stanem na koniec okresu (wykup do daty „do”) oraz objawy w dniach z odmianą (sen z dnia następnego, dni mieszane liczone przy każdej odmianie, średnia od 5 dni z wpisem, kolejność po liczbie dni). Gotowe okresy 30/90 dni i „od ostatniej wizyty” (data tylko w `localStorage` urządzenia), przycisk „Udostępnij / Zapisz PDF” (`window.print`, tytuł strony = nazwa pliku). Wydruk A4 dla 90 dni: 2 strony (Chromium). Do ręcznej próby: drukowanie w APK (WebView może ignorować `window.print`).
 
 **POM-10 Bezpieczne udostępnienie raportu lekarzowi** (MON-4, ⚖️)
 - Ekran / element: raport, przycisk „Udostępnij lekarzowi”.
