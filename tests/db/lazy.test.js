@@ -157,7 +157,7 @@ test('bez wiersza można ocenić, zapisać odczucia, zużyć, wykupić, ustawić
   assert.equal((await strainOf(E, felt)).entries.find((e) => e.userId === E).effects.sleep, 7);
 
   const r3 = await call(E, 'strains/[id]/usage', 'POST', { grams: 1 }, p(used));
-  assert.deepEqual(r3.json, { current: 0, used: 1, stockShort: true });
+  assert.deepEqual({ ...r3.json, id: undefined }, { current: 0, used: 1, stockShort: true, id: undefined }); // id wpisu do „Cofnij” (POM-02)
 
   const r4 = await call(E, 'strains/[id]/purchase', 'POST', { grams: 2.5 }, p(bought));
   assert.equal(r4.status, 200, JSON.stringify(r4.json));
@@ -172,7 +172,7 @@ test('bez wiersza można ocenić, zapisać odczucia, zużyć, wykupić, ustawić
   assert.deepEqual(await rows(`strain_id = ${mate} AND user_id = ${E}`), []);
   assert.equal(Number((await strainOf(E, mate)).entries.find((e) => e.userId === E).remaining), 5);
   const r5 = await call(E, 'strains/[id]/purchase', 'POST', { grams: 2 }, p(mate));
-  assert.deepEqual(r5.json, { current: 2, remaining: 3 });
+  assert.deepEqual({ ...r5.json, id: undefined }, { current: 2, remaining: 3, bought: 2, id: undefined });
 
   const r6 = await call(E, 'strains/[id]/tests', 'POST', { note: 'pomiar', visibility: 'all' }, p(tested));
   assert.equal(r6.status, 200, JSON.stringify(r6.json));

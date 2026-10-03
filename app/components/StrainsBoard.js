@@ -80,10 +80,9 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
     const { bought: b, used, ...entry } = rawEntry;
     if (b) setBoughtG((x) => x + b);
     // zapisane zużycie trafia do dzisiejszego słupka wykresu w panelu „Dziś”
-    if (used > 0) {
-      setSeries((list) => list.map((d, i) => (i === list.length - 1 ? { ...d, grams: d.grams + Number(used) } : d)));
-      setRecent((ids) => [strainId, ...ids.filter((x) => x !== strainId)]);
-    }
+    // ujemne used: „Cofnij” zdejmuje cofnięte zużycie ze słupka (wpis był z ostatnich minut, więc z dzisiaj)
+    if (used) setSeries((list) => list.map((d, i) => (i === list.length - 1 ? { ...d, grams: Math.max(d.grams + Number(used), 0) } : d)));
+    if (used > 0) setRecent((ids) => [strainId, ...ids.filter((x) => x !== strainId)]);
     setStrains((list) => {
       const key = list.find((s) => s.id === strainId)?.pool_key;
       return list.map((s) => ({

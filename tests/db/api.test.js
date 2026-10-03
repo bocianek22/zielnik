@@ -97,7 +97,9 @@ test('równoległe zapisy zużycia i wykupu nie gubią się', { skip }, async ()
   await Promise.all(Array.from({ length: 6 }, () => purchase.POST(req(), params)));
   assert.equal(await stock(), 10);
   const r = await call(A, 'strains/[id]/usage', 'POST', { grams: 25 }, { id: String(s) });
-  assert.deepEqual(r.json, { current: 0, used: 25, stockShort: true });
+  const { id: entryId, ...rest } = r.json; // id wpisu do „Cofnij” (POM-02)
+  assert.ok(entryId > 0);
+  assert.deepEqual(rest, { current: 0, used: 25, stockShort: true });
 });
 
 test('twórca nie usunie odmiany, której używają inni; admin może', { skip }, async () => {

@@ -7,11 +7,10 @@ import { EFFECTS } from '@/lib/effects';
 import Header from '../components/Header';
 import Icon from '../components/Icon';
 import PrintButton from './PrintButton';
-import { formatDay } from '@/lib/date';
+import { formatDay, todayPL, addDaysIso } from '@/lib/date';
 
 export const dynamic = 'force-dynamic';
 
-const iso = (d) => d.toISOString().slice(0, 10);
 const validDate = (v) => /^\d{4}-\d{2}-\d{2}$/.test(v || '') && !Number.isNaN(Date.parse(v));
 const nf = (n, max = 1) => Number(n).toLocaleString('pl-PL', { maximumFractionDigits: max });
 const day = formatDay;
@@ -32,9 +31,9 @@ export default async function Raport({ searchParams }) {
   }
 
   const sp = await searchParams;
-  const today = new Date();
-  const to = validDate(sp.to) ? sp.to : iso(today);
-  const from = validDate(sp.from) ? sp.from : iso(new Date(today.getTime() - 30 * 864e5));
+  const today = todayPL(); // dzień w czasie polskim (POM-01), nie UTC
+  const to = validDate(sp.to) ? sp.to : today;
+  const from = validDate(sp.from) ? sp.from : addDaysIso(to, -30);
   const withNotes = sp.notes === '1';
 
   const usage = await q`SELECT s.name, s.producer, s.thc::float8 AS thc, s.cbd::float8 AS cbd, SUM(l.grams)::float8 AS grams,
