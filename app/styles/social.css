@@ -1,0 +1,86 @@
+/* Społeczność: znajomi, grupy, profil publiczny (app/znajomi, app/grupy, app/u/[handle], app/components/ReportButton).
+   Listy osób korzystają z .list i .list-row z globals.css; tu tylko to, czego brakuje w komponentach bazowych.
+   Wspólne .avatar, .people, .person i .wall zostają w screens.css (używają ich też profil, wyszukiwarka i panel admina). */
+.social { max-width: 720px; }
+.page.social { max-width: var(--page-max); }
+.page.social > * { max-width: 720px; }
+.social > * + * { margin-top: var(--s-3); }
+.social > .back + .group-head { margin-top: var(--s-2); }
+.social > .section-label { margin: var(--s-6) var(--s-1) var(--s-2); }
+.social > .section-label:first-child { margin-top: 0; }
+.social > .section-label + * { margin-top: 0; }
+.social-note { margin: 0 var(--s-1); font-size: var(--fs-sm); }
+.social .field { margin-bottom: 0; }
+.social > .section-label + .social-note + .social-note, .social > .social-note + .social-note { margin-top: var(--s-2); }
+
+/* wyszukiwanie osoby / nick znajomego: pole i przycisk w jednym rzędzie */
+.search-row { display: flex; gap: var(--s-2); }
+.search-row .input { flex: 1 1 auto; min-width: 0; }
+.search-row .btn { flex: none; }
+
+/* wiersz osoby */
+.avatar.ph.sm, .avatar.sm { width: 40px; height: 40px; font-size: 1.0625rem; flex: none; }
+.person-row { flex-wrap: wrap; row-gap: var(--s-1); }
+.person-row .person-link, .person-link { color: inherit; text-decoration: none; flex: 1 1 120px; min-width: 0; }
+.person-name { display: block; font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
+.person-row .lr-sub, .opinion-row .lr-sub { line-height: 1.35; }
+a.person-name { color: var(--accent-text); width: fit-content; }
+.person-row .lr-sub { overflow-wrap: anywhere; }
+.person-actions { display: flex; align-items: center; justify-content: flex-end; gap: var(--s-1); margin-left: auto; }
+.person-state { color: var(--text-2); font-size: var(--fs-sm); }
+.friend-search .search-row .btn { padding-inline: var(--s-4); }
+.empty.card .btn { margin-top: var(--s-4); }
+.empty.card p { margin: 0 auto; max-width: 36ch; }
+.social .card.stack .field { margin-bottom: 0; }
+
+/* strona grupy */
+.group-head h1 { margin-bottom: var(--s-1); }
+.group-head p { margin: 0; }
+.group-head .group-desc { margin-top: var(--s-3); white-space: pre-wrap; overflow-wrap: anywhere; }
+.rank-rows .list-row { align-items: center; }
+.rank-pos { flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: var(--r-pill); background: var(--surface-2); color: var(--text-2); font-weight: 600; font-size: var(--fs-sm); font-variant-numeric: tabular-nums; }
+.rank-rows li:nth-child(-n+3) .rank-pos { background: var(--accent-soft); color: var(--on-accent-soft); }
+.rank-sum { display: grid; text-align: right; line-height: 1.25; white-space: nowrap; }
+.rank-sum b { color: var(--text); font-size: var(--fs-lg); font-weight: 600; }
+.rank-sum small { font-size: var(--fs-xs); color: var(--text-2); }
+.group-leave .row .btn { flex: 1 1 140px; }
+
+/* profil publiczny */
+.profile-card .profile-id { display: flex; align-items: center; gap: var(--s-4); }
+.profile-card .avatar { width: 72px; height: 72px; }
+.profile-card .avatar.ph { font-size: 1.75rem; }
+.profile-who { display: grid; gap: 2px; min-width: 0; flex: 1 1 auto; }
+.profile-card h1 { margin: 0; font-size: var(--fs-2xl); overflow-wrap: anywhere; }
+.profile-rel { justify-self: start; margin-top: var(--s-1); font-size: var(--fs-sm); color: var(--text-2); }
+.profile-bio { margin: var(--s-4) 0 0; }
+.plinks { list-style: none; padding: 0; margin: var(--s-3) 0 0; display: grid; gap: 0; }
+.plinks a { display: inline-flex; align-items: center; min-height: var(--tap); overflow-wrap: anywhere; }
+.profile-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); margin-top: var(--s-4); padding-top: var(--s-4); border-top: 1px solid var(--sep); }
+.profile-actions:empty { display: none; }
+.profile-actions .btn:not(.text) { flex: 1 1 200px; }
+.profile-state { font-size: var(--fs-sm); margin-right: auto; }
+.opinion-row { align-items: flex-start; }
+.opinion-note, .wall-test .opinion-note { display: block; margin-top: var(--s-1); color: var(--text); white-space: pre-wrap; overflow-wrap: anywhere; font-size: .9375rem; }
+.rating-val { white-space: nowrap; color: var(--text-2); }
+.rating-val b { color: var(--text); font-weight: 600; font-size: var(--fs-lg); font-variant-numeric: tabular-nums lining-nums; }
+.list-row.wall-test { align-items: flex-start; }
+.wall-test .photo-open { flex: none; }
+.wall-test .test-photo { width: 72px; height: 72px; aspect-ratio: 1; border-radius: var(--r-md); }
+.wall-test .lr-main > * + * { margin-top: 0; }
+.wall-test .report { display: block; margin-top: var(--s-1); margin-left: calc(-1 * var(--s-2)); }
+.profile-quiet { display: flex; flex-wrap: wrap; gap: var(--s-1); margin-top: var(--s-8); }
+.profile-quiet .btn.text { color: var(--text-2); font-weight: 500; }
+.profile-quiet .btn.text:hover { color: var(--text); }
+.profile-quiet .report { flex: 1 1 100%; }
+.profile-quiet .report > .btn { flex: none; }
+
+/* zgłoszenie (ReportButton) */
+.report .btn.text { color: var(--text-2); font-weight: 500; }
+.report-form { display: grid; gap: var(--s-3); margin: var(--s-2) 0; padding: var(--s-4); background: var(--surface); border: 1px solid var(--sep); border-radius: var(--r-md); max-width: 420px; }
+.report-form .input, .report .input { max-width: none; }
+.report-form .field { margin-bottom: 0; }
+.report > small { display: block; margin: var(--s-2) var(--s-2); }
+
+@media (max-width: 760px) {
+  .group-leave .row .btn { flex: 1 1 100%; }
+}

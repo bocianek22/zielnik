@@ -4,9 +4,14 @@ import { getUser } from '@/lib/auth';
 import { intId } from '@/lib/ids';
 import { sql } from '@/lib/db';
 import Header from '../../components/Header';
+import Avatar from '../../components/Avatar';
+import Icon from '../../components/Icon';
 import GroupActions from './GroupActions';
+import osob, { ocen } from '../osob';
 
 export const dynamic = 'force-dynamic';
+
+const dec = (n) => Number(n.toFixed(1)).toLocaleString('pl-PL');
 
 export default async function GroupPage({ params }) {
   const me = await getUser();
@@ -26,31 +31,50 @@ export default async function GroupPage({ params }) {
     JOIN strains s ON s.id = us.strain_id
     WHERE gm.group_id = ${gid} AND gm.status = 'active' AND can_see(${me.id}::int, us.user_id, us.visibility)
     GROUP BY s.id ORDER BY sum DESC, n DESC, s.name LIMIT 20`;
+  const active = members.filter((m) => m.status === 'active').length;
 
   return (
     <>
       <Header user={me} />
-      <main className="page stack">
-        <Link href="/grupy" className="back">← Wszystkie grupy</Link>
-        <section className="card">
+      <main className="page social">
+        <Link href="/grupy" className="back"><Icon name="chevronLeft" size={20} />Wszystkie grupy</Link>
+        <header className="group-head">
           <h1>{g.name}</h1>
-          {g.description && <p>{g.description}</p>}
-          <GroupActions groupId={g.id} isOwner={g.role === 'owner'} />
-        </section>
-        <section className="card"><h2>Członkowie</h2>
-          <ul className="people">{members.map((m) => (
-            <li key={m.id} className="person"><Link href={`/u/${encodeURIComponent(m.username)}`}><b>{m.display_name || m.username}</b> <span className="muted">@{m.username}</span></Link>
-              <span className="row">{m.role === 'owner' && <span className="badge">Właściciel</span>}{m.status === 'invited' && <span className="badge">Zaproszony</span>}
-                {g.role === 'owner' && m.id !== me.id && <GroupActions groupId={g.id} kickId={m.id} />}</span></li>))}</ul>
-        </section>
-        <section className="card"><h2>Ranking grupy</h2>
-          <p className="muted">Suma ocen członków, które są dla Ciebie widoczne.</p>
-          {ranking.length === 0 ? <p className="muted">Brak widocznych ocen.</p> : (
-            <ol className="rank-list">{ranking.map((r, i) => (
-              <li key={r.id} className={i < 3 ? `top top-${i + 1}` : ''}><span className="pos">{i + 1}</span>
-                <span className="who"><Link href={`/strains/${r.id}`}><b>{r.name}</b></Link><small>{r.producer}</small></span>
-                <span className="pts">{Number(r.sum.toFixed(1))}<small>{r.n} ocen, śr. {(r.sum / r.n).toFixed(1)}</small></span></li>))}</ol>)}
-        </section>
+          <p className="muted">{osob(active)}{g.role === 'owner' ? ' · jesteś właścicielem' : ''}</p>
+          {g.description && <p className="group-desc">{g.description}</p>}
+        </header>
+
+        <h2 className="section-label">Zaproś do grupy</h2>
+        <GroupActions groupId={g.id} isOwner={g.role === 'owner'} />
+
+        <h2 className="section-label">Członkowie</h2>
+        <ul className="list">{members.map((m) => {
+          const name = m.display_name || m.username;
+          return (
+            <li key={m.id} className="list-row person-row">
+              <Avatar name={name} />
+              <Link href={`/u/${encodeURIComponent(m.username)}`} className="lr-main person-link">
+                <span className="person-name">{name}</span>
+                <span className="lr-sub">@{m.username}{m.role === 'owner' ? ' · Właściciel' : ''}{m.status === 'invited' ? ' · Zaproszony' : ''}</span>
+              </Link>
+              {g.role === 'owner' && m.id !== me.id && <span className="person-actions"><GroupActions groupId={g.id} kickId={m.id} /></span>}
+            </li>);
+        })}</ul>
+
+        <h2 className="section-label">Ranking grupy</h2>
+        <p className="muted social-note">Suma ocen członków, które są dla Ciebie widoczne.</p>
+        {ranking.length === 0 ? <p className="muted social-note">Brak widocznych ocen.</p> : (
+          <ol className="list rank-rows">{ranking.map((r, i) => (
+            <li key={r.id}>
+              <Link href={`/strains/${r.id}`} className="list-row">
+                <span className="rank-pos">{i + 1}</span>
+                <span className="lr-main"><span className="person-name">{r.name}</span><span className="lr-sub">{r.producer}</span></span>
+                <span className="lr-value rank-sum"><b>{dec(r.sum)}</b><small>{ocen(r.n)}, śr. {dec(r.sum / r.n)}</small></span>
+              </Link>
+            </li>))}</ol>)}
+
+        <h2 className="section-label">Członkostwo</h2>
+        <GroupActions groupId={g.id} isOwner={g.role === 'owner'} part="leave" />
       </main>
     </>
   );

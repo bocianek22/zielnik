@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import ReportButton from '../../components/ReportButton';
 
+// Blokowanie i zgłaszanie: dostępne na dole profilu, bez wyróżnienia
 export default function ProfileActions({ userId, blocked }) {
   const router = useRouter();
   const [err, setErr] = useState('');
@@ -12,10 +13,10 @@ export default function ProfileActions({ userId, blocked }) {
     try { await api('/api/blocks', 'POST', { action: blocked ? 'unblock' : 'block', userId }); router.refresh(); } catch (e) { setErr(e.message); }
   }
   return (
-    <div className="row">
-      <button className="btn ghost small" onClick={toggle}>{blocked ? 'Odblokuj' : 'Zablokuj'}</button>
+    <div className="profile-quiet">
+      <button className="btn text" onClick={toggle}>{blocked ? 'Odblokuj' : 'Zablokuj'}</button>
       <ReportButton type="user" userId={userId} />
-      {err && <span className="field-err">{err}</span>}
+      {err && <span className="field-err" role="alert">{err}</span>}
     </div>
   );
 }

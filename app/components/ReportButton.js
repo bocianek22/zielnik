@@ -19,14 +19,18 @@ export default function ReportButton({ type, userId, refId }) {
   return (
     <span className="report">
       {msg ? <small className="muted" role="status">{msg}</small> : !open ? (
-        <button type="button" className="btn ghost small" onClick={() => setOpen(true)}>Zgłoś</button>
+        <button type="button" className="btn text" onClick={() => setOpen(true)}>Zgłoś</button>
       ) : (
-        <form className="row" onSubmit={send}>
-          <select className="input" aria-label="Powód zgłoszenia" value={reason} onChange={(e) => setReason(e.target.value)}>
-            {REASONS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select>
-          <input className="input" placeholder="Opis (opcjonalnie)" aria-label="Opis" maxLength={500} value={note} onChange={(e) => setNote(e.target.value)} />
-          <button className="btn small">Wyślij</button>
-          <button type="button" className="btn ghost small" onClick={() => setOpen(false)}>Anuluj</button>
+        <form className="report-form" onSubmit={send}>
+          <div className="field"><label htmlFor={`rr-${type}-${refId || userId}`}>Powód zgłoszenia</label>
+            <select id={`rr-${type}-${refId || userId}`} className="input" value={reason} onChange={(e) => setReason(e.target.value)}>
+              {REASONS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select></div>
+          <div className="field"><label htmlFor={`rn-${type}-${refId || userId}`}>Opis (opcjonalnie)</label>
+            <input id={`rn-${type}-${refId || userId}`} className="input" maxLength={500} value={note} onChange={(e) => setNote(e.target.value)} /></div>
+          <div className="row">
+            <button className="btn small">Wyślij zgłoszenie</button>
+            <button type="button" className="btn text small" onClick={() => setOpen(false)}>Anuluj</button>
+          </div>
         </form>
       )}
     </span>

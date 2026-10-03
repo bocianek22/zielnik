@@ -10,6 +10,8 @@ import './styles/screens.css';
 import './styles/forms.css';
 import './styles/history.css';
 import './styles/diary.css';
+import './styles/social.css';
+import './styles/content.css';
 import './styles/platform.css';
 import { cookies, headers } from 'next/headers';
 import { isNativeApp } from '@/lib/client';
