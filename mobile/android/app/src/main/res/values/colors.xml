@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- --hemp-deep z app/globals.css: tło ekranu startowego, ikony i okna przed pierwszym rysunkiem WebView -->
+    <color name="zielnik_deep">#1d3b27</color>
+</resources>

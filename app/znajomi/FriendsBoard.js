@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
+import useNativeRefresh from '@/app/components/native/useNativeRefresh';
 
 const profile = (u) => `/u/${encodeURIComponent(u.username)}`;
 
@@ -13,6 +14,7 @@ export default function FriendsBoard() {
 
   const load = () => api('/api/friends').then((r) => setFriends(r.friends)).catch((e) => setMsg(e.message));
   useEffect(() => { load(); }, []);
+  useNativeRefresh(load);
 
   async function search(e) {
     e.preventDefault();

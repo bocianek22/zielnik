@@ -587,3 +587,38 @@ html.native-app :is(.btn, button, .chip, .bottomnav a, .card a):active { opacity
   html.native-app :is(.btn, button, .chip, .bottomnav a) { transition: opacity .12s ease, transform .12s ease; }
 }
 @media (hover: none) { html.native-app :is(.btn, a):hover { filter: none; } }
+
+/* ===== Natywne: przejścia i odświeżanie ===== */
+/* przeciągnij, aby odświeżyć (app/components/native/PullRefresh.js); położenie ustawia skrypt, obrót spinnera jest na <svg> */
+.ptr { display: none; }
+html.native-app .ptr { display: grid; place-items: center; position: fixed; z-index: 70; left: 50%; top: max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px));
+  width: 40px; height: 40px; border-radius: 50%; background: var(--card); color: var(--hemp); box-shadow: 0 2px 10px var(--shadow), 0 0 0 1px var(--line);
+  opacity: 0; transform: translate(-50%, -48px); pointer-events: none; }
+@media (prefers-reduced-motion: no-preference) {
+  html.native-app .ptr[data-busy] svg { animation: native-spin .8s linear infinite; }
+}
+@keyframes native-spin { to { transform: rotate(360deg); } }
+
+/* pasek „Brak połączenia” (NativeShell) */
+html.native-app .native-offline { position: fixed; z-index: 80; left: 50%; transform: translateX(-50%); max-width: calc(100% - 32px);
+  top: calc(max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px)) + 8px);
+  padding: 6px 16px; border-radius: 99px; background: var(--ink); color: var(--paper); font-size: .85rem; font-weight: 600;
+  box-shadow: 0 4px 14px var(--shadow); pointer-events: none; }
+
+/* otwarta klawiatura: bez dolnego paska i przycisków pływających, które zasłaniałyby pole */
+html.native-app.kbd-open :is(.bottomnav, .fab, .fab-menu, .sheet, .sheet-backdrop) { display: none; }
+@media (max-width: 760px) {
+  html.native-app.kbd-open body { padding-bottom: 16px; }
+}
+
+/* przejścia między ekranami (View Transitions; bez wsparcia WebView albo przy „ogranicz ruch” się nie uruchamiają) */
+html.native-app.vt-active .topbar { view-transition-name: native-topbar; }
+html.native-app.vt-active .bottomnav { view-transition-name: native-bottomnav; }
+@media (prefers-reduced-motion: no-preference) {
+  html.native-app::view-transition-old(root) { animation: native-vt-out .12s ease-in both; }
+  html.native-app::view-transition-new(root) { animation: native-vt-in .2s ease-out both; }
+  html.native-app[data-vt="back"]::view-transition-new(root) { animation-name: native-vt-in-back; }
+}
+@keyframes native-vt-out { to { opacity: 0; } }
+@keyframes native-vt-in { from { opacity: 0; transform: translateX(14px); } }
+@keyframes native-vt-in-back { from { opacity: 0; transform: translateX(-14px); } }

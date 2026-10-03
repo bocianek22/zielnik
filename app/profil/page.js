@@ -6,6 +6,7 @@ import ProfileForm from './ProfileForm';
 import PushSettings from './PushSettings';
 import DiscreetSettings from './DiscreetSettings';
 import NativeLock from './NativeLock';
+import NativeVersion from './NativeVersion';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,6 +25,7 @@ export default async function Profil() {
           <PushSettings />
           <DiscreetSettings />
           <ProfileForm me={{ id: user.id, username: user.username, isAdmin: user.is_admin }} initial={p} />
+          <NativeVersion />
         </div>
       </main>
     </>
