@@ -62,7 +62,7 @@ Pełna lista z uzasadnieniem: `docs/PRZEGLAD-2026-10.md`; aplikacje natywne: `do
    - Osobna gałąź bazy Neon dla podglądów (PLA-3): dziś podglądy działają na produkcyjnej bazie.
    - Region funkcji: dziś `iad1` (USA). Jeśli baza Neon jest w UE, ustawić `"regions": ["fra1"]` w `vercel.json` (opóźnienia i RODO).
 4. **Aplikacje natywne (MOB-16):** APK budowany w CI. Właściciel: keystore i sekrety `ANDROID_KEYSTORE_*`, projekt Firebase (`GOOGLE_SERVICES_JSON`). Dalej: wysyłka FCM po stronie serwera (HTTP v1), Google Play (12 testerów × 14 dni przy koncie prywatnym), iOS po założeniu konta Apple.
-5. **Dług UI:** ostrzeżenia ESLint `react-hooks/set-state-in-effect` w `UsersAdmin`, `BottomNav`, `StrainCard`, `StrainsBoard`, `ThemeToggle` oraz `react-hooks/refs` w `StrainCard` (projekt nie ma ESLinta w CI; warto dodać); pole progu „Kończy się” w `StrainsBoard` i pola admina zostały `type="number"`.
+5. **Dług UI:** ostrzeżenia ESLint (`npm run lint`, w CI jako ostrzeżenia) `react-hooks/set-state-in-effect` w `UsersAdmin`, `BottomNav`, `StrainCard`, `StrainsBoard`, `ThemeToggle` oraz `react-hooks/refs` w `StrainCard`; pole progu „Kończy się” w `StrainsBoard` i pola admina zostały `type="number"`.
 6. **Z przeglądu 0.30.0 (niski priorytet):** idempotencja szybkich akcji przy ponowieniu po zerwanym połączeniu; przypomnienia o recepcie codziennie przez 8 dni (rozważyć progi 7/3/1/0); subskrypcja push na wspólnym urządzeniu po wygaśnięciu sesji; zakres kopii (kody zaproszeń, zgłoszenia); zdjęcia odmian po usunięciu konta (RODO).
 7. **Dalej:** KAT-1 krok 2 (propozycje zmian katalogu), PLA-5 (paginacja po stronie UI), PLA-4 (zdjęcia w Blob), pełny CSP (PLA-8), po zakupie domeny: KON-1, KON-3, MON-1.
 
