@@ -10,6 +10,7 @@ const ROOT = path.join(HERE, '..', '..');
 export async function resolve(spec, ctx, next) {
   if (spec === '@neondatabase/serverless') return { url: pathToFileURL(path.join(HERE, 'neon-shim.mjs')).href, shortCircuit: true };
   if (spec === 'next/headers') return { url: pathToFileURL(path.join(HERE, 'headers-shim.mjs')).href, shortCircuit: true };
+  if (spec === '@vercel/blob') return { url: pathToFileURL(path.join(HERE, 'blob-shim.mjs')).href, shortCircuit: true };
   if (spec === 'next/server') return next('next/server.js', ctx);
   let url = spec;
   if (spec.startsWith('@/')) url = pathToFileURL(path.join(ROOT, spec.slice(2))).href;

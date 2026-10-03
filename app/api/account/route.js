@@ -4,6 +4,7 @@ import { sql } from '@/lib/db';
 import { requireUser, bad, safe } from '@/lib/guard';
 import { destroySession } from '@/lib/auth';
 import { hit } from '@/lib/ratelimit';
+import { deletePhotos } from '@/lib/photos';
 
 // Usunięcie własnego konta wraz z danymi (po potwierdzeniu hasłem)
 export const DELETE = safe(async (req) => {
@@ -17,9 +18,10 @@ export const DELETE = safe(async (req) => {
   const [u] = await sql()`SELECT password_hash FROM users WHERE id = ${user.id}`;
   // Górna granica długości jak przy logowaniu: bardzo długie dane nie trafiają do bcrypt
   if (!u || pwd.length > 1000 || !(await bcrypt.compare(pwd, u.password_hash))) return bad('Nieprawidłowe hasło.', 403);
-  await sql()`DELETE FROM strain_tests WHERE user_id = ${user.id}`;
+  const gone = await sql()`DELETE FROM strain_tests WHERE user_id = ${user.id} RETURNING blob_path`;
   await sql()`UPDATE strains SET created_by = NULL WHERE created_by = ${user.id}`;
   await sql()`DELETE FROM users WHERE id = ${user.id}`; // reszta danych usuwa się kaskadowo
+  await deletePhotos(gone.map((r) => r.blob_path));
   await destroySession();
   return NextResponse.json({ ok: true });
 });

@@ -76,7 +76,7 @@ Bieżąca wersja: **0.30.0** (zamknięta beta, rejestracja z zaproszeniem).
 - **PLA-1 (P0, M)** Testy automatyczne. ✅ 0.16.0: funkcje czyste (`npm test`). ✅ 0.28.2: testy z lokalnym PostgreSQL (`npm run test:db`: `ensureDb`, `can_see`, wybrane trasy API) i CI w GitHub Actions. Do zrobienia: rozszerzać `tests/db/` przy każdej zmianie SQL (rankingi, pule, grupy, eksport, kopia), testy komponentów.
 - **PLA-2 (P0, S)** Monitoring błędów. ✅ 0.16.0: własny dziennik błędów w panelu admina. Do zrobienia: alerty (e-mail lub komunikator) i uptime.
 - **PLA-3 (P0, S)** Przejście na plan Vercel Pro (użycie komercyjne) i osobna gałąź bazy dla podglądów.
-- **PLA-4 (P1, M)** Zdjęcia poza bazą (magazyn obiektów, np. Vercel Blob lub S3) z miniaturami.
+- **PLA-4 (P1, M)** Zdjęcia poza bazą (magazyn obiektów, np. Vercel Blob lub S3) z miniaturami. ✅ częściowo (Unreleased): zapis i odczyt przez prywatny Vercel Blob, skrypt migracji `scripts/photos-to-blob.js`. Zostaje: uruchomienie migracji na produkcji, miniatury, awatary (`users.avatar`) i ewentualne dołączenie zdjęć do kopii.
 - **PLA-5 (P1, M)** Paginacja i pamięć podręczna listy odmian oraz rankingów (dziś ładujemy wszystko naraz).
 - **PLA-6 (P1, M)** Migracje bazy jako osobne, wersjonowane pliki (zamiast `ensureDb`).
 - ~~**PLA-7 (P1, M)**~~ ✅ 0.30.0 (Vercel Blob, szyfrowanie). Kopia zapasowa poza bazą (magazyn zewnętrzny) i automatyczne odtwarzanie.
@@ -106,7 +106,7 @@ Bieżąca wersja: **0.30.0** (zamknięta beta, rejestracja z zaproszeniem).
 - **DT-14** Limit prób logowania. ✅ częściowo 0.29.0 (limit na parę IP + nazwa). Zostaje: atak z co najmniej 2 adresów nadal może zablokować konto na godzinę (limit 50/h na nazwę); rozwiązanie: ciasteczko „znane urządzenie” omijające limit globalny lub rosnące opóźnienie.
 - ~~**DT-15** Twórca odmiany mógł ją usunąć razem z ocenami, testami i zużyciem innych osób~~ ✅ 0.28.2 (admin nadal może, patrz `docs/PRZEGLAD-2026-10.md`).
 - ~~**DT-2** Tryb ciemny odwracał kolory całej strony~~ ✅ 0.21.0 (przepisany na zmienne CSS).
-- **DT-3** Zdjęcia są przechowywane jako base64 w bazie (PLA-4).
+- **DT-3** Zdjęcia są przechowywane jako base64 w bazie (PLA-4). Częściowo: nowe zdjęcia idą do Blob, gdy jest token; istniejące czekają na `scripts/photos-to-blob.js`.
 - **DT-4** Rankingi i filtry liczą się w przeglądarce ze wszystkich odmian (PLA-5).
 - **DT-5** Strefa czasowa `Europe/Warsaw` jest wpisana na stałe.
 - **DT-6** Import CSV ogranicza do 200 wierszy i nie ma podglądu błędów przed zapisem.
