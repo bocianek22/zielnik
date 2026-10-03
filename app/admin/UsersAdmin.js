@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
+import Icon from '../components/Icon';
 
 export default function UsersAdmin({ meId }) {
   const [users, setUsers] = useState(null);
@@ -52,22 +53,26 @@ export default function UsersAdmin({ meId }) {
     } catch (err) { setError(err.message); }
   }
 
+  const status = (u) => [u.is_admin ? 'Administrator' : 'Użytkownik', u.must_change_password ? 'czeka na zmianę hasła' : 'aktywne'].join(' · ');
+
   return (
     <>
-      <form className="card" onSubmit={add}>
-        <h2>Nowy użytkownik</h2>
-        <div className="row">
-          <div className="field grow">
-            <label htmlFor="nu">Nazwa użytkownika</label>
-            <input id="nu" className="input" value={username} onChange={(e) => setUsername(e.target.value)} required />
+      <section className="admin-sec">
+        <h2 className="section-label">Nowy użytkownik</h2>
+        <form className="card admin-form" onSubmit={add}>
+          <div className="admin-pair">
+            <div className="field">
+              <label htmlFor="nu">Nazwa użytkownika</label>
+              <input id="nu" className="input" value={username} onChange={(e) => setUsername(e.target.value)} required />
+            </div>
+            <div className="field">
+              <label htmlFor="np">Hasło tymczasowe (puste = losowe)</label>
+              <input id="np" className="input" value={password} onChange={(e) => setPassword(e.target.value)} />
+            </div>
           </div>
-          <div className="field grow">
-            <label htmlFor="np">Hasło tymczasowe (puste = losowe)</label>
-            <input id="np" className="input" value={password} onChange={(e) => setPassword(e.target.value)} />
-          </div>
-        </div>
-        <button className="btn" disabled={busy}>Dodaj użytkownika</button>
-      </form>
+          <button className="btn" disabled={busy}>Dodaj użytkownika</button>
+        </form>
+      </section>
 
       {notice && (
         <div className="alert ok" role="status">
@@ -76,33 +81,37 @@ export default function UsersAdmin({ meId }) {
       )}
       {error && <div className="alert error" role="alert">{error}</div>}
 
-      <div className="card">
-        <h2>Konta</h2>
+      <section className="admin-sec">
+        <h2 className="section-label">Konta{users ? ` (${users.length})` : ''}</h2>
         {!users ? <p className="muted">Wczytywanie…</p> : (
-          <div className="scroll">
-            <table className="table">
-              <thead><tr><th>Użytkownik</th><th>Rola</th><th>Status</th><th></th></tr></thead>
-              <tbody>
-                {users.map((u) => (
-                  <tr key={u.id}>
-                    <td>{u.username}</td>
-                    <td>{u.is_admin ? <span className="badge gold">admin</span> : <span className="badge">użytkownik</span>}</td>
-                    <td>{u.must_change_password ? 'czeka na zmianę hasła' : 'aktywne'}</td>
-                    <td className="actions">
-                      {u.id !== meId && (
-                        <>
-                          <button className="btn ghost small" onClick={() => reset(u)}>Resetuj hasło</button>
-                          <button className="btn danger small" onClick={() => remove(u)}>Usuń</button>
-                        </>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <ul className="list admin-users">
+            {users.map((u) => (u.id === meId ? (
+              <li key={u.id} className="list-row">
+                <div className="lr-main"><span className="admin-name">{u.username}</span><span className="lr-sub">To Ty · {status(u)}</span></div>
+              </li>
+            ) : (
+              <li key={u.id}>
+                <details className="admin-user">
+                  <summary className="list-row">
+                    <div className="lr-main"><span className="admin-name">{u.username}</span><span className="lr-sub">{status(u)}</span></div>
+                    <Icon name="chevronDown" size={20} className="lr-chev" />
+                  </summary>
+                  <div className="admin-user-body">
+                    <div className="admin-user-act">
+                      <p className="muted small">Ustawia nowe hasło tymczasowe i wymusza jego zmianę przy logowaniu.</p>
+                      <button className="btn ghost small" onClick={() => reset(u)}>Resetuj hasło</button>
+                    </div>
+                    <div className="admin-user-act admin-user-danger">
+                      <p className="small">Usuwa konto razem z ocenami i stanami. Nie można tego cofnąć.</p>
+                      <button className="btn danger small" onClick={() => remove(u)}>Usuń konto</button>
+                    </div>
+                  </div>
+                </details>
+              </li>
+            )))}
+          </ul>
         )}
-      </div>
+      </section>
     </>
   );
 }

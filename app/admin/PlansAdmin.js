@@ -10,20 +10,27 @@ export default function PlansAdmin() {
     try { setUsers((await api('/api/admin/plan', 'POST', { userId, plan, days })).users); } catch (e) { setMsg(e.message); }
   }
   return (
-    <section className="card">
-      <h2>Plany użytkowników</h2>
-      <p className="muted">Ręczne nadawanie Premium (np. testerom lub w podziękowaniu). Dopóki nie włączysz zmiennej PREMIUM_ENFORCED, wszyscy mają dostęp do wszystkiego.</p>
+    <section className="admin-sec">
+      <h2 className="section-label">Plany użytkowników</h2>
+      <p className="muted small admin-note">Ręczne nadawanie Premium (np. testerom lub w podziękowaniu). Dopóki nie włączysz zmiennej PREMIUM_ENFORCED, wszyscy mają dostęp do wszystkiego.</p>
       {msg && <div className="alert error" role="alert">{msg}</div>}
       {users && (
-        <div className="table-wrap"><table className="cmp"><thead><tr><th>Użytkownik</th><th>Plan</th><th>Ważny do</th><th /></tr></thead>
-          <tbody>{users.map((u) => (
-            <tr key={u.id}><td>{u.username}</td><td>{u.plan}</td><td>{u.plan_until || (u.plan === 'premium' ? 'bez limitu' : '–')}</td>
-              <td className="row">
+        <ul className="list">
+          {users.map((u) => (
+            <li key={u.id} className="list-row admin-row">
+              <div className="lr-main">
+                <span className="admin-name">{u.username}</span>
+                <span className="lr-sub">{u.plan === 'premium' ? `Premium · ${u.plan_until ? `do ${u.plan_until}` : 'bez limitu'}` : 'Darmowy'}</span>
+              </div>
+              <div className="admin-actions">
                 <button className="btn ghost small" onClick={() => set(u.id, 'premium', 30)}>Premium 30 dni</button>
                 <button className="btn ghost small" onClick={() => set(u.id, 'premium', 365)}>365 dni</button>
                 <button className="btn ghost small" onClick={() => set(u.id, 'premium', 0)}>Bez limitu</button>
-                {u.plan === 'premium' && <button className="btn ghost small" onClick={() => set(u.id, 'free', 0)}>Cofnij</button>}
-              </td></tr>))}</tbody></table></div>
+                {u.plan === 'premium' && <button className="btn text small" onClick={() => set(u.id, 'free', 0)}>Cofnij</button>}
+              </div>
+            </li>
+          ))}
+        </ul>
       )}
     </section>
   );

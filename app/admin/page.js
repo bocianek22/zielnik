@@ -1,14 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
 import Header from '../components/Header';
-import UsersAdmin from './UsersAdmin';
-import InvitesAdmin from './InvitesAdmin';
-import ReportsAdmin from './ReportsAdmin';
-import BackupsAdmin from './BackupsAdmin';
-import PlansAdmin from './PlansAdmin';
-import StatsAdmin from './StatsAdmin';
-import ErrorsAdmin from './ErrorsAdmin';
-import AuditAdmin from './AuditAdmin';
+import AdminTabs from './AdminTabs';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,16 +13,9 @@ export default async function AdminPage() {
   return (
     <>
       <Header user={user} />
-      <main className="page stack">
-        <h1>Użytkownicy</h1>
-        <StatsAdmin />
-        <UsersAdmin meId={user.id} />
-        <InvitesAdmin />
-        <ReportsAdmin />
-        <PlansAdmin />
-        <BackupsAdmin />
-        <ErrorsAdmin />
-        <AuditAdmin />
+      <main className="page admin">
+        <h1>Administracja</h1>
+        <AdminTabs meId={user.id} />
       </main>
     </>
   );

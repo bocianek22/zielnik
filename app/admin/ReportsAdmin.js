@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
+import Icon from '../components/Icon';
 
 const REASONS = { spam: 'Spam', ad: 'Reklama lub sprzedaż', abuse: 'Nękanie lub wyzwiska', privacy: 'Naruszenie prywatności', other: 'Inne' };
 
@@ -13,18 +14,25 @@ export default function ReportsAdmin() {
     try { setReports((await api('/api/admin/reports', 'POST', { id, deleteContent })).reports); } catch (e) { setMsg(e.message); }
   }
   return (
-    <section className="card">
-      <h2>Zgłoszenia {reports?.length ? `(${reports.length})` : ''}</h2>
+    <section className="admin-sec">
+      <h2 className="section-label">Zgłoszenia{reports?.length ? ` (${reports.length})` : ''}</h2>
       {msg && <div className="alert error" role="alert">{msg}</div>}
-      {reports === null ? <p className="muted">Ładuję…</p> : reports.length === 0 ? <p className="muted">Brak otwartych zgłoszeń.</p> : (
-        <ul className="wall">{reports.map((r) => (
-          <li key={r.id}>
-            <p><b>{REASONS[r.reason] || r.reason}</b> · {r.type === 'test' ? 'test' : 'profil'} użytkownika{' '}
-              <Link href={`/u/${encodeURIComponent(r.target)}`}>@{r.target}</Link> <span className="muted">zgłosił(a) {r.reporter || 'usunięty użytkownik'}, {r.at}</span></p>
-            {r.note && <p className="detail-desc">Opis zgłaszającego: {r.note}</p>}
-            {r.test_note && <p className="detail-desc">Treść testu: {r.test_note}</p>}
-            <div className="row">
-              <button className="btn small" onClick={() => resolve(r.id, false)}>Zamknij</button>
+      {reports === null ? <p className="muted">Ładuję…</p> : reports.length === 0 ? (
+        <div className="empty">
+          <Icon name="shield" size={32} />
+          <h2>Brak otwartych zgłoszeń</h2>
+          <p>Gdy ktoś zgłosi profil lub test, pojawi się tutaj.</p>
+        </div>
+      ) : (
+        <ul className="list">{reports.map((r) => (
+          <li key={r.id} className="admin-report">
+            <p className="admin-report-title">{REASONS[r.reason] || r.reason}</p>
+            <p className="muted small">{r.type === 'test' ? 'Test' : 'Profil'} użytkownika{' '}
+              <Link href={`/u/${encodeURIComponent(r.target)}`}>@{r.target}</Link>. Zgłosił(a): {r.reporter || 'usunięty użytkownik'}, {r.at}</p>
+            {r.note && <p className="admin-quote">Opis zgłaszającego: {r.note}</p>}
+            {r.test_note && <p className="admin-quote">Treść testu: {r.test_note}</p>}
+            <div className="admin-actions-bar">
+              <button className="btn small" onClick={() => resolve(r.id, false)}>Zamknij zgłoszenie</button>
               {r.type === 'test' && r.ref && <button className="btn danger small" onClick={() => confirm('Usunąć zgłoszony test?') && resolve(r.id, true)}>Usuń test i zamknij</button>}
             </div>
           </li>))}</ul>)}

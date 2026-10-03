@@ -1,0 +1,70 @@
+/* Panel admina (app/admin/*): zakładki, listy wierszy zamiast tabel, pasek liczb.
+   Komponenty bazowe (.list, .section-label, .stat-strip, .seg, .btn) są w globals.css i strains.css. */
+
+.admin-tabs { width: 100%; margin-bottom: var(--s-2); }
+.admin-tabs button { flex: 1; min-height: var(--tap); }
+.admin-sec { margin-top: var(--s-6); }
+.admin-sec:first-child { margin-top: var(--s-4); }
+.admin-sec > .section-label { margin-top: 0; }
+.admin-note { margin: calc(var(--s-1) * -1) var(--s-1) var(--s-3); max-width: 68ch; }
+.admin-sec > .alert { margin-top: var(--s-3); }
+.admin-sec > .list + .admin-danger, .admin-danger { margin-top: var(--s-4); }
+.admin-panel > .alert { margin-top: var(--s-4); }
+
+/* statystyki: 3 kolumny, 3 rzędy */
+.admin-stats > div:nth-child(3n+1) { border-left: 0; }
+.admin-stats > div:nth-child(n+4) { border-top: 1px solid var(--sep); }
+.admin-stats dt { min-height: 2.4em; line-height: 1.2; }
+
+/* formularze */
+.admin-form .admin-pair { display: grid; gap: 0 var(--s-3); }
+.admin-form .field { margin-bottom: var(--s-3); }
+.admin-form > .btn { width: 100%; }
+.admin-sec > .card + .alert, .admin-sec > .card + .list, .admin-sec > .alert + .list { margin-top: var(--s-4); }
+.admin-sec > .card + p, .admin-sec > .alert + p { margin-top: var(--s-4); }
+
+/* wiersz z akcjami pod treścią */
+.admin-row { flex-wrap: wrap; align-items: flex-start; }
+.admin-row .lr-main { flex: 1 1 12rem; }
+.admin-actions { flex: 1 0 100%; display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.admin-name { font-weight: 600; overflow-wrap: anywhere; }
+.admin-actions-bar { display: flex; flex-wrap: wrap; gap: var(--s-2); margin: var(--s-3) 0; }
+.admin-actions-bar .btn { flex: 1 1 auto; }
+
+/* konta: rozwijany wiersz, usunięcie konta w osobnej strefie */
+.admin-user > summary { list-style: none; cursor: pointer; }
+.admin-user > summary::-webkit-details-marker { display: none; }
+.admin-user > summary:hover { background: var(--hover-bg); }
+.admin-user[open] > summary .lr-chev { transform: rotate(180deg); }
+.admin-user > summary .lr-chev { transition: transform var(--dur-2) var(--ease); }
+.admin-user > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.admin-user-body { background: var(--surface-2); border-top: 1px solid var(--sep); }
+.admin-user-act { display: grid; gap: var(--s-2); justify-items: start; padding: var(--s-3) var(--s-4); }
+.admin-user-act p { margin: 0; }
+.admin-user-danger { border-top: 1px solid var(--danger-line); background: var(--danger-soft); }
+.admin-user-danger p { color: var(--danger); }
+
+/* dzienniki: czas w osobnej linii pod treścią na telefonie */
+.admin-log .list-row { align-items: flex-start; flex-wrap: wrap; row-gap: 2px; }
+.admin-log .lr-main { overflow-wrap: anywhere; }
+.admin-time { font-size: var(--fs-xs); color: var(--text-3); white-space: nowrap; flex: 1 0 100%; text-align: left; margin-left: 0; }
+.admin-msg { display: block; }
+
+/* zgłoszenia */
+.admin-report { padding: var(--s-4); display: grid; gap: var(--s-1); }
+.admin-report p { margin: 0; }
+.admin-report-title { font-weight: 600; font-size: var(--fs-lg); }
+.admin-quote { margin-top: var(--s-2) !important; padding-left: var(--s-3) !important; border-left: 2px solid var(--sep-strong); overflow-wrap: anywhere; }
+
+@media (min-width: 720px) {
+  .admin-form .admin-pair { grid-template-columns: 1fr 1fr; }
+  .admin-form > .btn { width: auto; }
+  .admin-row { flex-wrap: nowrap; align-items: center; }
+  .admin-actions { flex: 0 0 auto; justify-content: flex-end; }
+  .admin-actions-bar .btn { flex: 0 0 auto; }
+  .admin-time { flex: 0 0 auto; font-size: var(--fs-sm); margin-left: auto; text-align: right; }
+  .admin-log .list-row { flex-wrap: nowrap; align-items: center; }
+  .admin-stats dt { min-height: 0; }
+  .admin-tabs { width: fit-content; }
+  .admin-tabs button { flex: none; }
+}

@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
+import Icon from '../components/Icon';
 
 export default function InvitesAdmin() {
   const [invites, setInvites] = useState([]);
@@ -31,26 +32,36 @@ export default function InvitesAdmin() {
   }
 
   return (
-    <section className="card">
-      <h2>Zaproszenia</h2>
-      <form className="row" onSubmit={create}>
-        <div className="field grow"><label htmlFor="inv-note">Dla kogo (notatka)</label>
+    <section className="admin-sec">
+      <h2 className="section-label">Zaproszenia</h2>
+      <form className="card admin-form" onSubmit={create}>
+        <div className="field"><label htmlFor="inv-note">Dla kogo (notatka)</label>
           <input id="inv-note" className="input" maxLength={80} value={note} onChange={(e) => setNote(e.target.value)} /></div>
-        <div className="field"><label htmlFor="inv-max">Liczba użyć</label>
-          <input id="inv-max" className="input" type="number" min="1" max="100" inputMode="numeric" value={maxUses} onChange={(e) => setMaxUses(e.target.value)} /></div>
-        <div className="field"><label htmlFor="inv-days">Ważny dni (0 = bez limitu)</label>
-          <input id="inv-days" className="input" type="number" min="0" max="90" inputMode="numeric" value={days} onChange={(e) => setDays(e.target.value)} /></div>
+        <div className="admin-pair">
+          <div className="field"><label htmlFor="inv-max">Liczba użyć</label>
+            <input id="inv-max" className="input" type="number" min="1" max="100" inputMode="numeric" value={maxUses} onChange={(e) => setMaxUses(e.target.value)} /></div>
+          <div className="field"><label htmlFor="inv-days">Ważny dni (0 = bez limitu)</label>
+            <input id="inv-days" className="input" type="number" min="0" max="90" inputMode="numeric" value={days} onChange={(e) => setDays(e.target.value)} /></div>
+        </div>
         <button className="btn">Utwórz kod</button>
       </form>
       {msg && <div className="alert note" role="status">{msg}</div>}
       {invites.length === 0 ? <p className="muted">Brak zaproszeń.</p> : (
-        <div className="table-wrap"><table className="cmp"><thead><tr><th>Kod</th><th>Notatka</th><th>Użyto</th><th>Ważny do</th><th /></tr></thead>
-          <tbody>{invites.map((i) => (
-            <tr key={i.code}><td><code>{i.code}</code></td><td>{i.note || '–'}</td><td>{i.uses}/{i.max_uses}</td><td>{i.expires_at || 'bez limitu'}</td>
-              <td className="row"><button className="btn ghost small" onClick={() => copy(i.code)}>Kopiuj link</button>
-                <button className="btn ghost small only-mobile" onClick={() => share(i.code)}>Udostępnij</button>
-                <button className="btn ghost small" onClick={() => remove(i.code)}>Usuń</button></td></tr>
-          ))}</tbody></table></div>
+        <ul className="list">
+          {invites.map((i) => (
+            <li key={i.code} className="list-row admin-row">
+              <div className="lr-main">
+                <code>{i.code}</code>
+                <span className="lr-sub">{i.note ? `${i.note} · ` : ''}użyto {i.uses}/{i.max_uses} · {i.expires_at ? `ważny do ${i.expires_at}` : 'bez limitu'}</span>
+              </div>
+              <div className="admin-actions">
+                <button className="btn ghost small" onClick={() => copy(i.code)}>Kopiuj link</button>
+                <button className="btn ghost small only-mobile" onClick={() => share(i.code)}><Icon name="share" size={18} />Udostępnij</button>
+                <button className="btn text small admin-del" onClick={() => remove(i.code)}>Usuń</button>
+              </div>
+            </li>
+          ))}
+        </ul>
       )}
     </section>
   );
