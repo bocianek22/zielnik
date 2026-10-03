@@ -93,7 +93,6 @@
   .strain-foot { flex-wrap: nowrap; gap: 0; margin-inline: calc(var(--s-2) * -1); }
   .strain-foot .btn.text { padding-inline: var(--s-2); }
   .strain-foot .hide-narrow { display: none; }
-  .entry { align-items: end; }
 }
 
 /* ===== Pola użytkownika w karcie ===== */
@@ -132,7 +131,7 @@
 /* ===== Szybkie akcje „Zużyłem” / „Wykupiłem” ===== */
 .quick { margin-top: var(--s-3); display: grid; gap: var(--s-2); }
 .quick-btns { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); }
-.quick-btn { min-height: var(--tap); }
+.quick-btns .btn, .strain-foot .btn { min-height: var(--tap); }
 .quick-btn.on { background: var(--accent-soft); color: var(--on-accent-soft); border-color: var(--accent); }
 .quick-stock { font-size: var(--fs-sm); font-variant-numeric: tabular-nums; margin-left: auto; }
 .quick-panel { display: grid; gap: var(--s-2); padding: var(--s-3); border: 1px solid var(--sep-strong); border-radius: var(--r-md); background: var(--surface); animation: quick-in var(--dur-2) var(--ease); }
@@ -169,3 +168,6 @@
   .strain-form .form-actions .btn.ghost { display: none; } /* na telefonie zamykamy tylko przez górny pasek, żeby nie duplikować akcji */
   .strain-form .form-actions .push-right { margin-left: 0; }
 }
+
+/* telefon: pola w jednym rzędzie wyrównane do dołu, gdy etykieta zawija się do dwóch linii */
+@media (max-width: 760px) { .entry { align-items: end; } .entry-who { align-self: start; } }
