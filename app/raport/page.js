@@ -7,13 +7,14 @@ import { EFFECTS } from '@/lib/effects';
 import Header from '../components/Header';
 import Icon from '../components/Icon';
 import PrintButton from './PrintButton';
+import { formatDay } from '@/lib/date';
 
 export const dynamic = 'force-dynamic';
 
 const iso = (d) => d.toISOString().slice(0, 10);
 const validDate = (v) => /^\d{4}-\d{2}-\d{2}$/.test(v || '') && !Number.isNaN(Date.parse(v));
 const nf = (n, max = 1) => Number(n).toLocaleString('pl-PL', { maximumFractionDigits: max });
-const day = (v) => new Date(`${String(v).slice(0, 10)}T12:00:00`).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
+const day = formatDay;
 
 export default async function Raport({ searchParams }) {
   const me = await getUser();
@@ -96,11 +97,11 @@ export default async function Raport({ searchParams }) {
             <>
               <ul className="list report-narrow">
                 {usage.map((u, i) => (
-                  <li key={i} className="list-row"><span className="lr-main">{u.name}<span className="lr-sub">{meta(u)}</span></span><span className="lr-value">{nf(u.grams, 2)} g</span></li>
+                  <li key={i} className="list-row"><span className="lr-main"><span className="dn">{u.name}</span><span className="lr-sub">{meta(u)}</span></span><span className="lr-value">{nf(u.grams, 2)} g</span></li>
                 ))}
               </ul>
               <div className="table-wrap report-wide"><table className="cmp"><thead><tr><th>Odmiana</th><th>Producent</th><th>THC</th><th>CBD</th><th>Dni użycia</th><th>Razem</th></tr></thead>
-                <tbody>{usage.map((u, i) => (<tr key={i}><td>{u.name}</td><td>{u.producer}</td><td>{u.thc != null ? `${nf(u.thc)}%` : '–'}</td><td>{u.cbd != null ? `${nf(u.cbd)}%` : '–'}</td><td>{u.days}</td><td>{nf(u.grams, 2)} g</td></tr>))}</tbody></table></div>
+                <tbody>{usage.map((u, i) => (<tr key={i}><td><span className="dn">{u.name}</span></td><td><span className="dn">{u.producer}</span></td><td>{u.thc != null ? `${nf(u.thc)}%` : '–'}</td><td>{u.cbd != null ? `${nf(u.cbd)}%` : '–'}</td><td>{u.days}</td><td>{nf(u.grams, 2)} g</td></tr>))}</tbody></table></div>
             </>
           )}
 
@@ -122,20 +123,20 @@ export default async function Raport({ searchParams }) {
           {purchases.length > 0 && (<><h3>Zakupy</h3>
             <ul className="list report-narrow">
               {purchases.map((p, i) => (
-                <li key={i} className="list-row"><span className="lr-main">{p.name}<span className="lr-sub">{day(p.at)}</span></span><span className="lr-value">{nf(p.grams, 2)} g{p.cost != null && <small>{nf(p.cost, 2)} zł</small>}</span></li>
+                <li key={i} className="list-row"><span className="lr-main"><span className="dn">{p.name}</span><span className="lr-sub">{day(p.at)}</span></span><span className="lr-value">{nf(p.grams, 2)} g{p.cost != null && <small>{nf(p.cost, 2)} zł</small>}</span></li>
               ))}
             </ul>
             <div className="table-wrap report-wide"><table className="cmp"><thead><tr><th>Data</th><th>Odmiana</th><th>Ilość</th><th>Koszt</th></tr></thead>
-              <tbody>{purchases.map((p, i) => <tr key={i}><td>{day(p.at)}</td><td>{p.name}</td><td>{nf(p.grams, 2)} g</td><td>{p.cost != null ? `${nf(p.cost, 2)} zł` : '–'}</td></tr>)}</tbody></table></div></>)}
+              <tbody>{purchases.map((p, i) => <tr key={i}><td>{day(p.at)}</td><td><span className="dn">{p.name}</span></td><td>{nf(p.grams, 2)} g</td><td>{p.cost != null ? `${nf(p.cost, 2)} zł` : '–'}</td></tr>)}</tbody></table></div></>)}
 
           {feel.length > 0 && (<><h3>Odczucia pacjenta (skala 0–10)</h3>
             <ul className="list report-narrow">
               {feel.map((f, i) => (
-                <li key={i} className="list-row"><span className="lr-main">{f.name}<span className="lr-sub">{feelLine(f) || 'Brak ocen odczuć'}</span>{withNotes && f.notes && <span className="lr-sub">{f.notes}</span>}</span><span className="lr-value">{f.rating != null ? nf(f.rating) : '–'}</span></li>
+                <li key={i} className="list-row"><span className="lr-main"><span className="dn">{f.name}</span><span className="lr-sub">{feelLine(f) || 'Brak ocen odczuć'}</span>{withNotes && f.notes && <span className="lr-sub">{f.notes}</span>}</span><span className="lr-value">{f.rating != null ? nf(f.rating) : '–'}</span></li>
               ))}
             </ul>
             <div className="table-wrap report-wide"><table className="cmp"><thead><tr><th>Odmiana</th><th>Ocena</th>{EFFECTS.map(([, l]) => <th key={l}>{l}</th>)}{withNotes && <th>Spostrzeżenia</th>}</tr></thead>
-              <tbody>{feel.map((f, i) => (<tr key={i}><td>{f.name}</td><td>{f.rating != null ? nf(f.rating) : '–'}</td>{EFFECTS.map(([k]) => <td key={k}>{fx(f.effects, k) != null ? nf(fx(f.effects, k)) : '–'}</td>)}{withNotes && <td>{f.notes || '–'}</td>}</tr>))}</tbody></table></div></>)}
+              <tbody>{feel.map((f, i) => (<tr key={i}><td><span className="dn">{f.name}</span></td><td>{f.rating != null ? nf(f.rating) : '–'}</td>{EFFECTS.map(([k]) => <td key={k}>{fx(f.effects, k) != null ? nf(fx(f.effects, k)) : '–'}</td>)}{withNotes && <td>{f.notes || '–'}</td>}</tr>))}</tbody></table></div></>)}
         </section>
         <p className="muted small no-print"><Link href="/historia">Historia zakupów i zużycia</Link></p>
       </main>

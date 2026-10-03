@@ -1,6 +1,6 @@
 /* Społeczność: znajomi, grupy, profil publiczny (app/znajomi, app/grupy, app/u/[handle], app/components/ReportButton).
    Listy osób korzystają z .list i .list-row z globals.css; tu tylko to, czego brakuje w komponentach bazowych.
-   Wspólne .avatar, .people, .person i .wall zostają w screens.css (używają ich też profil, wyszukiwarka i panel admina). */
+   Wspólne .avatar, .person i .wall zostają w screens.css (używają ich też profil, wyszukiwarka i panel admina). */
 .social { max-width: 720px; }
 .page.social { max-width: var(--page-max); }
 .page.social > * { max-width: 720px; }

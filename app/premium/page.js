@@ -3,10 +3,11 @@ import { getUser } from '@/lib/auth';
 import { sql, ensureDb } from '@/lib/db';
 import { PLAN_FEATURES } from '@/lib/plans';
 import Header from '../components/Header';
+import { formatDay } from '@/lib/date';
 
 export const dynamic = 'force-dynamic';
 
-const day = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
+const day = formatDay;
 
 export default async function Premium() {
   const me = await getUser();

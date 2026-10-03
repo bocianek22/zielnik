@@ -6,8 +6,9 @@ import { VIS, visLabel } from '@/lib/visibility';
 import ReportButton from './ReportButton';
 import Lightbox from './Lightbox';
 import Icon from './Icon';
+import { formatDay } from '@/lib/date';
 
-const fmtDate = (iso) => new Date(iso).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
+const fmtDate = formatDay;
 const photoUrl = (t) => `/api/tests/${t.id}/photo?v=${t.pv}`;
 
 // Formularz testu: dodawanie (bez `test`) i edycja (z `test`)

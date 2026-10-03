@@ -3,6 +3,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Icon from './Icon';
 
+// pola z nazwą odmiany, producentem i terpenami: w trybie dyskretnym rozmyte jak w reszcie aplikacji
+const DISCREET_FIELDS = new Set(['name', 'producer', 'terpenes', 'batch']);
+
 const LABELS = {
   producer: 'Producent', name: 'Nazwa', type: 'Typ', final_rating: 'Ocena końcowa', taste: 'Smak', thc: 'THC (%)', cbd: 'CBD (%)',
   kind: 'Rodzaj', terpenes: 'Terpeny', description: 'Opis', price_per_g: 'Cena za gram (zł)', batch: 'Partia',
@@ -64,8 +67,8 @@ export default function StrainHistory({ strainId, isAdmin, hidePrice = false }) 
             {Object.entries(h.changes).filter(([f]) => !(hidePrice && f === 'price_per_g')).map(([f, [a, b]]) => (
               <li key={f}>
                 <span className="hist-field">{LABELS[f] || f}</span>
-                <span className="hist-old"><span className="sr-only">Było: </span>{show(f, a)}</span>
-                <span className="hist-new"><span className="sr-only">Jest: </span>{show(f, b)}</span>
+                <span className="hist-old"><span className="sr-only">Było: </span><span className={DISCREET_FIELDS.has(f) ? 'dn' : undefined}>{show(f, a)}</span></span>
+                <span className="hist-new"><span className="sr-only">Jest: </span><span className={DISCREET_FIELDS.has(f) ? 'dn' : undefined}>{show(f, b)}</span></span>
               </li>
             ))}
           </ul>

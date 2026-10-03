@@ -2,14 +2,11 @@
    Każdy blok ma właściciela w docs/DESIGN.md („Do przeniesienia na system”); przy przenoszeniu ekranu
    wydziel jego blok do osobnego pliku app/styles/<ekran>.css i dopisz import w app/layout.js. */
 
-/* ===== Wspólne dla profilu, wyszukiwarki i panelu admina (.avatar, .people, .wall); układ znajomych, grup i profilu publicznego: social.css ===== */
+/* ===== Wspólne dla profilu, wyszukiwarki i panelu admina (.avatar, .wall); układ znajomych, grup i profilu publicznego: social.css ===== */
 .avatar { width: 88px; height: 88px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background: var(--surface-2); }
 .avatar.ph { display: grid; place-items: center; background: var(--accent-soft); color: var(--on-accent-soft); font-family: var(--font-display), Georgia, serif; font-size: 2rem; font-weight: 600; }
 .wall { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
 .wall li p { margin: 0 0 4px; }
-.people { list-style: none; padding: 0; margin: 0; display: grid; }
 .person { display: flex; justify-content: space-between; align-items: center; gap: var(--s-3); flex-wrap: wrap; padding: var(--s-3) 0; border-top: 1px solid var(--sep); }
-.people > .person:first-child { border-top: 0; }
 .person a { text-decoration: none; color: inherit; font-weight: 600; }
-.result-group { margin-top: 6px; }
 

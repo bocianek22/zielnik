@@ -3,7 +3,6 @@
 
 .hist-page > .section-label, .report-page .section-label { margin-top: var(--s-6); }
 .hist-page > .section-label:first-of-type { margin-top: 0; }
-.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
 /* Twój miesiąc: pasek liczb (.stat-strip z strains.css) w układzie 2 x 2 na telefonie */
 .recap.summary .stat-strip { grid-template-columns: repeat(2, 1fr); }
@@ -34,7 +33,6 @@
 .hist-list .list-row { align-items: flex-start; }
 .hist-list .lr-value { white-space: nowrap; }
 .hist-list .lr-value small { display: block; font-size: var(--fs-sm); color: var(--text-3); }
-.hist-cols { display: grid; gap: 0; }
 @media (min-width: 640px) {
   .hist-list { display: none; }
   .hist-table { display: block; }
