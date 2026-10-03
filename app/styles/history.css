@@ -49,7 +49,11 @@
 .report-visit, .report-range { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--s-3); margin: 0; padding-top: var(--s-4); border-top: 1px solid var(--sep); }
 .report-visit p { flex: 1 1 100%; margin: 0; }
 .report-more { border-top: 1px solid var(--sep); }
-.report-more > summary { display: flex; align-items: center; min-height: var(--tap); padding-top: var(--s-3); font-weight: 600; color: var(--accent-text); cursor: pointer; }
+.report-more > summary { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); min-height: var(--tap); padding-top: var(--s-3); font-weight: 600; color: var(--accent-text); cursor: pointer; list-style: none; }
+.report-more > summary::-webkit-details-marker { display: none; }
+.report-more-chev { flex: none; transition: transform var(--dur-2) var(--ease); }
+.report-more[open] .report-more-chev { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) { .report-more-chev { transition: none; } }
 .report-more .report-range { border-top: 0; padding-top: var(--s-2); }
 .report-filter .field { margin-bottom: 0; flex: 1 1 140px; }
 .report-filter .check { flex: 1 1 100%; min-height: var(--tap); }

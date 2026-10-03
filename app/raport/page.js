@@ -99,7 +99,7 @@ export default async function Raport({ searchParams }) {
           </nav>
           <VisitPeriod today={today} value={visit ? from : ''} notes={withNotes} />
           <details className="report-more" open={custom || undefined}>
-            <summary>Własny zakres dat i opcje</summary>
+            <summary>Własny zakres dat i opcje<Icon name="chevronDown" size={20} className="report-more-chev" /></summary>
             <form className="row report-range" method="get">
               <div className="field"><label htmlFor="from">Od</label><input id="from" name="from" type="date" className="input" defaultValue={from} max={today} /></div>
               <div className="field"><label htmlFor="to">Do</label><input id="to" name="to" type="date" className="input" defaultValue={to} max={today} /></div>
