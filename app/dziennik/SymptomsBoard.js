@@ -36,6 +36,7 @@ function Swatch({ s }) {
 function Chart({ rows, usage }) {
   const days = 30, W = 360, H = 200, L = 24, B = 24, T = 8, R = 8;
   const end = todayIso(), byDay = Object.fromEntries(rows.map((r) => [r.day, r])), use = Object.fromEntries(usage.map((u) => [u.day, u.grams]));
+  const useMl = Object.fromEntries(usage.map((u) => [u.day, u.ml || 0])); // olej i pen: tylko w tabeli, słupki pokazują gramy suszu
   const xs = Array.from({ length: days }, (_, i) => shiftDay(end, -(days - 1 - i)));
   const x = (i) => L + (i * (W - L - R)) / (days - 1);
   const y = (v) => T + (H - T - B) * (1 - v / 10);
@@ -44,7 +45,7 @@ function Chart({ rows, usage }) {
     const vals = xs.map((d) => byDay[d]?.[k]).filter((v) => v != null);
     return vals.length ? `${label}: średnio ${nf(vals.reduce((a, v) => a + v, 0) / vals.length)} z ${vals.length} wpisów` : `${label}: brak wpisów`;
   }).join('. ');
-  const listed = xs.filter((d) => byDay[d] || use[d]).reverse();
+  const listed = xs.filter((d) => byDay[d] || use[d] || useMl[d]).reverse();
   return (
     <>
       <svg viewBox={`0 0 ${W} ${H}`} className="sym-chart" role="img" aria-label={`Wykres objawów z ostatnich 30 dni, skala 0–10. ${summary}. Wartości z każdego dnia są w tabeli pod wykresem.`}>
@@ -70,7 +71,7 @@ function Chart({ rows, usage }) {
           {listed.map((d) => (
             <tr key={d}><th scope="row">{d === end ? 'dziś' : longDay(d)}</th>
               {SYMPTOMS.map((s) => <td key={s.key}>{byDay[d]?.[s.key] ?? 'nie wpisano'}</td>)}
-              <td>{use[d] ? `${nf(use[d])} g` : 'brak'}</td></tr>
+              <td>{[use[d] > 0 && `${nf(use[d])} g`, useMl[d] > 0 && `${nf(useMl[d])} ml`].filter(Boolean).join(', ') || 'brak'}</td></tr>
           ))}
         </tbody>
       </table></div>

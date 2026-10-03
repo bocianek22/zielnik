@@ -40,7 +40,7 @@ export const POST = safe(async (req) => {
       FROM s RETURNING strain_id AS id`;
     if (remaining > 0) {
       await q`INSERT INTO user_pool (user_id, pool_key, remaining_to_buy)
-              SELECT ${user.id}::int, pool_key(s.id, s.producer, s.thc, s.cbd), ${remaining}::numeric FROM strains s WHERE s.id = ${s.id}
+              SELECT ${user.id}::int, pool_key(s.id, s.producer, s.thc, s.cbd, s.form), ${remaining}::numeric FROM strains s WHERE s.id = ${s.id}
               ON CONFLICT (user_id, pool_key) DO UPDATE SET remaining_to_buy = EXCLUDED.remaining_to_buy`;
     }
     added++;

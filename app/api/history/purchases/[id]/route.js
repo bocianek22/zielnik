@@ -16,7 +16,7 @@ export const PATCH = safe(async (req, { params }) => {
   if (c.error) return bad(c.error);
 
   const [row] = await sql()`WITH k AS (
-      SELECT pu.strain_id, pool_key(s.id, s.producer, s.thc, s.cbd) AS pk
+      SELECT pu.strain_id, pool_key(s.id, s.producer, s.thc, s.cbd, s.form) AS pk
       FROM purchases pu JOIN strains s ON s.id = pu.strain_id WHERE pu.id = ${id}::int AND pu.user_id = ${user.id}::int
     ), p AS (
       SELECT remaining_to_buy FROM user_pool WHERE user_id = ${user.id}::int AND pool_key = (SELECT pk FROM k) FOR UPDATE
@@ -76,7 +76,7 @@ export const DELETE = safe(async (req, { params }) => {
   if (res) return res;
   const id = intId((await params).id);
   const [row] = await sql()`WITH k AS (
-      SELECT pool_key(s.id, s.producer, s.thc, s.cbd) AS pk
+      SELECT pool_key(s.id, s.producer, s.thc, s.cbd, s.form) AS pk
       FROM purchases pu JOIN strains s ON s.id = pu.strain_id WHERE pu.id = ${id}::int AND pu.user_id = ${user.id}::int
     ), p AS (
       SELECT remaining_to_buy FROM user_pool WHERE user_id = ${user.id}::int AND pool_key = (SELECT pk FROM k) FOR UPDATE

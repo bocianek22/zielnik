@@ -1,12 +1,13 @@
 'use client';
 import { useState } from 'react';
 
-const g = (n) => `${Number(n).toLocaleString('pl-PL', { maximumFractionDigits: 2 })} g`;
 const ddmm = (iso) => `${iso.slice(8, 10)}.${iso.slice(5, 7)}`; // "2026-09-28" -> "28.09", bez Date: ten sam wynik na serwerze i w telefonie
 
 // Zużycie tygodniowe jako słupki (inline SVG, długości w procentach, więc zaokrąglenia nie rozciągają się na wąskim ekranie).
 // Przesunięcie palcem lub strzałki pokazują wartość tygodnia; pełne dane są też w ukrytej tabeli dla czytników ekranu.
-export default function UsageChart({ weeks }) {
+// unit: 'g' (susz) albo 'ml' (olej, pen) - wykres dotyczy jednej odmiany, więc jednej jednostki
+export default function UsageChart({ weeks, unit = 'g' }) {
+  const g = (n) => `${Number(n).toLocaleString('pl-PL', { maximumFractionDigits: 2 })} ${unit}`;
   const [sel, setSel] = useState(null);
   const max = Math.max(...weeks.map((w) => w.grams));
   const n = weeks.length;

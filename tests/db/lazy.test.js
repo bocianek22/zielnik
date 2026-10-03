@@ -212,7 +212,7 @@ test('rankingi, eksporty i kopia działają bez wierszy', { skip }, async () => 
   assert.equal(csv.status, 200);
   const line = csv.text.split('\r\n').find((l) => l.startsWith('Rankingowa;'));
   assert.ok(line, 'brak odmiany w eksporcie CSV');
-  assert.match(line, /;;0;0;$/); // twoja ocena pusta, stan 0, do wykupienia 0, bez spostrzeżeń
+  assert.match(line, /;;0;0;;g$/); // twoja ocena pusta, stan 0, do wykupienia 0, bez spostrzeżeń, jednostka
   // eksport RODO: bez wpisów, bez błędu
   const acc = await call(G, 'account/export', 'GET');
   assert.equal(acc.status, 200);

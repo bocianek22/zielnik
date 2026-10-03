@@ -37,7 +37,7 @@ const delUse = (uid, entryId) => call(uid, 'history/usage/[id]', 'DELETE', null,
 const fixBuy = (uid, entryId, body) => call(uid, 'history/purchases/[id]', 'PATCH', body, { id: String(entryId) });
 const delBuy = (uid, entryId) => call(uid, 'history/purchases/[id]', 'DELETE', null, { id: String(entryId) });
 const stock = async (uid, id) => Number((await q`SELECT current_amount FROM user_strain WHERE strain_id = ${id} AND user_id = ${uid}`)[0].current_amount);
-const poolOf = async (uid, id) => Number((await q`SELECT p.remaining_to_buy FROM user_pool p JOIN strains s ON p.pool_key = pool_key(s.id, s.producer, s.thc, s.cbd)
+const poolOf = async (uid, id) => Number((await q`SELECT p.remaining_to_buy FROM user_pool p JOIN strains s ON p.pool_key = pool_key(s.id, s.producer, s.thc, s.cbd, s.form)
                                                   WHERE s.id = ${id} AND p.user_id = ${uid}`)[0]?.remaining_to_buy ?? 0);
 const usageRow = async (entryId) => (await q`SELECT grams::float8 AS grams, to_char(created_at AT TIME ZONE 'Europe/Warsaw', 'YYYY-MM-DD') AS day
                                             FROM usage_log WHERE id = ${entryId}`)[0];

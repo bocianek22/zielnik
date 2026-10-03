@@ -12,7 +12,7 @@ export const POST = safe(async (req, { params }) => {
   const id = intId((await params).id);
   const body = await req.json().catch(() => ({}));
   const g = parseNumber(body.grams, 0.01, 100000);
-  if (g == null || Number.isNaN(g)) return bad('Podaj ilość w gramach.');
+  if (g == null || Number.isNaN(g)) return bad('Podaj ilość (g lub ml).');
   const rid = requestId(body.requestId);
   if (rid === undefined) return bad('Błędny identyfikator zapisu.');
 
@@ -21,7 +21,7 @@ export const POST = safe(async (req, { params }) => {
   // się nie nadpisywały; wpis osobisty powstaje przy pierwszym zapisie (MOB-10), a SELECT z strains pomija odmianę
   // usuniętą w międzyczasie. pool_delta: o ile faktycznie zmniejszono pulę (tyle odda „Cofnij”).
   const [row] = await sql()`WITH s AS (
-      SELECT id, name, price_per_g, pool_key(id, producer, thc, cbd) AS pk FROM strains WHERE id = ${id}::int
+      SELECT id, name, price_per_g, pool_key(id, producer, thc, cbd, form) AS pk FROM strains WHERE id = ${id}::int
     ), p AS (
       SELECT remaining_to_buy FROM user_pool WHERE user_id = ${user.id}::int AND pool_key = (SELECT pk FROM s) FOR UPDATE
     ), ins AS (
@@ -53,7 +53,7 @@ export const POST = safe(async (req, { params }) => {
                                   FROM purchases pu
                                   JOIN strains s ON s.id = pu.strain_id
                                   LEFT JOIN user_strain us ON us.strain_id = pu.strain_id AND us.user_id = pu.user_id
-                                  LEFT JOIN user_pool p ON p.user_id = pu.user_id AND p.pool_key = pool_key(s.id, s.producer, s.thc, s.cbd)
+                                  LEFT JOIN user_pool p ON p.user_id = pu.user_id AND p.pool_key = pool_key(s.id, s.producer, s.thc, s.cbd, s.form)
                                   WHERE pu.user_id = ${user.id}::int AND pu.request_id = ${rid}::text AND pu.strain_id = ${id}::int` : [];
   if (dup) return NextResponse.json({ id: dup.id, current: dup.current, remaining: dup.remaining, bought: dup.bought });
   return bad('Nie znaleziono odmiany.', 404); // usunięta w międzyczasie (albo requestId użyty przy innej odmianie)
@@ -69,7 +69,7 @@ export const DELETE = safe(async (req, { params }) => {
   const entryId = intId((await req.json().catch(() => ({}))).id);
   if (!entryId) return bad('Błędny identyfikator wpisu.');
   const [row] = await sql()`WITH s AS (
-      SELECT pool_key(id, producer, thc, cbd) AS pk FROM strains WHERE id = ${id}::int
+      SELECT pool_key(id, producer, thc, cbd, form) AS pk FROM strains WHERE id = ${id}::int
     ), p AS (
       SELECT remaining_to_buy FROM user_pool WHERE user_id = ${user.id}::int AND pool_key = (SELECT pk FROM s) FOR UPDATE
     ), d AS (
