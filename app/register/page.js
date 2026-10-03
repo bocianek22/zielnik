@@ -36,7 +36,7 @@ export default function RegisterPage() {
       </aside>
       <main className="auth-form">
         <form className="auth-box" onSubmit={submit}>
-          <div className="auth-mark" aria-hidden="true"><span className="mark"><Leaf size={26} /></span><span className="brand-name">Zielnik</span><span className="brand-alt">Notatnik</span></div>
+          <div className="brand auth-mark" aria-hidden="true"><span className="mark"><Leaf size={26} /></span><span className="brand-name">Zielnik</span><span className="brand-alt">Notatnik</span></div>
           <h1>Załóż konto</h1>
           <p className="auth-lead">Rejestracja wymaga kodu zaproszenia.</p>
           <div className="field"><label htmlFor="r-code">Kod zaproszenia</label>
