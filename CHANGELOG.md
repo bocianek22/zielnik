@@ -7,6 +7,12 @@ Wersje 0.1.0 do 0.14.0 zostały odtworzone z historii prac (wgrywanych paczkami 
 Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow „Wydanie” (patrz `CONTRIBUTING.md`).
 
 ## [Unreleased]
+### Dodano
+- Zdjęcia odmian i testów w prywatnym Vercel Blob (PLA-4, krok 1): gdy jest `BLOB_READ_WRITE_TOKEN`, nowe zdjęcie trafia do `zielnik-photos/<losowy-uuid>.<rozszerzenie>` (`access: 'private'`), a w bazie zostaje tylko ścieżka w nowej kolumnie `blob_path` (`strain_photos`, `strain_tests`; `data = ''`). Odczyt dalej idzie przez trasy `/api/strains/[id]/photo` i `/api/tests/[tid]/photo` z tą samą kontrolą uprawnień (`can_see` dla testów) i prywatnym cache. Bez tokenu działa jak dotąd (base64 w bazie).
+- Usunięcie lub podmiana zdjęcia, testu, odmiany (także przez admina i zgłoszenie) oraz konta usuwa obiekt z Blob (best effort, błąd tylko w logu).
+- `scripts/photos-to-blob.js`: jednorazowa, idempotentna migracja istniejących zdjęć base64 do Blob, partiami, z trybem `--dry-run` (patrz `docs/ARCHITEKTURA.md`).
+### Zmieniono
+- Eksport konta z `?photos=1` dołącza zdjęcia z Blob jako base64 (bez zmiany formatu). Kopia zapasowa: `strain_tests` zawiera teraz `blob_path` (ścieżka zamiast base64, jak dotąd bez `data`); `strain_photos` nadal nie jest w kopii.
 
 ## [0.31.0] - 2026-10
 ### Dodano

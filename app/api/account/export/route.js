@@ -1,5 +1,18 @@
 import { sql } from '@/lib/db';
 import { requireUser, safe } from '@/lib/guard';
+import { readPhoto } from '@/lib/photos';
+
+// Zdjęcia z Blob wracają do eksportu jako base64 (jak z bazy); gdy obiektu nie da się odczytać, pole jest puste i jest photo_error
+async function inline(rows) {
+  for (const r of rows) {
+    if (r.blob_path) {
+      try { r.photo_base64 = (await readPhoto(r.blob_path))?.toString('base64') ?? null; } catch { r.photo_base64 = null; }
+      if (r.photo_base64 == null) r.photo_error = 'Nie udało się odczytać zdjęcia z magazynu.';
+    }
+    delete r.blob_path;
+  }
+  return rows;
+}
 
 // Eksport wszystkich danych zalogowanego użytkownika (RODO). ?photos=1 dołącza awatar, zdjęcia testów i dodane zdjęcia odmian.
 export const GET = safe(async (req) => {
@@ -14,7 +27,7 @@ export const GET = safe(async (req) => {
     profile,
     strainsCreated: await q`SELECT id, name, producer FROM strains WHERE created_by = ${me}`,
     strainPhotosAdded: withPhotos
-      ? await q`SELECT s.name AS strain, s.producer, p.updated_at, p.mime, p.data AS photo_base64 FROM strain_photos p JOIN strains s ON s.id = p.strain_id WHERE p.uploaded_by = ${me} ORDER BY s.name`
+      ? await inline(await q`SELECT s.name AS strain, s.producer, p.updated_at, p.mime, p.data AS photo_base64, p.blob_path FROM strain_photos p JOIN strains s ON s.id = p.strain_id WHERE p.uploaded_by = ${me} ORDER BY s.name`)
       : await q`SELECT s.name AS strain, s.producer, p.updated_at FROM strain_photos p JOIN strains s ON s.id = p.strain_id WHERE p.uploaded_by = ${me} ORDER BY s.name`,
     entries: await q`SELECT s.name AS strain, s.producer, us.rating::float8 AS rating, us.rated_at, us.current_amount::float8 AS current_g,
         us.notes, us.effects, us.visibility, us.price_per_g::float8 AS price_per_g FROM user_strain us JOIN strains s ON s.id = us.strain_id
@@ -24,7 +37,7 @@ export const GET = safe(async (req) => {
     usage: await q`SELECT s.name AS strain, l.grams::float8 AS grams, l.created_at FROM usage_log l JOIN strains s ON s.id = l.strain_id WHERE l.user_id = ${me} ORDER BY l.created_at`,
     purchases: await q`SELECT strain_name AS strain, grams::float8 AS grams, cost::float8 AS cost, created_at FROM purchases WHERE user_id = ${me} ORDER BY created_at`,
     tests: withPhotos
-      ? await q`SELECT s.name AS strain, t.note, t.visibility, t.created_at, t.mime, t.data AS photo_base64 FROM strain_tests t JOIN strains s ON s.id = t.strain_id WHERE t.user_id = ${me} ORDER BY t.created_at`
+      ? await inline(await q`SELECT s.name AS strain, t.note, t.visibility, t.created_at, t.mime, t.data AS photo_base64, t.blob_path FROM strain_tests t JOIN strains s ON s.id = t.strain_id WHERE t.user_id = ${me} ORDER BY t.created_at`)
       : await q`SELECT s.name AS strain, t.note, t.visibility, t.created_at, (t.data IS NOT NULL) AS has_photo FROM strain_tests t JOIN strains s ON s.id = t.strain_id WHERE t.user_id = ${me} ORDER BY t.created_at`,
     strainEdits: await q`SELECT s.name AS strain, e.at, e.changes FROM strain_edits e JOIN strains s ON s.id = e.strain_id WHERE e.user_id = ${me} ORDER BY e.at`,
     friends: await q`SELECT u.username, f.status FROM friendships f JOIN users u ON u.id = CASE WHEN f.requester = ${me} THEN f.addressee ELSE f.requester END WHERE f.requester = ${me} OR f.addressee = ${me}`,
