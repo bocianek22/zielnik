@@ -4,12 +4,13 @@ import { api } from '@/lib/api';
 import { newRequestId } from '@/lib/ids';
 
 const UNDO_MS = 8000; // tyle widać „Cofnij” (serwer pozwala cofnąć wpis przez 10 minut)
+const RETRY_MS = 120000; // requestId po błędzie służy do ponowienia tylko przez 2 minuty, potem to już nowy zapis
 
 // Zapis zużycia lub wykupu (kind: 'usage' | 'purchase') z requestId i komunikatem „Zapisano … · Cofnij” (POM-02).
 // requestId zostaje ten sam przy ponowieniu po błędzie z tą samą ilością (serwer nie zapisze drugi raz),
-// a nowy powstaje po udanym zapisie i przy zmianie ilości.
+// a nowy powstaje po udanym zapisie, przy zmianie ilości, po 2 minutach i przy otwarciu panelu (renew).
 export function useQuickSave(strainId) {
-  const rid = useRef({ key: '', id: '' });
+  const rid = useRef({ key: '', id: '', at: 0 });
   const [note, setNote] = useState(null); // { text, warn, undo: { kind, id } | null }
   const [undoing, setUndoing] = useState(false);
   const timer = useRef(null);
@@ -24,9 +25,9 @@ export function useQuickSave(strainId) {
 
   async function save(kind, grams) {
     const key = `${kind}:${grams}`;
-    if (rid.current.key !== key) rid.current = { key, id: newRequestId() };
+    if (rid.current.key !== key || Date.now() - rid.current.at > RETRY_MS) rid.current = { key, id: newRequestId(), at: Date.now() };
     const r = await api(`/api/strains/${strainId}/${kind}`, 'POST', { grams, requestId: rid.current.id });
-    rid.current = { key: '', id: '' };
+    rid.current = { key: '', id: '', at: 0 };
     return r;
   }
 
@@ -47,7 +48,7 @@ export function useQuickSave(strainId) {
     }
   }
 
-  return { save, show, undo, note, undoing, clear: () => { clearTimeout(timer.current); setNote(null); } };
+  return { save, show, undo, note, undoing, renew: () => { rid.current = { key: '', id: '', at: 0 }; }, clear: () => { clearTimeout(timer.current); setNote(null); } };
 }
 
 // Komunikat po zapisie z przyciskiem „Cofnij” (przycisk poza obszarem role="status", żeby czytnik nie czytał go w kółko)

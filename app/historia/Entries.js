@@ -46,7 +46,8 @@ export default function Entries({ kind, rows }) {
     if (f.day && f.day !== row.day) body.date = f.day;
     if (purchase && c != null) {
       const was = row.cost != null ? (f.costMode === 'price' ? Math.round((row.cost / row.grams) * 100) / 100 : row.cost) : null;
-      if (c !== was || body.grams !== undefined) body[f.costMode === 'price' ? 'pricePerG' : 'cost'] = c;
+      // sama zmiana gramów: serwer przelicza koszt proporcjonalnie (bez zaokrąglonej ceny za gram z pola)
+      if (c !== was) body[f.costMode === 'price' ? 'pricePerG' : 'cost'] = c;
     }
     if (!Object.keys(body).length) { close(); return; }
     setBusy(true); setErr('');

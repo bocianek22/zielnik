@@ -30,7 +30,7 @@ export default function QuickActions({ strainId, name, current, remaining, onSav
 
   function open(m) {
     if (mode === m) return close();
-    setMode(m); setVal(''); setErr(''); qs.clear();
+    setMode(m); setVal(''); setErr(''); qs.clear(); qs.renew(); // nowe otwarcie panelu = nowy zapis
   }
   function close() {
     const m = mode;
