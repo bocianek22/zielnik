@@ -54,9 +54,10 @@ Tryb awaryjny (rozmowa bez dostępu do repozytorium):
 
 ## 6. Następne kroki (aktualne dla wersji 0.31.0)
 Pełna lista z uzasadnieniem: `docs/PRZEGLAD-2026-10.md`; aplikacje natywne: `docs/APLIKACJE-NATYWNE.md`; system projektowy: `docs/DESIGN.md`. Praca z podziałem na subagentów (`.claude/agents/`): koordynator scala gałęzie, uruchamia kontrole, zleca przegląd (reviewer) i prowadzi CHANGELOG/wersję. Przebieg pracy nocnej: `docs/PLAN-NOC.md`.
-1. **Scalić PR 0.31.0** (nowy wygląd, bez zmian bazy). Przed scaleniem obejrzeć podgląd Vercel na telefonie i zainstalować APK z workflow „Aplikacja Android”.
+1. **Scalić PR 0.31.0** (nowy wygląd, FCM, zdjęcia w Blob za flagą; migracja addytywna `blob_path`). Przed scaleniem obejrzeć podgląd Vercel na telefonie i zainstalować APK z workflow „Aplikacja Android”.
 2. **Ręcznie na telefonie (0.31.0):** wpisanie „0,5” w zużyciu i „1,5” w THC zapisuje 0,5 i 1,5; karta na wąskim ekranie (320 px); wklejanie po przytrzymaniu pola tekstowego w APK; przytrzymanie linku nie otwiera menu; jedna wibracja na przełącznikach; zakładki admina po resecie hasła; tryb dyskretny w profilu publicznym, grupie, raporcie (wydruk z nazwami); link z rozmytą nazwą przy pierwszym dotknięciu tylko odsłania.
 3. **Właściciel - ustawienia w Vercel:**
+   - Zdjęcia w Blob (PLA-4): po scaleniu `PHOTOS_BLOB=1`, sprawdzić dodanie zdjęcia; potem migracja starych zdjęć (`scripts/photos-to-blob.js`, najpierw `--dry-run`, `--limit=5`, po kopii bazy). Rozważyć osobny magazyn Blob na zdjęcia (dziś ten sam co kopie).
    - `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT=mailto:...` (z `node scripts/vapid-keys.js`) - bez nich push jest wyłączony.
    - `BACKUP_ENCRYPTION_KEY` (`openssl rand -base64 32`, kopia klucza w menedżerze haseł) - zalecane, kopie zawierają dane zdrowotne. `BLOB_READ_WRITE_TOKEN` już ustawiony (magazyn `zielnik-kopie`, prywatny, fra1).
    - Osobna gałąź bazy Neon dla podglądów (PLA-3): dziś podglądy działają na produkcyjnej bazie.
