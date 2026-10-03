@@ -148,3 +148,6 @@
 .quick-msg.warn { color: var(--danger); }
 @keyframes quick-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 @media (max-width: 480px) { .quick-stock { margin-left: 0; width: 100%; } }
+
+/* telefon: pola w jednym rzędzie wyrównane do dołu, gdy etykieta zawija się do dwóch linii */
+@media (max-width: 760px) { .entry { align-items: end; } .entry-who { align-self: start; } }

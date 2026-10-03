@@ -34,14 +34,14 @@ export default function ChangePasswordForm({ forced }) {
       <h1>{forced ? 'Ustaw własne hasło' : 'Zmień hasło'}</h1>
       {forced && <p className="muted pw-lead">To Twoje pierwsze logowanie. Zanim przejdziesz dalej, zastąp hasło tymczasowe własnym.</p>}
       {error && <div className="alert error" role="alert">{error}</div>}
-      <h2 className="section-label">Obecne hasło</h2>
+      <h2 className="section-label">Potwierdź, że to Ty</h2>
       <div className="card">
       <div className="field">
         <label htmlFor="c">{forced ? 'Hasło tymczasowe' : 'Obecne hasło'}</label>
         <input id="c" className="input" type="password" aria-invalid={bad === 'c' || undefined} value={current} onChange={(e) => setCurrent(e.target.value)} autoComplete="current-password" required />
       </div>
       </div>
-      <h2 className="section-label">Nowe hasło</h2>
+      <h2 className="section-label">Wybierz nowe hasło</h2>
       <div className="card">
       <div className="field">
         <label htmlFor="n">Nowe hasło</label>
