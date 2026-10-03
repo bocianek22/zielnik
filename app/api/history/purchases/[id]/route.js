@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
 import { requireUser, bad, safe, intId } from '@/lib/guard';
-import { logAudit } from '@/lib/audit';
-import { parseCorrection, describe, MAX_COST } from '@/lib/corrections';
+import { parseCorrection, MAX_COST } from '@/lib/corrections';
 
 // Korekta własnego zakupu (Historia): gramy, koszt (cena za gram ALBO łączny koszt) i/lub dzień. Jedno zapytanie,
 // blokady w kolejności jak przy zapisie i „Cofnij”: pula, wpis, stan. Stan zmienia się o różnicę gramów (nie poniżej 0),
@@ -61,9 +60,6 @@ export const PATCH = safe(async (req, { params }) => {
     FROM c LEFT JOIN ul ON TRUE`;
   if (!row) return bad('Nie znaleziono wpisu.', 404);
   if (!row.ok) return bad('Koszt zakupu przekracza 10 000 000 zł. Sprawdź ilość i cenę.');
-  await logAudit(user.username, 'korekta zakupu', `purchase:${id}`, describe([
-    ['ilość', row.old_grams, row.grams, ' g'], ['koszt', row.old_cost, row.cost, ' zł'], ['data', row.old_day, row.day],
-  ]));
   // po wpisaniu ceny za gram: ile innych zakupów tej odmiany nie ma kosztu (Historia proponuje uzupełnienie)
   const missingCost = c.costMode === 'price' && row.strain_id
     ? (await sql()`SELECT count(*)::int AS n FROM purchases WHERE user_id = ${user.id}::int AND strain_id = ${row.strain_id}::int AND cost IS NULL`)[0].n
@@ -102,7 +98,5 @@ export const DELETE = safe(async (req, { params }) => {
            coalesce((SELECT remaining_to_buy FROM pl), (SELECT remaining_to_buy FROM p), 0)::float8 AS remaining
     FROM d`;
   if (!row) return bad('Nie znaleziono wpisu.', 404);
-  await logAudit(user.username, 'usunięcie zakupu', `purchase:${id}`,
-    `ilość ${row.grams} g; koszt ${row.cost ?? '–'} zł; data ${row.day}`);
   return NextResponse.json({ current: row.current, remaining: row.remaining });
 });

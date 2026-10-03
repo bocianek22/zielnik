@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
 import { requireUser, bad, safe, intId } from '@/lib/guard';
-import { logAudit } from '@/lib/audit';
-import { parseCorrection, describe } from '@/lib/corrections';
+import { parseCorrection } from '@/lib/corrections';
 
 // Korekta własnego wpisu zużycia (Historia): gramy i/lub dzień. Jedno zapytanie: blokada wpisu i stanu, zmiana stanu
 // o różnicę gramów (nie poniżej 0). stock_delta (ile faktycznie odjęto ze stanu) idzie za korektą, więc późniejsze
@@ -41,8 +40,6 @@ export const PATCH = safe(async (req, { params }) => {
            coalesce((SELECT current_amount FROM su), (SELECT current_amount FROM st0), 0)::float8 AS current
     FROM c, ul`;
   if (!row) return bad('Nie znaleziono wpisu.', 404);
-  await logAudit(user.username, 'korekta zużycia', `usage:${id}`,
-    describe([['ilość', row.old_grams, row.grams, ' g'], ['data', row.old_day, row.day]]));
   return NextResponse.json({ current: row.current, grams: row.grams, day: row.day });
 });
 
@@ -61,6 +58,5 @@ export const DELETE = safe(async (req, { params }) => {
     )
     SELECT d.grams::float8 AS grams, d.day, coalesce((SELECT current_amount FROM su), 0)::float8 AS current FROM d`;
   if (!row) return bad('Nie znaleziono wpisu.', 404);
-  await logAudit(user.username, 'usunięcie zużycia', `usage:${id}`, `ilość ${row.grams} g; data ${row.day}`);
   return NextResponse.json({ current: row.current });
 });

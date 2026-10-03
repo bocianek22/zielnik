@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
 import { requireUser, bad, safe, intId } from '@/lib/guard';
-import { logAudit } from '@/lib/audit';
 import { parseNumber } from '@/lib/strains';
 import { MAX_COST } from '@/lib/corrections';
 
@@ -18,6 +17,5 @@ export const POST = safe(async (req) => {
                            WHERE user_id = ${user.id}::int AND strain_id = ${strainId}::int AND cost IS NULL
                              AND grams * ${price}::numeric <= ${MAX_COST}::numeric
                            RETURNING id`;
-  if (rows.length) await logAudit(user.username, 'uzupełnienie kosztów zakupów', `strain:${strainId}`, `${rows.length} zakupów po ${price} zł/g`);
   return NextResponse.json({ filled: rows.length });
 });

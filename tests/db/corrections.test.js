@@ -210,7 +210,7 @@ test('zmiana daty nie zmienia stanu ani puli; data z przyszłości jest odrzucan
   assert.equal((await fixBuy(A, b.id, { date: 'wczoraj' })).status, 400);
 });
 
-test('cudzy wpis: 404 i bez zmian; zapis korekt w audit_log; eksport pokazuje poprawione wpisy', { skip }, async () => {
+test('cudzy wpis: 404 i bez zmian; korekty pacjentów nie trafiają do dziennika admina; eksport pokazuje poprawione wpisy', { skip }, async () => {
   const { ania: A, bartek: B } = ids;
   const s = await create(A, { name: 'Cudza korekta', producer: 'Aurora' });
   await setEntry(A, s, { current: 5 });
@@ -227,10 +227,9 @@ test('cudzy wpis: 404 i bez zmian; zapis korekt w audit_log; eksport pokazuje po
 
   await fixUse(A, u.id, { grams: 0.5 });
   await fixBuy(A, b.id, { grams: 2, cost: 90 });
-  const audit = await q`SELECT actor, action, target, details FROM audit_log WHERE target IN (${`usage:${u.id}`}, ${`purchase:${b.id}`}) ORDER BY id`;
-  assert.deepEqual(audit.map((a) => [a.actor, a.action, a.target]), [['ania', 'korekta zużycia', `usage:${u.id}`], ['ania', 'korekta zakupu', `purchase:${b.id}`]]);
-  assert.match(audit[0].details, /1 → 0[.,]5/);
-  assert.doesNotMatch(audit[1].details, /Cudza/, 'bez nazw odmian');
+  // dane zdrowotne: korekty pacjentów nie trafiają do audit_log (dziennik widoczny dla admina)
+  const audit = await q`SELECT 1 FROM audit_log WHERE target IN (${`usage:${u.id}`}, ${`purchase:${b.id}`})`;
+  assert.equal(audit.length, 0);
 
   const ex = await call(A, 'account/export', 'GET');
   assert.equal(ex.status, 200);
@@ -241,6 +240,4 @@ test('cudzy wpis: 404 i bez zmian; zapis korekt w audit_log; eksport pokazuje po
   await delUse(A, u.id);
   const ex2 = await call(A, 'account/export', 'GET');
   assert.equal(ex2.json.usage.filter((x) => x.strain === 'Cudza korekta').length, 0);
-  const del = await q`SELECT action FROM audit_log WHERE target = ${`usage:${u.id}`} ORDER BY id DESC LIMIT 1`;
-  assert.equal(del[0].action, 'usunięcie zużycia');
 });
