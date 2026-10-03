@@ -17,7 +17,7 @@ const avgOf = (s) => {
 };
 
 export default function StrainsBoard({ initialStrains, initialOptions, me, usage = { perDay: 0, cost: 0 }, bought = { grams: 0, cost: 0 },
-  series: initialSeries = [], prescriptions = [], recent: initialRecent = [] }) {
+  series: initialSeries = [], prescriptions = { items: [], total: 0, urgent: false }, recent: initialRecent = [] }) {
   const [boughtG, setBoughtG] = useState(bought.grams);
   const [series, setSeries] = useState(initialSeries);
   const [recent, setRecent] = useState(initialRecent);

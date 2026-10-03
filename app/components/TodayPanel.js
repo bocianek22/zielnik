@@ -64,13 +64,13 @@ function UsageChart({ series }) {
   );
 }
 
-function Prescriptions({ items }) {
+function Prescriptions({ items, total }) {
   const shown = items.slice(0, 3);
   return (
     <section className="card today-rx" aria-labelledby="today-rx-h">
       <div className="today-card-head">
         <h2 id="today-rx-h" className="today-h">Recepty</h2>
-        <Link className="btn text small" href="/recepty">{items.length > shown.length ? `Wszystkie (${items.length})` : 'Wszystkie'}<Icon name="chevronRight" size={18} /></Link>
+        <Link className="btn text small" href="/recepty">{total > shown.length ? `Wszystkie (${total})` : 'Wszystkie'}<Icon name="chevronRight" size={18} /></Link>
       </div>
       <ul className="trx-list">
         {shown.map((r) => {
@@ -117,8 +117,11 @@ export default function TodayPanel({ stock, dailyUse, boughtG, low, series, pres
     boughtG > 0 && `wykupiono ${n2(boughtG)} g w tym miesiącu`,
   ].filter(Boolean);
 
+  // pilne recepty (wygasa w ≤ 7 dni albo wygasła z resztą) nad zapasem, żeby były na pierwszym ekranie
+  const rx = prescriptions.items.length > 0 && <Prescriptions items={prescriptions.items} total={prescriptions.total} />;
   return (
     <div className="today">
+      {prescriptions.urgent && rx}
       <section className={`card today-card${warn ? ' warn' : ''}`} aria-labelledby="today-stock-h">
         <div className="today-stock">
           <div className="kpi">
@@ -163,7 +166,8 @@ export default function TodayPanel({ stock, dailyUse, boughtG, low, series, pres
         {settings}
       </section>
 
-      {prescriptions.length > 0 && <Prescriptions items={prescriptions} />}
+      {!prescriptions.urgent && rx}
+
     </div>
   );
 }
