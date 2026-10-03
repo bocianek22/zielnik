@@ -9,9 +9,9 @@ export default function DiscreetSettings() {
   function toggle(e) { setOn(e.target.checked); setDiscreet(e.target.checked); }
   return (
     <section className="card stack">
-      <h2>Tryb dyskretny</h2>
-      <p className="muted">Dla osób, które nie chcą, żeby ktoś zaglądający w telefon od razu widział, czego dotyczy aplikacja. Ustawienie działa tylko na tym urządzeniu.</p>
-      <label className="check"><input type="checkbox" checked={on} onChange={toggle} /> Włącz tryb dyskretny na tym urządzeniu</label>
+      <div className="switch-row"><h2 id="discreet-h">Tryb dyskretny</h2>
+        <input type="checkbox" className="switch" role="switch" checked={on} onChange={toggle} aria-labelledby="discreet-h" aria-describedby="discreet-d" /></div>
+      <p id="discreet-d" className="muted">Dla osób, które nie chcą, żeby ktoś zaglądający w telefon od razu widział, czego dotyczy aplikacja. Ustawienie działa tylko na tym urządzeniu.</p>
       <ul className="muted small">
         <li>Karta przeglądarki nazywa się „Notatnik”, a nie „Zielnik”.</li>
         <li>Nazwy odmian, producentów i terpenów są rozmyte. Dotknij nazwy, żeby pokazać ją na 5 sekund.</li>

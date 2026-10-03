@@ -139,10 +139,10 @@ export default function PushSettings() {
       </div>
       {prefs && (
         <fieldset className="push-prefs" aria-label="Rodzaje przypomnień" disabled={!sub && !prefs.devices}>
-          <label className="check"><input type="checkbox" checked={prefs.notifyPrescription} onChange={(e) => save({ notifyPrescription: e.target.checked })} />
-            Recepta traci ważność za 7 dni lub mniej, a zostało coś do wykupienia</label>
-          <label className="check"><input type="checkbox" checked={prefs.notifyStock} onChange={(e) => save({ notifyStock: e.target.checked })} />
-            Kończy się zapas (wg średniego zużycia z 30 dni)</label>
+          <label className="switch-row"><span>Recepta traci ważność za 7 dni lub mniej, a zostało coś do wykupienia</span>
+            <input type="checkbox" className="switch" role="switch" checked={prefs.notifyPrescription} onChange={(e) => save({ notifyPrescription: e.target.checked })} /></label>
+          <label className="switch-row"><span>Kończy się zapas (wg średniego zużycia z 30 dni)</span>
+            <input type="checkbox" className="switch" role="switch" checked={prefs.notifyStock} onChange={(e) => save({ notifyStock: e.target.checked })} /></label>
           <div className="push-row">
             <label htmlFor="push-days">Przypomnij, gdy zapasu zostanie na</label>
             <select id="push-days" className="input" value={prefs.stockDays} disabled={!prefs.notifyStock} onChange={(e) => save({ stockDays: Number(e.target.value) })}>
@@ -158,8 +158,8 @@ export default function PushSettings() {
             </select>
           </div>
           {!cfg.hourly && <p className="muted small">Na razie serwer wysyła przypomnienia raz dziennie, ok. 9:00 (zimą ok. 8:00).</p>}
-          <label className="check"><input type="checkbox" checked={prefs.showDetails} onChange={(e) => save({ showDetails: e.target.checked })} />
-            Pokazuj szczegóły w powiadomieniu</label>
+          <label className="switch-row"><span>Pokazuj szczegóły w powiadomieniu</span>
+            <input type="checkbox" className="switch" role="switch" checked={prefs.showDetails} onChange={(e) => save({ showDetails: e.target.checked })} /></label>
           <p className="muted small">Bez tej opcji powiadomienie brzmi tylko „Masz 2 przypomnienia”, bo jego treść może być widoczna na zablokowanym ekranie.
             Nazwy odmian nie trafiają do powiadomień nigdy.</p>
         </fieldset>

@@ -38,9 +38,9 @@ export default function NativeLock() {
       <h2 id="lock-h">Blokada aplikacji</h2>
       <p className="muted">Zielnik poprosi o odcisk palca, twarz albo kod telefonu przy otwarciu i po powrocie z tła (po ponad 30 sekundach).</p>
       {!state.available && !state.secure && <p className="alert note">Telefon nie ma ustawionej blokady ekranu, więc tej funkcji nie da się włączyć.</p>}
-      <label className="check native-check">
-        <input type="checkbox" checked={state.on} disabled={busy || (!state.on && !state.available && !state.secure)} onChange={toggle} />
-        Blokuj Zielnik biometrią lub kodem telefonu
+      <label className="switch-row native-check">
+        <span>Blokuj Zielnik biometrią lub kodem telefonu</span>
+        <input type="checkbox" className="switch" role="switch" checked={state.on} disabled={busy || (!state.on && !state.available && !state.secure)} onChange={toggle} />
       </label>
       <span role="status" className="muted">{msg}</span>
     </section>

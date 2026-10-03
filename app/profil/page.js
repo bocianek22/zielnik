@@ -7,6 +7,7 @@ import PushSettings from './PushSettings';
 import DiscreetSettings from './DiscreetSettings';
 import NativeLock from './NativeLock';
 import NativeVersion from './NativeVersion';
+import { ThemeChoice } from '../components/ThemeToggle';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,13 +19,19 @@ export default async function Profil() {
   return (
     <>
       <Header user={user} />
-      <main className="page">
+      <main className="page settings">
         <h1>Mój profil</h1>
         <div className="stack">
-          <NativeLock />
-          <PushSettings />
-          <DiscreetSettings />
-          <ProfileForm me={{ id: user.id, username: user.username, isAdmin: user.is_admin }} initial={p} />
+          <ProfileForm me={{ id: user.id, username: user.username, isAdmin: user.is_admin }} initial={p}>
+            <h2 className="section-label">Aplikacja na tym urządzeniu</h2>
+            <NativeLock />
+            <PushSettings />
+            <DiscreetSettings />
+            <section className="card" aria-labelledby="theme-h">
+              <h2 id="theme-h">Wygląd</h2>
+              <ThemeChoice />
+            </section>
+          </ProfileForm>
           <NativeVersion />
         </div>
       </main>

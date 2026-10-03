@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { fileToDataUrl } from '@/lib/image';
 import { VIS } from '@/lib/visibility';
+import Icon from '../components/Icon';
 
-export default function ProfileForm({ me, initial }) {
+export default function ProfileForm({ me, initial, children }) {
   const router = useRouter();
   const [f, setF] = useState({
     displayName: initial.display_name || '', bio: initial.bio || '', links: [...(initial.links || []), '', '', ''].slice(0, 3),
@@ -54,8 +55,9 @@ export default function ProfileForm({ me, initial }) {
   return (
     <div className="stack">
       <form className="card stack" onSubmit={save}>
-        <div className="photo-edit">
+        <div className="photo-edit profile-id">
           {shown ? <img className="avatar" src={shown} alt="Awatar" /> : <div className="avatar ph">{me.username[0].toUpperCase()}</div>}
+          <div className="profile-who"><b>{f.displayName || me.username}</b><span className="muted">@{me.username}</span></div>
           <div className="photo-actions">
             <label className="btn ghost small file-btn">Zmień awatar<input type="file" accept="image/*" hidden onChange={pick} /></label>
             {shown && <button type="button" className="btn ghost small" onClick={() => setAvatar(null)}>Usuń awatar</button>}
@@ -75,18 +77,21 @@ export default function ProfileForm({ me, initial }) {
         <div className="row">
           <button className="btn" disabled={busy}>Zapisz profil</button>
           <Link className="btn ghost" href={`/u/${encodeURIComponent(me.username)}`}>Zobacz mój profil</Link>
-          <button type="button" className="btn ghost only-mobile" onClick={shareProfile}>Udostępnij profil</button>
+          <button type="button" className="btn ghost only-mobile" onClick={shareProfile}><Icon name="share" size={18} />Udostępnij</button>
           <span role="status" className="muted">{msg}</span>
         </div>
       </form>
 
+      {children}
+
+      <h2 className="section-label">Dane i konto</h2>
       <section className="card">
         <h2>Moje dane</h2>
         <p className="muted">Pobierz kopię wszystkich swoich danych: profil, oceny, opinie, zużycie, zakupy, testy, znajomych i grupy.</p>
-        <div className="row">
-          <a className="btn ghost" href="/api/account/export">Pobierz dane (JSON)</a>
-          <a className="btn ghost" href="/api/account/export?photos=1">Pobierz ze zdjęciami</a>
-          <a className="btn ghost" href="/api/export">Moje odmiany (CSV)</a>
+        <div className="list inset">
+          <a className="list-row" href="/api/account/export"><Icon name="download" /><span className="lr-main">Pobierz dane (JSON)</span></a>
+          <a className="list-row" href="/api/account/export?photos=1"><Icon name="download" /><span className="lr-main">Pobierz ze zdjęciami</span></a>
+          <a className="list-row" href="/api/export"><Icon name="download" /><span className="lr-main">Moje odmiany (CSV)</span></a>
         </div>
       </section>
 
@@ -96,7 +101,7 @@ export default function ProfileForm({ me, initial }) {
         <div className="row"><button type="button" className="btn ghost" onClick={logoutAll}>Wyloguj ze wszystkich urządzeń</button></div>
       </section>
 
-      <section className="card">
+      <section className="card danger-zone">
         <h2>Usuń konto</h2>
         {me.isAdmin ? <p className="muted">Konta admina nie można usunąć samodzielnie.</p> : (
           <>
