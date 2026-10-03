@@ -33,7 +33,7 @@ a.who-name:hover { color: var(--on-bar); }
   .topbar-in { padding: 0 var(--s-2) 0 var(--s-4); min-height: 52px; }
   .topbar .nav, .who-name, .who .btn { display: none; }
   .who-mobile { display: inline-grid; }
-  body { padding-bottom: calc(var(--bottomnav-h) + 12px + env(safe-area-inset-bottom)); }
+  body { padding-bottom: calc(var(--bottomnav-h) + 88px + env(safe-area-inset-bottom)); }
 
   .bottomnav { display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
     background: var(--surface); color: var(--text-2); border-top: 1px solid var(--sep); padding: 0 4px env(safe-area-inset-bottom); }

@@ -24,7 +24,7 @@ html[data-discreet] .dn, html[data-discreet] .dn-img { transition: filter .2s; }
 html.native-app .topbar { padding-top: max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px)); }
 html.native-app body { padding-bottom: max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px)); }
 @media (max-width: 760px) {
-  html.native-app body { padding-bottom: calc(var(--bottomnav-h) + 12px + max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px))); }
+  html.native-app body { padding-bottom: calc(var(--bottomnav-h) + 88px + max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px))); }
   html.native-app .bottomnav { padding-bottom: max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px)); }
   html.native-app .sheet { bottom: calc(var(--bottomnav-h) + max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px))); }
   html.native-app .fab { bottom: calc(var(--bottomnav-h) + 16px + max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px))); }

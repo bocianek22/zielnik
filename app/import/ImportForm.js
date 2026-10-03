@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { api } from '@/lib/api';
+import Icon from '@/app/components/Icon';
 
 const MAP = {
   'odmiana': 'name', 'producent': 'producer', 'rodzaj': 'kind', 'typ': 'type', 'thc %': 'thc', 'thc': 'thc',
@@ -53,14 +54,20 @@ export default function ImportForm() {
   }
 
   return (
-    <div className="card stack">
-      <p>Wybierz plik CSV z kolumnami takimi jak w <a href="/api/export">eksporcie</a> (wystarczy „Odmiana”, „Producent” i „Typ”; reszta jest opcjonalna). Odmiany, które już masz (ta sama nazwa i producent), zostaną pominięte. Twoje oceny, stany i „Do wykupienia” zapiszą się na Twoim koncie.</p>
-      <label className="btn ghost file-btn">Wybierz plik CSV<input type="file" accept=".csv,text/csv" hidden onChange={pick} /></label>
+    <div className="import-form">
+      <h2 className="section-label">Plik</h2>
+      <div className="card stack">
+      <p className="import-help">Wybierz plik CSV z kolumnami takimi jak w <a href="/api/export">eksporcie</a> (wystarczy „Odmiana”, „Producent” i „Typ”; reszta jest opcjonalna). Odmiany, które już masz (ta sama nazwa i producent), zostaną pominięte. Twoje oceny, stany i „Do wykupienia” zapiszą się na Twoim koncie.</p>
+      <label className="btn ghost block file-btn"><Icon name="download" size={20} className="flip" />Wybierz plik CSV<input type="file" accept=".csv,text/csv" hidden onChange={pick} /></label>
+      </div>
       {rows && (
-        <div className="row">
-          <span>Wczytano wierszy: <b>{rows.length}</b></span>
-          <button className="btn" disabled={busy} onClick={run}>{busy ? 'Importuję…' : 'Importuj'}</button>
-        </div>
+        <>
+          <h2 className="section-label">Podgląd</h2>
+          <div className="card import-run">
+            <span>Wczytano wierszy: <b>{rows.length}</b></span>
+            <button className="btn" disabled={busy} onClick={run}>{busy ? 'Importuję…' : 'Importuj'}</button>
+          </div>
+        </>
       )}
       {error && <div className="alert error" role="alert">{error}</div>}
       {result && (
