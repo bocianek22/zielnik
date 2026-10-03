@@ -8,6 +8,7 @@ import './styles/profile.css';
 import './styles/auth.css';
 import './styles/screens.css';
 import './styles/catalog.css';
+import './styles/rankings.css';
 import './styles/history.css';
 import './styles/diary.css';
 import './styles/platform.css';

@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { KINDS } from '@/lib/kinds';
 import { FORMS } from '@/lib/forms';
 import { TAG_LIST } from '@/lib/effects';
+import Icon from '../components/Icon';
 
 function startOf(period) {
   const d = new Date();
@@ -31,14 +32,27 @@ function rank(strains, scope, meId, period, metric) {
 }
 
 const PERIODS = [
-  ['week', 'Tydzień', 'od poniedziałku'],
-  ['month', 'Miesiąc', 'od 1. dnia miesiąca'],
-  ['all', 'Ogółem', 'wszystkie oceny'],
+  ['week', 'Tydzień', 'Oceny od poniedziałku.'],
+  ['month', 'Miesiąc', 'Oceny od 1. dnia miesiąca.'],
+  ['all', 'Ogółem', 'Wszystkie oceny.'],
 ];
+
+const dec = (n) => Number(n).toLocaleString('pl-PL', { maximumFractionDigits: 1 });
+const cap = (t) => (t ? t[0].toUpperCase() + t.slice(1) : '');
+
+function Seg({ items, value, set, label }) {
+  return (
+    <div className="seg" role="group" aria-label={label}>
+      {items.map(([k, l]) => <button key={k || 'all'} type="button" aria-pressed={value === k} className={value === k ? 'on' : ''} onClick={() => set(k)}>{l}</button>)}
+    </div>
+  );
+}
 
 export default function Rankings({ strains, meId }) {
   const [scope, setScope] = useState('all');
   const [metric, setMetric] = useState('sum');
+  const [period, setPeriod] = useState('all');
+  const [open, setOpen] = useState(false);
   const [kind, setKind] = useState('');
   const [form, setForm] = useState('');
   const [tag, setTag] = useState('');
@@ -57,59 +71,74 @@ export default function Rankings({ strains, meId }) {
     return true;
   }), [strains, kind, form, tag, producer, minThc, maxThc]);
 
-  const Seg = ({ items, value, set, label }) => (
-    <div className="seg" role="tablist" aria-label={label}>
-      {items.map(([k, l]) => <button key={k || 'all'} role="tab" aria-selected={value === k} className={value === k ? 'on' : ''} onClick={() => set(k)}>{l}</button>)}
-    </div>
-  );
+  const active = [kind, form, tag, producer, minThc, maxThc].filter((v) => v !== '').length;
+  const clear = () => { setKind(''); setForm(''); setTag(''); setProducer(''); setMinThc(''); setMaxThc(''); };
+  const [, title, hint] = PERIODS.find(([k]) => k === period);
+  const rows = useMemo(() => rank(filtered, scope, meId, period, metric), [filtered, scope, meId, period, metric]);
 
   return (
-    <div className="stack">
-      <div className="toolbar">
+    <div className="rk">
+      <div className="rk-tools">
         <Seg items={[['all', 'Wspólne'], ['mine', 'Moje']]} value={scope} set={setScope} label="Zakres rankingu" />
         <Seg items={[['sum', 'Suma ocen'], ['avg', 'Średnia ocen']]} value={metric} set={setMetric} label="Sposób liczenia" />
+        <button type="button" className={`btn ghost filter-btn${active ? ' active' : ''}`} onClick={() => setOpen((v) => !v)} aria-expanded={open} aria-controls="rk-filters"
+          aria-label={`Filtry${active ? ` (aktywne: ${active})` : ''}`}>
+          <Icon name="filter" size={20} />{active ? <span className="count">{active}</span> : null}
+        </button>
       </div>
-      <div className="card stack">
-        <h2>Filtry</h2>
-        <div className="toolbar">
-          <Seg items={[['', 'Wszystkie rodzaje'], ...KINDS.map((k) => [k.value, k.label])]} value={kind} set={setKind} label="Rodzaj" />
-          <Seg items={[['', 'Każda postać'], ...FORMS]} value={form} set={setForm} label="Postać" />
+
+      {open && (
+        <div id="rk-filters" className="rk-filters">
+          <div className="rk-grid">
+            <div className="field"><label htmlFor="rk-kind">Rodzaj</label>
+              <select id="rk-kind" className="input" value={kind} onChange={(e) => setKind(e.target.value)}>
+                <option value="">Wszystkie</option>{KINDS.map((k) => <option key={k.value} value={k.value}>{k.label}</option>)}</select></div>
+            <div className="field"><label htmlFor="rk-form">Postać</label>
+              <select id="rk-form" className="input" value={form} onChange={(e) => setForm(e.target.value)}>
+                <option value="">Każda</option>{FORMS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
+            <div className="field"><label htmlFor="rk-tag">Efekt (tag)</label>
+              <select id="rk-tag" className="input" value={tag} onChange={(e) => setTag(e.target.value)}>
+                <option value="">Dowolny</option>{TAG_LIST.map((t) => <option key={t} value={t}>{t}</option>)}</select></div>
+            <div className="field"><label htmlFor="rk-prod">Producent</label>
+              <select id="rk-prod" className="input" value={producer} onChange={(e) => setProducer(e.target.value)}>
+                <option value="">Wszyscy</option>{producers.map((p) => <option key={p} value={p}>{p}</option>)}</select></div>
+            <div className="field"><label htmlFor="rk-min">THC od (%)</label>
+              <input id="rk-min" className="input" type="number" min="0" max="100" step="0.5" inputMode="decimal" value={minThc} onChange={(e) => setMinThc(e.target.value)} /></div>
+            <div className="field"><label htmlFor="rk-max">THC do (%)</label>
+              <input id="rk-max" className="input" type="number" min="0" max="100" step="0.5" inputMode="decimal" value={maxThc} onChange={(e) => setMaxThc(e.target.value)} /></div>
+          </div>
+          {active > 0 && <button type="button" className="btn text" onClick={clear}>Wyczyść filtry</button>}
         </div>
-        <div className="row">
-          <div className="field"><label htmlFor="rk-tag">Efekt (tag)</label>
-            <select id="rk-tag" className="input" value={tag} onChange={(e) => setTag(e.target.value)}>
-              <option value="">Dowolny</option>{TAG_LIST.map((t) => <option key={t} value={t}>{t}</option>)}</select></div>
-          <div className="field"><label htmlFor="rk-prod">Producent</label>
-            <select id="rk-prod" className="input" value={producer} onChange={(e) => setProducer(e.target.value)}>
-              <option value="">Wszyscy</option>{producers.map((p) => <option key={p} value={p}>{p}</option>)}</select></div>
-          <div className="field"><label htmlFor="rk-min">THC od (%)</label>
-            <input id="rk-min" className="input" type="number" min="0" max="100" step="0.5" inputMode="decimal" value={minThc} onChange={(e) => setMinThc(e.target.value)} /></div>
-          <div className="field"><label htmlFor="rk-max">THC do (%)</label>
-            <input id="rk-max" className="input" type="number" min="0" max="100" step="0.5" inputMode="decimal" value={maxThc} onChange={(e) => setMaxThc(e.target.value)} /></div>
+      )}
+
+      <Seg items={PERIODS.map(([k, l]) => [k, l])} value={period} set={setPeriod} label="Okres" />
+      <p className="rk-hint" aria-live="polite">{hint} {rows.length > 0 && <span className="num">Pozycji: {rows.length}.</span>}</p>
+
+      {rows.length === 0 ? (
+        <div className="card empty">
+          <Icon name="chart" size={32} />
+          <h2>Brak ocen</h2>
+          <p>{active ? 'W okresie „' + title.toLowerCase() + '” nic nie pasuje do filtrów.' : 'W okresie „' + title.toLowerCase() + '” nie ma jeszcze ocen.'}</p>
+          {active > 0 && <button type="button" className="btn ghost" onClick={clear}>Wyczyść filtry</button>}
         </div>
-      </div>
-      <div className="rank-grid">
-        {PERIODS.map(([key, title, hint]) => {
-          const rows = rank(filtered, scope, meId, key, metric);
-          return (
-            <section key={key} className="card rank">
-              <h2>{title}</h2>
-              <p className="muted rank-hint">{hint}</p>
-              {rows.length === 0 ? <p className="muted">Brak ocen w tym okresie dla wybranych filtrów.</p> : (
-                <ol className="rank-list">
-                  {rows.map((r) => (
-                    <li key={r.s.id} className={r.pos <= 3 ? `top top-${r.pos}` : ''}>
-                      <span className="pos">{r.pos}</span>
-                      <span className="who"><Link href={`/strains/${r.s.id}`} className="dn"><b>{r.s.name}</b></Link><small><span className="dn">{r.s.producer}</span>, {r.s.kind || r.s.type}{r.s.thc != null ? `, THC ${r.s.thc}%` : ''}</small></span>
-                      <span className="pts">{metric === 'avg' ? r.avg.toFixed(1) : Number(r.sum.toFixed(1))}<small>{scope === 'all' ? `${r.n} ocen` : metric === 'avg' ? 'śr.' : 'pkt'}</small></span>
-                    </li>
-                  ))}
-                </ol>
-              )}
-            </section>
-          );
-        })}
-      </div>
+      ) : (
+        <ol className="list rk-list">
+          {rows.map((r) => (
+            <li key={r.s.id}>
+              <Link href={`/strains/${r.s.id}`} className={`list-row rk-row${r.pos <= 3 ? ' top' : ''}`}>
+                <span className="rk-pos" aria-label={`Miejsce ${r.pos}`}>{r.pos}</span>
+                <span className="lr-main">
+                  <b className="rk-name dn">{r.s.name}</b>
+                  <span className="lr-sub"><span className="dn">{r.s.producer}</span>
+                    {(r.s.kind || r.s.type) && <> · {r.s.kind ? <span className={`kind kind-${r.s.kind}`}><i className="kind-dot" aria-hidden="true" />{cap(r.s.kind)}</span> : cap(r.s.type)}</>}
+                    {r.s.thc != null && <span className="num"> · THC {dec(r.s.thc)}%</span>}</span>
+                </span>
+                <span className="rk-pts"><b>{metric === 'avg' ? dec(r.avg) : dec(r.sum)}</b><small>{metric === 'avg' ? 'średnia' : 'punktów'}, {r.n} {r.n === 1 ? 'ocena' : r.n % 10 >= 2 && r.n % 10 <= 4 && (r.n % 100 < 12 || r.n % 100 > 14) ? 'oceny' : 'ocen'}</small></span>
+              </Link>
+            </li>
+          ))}
+        </ol>
+      )}
     </div>
   );
 }
