@@ -78,7 +78,7 @@ export default function Prescriptions() {
 
       <details className="card rx-add" open={showForm} onToggle={(e) => { if (list?.length) setOpen(e.currentTarget.open); }}>
         <summary><Icon name="plus" size={20} />Nowa recepta</summary>
-        <form className="stack" onSubmit={add}>
+        <form className="stack" onSubmit={add} noValidate>
           <div className="row">
             <div className="field grow"><label htmlFor="rx-from">Data wystawienia</label><input id="rx-from" className="input" type="date" required value={f.issuedOn} onChange={set('issuedOn')} /></div>
             <div className="field grow"><label htmlFor="rx-to">Ważna do (opcjonalnie)</label><input id="rx-to" className="input" type="date" value={f.validUntil} onChange={set('validUntil')} /></div>

@@ -58,7 +58,7 @@ export default function PullRefresh() {
       show(pull, false);
     };
     // przerwanie gestu przez system (touchcancel): bez odświeżania, tylko powrót wskaźnika
-    const onCancel = () => { tracking = false; pull = 0; show(0, true); };
+    const onCancel = () => { if (!tracking) return; tracking = false; pull = 0; show(0, true); };
     const onEnd = async () => {
       if (!tracking) return;
       tracking = false;

@@ -55,7 +55,7 @@ export default function Wheel({ items: all }) {
   const [kind, setKind] = useState('');
   const [minThc, setMinThc] = useState('');
   const items = useMemo(
-    () => all.filter((i) => (!kind || i.kind === kind) && (minThc === '' || (i.thc != null && i.thc >= (parseNum(minThc) || 0)))),
+    () => all.filter((i) => (!kind || i.kind === kind) && (!(parseNum(minThc) >= 0) || (i.thc != null && i.thc >= parseNum(minThc)))),
     [all, kind, minThc],
   );
 

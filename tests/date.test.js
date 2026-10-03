@@ -11,6 +11,8 @@ test('formatDay: sama data i północ UTC dają ten sam dzień', () => {
 
 test('formatDay: znacznik czasu w ciągu dnia', () => {
   assert.equal(formatDay('2026-10-03T12:30:00Z'), '3 października 2026');
+  assert.equal(formatDay('2026-10-03 23:30'), '3 października 2026', 'czas polski z bazy bez strefy');
+  assert.equal(formatDay('2026-10-03T22:30:00Z'), '4 października 2026', '00:30 w Polsce to już następny dzień');
 });
 
 test('formatDay: brak lub błędna wartość to kreska', () => {

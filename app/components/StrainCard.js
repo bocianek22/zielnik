@@ -31,7 +31,9 @@ export function OwnEntry({ strainId, entry, onSaved, mates, hidePrice = false })
   const extRem = entry.remaining ?? 0;
   useEffect(() => {
     setF((p) => (parseNum(p.current) === Number(extCur) && parseNum(p.remaining) === Number(extRem) ? p : { ...p, current: extCur, remaining: extRem }));
-    last.current = JSON.stringify({ ...JSON.parse(last.current), current: extCur, remaining: extRem });
+    // własny zapis „1,” wraca jako 1: tekst w polu zostaje, więc nie nadpisujemy go, żeby kolejne wyjście z pola nie zapisywało ponownie
+    const prev = JSON.parse(last.current);
+    if (parseNum(prev.current) !== Number(extCur) || parseNum(prev.remaining) !== Number(extRem)) last.current = JSON.stringify({ ...prev, current: extCur, remaining: extRem });
   }, [extCur, extRem]);
   const id = `e${strainId}`;
   const [buyG, setBuyG] = useState('');

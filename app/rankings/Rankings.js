@@ -67,7 +67,8 @@ export default function Rankings({ strains, meId }) {
     if (form && s.form !== form) return false;
     if (tag && !s.tags.includes(tag)) return false;
     if (producer && s.producer !== producer) return false;
-    if (minThc !== '' && !(s.thc != null && s.thc >= (parseNum(minThc) || 0))) return false;
+    const mn = parseNum(minThc);
+    if (mn != null && !Number.isNaN(mn) && !(s.thc != null && s.thc >= mn)) return false;
     const mx = parseNum(maxThc);
     if (mx != null && !Number.isNaN(mx) && !(s.thc != null && s.thc <= mx)) return false;
     return true;
