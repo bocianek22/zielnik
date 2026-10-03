@@ -74,6 +74,7 @@ export default function NativeShell() {
     offs.push(() => document.removeEventListener('click', onClick, true));
 
     // Płynne przejście przy wejściu na inną stronę aplikacji (nawigację wykonuje Next, my tylko animujemy)
+    // sprawdzenie defaultPrevented w isPageLink: inne obsługi w fazie capture (np. odsłanianie w trybie dyskretnym) mogą anulować kliknięcie
     const onNav = (e) => { if (isPageLink(e)) transition(); };
     document.addEventListener('click', onNav, true);
     offs.push(() => document.removeEventListener('click', onNav, true));

@@ -57,6 +57,8 @@ export default function PullRefresh() {
       pull = next;
       show(pull, false);
     };
+    // przerwanie gestu przez system (touchcancel): bez odświeżania, tylko powrót wskaźnika
+    const onCancel = () => { tracking = false; pull = 0; show(0, true); };
     const onEnd = async () => {
       if (!tracking) return;
       tracking = false;
@@ -77,12 +79,12 @@ export default function PullRefresh() {
     document.addEventListener('touchstart', onStart, { passive: true });
     document.addEventListener('touchmove', onMove, { passive: true });
     document.addEventListener('touchend', onEnd, { passive: true });
-    document.addEventListener('touchcancel', onEnd, { passive: true });
+    document.addEventListener('touchcancel', onCancel, { passive: true });
     return () => {
       document.removeEventListener('touchstart', onStart);
       document.removeEventListener('touchmove', onMove);
       document.removeEventListener('touchend', onEnd);
-      document.removeEventListener('touchcancel', onEnd);
+      document.removeEventListener('touchcancel', onCancel);
     };
   }, [router, start]);
 

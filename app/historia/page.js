@@ -4,11 +4,12 @@ import { getUser } from '@/lib/auth';
 import { history, monthlyRecap, purchaseStats } from '@/lib/strains';
 import Header from '../components/Header';
 import Icon from '../components/Icon';
+import { formatDay } from '@/lib/date';
 
 export const dynamic = 'force-dynamic';
 
 const nf = (n, max = 1) => Number(n).toLocaleString('pl-PL', { maximumFractionDigits: max });
-const day = (at) => new Date(`${String(at).slice(0, 10)}T12:00:00`).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
+const day = formatDay;
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
 function Empty({ icon, title, text }) {

@@ -17,10 +17,6 @@ public class MainActivity extends BridgeActivity {
         webView.setVerticalScrollBarEnabled(false);
         webView.setHorizontalScrollBarEnabled(false);
         webView.setOverScrollMode(View.OVER_SCROLL_NEVER);
-        // długie przytrzymanie na linku/obrazie nie otwiera przeglądarkowego menu kontekstowego
-        webView.setOnLongClickListener(v -> true);
-        webView.setLongClickable(false);
-        webView.setHapticFeedbackEnabled(false);
     }
 
     // Ciasteczko sesji zapisujemy na dysk przy każdym zejściu do tła: system może ubić aplikację bez ostrzeżenia,

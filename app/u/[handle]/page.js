@@ -9,11 +9,12 @@ import Lightbox from '../../components/Lightbox';
 import ProfileActions from './ProfileActions';
 import ReportButton from '../../components/ReportButton';
 import Icon from '../../components/Icon';
+import { formatDay } from '@/lib/date';
 
 export const dynamic = 'force-dynamic';
 
 const dec = (n) => Number(n).toLocaleString('pl-PL');
-const day = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
+const day = formatDay;
 
 export default async function ProfilePage({ params }) {
   const me = await getUser();
@@ -77,8 +78,8 @@ export default async function ProfilePage({ params }) {
                 <li key={p.id}>
                   <Link href={`/strains/${p.id}`} className="list-row opinion-row">
                     <span className="lr-main">
-                      <span className="person-name">{p.name}</span>
-                      <span className="lr-sub">{p.producer}{isMe ? ` · ${visLabel(p.visibility)}` : ''}</span>
+                      <span className="person-name dn">{p.name}</span>
+                      <span className="lr-sub"><span className="dn">{p.producer}</span>{isMe ? ` · ${visLabel(p.visibility)}` : ''}</span>
                       {p.notes && <span className="opinion-note">{p.notes}</span>}
                     </span>
                     {p.rating != null && <span className="lr-value rating-val"><b>{dec(p.rating)}</b>/10</span>}
@@ -90,9 +91,9 @@ export default async function ProfilePage({ params }) {
             {tests.length === 0 ? <p className="muted social-note">Brak widocznych testów.</p> : (
               <ul className="list">{tests.map((t) => (
                 <li key={t.id} className="list-row wall-test">
-                  {t.has_photo && <Lightbox className="test-photo" src={`/api/tests/${t.id}/photo?v=${t.pv}`} alt="Zdjęcie z testu" />}
+                  {t.has_photo && <Lightbox className="test-photo dn-img" src={`/api/tests/${t.id}/photo?v=${t.pv}`} alt="Zdjęcie z testu" />}
                   <div className="lr-main">
-                    <Link href={`/strains/${t.strain_id}`} className="person-name">{t.name}</Link>
+                    <Link href={`/strains/${t.strain_id}`} className="person-name dn">{t.name}</Link>
                     <span className="lr-sub">{day(t.at)}{isMe ? ` · ${visLabel(t.visibility)}` : ''}</span>
                     {t.note && <span className="opinion-note">{t.note}</span>}
                     {!isMe && <ReportButton type="test" userId={o.id} refId={t.id} />}

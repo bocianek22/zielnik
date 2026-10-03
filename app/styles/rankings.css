@@ -1,5 +1,4 @@
-/* Rankingi (app/rankings) i koło fortuny (app/wheel).
-   Stare reguły .rank-list (pozycja, nazwa, punkty) zostają dla rankingu grupy (app/grupy/[id]). */
+/* Rankingi (app/rankings) i koło fortuny (app/wheel). */
 
 /* ===== Rankingi ===== */
 .rk-tools { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); margin-bottom: var(--s-3); }
@@ -22,16 +21,6 @@
 .rk-pts small { font-size: var(--fs-xs); color: var(--text-2); white-space: nowrap; }
 @media (min-width: 761px) { .rk { max-width: 720px; } .rk > .seg { width: fit-content; } .rk > .seg button { flex: none; } .rk-grid { grid-template-columns: repeat(3, 1fr); } }
 
-/* ranking grupy (app/grupy/[id]) */
-.rank-list { list-style: none; margin: 0; padding: 0; display: grid; }
-.rank-list li { display: grid; grid-template-columns: 34px 1fr auto; gap: 10px; align-items: center; padding: 10px 0; border-top: 1px solid var(--sep); }
-.rank-list li:first-child { border-top: 0; }
-.rank-list .pos { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--surface-2); color: var(--text-2); font-weight: 700; font-size: var(--fs-sm); font-variant-numeric: tabular-nums; }
-.rank-list .top-1 .pos, .rank-list .top-2 .pos, .rank-list .top-3 .pos { background: var(--accent-soft); color: var(--on-accent-soft); }
-.rank-list .who { display: grid; min-width: 0; }
-.rank-list .who b, .rank-list .who small { overflow-wrap: anywhere; }
-.rank-list small { color: var(--text-2); font-size: var(--fs-xs); }
-.rank-list .pts { display: grid; text-align: right; font-weight: 700; font-size: 1.1rem; font-variant-numeric: tabular-nums; }
 
 /* ===== Koło fortuny ===== */
 .wh-tools { display: grid; gap: var(--s-3); margin-bottom: var(--s-5); }

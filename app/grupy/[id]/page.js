@@ -68,7 +68,7 @@ export default async function GroupPage({ params }) {
             <li key={r.id}>
               <Link href={`/strains/${r.id}`} className="list-row">
                 <span className="rank-pos">{i + 1}</span>
-                <span className="lr-main"><span className="person-name">{r.name}</span><span className="lr-sub">{r.producer}</span></span>
+                <span className="lr-main"><span className="person-name dn">{r.name}</span><span className="lr-sub dn">{r.producer}</span></span>
                 <span className="lr-value rank-sum"><b>{dec(r.sum)}</b><small>{ocen(r.n)}, śr. {dec(r.sum / r.n)}</small></span>
               </Link>
             </li>))}</ol>)}

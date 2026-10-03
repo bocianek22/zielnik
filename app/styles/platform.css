@@ -7,6 +7,8 @@
   .page { max-width: none; padding: 0; }
   .card { border: none !important; box-shadow: none !important; padding: 0 !important; background: #fff !important; }
   .cmp th, .cmp td { padding: 4px 8px; }
+  /* wydruk raportu dla lekarza pokazuje nazwy mimo trybu dyskretnego */
+  html[data-discreet] .dn, html[data-discreet] .dn-img { filter: none !important; }
 }
 
 /* ===== Tryb dyskretny (ustawienie per urządzenie): nazwy odmian, producentów i terpenów rozmyte, dotknięcie odsłania na 5 s ===== */
@@ -42,6 +44,8 @@ html.native-app body { padding-bottom: max(env(safe-area-inset-bottom, 0px), var
 html.native-app { scrollbar-width: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation;
   overscroll-behavior: none; -webkit-text-size-adjust: 100%; }
 html.native-app body { overscroll-behavior: none; }
+/* bez systemowego menu po przytrzymaniu linku i obrazu (wklejanie w polach działa, bo to nie dotyczy pól tekstowych) */
+html.native-app :is(a, img) { -webkit-touch-callout: none; }
 html.native-app ::-webkit-scrollbar { display: none; width: 0; height: 0; }
 html.native-app * { scrollbar-width: none; }
 /* elementy interfejsu nie zaznaczają się przy przytrzymaniu; treści (notatki, opisy) i pola formularzy - tak */

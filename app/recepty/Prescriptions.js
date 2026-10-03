@@ -4,11 +4,12 @@ import { api } from '@/lib/api';
 import useNativeRefresh from '@/app/components/native/useNativeRefresh';
 import Icon from '@/app/components/Icon';
 import { parseNum, decimalProps } from '@/app/components/num';
+import { formatDay } from '@/lib/date';
 
 const today = () => new Date().toISOString().slice(0, 10);
 const daysLeft = (iso) => Math.ceil((new Date(`${iso}T23:59:59`) - Date.now()) / 864e5);
 const nf = (n) => Number(n).toLocaleString('pl-PL', { maximumFractionDigits: 2 });
-const fmt = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
+const fmt = formatDay;
 const dni = (n) => (n === 1 ? '1 dzień' : `${n} dni`);
 
 export default function Prescriptions() {

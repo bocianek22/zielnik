@@ -6,10 +6,11 @@ import { api } from '@/lib/api';
 import { csvToObjects } from '@/lib/csv';
 import { FORMS, formLabel } from '@/lib/forms';
 import Icon from '../components/Icon';
+import { formatDay } from '@/lib/date';
 
 const dec = (n) => Number(n).toLocaleString('pl-PL', { maximumFractionDigits: 1 });
 const cap = (t) => (t ? t[0].toUpperCase() + t.slice(1) : '');
-const day = (d) => new Date(`${d}T12:00:00`).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
+const day = formatDay;
 
 export default function CatalogBoard({ items, owned, isAdmin }) {
   const router = useRouter();
@@ -33,7 +34,7 @@ export default function CatalogBoard({ items, owned, isAdmin }) {
         finalRating: '', taste: '', terpenes: [], description: '', price: '', batch: '', expires: '',
       });
       setMine((s) => new Set(s).add(key(i)));
-      setMsg(`Dodano do Twoich odmian: ${i.name}`);
+      setMsg(<>Dodano do Twoich odmian: <span className="dn">{i.name}</span></>);
     } catch (e) { setMsg(e.message); }
   }
 

@@ -11,6 +11,7 @@ import Header from '../../components/Header';
 import CharacteristicCard from '../../components/CharacteristicCard';
 import Icon from '../../components/Icon';
 import AddFromCatalog from './AddFromCatalog';
+import { formatDay } from '@/lib/date';
 
 const dec = (n) => Number(n).toLocaleString('pl-PL', { maximumFractionDigits: 1 });
 const cap = (t) => (t ? t[0].toUpperCase() + t.slice(1) : '');
@@ -47,7 +48,7 @@ export default async function KatalogItem({ params }) {
             {item.cbd != null && <div><dt>CBD</dt><dd className="num">{dec(item.cbd)}%</dd></div>}
             <div><dt>Dostępność</dt><dd>{item.availability ? cap(item.availability) : 'brak informacji'}</dd></div>
             <div><dt>Status w źródle</dt><dd>{item.active ? 'Aktualna' : 'Brak w źródle'}</dd></div>
-            <div><dt>Ostatnio widziana</dt><dd className="num">{new Date(`${item.last_seen}T12:00:00`).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' })}</dd></div>
+            <div><dt>Ostatnio widziana</dt><dd className="num">{formatDay(item.last_seen)}</dd></div>
           </dl>
           {match ? <Link className="btn" href={`/strains/${match.id}`}>Otwórz pełną kartę odmiany</Link> : <AddFromCatalog item={item} />}
           <p className="muted small">Dostępność zmienia się często i nie jest gwarancją.</p>

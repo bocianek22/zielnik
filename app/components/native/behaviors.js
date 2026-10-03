@@ -18,7 +18,8 @@ export function installHaptics() {
   };
   const onClick = (e) => {
     const b = e.target.closest?.('.chip, [role="switch"], [role="tab"], [role="radio"]');
-    if (b && !b.disabled) haptic('light');
+    // pola input (np. przełącznik role=switch) wibrują już w onChange: bez podwójnej haptyki
+    if (b && !b.disabled && !b.matches('input')) haptic('light');
   };
   document.addEventListener('pointerdown', mark, true);
   document.addEventListener('keydown', mark, true);
@@ -91,11 +92,13 @@ export function installKeyboard() {
 // --- przejścia między ekranami (View Transitions API; bez wsparcia albo przy „ogranicz ruch” brak animacji) ---
 const supportsVT = () => typeof document.startViewTransition === 'function' && !reduceMotion();
 const here = () => window.location.pathname + window.location.search;
+const hereFull = () => here() + window.location.hash;
 
-// Czeka, aż adres się zmieni (Next zmienia go przy zatwierdzeniu nawigacji), ale nie dłużej niż ms
+// Czeka, aż adres się zmieni (Next zmienia go przy zatwierdzeniu nawigacji), ale nie dłużej niż ms.
+// Zmiana samego hasha (#) też kończy czekanie, żeby przejście nie zamrażało takiej nawigacji.
 async function untilNavigated(from, ms) {
   const end = Date.now() + ms;
-  while (here() === from && Date.now() < end) await sleep(16);
+  while (hereFull() === from && Date.now() < end) await sleep(16);
 }
 
 // Odpala przejście: stan „przed” zostaje zrobiony, zanim nawigacja się zatwierdzi, „po” po zmianie adresu.
@@ -103,7 +106,7 @@ async function untilNavigated(from, ms) {
 export function transition(back = false, ms = 700) {
   if (!supportsVT()) return false;
   const root = document.documentElement;
-  const from = here();
+  const from = hereFull();
   root.classList.add('vt-active');
   if (back) root.dataset.vt = 'back';
   try {

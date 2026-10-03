@@ -6,9 +6,10 @@ import Icon from '../components/Icon';
 
 const REASONS = { spam: 'Spam', ad: 'Reklama lub sprzedaż', abuse: 'Nękanie lub wyzwiska', privacy: 'Naruszenie prywatności', other: 'Inne' };
 
-export default function ReportsAdmin() {
+export default function ReportsAdmin({ onCount }) {
   const [reports, setReports] = useState(null);
   const [msg, setMsg] = useState('');
+  useEffect(() => { if (reports) onCount?.(reports.length); }, [reports, onCount]);
   useEffect(() => { api('/api/admin/reports').then((r) => setReports(r.reports)).catch((e) => setMsg(e.message)); }, []);
   async function resolve(id, deleteContent) {
     try { setReports((await api('/api/admin/reports', 'POST', { id, deleteContent })).reports); } catch (e) { setMsg(e.message); }
