@@ -5,6 +5,11 @@ import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { csvToObjects } from '@/lib/csv';
 import { FORMS, formLabel } from '@/lib/forms';
+import Icon from '../components/Icon';
+
+const dec = (n) => Number(n).toLocaleString('pl-PL', { maximumFractionDigits: 1 });
+const cap = (t) => (t ? t[0].toUpperCase() + t.slice(1) : '');
+const day = (d) => new Date(`${d}T12:00:00`).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
 
 export default function CatalogBoard({ items, owned, isAdmin }) {
   const router = useRouter();
@@ -43,45 +48,70 @@ export default function CatalogBoard({ items, owned, isAdmin }) {
     } catch (err) { setMsg(err.message); }
   }
 
+  const fileBtn = <label className="btn ghost file-btn">Wczytaj CSV<input type="file" accept=".csv,text/csv" hidden onChange={upload} /></label>;
+
   return (
-    <div className="stack">
-      <div className="alert note">Katalog ma charakter informacyjny: dostępność w aptekach zmienia się często i nie jest gwarancją. Sprawdź ją u lekarza lub w aptece. To nie jest reklama ani oferta sprzedaży.</div>
-      <div className="toolbar">
-        <input className="input search" type="search" placeholder="Szukaj: odmiana, producent…" aria-label="Szukaj" value={query} onChange={(e) => setQuery(e.target.value)} />
-        <div className="seg" role="tablist" aria-label="Postać">
+    <div>
+      <p className="muted cat-note">Katalog ma charakter informacyjny: dostępność w aptekach zmienia się często i nie jest gwarancją. Sprawdź ją u lekarza lub w aptece. To nie jest reklama ani oferta sprzedaży.</p>
+      <div className="cat-tools">
+        <div className="search-wrap">
+          <Icon name="search" size={20} />
+          <input className="input search" type="search" placeholder="Szukaj: odmiana, producent…" aria-label="Szukaj w katalogu" value={query} onChange={(e) => setQuery(e.target.value)} />
+        </div>
+        <div className="seg" role="group" aria-label="Postać">
           {[['', 'Wszystko'], ...FORMS].map(([k, label]) => (
-            <button key={k || 'all'} role="tab" aria-selected={formFilter === k} className={formFilter === k ? 'on' : ''} onClick={() => setFormFilter(k)}>{label}</button>
+            <button key={k || 'all'} type="button" aria-pressed={formFilter === k} className={formFilter === k ? 'on' : ''} onClick={() => setFormFilter(k)}>{label}</button>
           ))}
         </div>
         <label className="check"><input type="checkbox" checked={onlyActive} onChange={(e) => setOnlyActive(e.target.checked)} /> Tylko aktualne</label>
       </div>
       {msg && <div className="alert note" role="status">{msg}</div>}
 
-      {items.length === 0 && <div className="card empty"><p className="muted">Katalog jest jeszcze pusty. {isAdmin ? 'Wczytaj plik CSV poniżej albo ustaw automatyczne źródło.' : 'Poproś admina o wczytanie listy.'}</p></div>}
-      {shown.map((i) => (
-        <article key={i.id} className={`card cat-item k-${i.kind || 'none'} ${i.active ? '' : 'inactive'}`}>
-          <div>
-            <h3><Link href={`/katalog/${i.id}`} className="dn">{i.name}</Link></h3>
-            <p className="strain-meta">
-              <span className="dn">{i.producer}</span>
-              {i.kind && <span className={`badge kind-${i.kind}`}>{i.kind}</span>}
-              {i.form && i.form !== 'susz' && <span className="badge form">{formLabel(i.form)}</span>}
-              {i.thc != null && <span className="pill">THC {i.thc}%</span>}
-              {i.cbd != null && <span className="pill">CBD {i.cbd}%</span>}
-              {i.availability && <span className="badge">{i.availability}</span>}
-              {!i.active && <span className="badge low">Brak w źródle</span>}
-            </p>
-            <p className="muted small">Ostatnio widziana: {i.last_seen}</p>
-          </div>
-          {mine.has(key(i)) ? <span className="badge">Masz na liście</span> : <button className="btn small" onClick={() => add(i)}>Dodaj do moich</button>}
-        </article>
-      ))}
+      {items.length === 0 ? (
+        <div className="card empty">
+          <Icon name="book" size={32} />
+          <h2>Katalog jest jeszcze pusty</h2>
+          <p>{isAdmin ? 'Wczytaj plik CSV albo ustaw automatyczne źródło (opis poniżej).' : 'Poproś admina o wczytanie listy.'}</p>
+          {isAdmin && fileBtn}
+        </div>
+      ) : shown.length === 0 ? (
+        <div className="card empty">
+          <Icon name="search" size={32} />
+          <h2>Brak pasujących pozycji</h2>
+          <p>Zmień frazę, postać albo odznacz „Tylko aktualne”.</p>
+        </div>
+      ) : (
+        <>
+          <p className="cat-count" aria-live="polite">{shown.length} {shown.length === 1 ? 'pozycja' : shown.length % 10 >= 2 && shown.length % 10 <= 4 && (shown.length % 100 < 12 || shown.length % 100 > 14) ? 'pozycje' : 'pozycji'}</p>
+          <ul className="list">
+            {shown.map((i) => (
+              <li key={i.id} className={`list-row cat-row${i.active ? '' : ' inactive'}`}>
+                <Link href={`/katalog/${i.id}`} className="cat-link">
+                  <span className="cat-name dn">{i.name}</span>
+                  <span className="strain-meta">
+                    <span className="dn">{i.producer}</span>
+                    {i.kind && <span className={`kind kind-${i.kind}`}><i className="kind-dot" aria-hidden="true" />{cap(i.kind)}</span>}
+                    {i.form && i.form !== 'susz' && <span>{formLabel(i.form)}</span>}
+                    {i.thc != null && <span className="num">THC {dec(i.thc)}%</span>}
+                    {i.cbd != null && <span className="num">CBD {dec(i.cbd)}%</span>}
+                  </span>
+                  <span className="lr-sub">{[i.availability && cap(i.availability), !i.active && 'Brak w źródle', `Widziana ${day(i.last_seen)}`].filter(Boolean).join(' · ')}</span>
+                </Link>
+                <span className="cat-act">
+                  {mine.has(key(i)) ? <span className="cat-have">Masz na liście</span>
+                    : <button type="button" className="btn ghost small" onClick={() => add(i)} aria-label={`Dodaj do moich: ${i.name}`}><Icon name="plus" size={18} />Dodaj</button>}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
 
       {isAdmin && (
-        <section className="card">
+        <section className="card cat-admin">
           <h2>Aktualizacja katalogu (admin)</h2>
           <p className="muted">Plik CSV z kolumnami: Producent, Odmiana, THC, CBD, Rodzaj, Postać (susz, olej lub pen), Dostępność (ostatnie trzy opcjonalne). Pozycje z poprzedniego ręcznego importu, których w pliku zabraknie, zostaną oznaczone jako „Brak w źródle”. Automatyczna aktualizacja (co poniedziałek) działa, gdy w Vercel ustawisz zmienne <code>CATALOG_FEED_URL</code> (adres pliku CSV lub JSON w tym samym formacie) i <code>CRON_SECRET</code> (dowolny długi losowy ciąg).</p>
-          <label className="btn ghost file-btn">Wczytaj CSV<input type="file" accept=".csv,text/csv" hidden onChange={upload} /></label>
+          {fileBtn}
         </section>
       )}
     </div>
