@@ -103,3 +103,23 @@ export async function removeFcm() {
 }
 
 export const storedFcm = () => { try { return localStorage.getItem(FCM_KEY); } catch { return null; } };
+
+// --- haptyka (@capacitor/haptics; system sam respektuje ustawienie wibracji telefonu) ---
+// Rodzaje: 'light' (przełącznik, wybór), 'success' (zapis), 'error' (błąd), 'refresh' (odświeżenie)
+export function haptic(kind = 'light') {
+  const H = plugin('Haptics');
+  if (!H) return;
+  try {
+    const p = kind === 'success' ? H.notification?.({ type: 'SUCCESS' })
+      : kind === 'error' ? H.notification?.({ type: 'ERROR' })
+      : H.impact?.({ style: kind === 'refresh' ? 'MEDIUM' : 'LIGHT' });
+    p?.catch?.(() => {});
+  } catch {}
+}
+
+// Wersja aplikacji natywnej: { version, build } z App.getInfo() albo null (przeglądarka)
+export async function appInfo() {
+  const A = plugin('App');
+  if (!A?.getInfo) return null;
+  try { const i = await A.getInfo(); return { version: i.version, build: i.build }; } catch { return null; }
+}

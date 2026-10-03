@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
+import useNativeRefresh from '@/app/components/native/useNativeRefresh';
 
 const today = () => new Date().toISOString().slice(0, 10);
 const daysLeft = (iso) => Math.ceil((new Date(`${iso}T23:59:59`) - Date.now()) / 864e5);
@@ -10,6 +11,7 @@ export default function Prescriptions() {
   const [f, setF] = useState({ issuedOn: today(), validUntil: '', grams: '', note: '' });
   const [msg, setMsg] = useState('');
   useEffect(() => { api('/api/prescriptions').then((r) => setList(r.prescriptions)).catch((e) => setMsg(e.message)); }, []);
+  useNativeRefresh(() => api('/api/prescriptions').then((r) => setList(r.prescriptions)));
 
   async function add(e) {
     e.preventDefault();

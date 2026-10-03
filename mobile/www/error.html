@@ -3,24 +3,68 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1d3b27">
 <title>Zielnik — brak połączenia</title>
 <style>
-  :root { --bg: #eef1e2; --ink: #1c2b21; --btn: #1d3b27; --btn-ink: #eef1e2; color-scheme: light dark; }
-  @media (prefers-color-scheme: dark) { :root { --bg: #161c14; --ink: #e7ecdd; --btn: #7fbd7a; --btn-ink: #161c14; } }
-  body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box;
-    background: var(--bg); color: var(--ink); font: 17px/1.5 system-ui, sans-serif; text-align: center; }
-  .box { max-width: 360px; }
-  h1 { font-size: 1.4rem; }
-  button { min-height: 48px; margin-top: 12px; padding: .7rem 1.6rem; border: 0; border-radius: 99px;
-    background: var(--btn); color: var(--btn-ink); font: inherit; font-weight: 600; cursor: pointer; }
+  /* kolory jak w aplikacji (app/globals.css): --paper, --card, --hemp-deep; ciemny według ustawienia telefonu */
+  :root { --bg: #eef1e2; --card: #fbfaf2; --line: #d5dcc0; --ink: #1c2b21; --muted: #5d6c5f; --accent: #1d3b27; --accent-ink: #eef1e2; --leaf: #78a952; color-scheme: light dark; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #161c14; --card: #202b1c; --line: #35452f; --ink: #e7ecdd; --muted: #a3b09a; --accent: #7fbd7a; --accent-ink: #161c14; --leaf: #8fc766; }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); }
+  body { min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; color: var(--ink);
+    padding: max(24px, env(safe-area-inset-top)) 24px max(24px, env(safe-area-inset-bottom));
+    font: 17px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; text-align: center; -webkit-tap-highlight-color: transparent; }
+  .box { width: 100%; max-width: 380px; padding: 32px 24px 28px; border-radius: 24px; background: var(--card); border: 1px solid var(--line); }
+  .icon { width: 72px; height: 72px; margin: 0 auto 16px; border-radius: 50%; display: grid; place-items: center; background: #1d3b27; color: var(--leaf); }
+  h1 { margin: 0 0 8px; font-size: 1.35rem; line-height: 1.25; }
+  p { margin: 0 0 20px; color: var(--muted); font-size: 1rem; }
+  button { width: 100%; min-height: 52px; padding: .7rem 1.6rem; border: 0; border-radius: 99px; background: var(--accent); color: var(--accent-ink);
+    font: inherit; font-weight: 600; cursor: pointer; touch-action: manipulation; }
+  button:active { opacity: .75; transform: scale(.98); }
+  button[disabled] { opacity: .6; }
+  #state { min-height: 1.5em; margin: 14px 0 0; font-size: .9rem; }
+  @media (prefers-reduced-motion: no-preference) { button { transition: opacity .12s ease, transform .12s ease; } }
 </style>
 <script id="zielnik-url">window.ZIELNIK_URL = "https://zielnik-seven.vercel.app/";</script>
 </head>
 <body>
-  <div class="box">
-    <h1>Nie można połączyć się z Zielnikiem</h1>
-    <p>Sprawdź połączenie z internetem i spróbuj ponownie. Twoje dane są bezpieczne na serwerze.</p>
-    <button type="button" onclick="location.href = window.ZIELNIK_URL || '/'">Spróbuj ponownie</button>
-  </div>
+  <main class="box">
+    <div class="icon" aria-hidden="true">
+      <svg viewBox="0 0 100 100" width="44" height="44" fill="currentColor">
+        <g transform="translate(0 -4)">
+          <ellipse cx="50" cy="46" rx="6" ry="40"/>
+          <ellipse cx="50" cy="52" rx="6" ry="34" transform="rotate(-28 50 86)"/>
+          <ellipse cx="50" cy="52" rx="6" ry="34" transform="rotate(28 50 86)"/>
+          <ellipse cx="50" cy="59" rx="5" ry="27" transform="rotate(-56 50 86)"/>
+          <ellipse cx="50" cy="59" rx="5" ry="27" transform="rotate(56 50 86)"/>
+          <ellipse cx="50" cy="68" rx="5" ry="18" transform="rotate(-80 50 86)"/>
+          <ellipse cx="50" cy="68" rx="5" ry="18" transform="rotate(80 50 86)"/>
+          <rect x="48.6" y="84" width="2.8" height="14" rx="1.4"/>
+        </g>
+      </svg>
+    </div>
+    <h1>Brak połączenia z Zielnikiem</h1>
+    <p>Sprawdź internet i spróbuj ponownie. Twoje dane są bezpieczne na serwerze.</p>
+    <button type="button" id="retry">Spróbuj ponownie</button>
+    <p id="state" role="status" aria-live="polite"></p>
+  </main>
+<script>
+  // Ponawia ładowanie przyciskiem i samo, gdy telefon odzyska sieć (zdarzenie „online”)
+  (function () {
+    var btn = document.getElementById('retry'), state = document.getElementById('state'), busy = false;
+    function go() {
+      if (busy) return;
+      busy = true; btn.disabled = true; state.textContent = 'Łączę…';
+      location.href = window.ZIELNIK_URL || '/';
+      // jeśli ładowanie wróci tu z błędem, odblokuj przycisk (strona zwykle zostaje zastąpiona przed upływem czasu)
+      setTimeout(function () { busy = false; btn.disabled = false; state.textContent = ''; }, 8000);
+    }
+    btn.addEventListener('click', go);
+    window.addEventListener('online', go);
+    if (navigator.onLine === false) state.textContent = 'Brak sieci. Połączę się automatycznie, gdy wróci.';
+  })();
+</script>
 </body>
 </html>

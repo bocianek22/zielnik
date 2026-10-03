@@ -12,11 +12,17 @@
     <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <!-- zielone okno zamiast białego/czarnego mignięcia, zanim WebView narysuje pierwszą klatkę -->
+        <item name="android:windowBackground">@color/zielnik_deep</item>
         <item name="android:background">@null</item>
     </style>
 
 
     <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
         <item name="android:background">@drawable/splash</item>
+        <!-- Android 12+ rysuje własny ekran startowy (ikona na jednolitym tle) i ignoruje android:background -->
+        <item name="windowSplashScreenBackground">@color/zielnik_deep</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_fg</item>
+        <item name="postSplashScreenTheme">@style/AppTheme.NoActionBar</item>
     </style>
 </resources>

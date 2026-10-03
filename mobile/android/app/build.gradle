@@ -1,5 +1,8 @@
 apply plugin: 'com.android.application'
 
+// wersja aplikacji = wersja z mobile/package.json (CI nadpisuje ją przez ZIELNIK_VERSION_NAME, wynik widać w profilu w aplikacji)
+def pkgVersion = new groovy.json.JsonSlurper().parse(file("../../package.json")).version
+
 android {
     namespace = "pl.zielnik.app"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -9,7 +12,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         // CI podaje kolejny numer builda (Play wymaga rosnącego versionCode przy każdej aktualizacji)
         versionCode((System.getenv("ZIELNIK_VERSION_CODE") ?: "1").toInteger())
-        versionName System.getenv("ZIELNIK_VERSION_NAME") ?: "0.1.0"
+        versionName System.getenv("ZIELNIK_VERSION_NAME") ?: pkgVersion
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.

@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
+import useNativeRefresh from '@/app/components/native/useNativeRefresh';
 
 export default function GroupsBoard() {
   const [groups, setGroups] = useState(null);
@@ -11,6 +12,7 @@ export default function GroupsBoard() {
 
   const load = () => api('/api/groups').then((r) => setGroups(r.groups)).catch((e) => setMsg(e.message));
   useEffect(() => { load(); }, []);
+  useNativeRefresh(load);
 
   async function create(e) {
     e.preventDefault();

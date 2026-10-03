@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { api } from '@/lib/api';
+import useNativeRefresh from './native/useNativeRefresh';
 import { KINDS } from '@/lib/kinds';
 import { FORMS } from '@/lib/forms';
 import { TAG_LIST, strainTags } from '@/lib/effects';
@@ -65,6 +66,9 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
     setOptions(r.options);
     setFormFor(null);
   }
+
+  // przeciągnięcie w aplikacji natywnej: dociąga listę, nie zamykając otwartego formularza
+  useNativeRefresh(async () => { const r = await api('/api/strains'); setStrains(r.strains); setOptions(r.options); });
 
   // "Do wykupienia" jest wspólne dla puli, więc aktualizujemy je we wszystkich odmianach z tej samej puli
   function entrySaved(strainId, rawEntry) {
