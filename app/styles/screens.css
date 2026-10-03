@@ -31,8 +31,3 @@
 .person a { text-decoration: none; color: inherit; font-weight: 600; }
 .result-group { margin-top: 6px; }
 
-/* ===== Panel admina (app/admin): statystyki ===== */
-.stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--s-3); }
-.stat { display: grid; padding: 12px 14px; border: 1px solid var(--sep); border-radius: var(--r-md); background: var(--surface); }
-.stat b { font-family: var(--font-display), Georgia, serif; font-size: 1.7rem; font-variant-numeric: tabular-nums lining-nums; }
-.stat span { color: var(--text-2); font-size: var(--fs-sm); }

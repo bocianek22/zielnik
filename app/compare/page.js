@@ -6,12 +6,14 @@ import { getUser } from '@/lib/auth';
 import { isNativeApp } from '@/lib/client';
 import { listStrains } from '@/lib/strains';
 import Header from '../components/Header';
+import Icon from '../components/Icon';
 
 export const dynamic = 'force-dynamic';
 
+const pl = (x, digits) => Number(x).toLocaleString('pl-PL', digits == null ? undefined : { minimumFractionDigits: digits, maximumFractionDigits: digits });
 const avg = (s) => {
   const r = s.entries.filter((e) => e.rating != null);
-  return r.length ? (r.reduce((a, e) => a + Number(e.rating), 0) / r.length).toFixed(1) : '–';
+  return r.length ? pl(r.reduce((a, e) => a + Number(e.rating), 0) / r.length, 1) : '–';
 };
 
 export default async function Compare({ searchParams }) {
@@ -23,16 +25,18 @@ export default async function Compare({ searchParams }) {
   const all = ids.length ? await listStrains(user.id, { ids }) : [];
   const rows = ids.map((id) => all.find((s) => s.id === id)).filter(Boolean);
   const mine = (s) => s.entries.find((e) => e.userId === user.id);
-  const v = (x, unit = '') => (x == null || x === '' ? '–' : `${x}${unit}`);
+  // liczby z polskim przecinkiem, brak wartości jako kreska
+  const v = (x, unit = '') => (x == null || x === '' ? '–' : `${Number.isNaN(Number(x)) ? x : pl(x)}${unit}`);
+  const cap = (x) => (x ? <span className="cap">{x}</span> : '–');
 
   const lines = [
-    ['Producent', (s) => <span className="dn">{s.producer}</span>],
-    ['Rodzaj', (s) => v(s.kind)],
-    ['Typ', (s) => s.type],
+    ['Producent', (s) => (s.producer ? <span className="dn">{s.producer}</span> : '–')],
+    ['Rodzaj', (s) => cap(s.kind)],
+    ['Typ', (s) => cap(s.type)],
     ['THC', (s) => v(s.thc, '%')],
     ['CBD', (s) => v(s.cbd, '%')],
     // w aplikacji natywnej bez cen (lib/client.js)
-    ...(isNativeApp(await headers()) ? [] : [['Cena za gram', (s) => v(s.price_per_g, ' zł')]]),
+    ...(isNativeApp(await headers()) ? [] : [['Cena za gram', (s) => v(s.price_per_g, ' zł/g')]]),
     ['Ocena końcowa', (s) => v(s.final_rating)],
     ['Średnia ocen', avg],
     ['Twoja ocena', (s) => v(mine(s)?.rating)],
@@ -46,22 +50,29 @@ export default async function Compare({ searchParams }) {
     <>
       <Header user={user} />
       <main className="page">
+        <Link href="/" className="back"><Icon name="chevronLeft" size={20} />Wszystkie odmiany</Link>
         <h1>Porównanie</h1>
-        <Link href="/" className="back">← Wszystkie odmiany</Link>
         {rows.length < 2 ? (
-          <div className="card empty"><p className="muted">Zaznacz na liście co najmniej dwie odmiany (pole „Porównaj”) i kliknij przycisk porównania.</p></div>
+          <div className="empty">
+            <Icon name="list" size={32} />
+            <h2>Wybierz odmiany do porównania</h2>
+            <p>Zaznacz na liście co najmniej dwie odmiany (pole „Porównaj”) i otwórz porównanie.</p>
+            <Link className="btn" href="/">Wróć do odmian</Link>
+          </div>
         ) : (
-          <div className="table-wrap card">
-            <table className="cmp">
-              <thead>
-                <tr><th />{rows.map((s) => <th key={s.id}><Link href={`/strains/${s.id}`} className="dn">{s.name}</Link></th>)}</tr>
-              </thead>
-              <tbody>
-                {lines.map(([label, fn]) => (
-                  <tr key={label}><th scope="row">{label}</th>{rows.map((s) => <td key={s.id}>{fn(s)}</td>)}</tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="card cmp-board" style={{ '--n': rows.length }}>
+            <div className="cmp-head">
+              <span className="cmp-spacer" aria-hidden="true" />
+              {rows.map((s) => <Link key={s.id} href={`/strains/${s.id}`} className="dn">{s.name}</Link>)}
+            </div>
+            <dl className="cmp-lines">
+              {lines.map(([label, fn]) => (
+                <div key={label} className="cmp-line">
+                  <dt>{label}</dt>
+                  {rows.map((s) => <dd key={s.id}>{fn(s)}</dd>)}
+                </div>
+              ))}
+            </dl>
           </div>
         )}
       </main>

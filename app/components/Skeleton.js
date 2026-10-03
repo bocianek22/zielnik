@@ -1,12 +1,14 @@
-// Prosty "szkielet" karty na czas wczytywania strony (mniej odczuwalne opóźnienie na telefonie)
-export default function Skeleton({ rows = 3 }) {
+// Szkielet listy na czas wczytywania strony: wiersze w kształcie .list-row (tytuł, linia meta, liczba po prawej)
+export default function Skeleton({ rows = 4 }) {
   return (
-    <div className="stack" aria-busy="true" aria-label="Wczytywanie">
+    <div className="list skeleton" role="status" aria-busy="true" aria-label="Wczytywanie">
       {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="card skel">
-          <div className="skel-line w60" />
-          <div className="skel-line w30" />
-          <div className="skel-line w80" />
+        <div key={i} className="list-row skel-row">
+          <div className="lr-main">
+            <span className="skel-line w60" />
+            <span className="skel-line w30" />
+          </div>
+          <span className="skel-line skel-val" />
         </div>
       ))}
     </div>

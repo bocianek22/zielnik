@@ -12,6 +12,8 @@ import './styles/rankings.css';
 import './styles/forms.css';
 import './styles/history.css';
 import './styles/diary.css';
+import './styles/admin.css';
+import './styles/system.css';
 import './styles/platform.css';
 import { cookies, headers } from 'next/headers';
 import { isNativeApp } from '@/lib/client';

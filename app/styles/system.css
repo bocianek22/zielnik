@@ -1,0 +1,41 @@
+/* Ekrany systemowe: błąd, 404, szkielety ładowania, porównanie odmian (app/error.js, not-found.js, loading.js,
+   components/Skeleton.js, compare/page.js). Komponenty bazowe (.empty, .btn, .list) są w globals.css. */
+
+/* ===== Błąd i 404 ===== */
+.system-state { display: grid; justify-items: center; align-content: center; gap: var(--s-2); min-height: 60vh; padding: var(--s-10) var(--s-2); }
+.system-state h1 { font-size: var(--fs-2xl); margin: 0; }
+.system-state p { margin: 0; max-width: 36ch; }
+.system-state .system-code { margin-top: var(--s-2); color: var(--text-3); }
+.system-actions { display: grid; gap: var(--s-2); width: 100%; max-width: 320px; margin-top: var(--s-4); }
+.system-actions .btn { width: 100%; }
+@media (min-width: 480px) { .system-actions { display: flex; justify-content: center; width: auto; max-width: none; } .system-actions .btn { width: auto; } }
+
+/* ===== Szkielet ładowania: wiersz jak .list-row ===== */
+.skeleton .skel-row { min-height: 68px; }
+.skeleton .lr-main { display: grid; gap: var(--s-2); }
+.skeleton .skel-line { display: block; margin: 0; }
+.skeleton .skel-line.w60 { height: 18px; }
+.skeleton .skel-line.w30 { height: 12px; }
+.skeleton .skel-val { width: 44px; height: 20px; margin-left: auto; }
+@media (prefers-reduced-motion: reduce) { .skel-line { animation: none; } }
+
+/* ===== Porównanie: kolumny odmian bez poziomego przewijania ===== */
+.cap { display: inline-block; }
+.cap::first-letter { text-transform: uppercase; }
+.cmp-board { padding: 0; margin-top: var(--s-4); }
+.cmp-head, .cmp-line { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); column-gap: var(--s-3); padding-inline: var(--s-4); }
+.cmp-head { position: sticky; top: 0; z-index: 2; padding-block: var(--s-3); background: var(--surface); border-bottom: 1px solid var(--sep); border-radius: var(--r-lg) var(--r-lg) 0 0; }
+.cmp-head a { font-family: var(--font-display), Georgia, serif; font-size: var(--fs-lg); font-weight: 600; line-height: 1.25; color: var(--text); text-decoration: none; overflow-wrap: anywhere; }
+.cmp-head a:hover { text-decoration: underline; }
+.cmp-spacer { display: none; }
+.cmp-lines { margin: 0; }
+.cmp-line { padding-block: var(--s-3); border-top: 1px solid var(--sep); }
+.cmp-line:first-child { border-top: 0; }
+.cmp-line dt { grid-column: 1 / -1; font-size: var(--fs-xs); font-weight: 600; color: var(--text-2); letter-spacing: .01em; }
+.cmp-line dd { margin: 2px 0 0; font-weight: 500; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; min-width: 0; }
+@media (min-width: 720px) {
+  .cmp-head, .cmp-line { grid-template-columns: 11rem repeat(var(--n), minmax(0, 1fr)); }
+  .cmp-spacer { display: block; }
+  .cmp-line dt { grid-column: auto; font-size: var(--fs-sm); }
+  .cmp-line dd { margin: 0; }
+}
