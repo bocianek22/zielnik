@@ -16,6 +16,7 @@ import './styles/admin.css';
 import './styles/system.css';
 import './styles/social.css';
 import './styles/content.css';
+import './styles/home.css';
 import './styles/platform.css';
 import { cookies, headers } from 'next/headers';
 import { isNativeApp } from '@/lib/client';

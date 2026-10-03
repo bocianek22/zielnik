@@ -9,14 +9,18 @@ import { TAG_LIST, strainTags } from '@/lib/effects';
 import StrainCard from './StrainCard';
 import StrainForm from './StrainForm';
 import Icon from './Icon';
+import TodayPanel from './TodayPanel';
 
 const avgOf = (s) => {
   const r = s.entries.filter((e) => e.rating != null);
   return r.length ? r.reduce((a, e) => a + Number(e.rating), 0) / r.length : null;
 };
 
-export default function StrainsBoard({ initialStrains, initialOptions, me, usage = { perDay: 0, cost: 0 }, bought = { grams: 0, cost: 0 } }) {
+export default function StrainsBoard({ initialStrains, initialOptions, me, usage = { perDay: 0, cost: 0 }, bought = { grams: 0, cost: 0 },
+  series: initialSeries = [], prescriptions = [], recent: initialRecent = [] }) {
   const [boughtG, setBoughtG] = useState(bought.grams);
+  const [series, setSeries] = useState(initialSeries);
+  const [recent, setRecent] = useState(initialRecent);
   const [low, setLow] = useState(3);      // próg "Kończy się" (g), zapisywany w tej przeglądarce
   const [limit, setLimit] = useState(0);  // miesięczny limit wykupu (g), zapisywany w tej przeglądarce
   useEffect(() => {
@@ -73,8 +77,13 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
 
   // "Do wykupienia" jest wspólne dla puli, więc aktualizujemy je we wszystkich odmianach z tej samej puli
   function entrySaved(strainId, rawEntry) {
-    const { bought: b, ...entry } = rawEntry;
+    const { bought: b, used, ...entry } = rawEntry;
     if (b) setBoughtG((x) => x + b);
+    // zapisane zużycie trafia do dzisiejszego słupka wykresu w panelu „Dziś”
+    if (used > 0) {
+      setSeries((list) => list.map((d, i) => (i === list.length - 1 ? { ...d, grams: d.grams + Number(used) } : d)));
+      setRecent((ids) => [strainId, ...ids.filter((x) => x !== strainId)]);
+    }
     setStrains((list) => {
       const key = list.find((s) => s.id === strainId)?.pool_key;
       return list.map((s) => ({
@@ -145,34 +154,45 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
   const n2 = (x) => Number(Number(x).toFixed(2)).toLocaleString('pl-PL');
   const daysLeft = dailyUse > 0 && totalStock > 0 ? Math.floor(totalStock / dailyUse) : null;
 
+  // szybkie „Zużyłem” w panelu: ostatnio używana odmiana, którą nadal masz
+  const quick = useMemo(() => {
+    for (const id of recent) {
+      const s = strains.find((x) => x.id === id);
+      const cur = s ? Number(mine(s).current) : 0;
+      if (cur > 0) return { id: s.id, name: s.name, current: cur };
+    }
+    return null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [strains, recent, me.id]);
+
   return (
     <div className="stack">
-      <section className="card summary" aria-label="Podsumowanie zapasu">
-        <dl className="stat-strip">
-          <div><dt>Zapas</dt><dd><b>{n2(totalStock)}</b> g</dd></div>
-          <div><dt>Starczy na</dt><dd>{daysLeft != null ? <><b>{daysLeft}</b> {daysLeft === 1 ? 'dzień' : 'dni'}</> : <b>–</b>}</dd></div>
-          <div><dt>Wykupiono</dt><dd><b>{n2(boughtG)}</b> g</dd><span className="stat-sub">w tym miesiącu</span></div>
-        </dl>
-        <details className="prefs">
-          <summary>Szczegóły i ustawienia <Icon name="chevronDown" size={18} /></summary>
-          <dl className="facts">
-            {daysLeft != null && <div><dt>Średnie zużycie</dt><dd>{n2(dailyUse)} g/dzień</dd></div>}
-            {bought.cost > 0 && <div><dt>Koszt wykupu w tym miesiącu</dt><dd>ok. {n2(bought.cost)} zł</dd></div>}
-            {limit > 0 && <div><dt>Limit miesięczny</dt><dd>{n2(limit)} g, zostało {n2(Math.max(limit - boughtG, 0))} g</dd></div>}
-            {usage.cost > 0 && <div><dt>Koszt zużycia (30 dni)</dt><dd>{n2(usage.cost)} zł</dd></div>}
-            {totalRemaining > 0 && <div><dt>Do wykupienia łącznie</dt><dd>{n2(totalRemaining)} g</dd></div>}
-          </dl>
-          {daysLeft == null && <p className="muted small">Zapisuj zużycie w karcie odmiany („Zużyłem”), a policzę średnie tempo i prognozę, na ile dni starczy zapasu.</p>}
-          {totalRemaining > 0 && <p className="muted small">Odmiany z jednej puli „do wykupienia” liczone są raz.</p>}
-          <h3 className="prefs-title">Na tym urządzeniu</h3>
-          <div className="row">
-            <div className="field"><label htmlFor="pref-low">Próg „Kończy się” (g)</label>
-              <input id="pref-low" className="input" type="number" min="0" step="0.5" inputMode="decimal" value={low || ''} onChange={savePref('zielnik.low', setLow)} /></div>
-            <div className="field"><label htmlFor="pref-limit">Miesięczny limit wykupu (g)</label>
-              <input id="pref-limit" className="input" type="number" min="0" step="1" inputMode="numeric" value={limit || ''} onChange={savePref('zielnik.limit', setLimit)} /></div>
-          </div>
-        </details>
-      </section>
+      {series.length > 0 && (
+        <TodayPanel stock={totalStock} dailyUse={dailyUse} boughtG={boughtG} low={low} series={series} prescriptions={prescriptions}
+          quick={quick} onUsed={entrySaved} settings={(
+            <details className="prefs">
+              <summary>Szczegóły i ustawienia <Icon name="chevronDown" size={18} /></summary>
+              <dl className="facts">
+                {daysLeft != null && <div><dt>Średnie zużycie</dt><dd>{n2(dailyUse)} g/dzień</dd></div>}
+                {bought.cost > 0 && <div><dt>Koszt wykupu w tym miesiącu</dt><dd>ok. {n2(bought.cost)} zł</dd></div>}
+                {limit > 0 && <div><dt>Limit miesięczny</dt><dd>{n2(limit)} g, zostało {n2(Math.max(limit - boughtG, 0))} g</dd></div>}
+                {usage.cost > 0 && <div><dt>Koszt zużycia (30 dni)</dt><dd>{n2(usage.cost)} zł</dd></div>}
+                {totalRemaining > 0 && <div><dt>Do wykupienia łącznie</dt><dd>{n2(totalRemaining)} g</dd></div>}
+              </dl>
+              {daysLeft == null && <p className="muted small">Zapisuj zużycie w karcie odmiany („Zużyłem”), a policzę średnie tempo i prognozę, na ile dni starczy zapasu.</p>}
+              {totalRemaining > 0 && <p className="muted small">Odmiany z jednej puli „do wykupienia” liczone są raz.</p>}
+              <h3 className="prefs-title">Na tym urządzeniu</h3>
+              <div className="row">
+                <div className="field"><label htmlFor="pref-low">Próg „Kończy się” (g)</label>
+                  <input id="pref-low" className="input" type="number" min="0" step="0.5" inputMode="decimal" value={low || ''} onChange={savePref('zielnik.low', setLow)} /></div>
+                <div className="field"><label htmlFor="pref-limit">Miesięczny limit wykupu (g)</label>
+                  <input id="pref-limit" className="input" type="number" min="0" step="1" inputMode="numeric" value={limit || ''} onChange={savePref('zielnik.limit', setLimit)} /></div>
+              </div>
+            </details>
+          )} />
+      )}
+
+      <h2 className="home-section">Odmiany</h2>
 
       <div className="toolbar">
         <div className="search-wrap">
