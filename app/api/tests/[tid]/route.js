@@ -3,6 +3,7 @@ import { sql } from '@/lib/db';
 import { requireUser, bad, safe, intId } from '@/lib/guard';
 import { listTests } from '@/lib/strains';
 import { VIS_VALUES } from '@/lib/visibility';
+import { putPhoto, deletePhotos } from '@/lib/photos';
 
 // Edycja własnego testu: { note, visibility, image? (nowe zdjęcie), removePhoto? }
 export const PATCH = safe(async (req, { params }) => {
@@ -28,8 +29,20 @@ export const PATCH = safe(async (req, { params }) => {
 
   const q = sql();
   await q`UPDATE strain_tests SET note = ${text}, visibility = COALESCE(${vis}::text, visibility), updated_at = now() WHERE id = ${tid}`;
-  if (photo) await q`UPDATE strain_tests SET mime = ${photo[1]}, data = ${photo[2]} WHERE id = ${tid}`;
-  else if (b.removePhoto) await q`UPDATE strain_tests SET mime = NULL, data = NULL WHERE id = ${tid}`;
+  if (photo) {
+    const path = await putPhoto(photo[1], photo[2]);
+    try {
+      const [o] = await q`WITH old AS (SELECT blob_path FROM strain_tests WHERE id = ${tid})
+                          UPDATE strain_tests SET mime = ${photo[1]}, data = ${path ? '' : photo[2]}, blob_path = ${path}::text WHERE id = ${tid}
+                          RETURNING (SELECT blob_path FROM old) AS old_path`;
+      await deletePhotos(o?.old_path);
+    } catch (e) { await deletePhotos(path); throw e; }
+  } else if (b.removePhoto) {
+    const [o] = await q`WITH old AS (SELECT blob_path FROM strain_tests WHERE id = ${tid})
+                        UPDATE strain_tests SET mime = NULL, data = NULL, blob_path = NULL WHERE id = ${tid}
+                        RETURNING (SELECT blob_path FROM old) AS old_path`;
+    await deletePhotos(o?.old_path);
+  }
   return NextResponse.json({ tests: await listTests(t.strain_id, user.id) });
 });
 
@@ -41,6 +54,7 @@ export const DELETE = safe(async (_req, { params }) => {
   const rows = await sql()`SELECT user_id FROM strain_tests WHERE id = ${tid}`;
   if (!rows.length) return bad('Nie znaleziono testu.', 404);
   if (!user.is_admin && rows[0].user_id !== user.id) return bad('Test może usunąć jego autor lub admin.', 403);
-  await sql()`DELETE FROM strain_tests WHERE id = ${tid}`;
+  const del = await sql()`DELETE FROM strain_tests WHERE id = ${tid} RETURNING blob_path`;
+  await deletePhotos(del.map((r) => r.blob_path));
   return NextResponse.json({ ok: true });
 });

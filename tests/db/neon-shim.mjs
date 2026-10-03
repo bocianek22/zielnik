@@ -17,6 +17,7 @@ export function neon() {
     const exec = () => (run ||= (stats.queries++, pool.query(text, values).then((r) => r.rows)));
     return { text, values, then: (ok, fail) => exec().then(ok, fail), catch: (fail) => exec().catch(fail) };
   };
+  sql.query = async (text, values = []) => { stats.queries++; return (await pool.query(text, values)).rows; };
   sql.transaction = async (queries, opts = {}) => {
     const client = await pool.connect();
     try {

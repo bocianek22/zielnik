@@ -1,12 +1,16 @@
 import Link from 'next/link';
+import Icon from './components/Icon';
 
 export default function NotFound() {
   return (
     <main className="page">
-      <div className="card empty">
+      <div className="empty system-state">
+        <Icon name="search" size={32} />
         <h1>Nie znaleziono strony</h1>
-        <p className="muted">Ta strona nie istnieje albo nie masz do niej dostępu.</p>
-        <Link className="btn" href="/">Wróć do listy odmian</Link>
+        <p>Ta strona nie istnieje albo nie masz do niej dostępu.</p>
+        <div className="system-actions">
+          <Link className="btn" href="/">Wróć do odmian</Link>
+        </div>
       </div>
     </main>
   );

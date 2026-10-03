@@ -1,11 +1,16 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { LOCK_EVENT, NO_SECURITY, authenticate, fcmToken, hasFcm, isNative, listen, lockEnabled, plugin, pushPermission, saveFcm, setLockEnabled, storedFcm } from './native/bridge';
+import { installHaptics, installKeyboard, isPageLink, transition } from './native/behaviors';
+import PullRefresh from './native/PullRefresh';
 
 // Po tylu milisekundach w tle aplikacja z włączoną blokadą prosi o odblokowanie (krótsze wyjścia, np. wybór zdjęcia
 // albo link w przeglądarce, nie wymagają ponownej biometrii)
 const AWAY_MS = 30000;
 const UNLOCKED = 'zielnik.unlocked'; // sessionStorage: przeładowanie strony w tej samej sesji aplikacji nie blokuje ponownie
+
+const noop = () => () => {};
+const onlineEvents = (cb) => { window.addEventListener('online', cb); window.addEventListener('offline', cb); return () => { window.removeEventListener('online', cb); window.removeEventListener('offline', cb); }; };
 
 const markUnlocked = (v) => { try { v ? sessionStorage.setItem(UNLOCKED, '1') : sessionStorage.removeItem(UNLOCKED); } catch {} };
 const wasUnlocked = () => { try { return sessionStorage.getItem(UNLOCKED) === '1'; } catch { return false; } };
@@ -15,6 +20,9 @@ const wasUnlocked = () => { try { return sessionStorage.getItem(UNLOCKED) === '1
 export default function NativeShell() {
   const [lock, setLock] = useState(null); // null | 'cover' (zasłona w tle) | 'locked'
   const [msg, setMsg] = useState('');
+  // brak sieci: dyskretny pasek (pełna strona błędu jest tylko przy ładowaniu strony, patrz mobile/www/error.html)
+  const native = useSyncExternalStore(noop, isNative, () => false);
+  const offline = useSyncExternalStore(onlineEvents, () => navigator.onLine === false, () => false);
   const lockOn = useRef(false);
   const authing = useRef(false);
   const authEnd = useRef(0);
@@ -43,11 +51,11 @@ export default function NativeShell() {
     if (!isNative()) return;
     document.documentElement.classList.add('native-app');
     plugin('StatusBar')?.setStyle?.({ style: 'DARK' }).catch(() => {}); // jasne ikony na zielonym pasku (--hemp-deep)
-    const offs = [];
+    const offs = [installHaptics(), installKeyboard()];
 
     // Wstecz: historia strony, a na pierwszej stronie zejście do tła (jak w innych aplikacjach)
     offs.push(listen('App', 'backButton', ({ canGoBack }) => {
-      if (canGoBack) window.history.back();
+      if (canGoBack) { transition(true); window.history.back(); }
       else plugin('App').minimizeApp().catch(() => plugin('App').exitApp());
     }));
 
@@ -64,6 +72,12 @@ export default function NativeShell() {
     };
     document.addEventListener('click', onClick, true);
     offs.push(() => document.removeEventListener('click', onClick, true));
+
+    // Płynne przejście przy wejściu na inną stronę aplikacji (nawigację wykonuje Next, my tylko animujemy)
+    // sprawdzenie defaultPrevented w isPageLink: inne obsługi w fazie capture (np. odsłanianie w trybie dyskretnym) mogą anulować kliknięcie
+    const onNav = (e) => { if (isPageLink(e)) transition(); };
+    document.addEventListener('click', onNav, true);
+    offs.push(() => document.removeEventListener('click', onNav, true));
 
     // Blokada przy starcie i po powrocie z tła
     const onLockChange = (e) => { lockOn.current = Boolean(e.detail); if (lockOn.current) markUnlocked(true); };
@@ -106,7 +120,17 @@ export default function NativeShell() {
     return () => offs.forEach((off) => off());
   }, []);
 
-  if (!lock) return null;
+  if (!native) return null;
+  return (
+    <>
+      <PullRefresh />
+      {offline && <div className="native-offline" role="status">Brak połączenia</div>}
+      {lock && <LockScreen lock={lock} msg={msg} unlock={unlock} />}
+    </>
+  );
+}
+
+function LockScreen({ lock, msg, unlock }) {
   return (
     <div className="native-lock" role="dialog" aria-modal="true" aria-labelledby="native-lock-h">
       <div className="native-lock-in">

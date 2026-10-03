@@ -1,6 +1,6 @@
 {
   "name": "zielnik",
-  "version": "0.30.0",
+  "version": "0.31.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -8,7 +8,8 @@
     "start": "next start",
     "check": "node scripts/check.js",
     "test": "node --experimental-default-type=module --test tests/*.test.js",
-    "test:db": "node --experimental-default-type=module --import ./tests/db/register.mjs --test --test-concurrency=1 tests/db/*.test.js"
+    "test:db": "node --experimental-default-type=module --import ./tests/db/register.mjs --test --test-concurrency=1 tests/db/*.test.js",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.0",
@@ -21,6 +22,10 @@
     "web-push": "^3.6.7"
   },
   "devDependencies": {
+    "eslint": "^9.39.5",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.13.0",
     "pg": "^8.23.1"
   }
 }

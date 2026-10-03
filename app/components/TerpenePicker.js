@@ -32,7 +32,7 @@ export default function TerpenePicker({ options, value, onChange, onOptionsChang
         <input className="input" placeholder="Dodaj nowy terpen" aria-label="Nowy terpen" value={draft} maxLength={40}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addNew(); } }} />
-        <button type="button" className="btn small" onClick={addNew}>Dodaj</button>
+        <button type="button" className="btn ghost" onClick={addNew}>Dodaj</button>
       </div>
       {error && <p className="field-err" role="alert">{error}</p>}
     </div>

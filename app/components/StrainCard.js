@@ -7,10 +7,14 @@ import { VIS } from '@/lib/visibility';
 import { formLabel } from '@/lib/forms';
 import Lightbox from './Lightbox';
 import QuickActions from './QuickActions';
+import Icon from './Icon';
+import { parseNum, decimalProps } from './num';
 import { strainTags } from '@/lib/effects';
 
 export const LOW_STOCK = 3; // g: poniżej tej ilości odmiana dostaje znacznik "Kończy się"
-const fmt = (n) => (n == null ? '–' : String(Number(n)));
+const fmt = (n) => (n == null ? '–' : String(Number(n)).replace('.', ','));
+// wyświetlanie liczb z polskim przecinkiem (wartości w danych zostają bez zmian)
+export const dec = (n) => String(n).replace('.', ',');
 
 // Edytowalne, osobiste pola zalogowanego użytkownika (autozapis po opuszczeniu pola)
 // hidePrice: aplikacja natywna (lib/client.js); cena zostaje w stanie formularza, więc zapis jej nie kasuje
@@ -26,8 +30,10 @@ export function OwnEntry({ strainId, entry, onSaved, mates, hidePrice = false })
   const extCur = entry.current ?? 0;
   const extRem = entry.remaining ?? 0;
   useEffect(() => {
-    setF((p) => (Number(p.current) === Number(extCur) && Number(p.remaining) === Number(extRem) ? p : { ...p, current: extCur, remaining: extRem }));
-    last.current = JSON.stringify({ ...JSON.parse(last.current), current: extCur, remaining: extRem });
+    setF((p) => (parseNum(p.current) === Number(extCur) && parseNum(p.remaining) === Number(extRem) ? p : { ...p, current: extCur, remaining: extRem }));
+    // własny zapis „1,” wraca jako 1: tekst w polu zostaje, więc nie nadpisujemy go, żeby kolejne wyjście z pola nie zapisywało ponownie
+    const prev = JSON.parse(last.current);
+    if (parseNum(prev.current) !== Number(extCur) || parseNum(prev.remaining) !== Number(extRem)) last.current = JSON.stringify({ ...prev, current: extCur, remaining: extRem });
   }, [extCur, extRem]);
   const id = `e${strainId}`;
   const [buyG, setBuyG] = useState('');
@@ -36,40 +42,49 @@ export function OwnEntry({ strainId, entry, onSaved, mates, hidePrice = false })
   const [useMsg, setUseMsg] = useState('');
 
   async function buy() {
-    const g = Number(buyG);
-    if (!(g > 0)) return;
+    const g = parseNum(buyG);
+    if (g == null) return;
+    if (!(g > 0)) { setBuyMsg('Podaj ilość w gramach, np. 10 lub 0,5.'); return; }
     try {
       const r = await api(`/api/strains/${strainId}/purchase`, 'POST', { grams: g });
       const next = { ...f, current: r.current, remaining: r.remaining };
       setF(next); last.current = JSON.stringify(next);
       onSaved({ current: r.current, remaining: r.remaining, bought: g });
-      setBuyG(''); setBuyMsg(`Zapisano zakup: ${g} g`);
+      setBuyG(''); setBuyMsg(`Zapisano zakup: ${dec(g)} g`);
     } catch (e) { setBuyMsg(e.message); }
   }
 
   async function consume() {
-    const g = Number(use);
-    if (!(g > 0)) return;
+    const g = parseNum(use);
+    if (g == null) return;
+    if (!(g > 0)) { setUseMsg('Podaj ilość w gramach, np. 0,5.'); return; }
     try {
       const r = await api(`/api/strains/${strainId}/usage`, 'POST', { grams: g });
       const next = { ...f, current: r.current };
       setF(next); last.current = JSON.stringify(next);
       onSaved({ current: r.current });
       setUse('');
-      setUseMsg(r.stockShort ? `Zapisano zużycie ${r.used} g (zapisany stan był mniejszy, ustawiono 0 g)` : `Zapisano zużycie ${r.used} g, zostało ${r.current} g`);
+      setUseMsg(r.stockShort ? `Zapisano zużycie ${dec(r.used)} g (zapisany stan był mniejszy, ustawiono 0 g)` : `Zapisano zużycie ${dec(r.used)} g, zostało ${dec(r.current)} g`);
     } catch (e) { setUseMsg(e.message); }
   }
 
   async function save() {
     const key = JSON.stringify(f);
     if (key === last.current) return;
+    // liczby z przecinkiem zamieniamy tu, bo pola są tekstowe
+    const nums = {};
+    for (const [k, label] of [['rating', 'Ocena'], ['current', 'Mam teraz'], ['remaining', 'Do wykupienia'], ['price', 'Cena']]) {
+      const v = parseNum(f[k]);
+      if (Number.isNaN(v)) { setStatus({ kind: 'err', msg: `${label}: wpisz liczbę, np. 0,5.` }); return; }
+      nums[k] = v === null ? '' : v;
+    }
     setStatus({ kind: 'saving', msg: 'Zapisuję…' });
     try {
       // ilości wysyłamy tylko, gdy zmienił je użytkownik w tym polu (szybkie akcje zmieniają je osobno)
       const prev = JSON.parse(last.current);
-      const body = { ...f };
-      if (Number(body.current) === Number(prev.current)) delete body.current;
-      if (Number(body.remaining) === Number(prev.remaining)) delete body.remaining;
+      const body = { ...f, ...nums };
+      if (parseNum(f.current) === parseNum(prev.current)) delete body.current;
+      if (parseNum(f.remaining) === parseNum(prev.remaining)) delete body.remaining;
       const r = await api(`/api/strains/${strainId}/entry`, 'PUT', body);
       last.current = key;
       onSaved(r.entry);
@@ -80,18 +95,18 @@ export function OwnEntry({ strainId, entry, onSaved, mates, hidePrice = false })
 
   return (
     <div className="entry mine">
-      <div className="entry-who">Twoje pola <span className={`save-state ${status.kind}`} role="status">{status.msg}</span></div>
+      <div className="entry-who"><span>Twoje pola</span> <span className={`save-state ${status.kind}`} role="status">{status.msg}</span></div>
       <div className="entry-field">
         <label htmlFor={`${id}-r`}>Ocena</label>
-        <input id={`${id}-r`} className="input" type="number" min="0" max="10" step="0.5" inputMode="decimal" {...bind('rating')} />
+        <input id={`${id}-r`} className="input" {...decimalProps} {...bind('rating')} />
       </div>
       <div className="entry-field">
         <label htmlFor={`${id}-c`}>Mam teraz (g)</label>
-        <input id={`${id}-c`} className="input" type="number" min="0" step="0.1" inputMode="decimal" {...bind('current')} />
+        <input id={`${id}-c`} className="input" {...decimalProps} {...bind('current')} />
       </div>
       <div className="entry-field">
         <label htmlFor={`${id}-m`}>Do wykupienia (g)</label>
-        <input id={`${id}-m`} className="input" type="number" min="0" step="0.1" inputMode="decimal" {...bind('remaining')} />
+        <input id={`${id}-m`} className="input" {...decimalProps} {...bind('remaining')} />
         {mates?.length > 0 && <small className="pool-note">Jedna pula z: <span className="dn">{mates.join(', ')}</span></small>}
       </div>
       <div className="entry-field notes">
@@ -101,7 +116,7 @@ export function OwnEntry({ strainId, entry, onSaved, mates, hidePrice = false })
       {!hidePrice && (
         <div className="entry-field price">
           <label htmlFor={`${id}-pr`}>Cena u mnie (zł/g), tworzy średnią cen</label>
-          <input id={`${id}-pr`} className="input" type="number" min="0" step="0.01" inputMode="decimal" {...bind('price')} />
+          <input id={`${id}-pr`} className="input" {...decimalProps} {...bind('price')} />
         </div>
       )}
       <div className="entry-field vis">
@@ -113,17 +128,17 @@ export function OwnEntry({ strainId, entry, onSaved, mates, hidePrice = false })
       <div className="entry-field use">
         <label htmlFor={`${id}-u`}>Zużycie (g)</label>
         <div className="use-row">
-          <input id={`${id}-u`} className="input" type="number" min="0" step="0.05" inputMode="decimal" placeholder="np. 0.5" value={use}
+          <input id={`${id}-u`} className="input" {...decimalProps} placeholder="np. 0,5" value={use}
             onChange={(e) => setUse(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); consume(); } }} />
           <button type="button" className="btn small" onClick={consume}>Zużyj</button>
         </div>
-        <div className="chips small">{[0.1, 0.25, 0.5, 1].map((v) => <button key={v} type="button" className="chip use-chip" onClick={() => setUse(String(v))}>{v} g</button>)}</div>
+        <div className="chips small">{[0.1, 0.25, 0.5, 1].map((v) => <button key={v} type="button" className="chip use-chip" onClick={() => setUse(String(v))}>{dec(v)} g</button>)}</div>
         {useMsg && <small className="pool-note" role="status">{useMsg}</small>}
       </div>
       <div className="entry-field buy">
         <label htmlFor={`${id}-b`}>Wykupiłem (g)</label>
         <div className="use-row">
-          <input id={`${id}-b`} className="input" type="number" min="0" step="0.1" inputMode="decimal" placeholder="np. 10" value={buyG}
+          <input id={`${id}-b`} className="input" {...decimalProps} placeholder="np. 10" value={buyG}
             onChange={(e) => setBuyG(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); buy(); } }} />
           <button type="button" className="btn small" onClick={buy}>Dodaj zakup</button>
         </div>
@@ -143,6 +158,8 @@ export function OtherEntry({ e }) {
   );
 }
 
+const cap = (s) => (s ? s[0].toUpperCase() + s.slice(1) : s);
+
 export default function StrainCard({ strain, meId, hidePrice = false, mates, low, cmpOn, onCmp, onEdit, onEntrySaved }) {
   const [expanded, setExpanded] = useState(false); // na telefonie szczegóły są domyślnie zwinięte
   const [quickUsed, setQuickUsed] = useState(false); // po zapisie panel zostaje, żeby komunikat nie zniknął przy stanie 0 g
@@ -153,36 +170,56 @@ export default function StrainCard({ strain, meId, hidePrice = false, mates, low
 
   const ex = expiryInfo(strain.expires_on);
   const photoSrc = `/api/strains/${strain.id}/photo?v=${strain.photo_v}`;
+  const lowStock = mine && Number(mine.current) > 0 && Number(mine.current) <= (low ?? LOW_STOCK);
+  const facts = [
+    strain.thc != null && `THC ${dec(strain.thc)}%`,
+    strain.cbd != null && `CBD ${dec(strain.cbd)}%`,
+    strain.price_per_g != null && !hidePrice && `${dec(strain.price_per_g)} zł/g`,
+  ].filter(Boolean);
+  const tags = strainTags(strain);
 
   return (
     <article className={`card strain k-${strain.kind || 'none'}${expanded ? ' expanded' : ''}`}>
       <header className="strain-head">
         {strain.photo_v && (
-<div className="photo-link dn-img"><Lightbox className="strain-photo" src={photoSrc} alt={`Zdjęcie: ${strain.name}`} /></div>
+          <div className="photo-link dn-img"><Lightbox className="strain-photo" src={photoSrc} alt={`Zdjęcie: ${strain.name}`} /></div>
         )}
         <div className="strain-title">
           <h3><Link href={`/strains/${strain.id}`} className="dn">{strain.name}</Link></h3>
           <p className="strain-meta">
             <span className="dn">{strain.producer}</span>
-            {strain.kind && <span className={`badge kind-${strain.kind}`}>{strain.kind}</span>}
-            <span className="badge">{strain.type}</span>
-            {strain.form && strain.form !== 'susz' && <span className="badge form">{formLabel(strain.form)}</span>}
-            {ex?.expired && <span className="badge low">Po terminie</span>}
-            {ex?.soon && <span className="badge low">Ważne jeszcze {ex.days} dni</span>}
-            {mine && Number(mine.current) > 0 && Number(mine.current) <= (low ?? LOW_STOCK) && <span className="badge low">Kończy się</span>}
+            {strain.kind && <span className={`kind kind-${strain.kind}`}><i className="kind-dot" aria-hidden="true" />{cap(strain.kind)}</span>}
+            <span>{cap(strain.type)}</span>
+            {strain.form && strain.form !== 'susz' && <span>{formLabel(strain.form)}</span>}
           </p>
-          <p className="strain-meta">
-            {strain.thc != null && <span className="pill">THC {strain.thc}%</span>}
-            {strain.cbd != null && <span className="pill">CBD {strain.cbd}%</span>}
-            {strain.price_per_g != null && !hidePrice && <span className="pill">{strain.price_per_g} zł/g</span>}
-          </p>
+          {facts.length > 0 && <p className="strain-facts">{facts.map((f) => <span key={f}>{f}</span>)}</p>}
+          {(ex?.expired || ex?.soon || lowStock) && (
+            <p className="strain-status">
+              {ex?.expired && <span className="badge low">Po terminie</span>}
+              {ex?.soon && <span className="badge low">Ważne jeszcze {ex.days} dni</span>}
+              {lowStock && <span className="badge low">Kończy się</span>}
+            </p>
+          )}
+        </div>
+        <div className="scores">
+          <div className="score" title="Ocena końcowa">
+            <b>{strain.final_rating != null ? dec(strain.final_rating) : '–'}</b><small>ocena końcowa</small>
+          </div>
+          {avg && <div className="score soft" title="Średnia ocen użytkowników">
+            <b>{dec(avg)}</b><small>średnia ({rated.length})</small>
+          </div>}
+        </div>
+      </header>
+
+      {(strain.batch || strain.expires_on || strain.taste || tags.length > 0 || strain.terpenes?.length > 0 || strain.description) && (
+        <div className="strain-more">
           {(strain.batch || strain.expires_on) && (
             <p className="strain-taste">
-              {strain.batch && <>Seria: {strain.batch}. </>}{strain.expires_on && <>Ważne do: {strain.expires_on}.</>}
+              {strain.batch && <>Seria {strain.batch}. </>}{strain.expires_on && <>Ważne do {strain.expires_on}.</>}
             </p>
           )}
           {strain.taste && <p className="strain-taste">Smak: {strain.taste}</p>}
-          {strainTags(strain).length > 0 && <div className="chips small">{strainTags(strain).map((t) => <span key={t} className="chip tag">{t}</span>)}</div>}
+          {tags.length > 0 && <div className="chips small">{tags.map((t) => <span key={t} className="chip tag">{t}</span>)}</div>}
           {strain.terpenes?.length > 0 && (
             <div className="chips small">{strain.terpenes.map((t) => <Link key={t} href={`/wiedza#t-${t.toLowerCase().split(' ')[0]}`} className="chip on static dn">{t}</Link>)}</div>
           )}
@@ -190,15 +227,7 @@ export default function StrainCard({ strain, meId, hidePrice = false, mates, low
             <details className="strain-desc"><summary>Opis</summary><p>{strain.description}</p></details>
           )}
         </div>
-        <div className="scores">
-          <div className="score" title="Ocena końcowa">
-            <b>{strain.final_rating ?? '–'}</b><small>ocena końcowa</small>
-          </div>
-          {avg && <div className="score soft" title="Średnia ocen użytkowników">
-            <b>{avg}</b><small>średnia ({rated.length})</small>
-          </div>}
-        </div>
-      </header>
+      )}
 
       {mine && (quickUsed || Number(mine.current) > 0 || Number(mine.remaining) > 0) && (
         <QuickActions strainId={strain.id} name={strain.name} current={mine.current} remaining={mine.remaining} onSaved={(en) => { setQuickUsed(true); onEntrySaved(strain.id, en); }} />
@@ -210,11 +239,11 @@ export default function StrainCard({ strain, meId, hidePrice = false, mates, low
       </div>
 
       <div className="strain-foot">
-        <button type="button" className="btn ghost small only-mobile" onClick={() => setExpanded((v) => !v)} aria-expanded={expanded}>
-          {expanded ? 'Zwiń szczegóły' : hidePrice ? 'Więcej: opinia, zakup, inni' : 'Więcej: opinia, cena, zakup, inni'}
+        <button type="button" className="btn text small only-mobile" onClick={() => setExpanded((v) => !v)} aria-expanded={expanded}>
+          {expanded ? 'Zwiń' : 'Szczegóły'}<Icon name="chevronDown" size={18} className="chev" />
         </button>
-        <label className="check"><input type="checkbox" checked={!!cmpOn} onChange={onCmp} /> Porównaj</label>
-        <button className="btn ghost small" onClick={onEdit}>Edytuj pola wspólne</button>
+        <label className="check cmp-check"><input type="checkbox" checked={!!cmpOn} onChange={onCmp} /> <span>Porównaj</span></label>
+        <button type="button" className="btn text small" onClick={onEdit} aria-label="Edytuj pola wspólne"><Icon name="edit" size={18} />Edytuj<span className="hide-narrow"> pola wspólne</span></button>
       </div>
     </article>
   );

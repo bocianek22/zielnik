@@ -1,6 +1,10 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Icon from './Icon';
+
+// pola z nazwą odmiany, producentem i terpenami: w trybie dyskretnym rozmyte jak w reszcie aplikacji
+const DISCREET_FIELDS = new Set(['name', 'producer', 'terpenes', 'batch']);
 
 const LABELS = {
   producer: 'Producent', name: 'Nazwa', type: 'Typ', final_rating: 'Ocena końcowa', taste: 'Smak', thc: 'THC (%)', cbd: 'CBD (%)',
@@ -51,20 +55,24 @@ export default function StrainHistory({ strainId, isAdmin, hidePrice = false }) 
   }
 
   return (
-    <details className="card" onToggle={(e) => { if (e.currentTarget.open && items === null) load(); }}>
-      <summary><b>Historia zmian</b></summary>
-      {error && <p className="alert error">{error}</p>}
+    <details className="card hist-details" onToggle={(e) => { if (e.currentTarget.open && items === null) load(); }}>
+      <summary>Historia zmian <Icon name="chevronDown" size={20} /></summary>
+      {error && <p className="alert error" role="alert">{error}</p>}
       {items === null && !error && <p className="muted">Wczytuję…</p>}
       {items?.length === 0 && <p className="muted">Nikt jeszcze nie zmieniał danych tej odmiany.</p>}
       {items?.map((h) => (
-        <div key={h.id} className="history-item">
-          <p className="muted"><b>{h.mine ? 'Ty' : h.who}</b>, {h.at}</p>
-          <ul>
+        <div key={h.id} className="hist-entry">
+          <p className="hist-who"><b>{h.mine ? 'Ty' : h.who}</b><span>{h.at}</span></p>
+          <ul className="hist-changes">
             {Object.entries(h.changes).filter(([f]) => !(hidePrice && f === 'price_per_g')).map(([f, [a, b]]) => (
-              <li key={f}>{LABELS[f] || f}: {show(f, a)} → {show(f, b)}</li>
+              <li key={f}>
+                <span className="hist-field">{LABELS[f] || f}</span>
+                <span className="hist-old"><span className="sr-only">Było: </span><span className={DISCREET_FIELDS.has(f) ? 'dn' : undefined}>{show(f, a)}</span></span>
+                <span className="hist-new"><span className="sr-only">Jest: </span><span className={DISCREET_FIELDS.has(f) ? 'dn' : undefined}>{show(f, b)}</span></span>
+              </li>
             ))}
           </ul>
-          {isAdmin && <button className="btn ghost small" disabled={busy === h.id} onClick={() => restore(h.id)}>Przywróć</button>}
+          {isAdmin && <button className="btn text small" disabled={busy === h.id} onClick={() => restore(h.id)}>Przywróć</button>}
         </div>
       ))}
     </details>

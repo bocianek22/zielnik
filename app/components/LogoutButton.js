@@ -15,11 +15,12 @@ async function dropPush() {
   } catch { return undefined; }
 }
 
-export default function LogoutButton() {
+export default function LogoutButton({ className = 'btn ghost small on-dark', children }) {
   const router = useRouter();
   return (
     <button
-      className="btn ghost small on-dark"
+      type="button"
+      className={className}
       onClick={async () => {
         const pushEndpoint = await dropPush();
         await api('/api/auth/logout', 'POST', pushEndpoint ? { pushEndpoint } : undefined);
@@ -27,7 +28,7 @@ export default function LogoutButton() {
         router.refresh();
       }}
     >
-      Wyloguj
+      {children || 'Wyloguj'}
     </button>
   );
 }

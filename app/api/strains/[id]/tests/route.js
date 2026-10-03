@@ -3,6 +3,7 @@ import { sql } from '@/lib/db';
 import { requireUser, bad, safe, intId } from '@/lib/guard';
 import { listTests } from '@/lib/strains';
 import { VIS_VALUES } from '@/lib/visibility';
+import { putPhoto, deletePhotos } from '@/lib/photos';
 
 export const GET = safe(async (_req, { params }) => {
   const { user, res } = await requireUser();
@@ -28,7 +29,11 @@ export const POST = safe(async (req, { params }) => {
   if (!text && !data) return bad('Dodaj opis lub zdjęcie testu.');
   const exists = await sql()`SELECT 1 FROM strains WHERE id = ${id}`;
   if (!exists.length) return bad('Nie znaleziono odmiany.', 404);
-  await sql()`INSERT INTO strain_tests (strain_id, user_id, note, mime, data, visibility)
-              VALUES (${id}, ${user.id}, ${text}, ${mime}, ${data}, COALESCE(${vis}::text, 'me'))`;
+  // z tokenem Blob zdjęcie leży w Blob (w bazie data = '' i blob_path), bez tokenu jako base64
+  const path = data ? await putPhoto(mime, data) : null;
+  try {
+    await sql()`INSERT INTO strain_tests (strain_id, user_id, note, mime, data, visibility, blob_path)
+                VALUES (${id}, ${user.id}, ${text}, ${mime}, ${path ? '' : data}, COALESCE(${vis}::text, 'me'), ${path}::text)`;
+  } catch (e) { await deletePhotos(path); throw e; }
   return NextResponse.json({ tests: await listTests(id, user.id) });
 });

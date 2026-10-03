@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
+import Icon from './Icon';
 
 // Rozwijane menu "Więcej": zamyka się po przejściu na inną stronę i po kliknięciu poza nim
 export default function MoreMenu({ children, badge }) {
@@ -14,7 +15,7 @@ export default function MoreMenu({ children, badge }) {
   }, []);
   return (
     <details className="more" ref={ref}>
-      <summary>Więcej{badge}</summary>
+      <summary>Więcej{badge}<Icon name="chevronDown" size={16} /></summary>
       <div className="more-menu">{children}</div>
     </details>
   );

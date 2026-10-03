@@ -24,9 +24,9 @@ export default async function Home() {
       <main className="page">
         <h1>Odmiany</h1>
         {alerts.length > 0 && (
-          <div className="alert note">
+          <div className="alert note" role="status">
             {alerts.map((a, i) => (
-              <p key={i} style={{ margin: i ? '6px 0 0' : 0 }}>
+              <p key={i}>
                 {a.days_left < 0
                   ? <>Recepta na <b>{a.grams} g</b> wygasła {-a.days_left} {-a.days_left === 1 ? 'dzień' : 'dni'} temu, a zostało niewykorzystane <b>{a.remaining} g</b>.</>
                   : <>Recepta na <b>{a.grams} g</b> wygasa za <b>{a.days_left} {a.days_left === 1 ? 'dzień' : 'dni'}</b>, zostało do wykupienia <b>{a.remaining} g</b>.</>}

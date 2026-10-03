@@ -2,6 +2,9 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
+import useNativeRefresh from '@/app/components/native/useNativeRefresh';
+import Icon from '@/app/components/Icon';
+import osob from './osob';
 
 export default function GroupsBoard() {
   const [groups, setGroups] = useState(null);
@@ -11,6 +14,7 @@ export default function GroupsBoard() {
 
   const load = () => api('/api/groups').then((r) => setGroups(r.groups)).catch((e) => setMsg(e.message));
   useEffect(() => { load(); }, []);
+  useNativeRefresh(load);
 
   async function create(e) {
     e.preventDefault();
@@ -24,28 +28,48 @@ export default function GroupsBoard() {
   const invites = (groups || []).filter((g) => g.status === 'invited');
   const mine = (groups || []).filter((g) => g.status === 'active');
   return (
-    <div className="stack">
+    <div className="social">
       {msg && <div className="alert error" role="alert">{msg}</div>}
       {invites.length > 0 && (
-        <section className="card"><h2>Zaproszenia do grup</h2>
-          <ul className="people">{invites.map((g) => (
-            <li key={g.id} className="person"><b>{g.name}</b>
-              <span className="row"><button className="btn small" onClick={() => act(g.id, 'accept')}>Dołącz</button>
-                <button className="btn ghost small" onClick={() => act(g.id, 'leave')}>Odrzuć</button></span></li>))}</ul></section>
+        <>
+          <h2 className="section-label">Zaproszenia do grup ({invites.length})</h2>
+          <ul className="list">{invites.map((g) => (
+            <li key={g.id} className="list-row person-row">
+              <Icon name="group" />
+              <span className="lr-main person-link"><span className="person-name">{g.name}</span>{g.members != null && <span className="lr-sub">{osob(g.members)}</span>}</span>
+              <span className="person-actions">
+                <button className="btn small" onClick={() => act(g.id, 'accept')}>Dołącz</button>
+                <button className="btn text small" onClick={() => act(g.id, 'leave')}>Odrzuć</button>
+              </span>
+            </li>))}</ul>
+        </>
       )}
-      <section className="card"><h2>Twoje grupy</h2>
-        {groups === null ? <p className="muted">Ładuję…</p> : mine.length === 0 ? <p className="muted">Nie należysz jeszcze do żadnej grupy.</p> : (
-          <ul className="people">{mine.map((g) => (
-            <li key={g.id} className="person"><Link href={`/grupy/${g.id}`}><b>{g.name}</b> <span className="muted">{g.members} os.</span></Link>
-              {g.role === 'owner' && <span className="badge">Właściciel</span>}</li>))}</ul>)}
-      </section>
+
+      <h2 className="section-label">Twoje grupy</h2>
+      {groups === null ? <p className="muted social-note">Ładuję…</p> : mine.length === 0 ? (
+        <div className="empty card">
+          <Icon name="group" size={32} />
+          <h2>Nie należysz do żadnej grupy</h2>
+          <p>W grupie porównujesz oceny ze znajomymi i widzisz wspólny ranking odmian.</p>
+          <a className="btn ghost" href="#nowa-grupa">Utwórz grupę</a>
+        </div>
+      ) : (
+        <ul className="list">{mine.map((g) => (
+          <li key={g.id}>
+            <Link href={`/grupy/${g.id}`} className="list-row">
+              <Icon name="group" />
+              <span className="lr-main person-link"><span className="person-name">{g.name}</span><span className="lr-sub">{osob(g.members)}{g.role === 'owner' ? ' · Właściciel' : ''}</span></span>
+              <Icon name="chevronRight" size={20} className="lr-chev" />
+            </Link>
+          </li>))}</ul>)}
+
+      <h2 className="section-label" id="nowa-grupa">Nowa grupa</h2>
       <form className="card stack" onSubmit={create}>
-        <h2>Nowa grupa</h2>
         <div className="field"><label htmlFor="g-name">Nazwa</label>
           <input id="g-name" className="input" maxLength={60} required minLength={3} value={name} onChange={(e) => setName(e.target.value)} /></div>
         <div className="field"><label htmlFor="g-desc">Opis (opcjonalnie)</label>
           <input id="g-desc" className="input" maxLength={300} value={description} onChange={(e) => setDescription(e.target.value)} /></div>
-        <div><button className="btn">Utwórz grupę</button></div>
+        <div><button className="btn block">Utwórz grupę</button></div>
       </form>
     </div>
   );

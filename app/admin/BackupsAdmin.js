@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
+import Icon from '../components/Icon';
 
 export default function BackupsAdmin() {
   const [backups, setBackups] = useState(null);
@@ -13,19 +14,26 @@ export default function BackupsAdmin() {
     setBusy(false);
   }
   return (
-    <section className="card">
-      <h2>Kopie zapasowe</h2>
-      <p className="muted">Co niedzielę baza zapisuje się automatycznie: z podłączonym magazynem Vercel Blob do prywatnego pliku poza bazą (12 tygodni, gzip, opcjonalnie szyfrowanie), inaczej do tabeli w bazie (8 ostatnich). Kopia zawiera dane tekstowe, bez haseł i zdjęć. Odtwarzanie jest ręczne; plik z Blob rozpakowuje scripts/backup-decrypt.js.</p>
-      <div className="row">
+    <section className="admin-sec">
+      <h2 className="section-label">Kopie zapasowe</h2>
+      <p className="muted small admin-note">Co niedzielę baza zapisuje się automatycznie: z podłączonym magazynem Vercel Blob do prywatnego pliku poza bazą (12 tygodni, gzip, opcjonalnie szyfrowanie), inaczej do tabeli w bazie (8 ostatnich). Kopia zawiera dane tekstowe, bez haseł i zdjęć. Odtwarzanie jest ręczne; plik z Blob rozpakowuje scripts/backup-decrypt.js.</p>
+      <div className="admin-actions-bar">
         <button className="btn" onClick={create} disabled={busy}>{busy ? 'Zapisuję…' : 'Utwórz kopię teraz'}</button>
-        <a className="btn ghost" href="/api/backup">Pobierz świeży zrzut</a>
+        <a className="btn ghost" href="/api/backup"><Icon name="download" />Pobierz świeży zrzut</a>
       </div>
       {msg && <div className="alert error" role="alert">{msg}</div>}
       {backups && backups.length > 0 && (
-        <div className="table-wrap"><table className="cmp"><thead><tr><th>Data</th><th>Rodzaj</th><th>Rozmiar</th><th>Miejsce</th><th /></tr></thead>
-          <tbody>{backups.map((b) => (
-            <tr key={b.id}><td>{b.at}</td><td>{b.kind}</td><td>{Math.round(b.size / 1024)} KB</td><td>{b.blob ? (b.encrypted ? 'Blob, szyfrowana' : 'Blob') : 'baza'}</td><td><a href={`/api/backup?id=${b.id}`}>Pobierz</a></td></tr>
-          ))}</tbody></table></div>
+        <ul className="list admin-log">
+          {backups.map((b) => (
+            <li key={b.id} className="list-row">
+              <div className="lr-main">
+                {b.at}
+                <span className="lr-sub">{b.kind} · {Math.round(b.size / 1024).toLocaleString('pl-PL')} KB · {b.blob ? (b.encrypted ? 'Blob, szyfrowana' : 'Blob') : 'baza'}</span>
+              </div>
+              <a className="btn text small" href={`/api/backup?id=${b.id}`}>Pobierz</a>
+            </li>
+          ))}
+        </ul>
       )}
     </section>
   );

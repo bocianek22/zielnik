@@ -1,6 +1,7 @@
 import { EFFECTS, strainTags } from '@/lib/effects';
 import { formLabel } from '@/lib/forms';
 
+const dec = (n) => String(n).replace('.', ','); // jak dec() w StrainCard.js (ten plik renderuje też strona serwerowa katalogu)
 const fx = (n) => String(Number(n.toFixed(1))).replace('.', ',');
 
 // Karta charakterystyki odmiany: opis, dane, terpeny, odczucia użytkowników, średnia cena, źródła
@@ -27,7 +28,7 @@ export default function CharacteristicCard({ strain, hidePrice = false }) {
         {strain.kind && <div><dt>Rodzaj</dt><dd>{strain.kind}</dd></div>}
         {strain.type && strain.type !== 'nieokreślony' && <div><dt>Typ</dt><dd>{strain.type}</dd></div>}
         {strain.form && strain.form !== 'susz' && <div><dt>Postać</dt><dd>{formLabel(strain.form)}</dd></div>}
-        {(strain.thc != null || strain.cbd != null) && <div><dt>Stężenie</dt><dd>{strain.thc != null && `THC ${strain.thc}%`}{strain.thc != null && strain.cbd != null && ', '}{strain.cbd != null && `CBD ${strain.cbd}%`}</dd></div>}
+        {(strain.thc != null || strain.cbd != null) && <div><dt>Stężenie</dt><dd>{strain.thc != null && `THC ${dec(strain.thc)}%`}{strain.thc != null && strain.cbd != null && ', '}{strain.cbd != null && `CBD ${dec(strain.cbd)}%`}</dd></div>}
         {strain.terpenes?.length > 0 && <div><dt>Terpeny</dt><dd>{strain.terpenes.join(', ')}</dd></div>}
         {strain.taste && <div><dt>Smak i aromat</dt><dd>{strain.taste}</dd></div>}
         {!hidePrice && <div><dt>Średnia cena</dt><dd>{price}</dd></div>}
@@ -35,7 +36,9 @@ export default function CharacteristicCard({ strain, hidePrice = false }) {
       {feel.length > 0 && (
         <>
           <h3>Odczucia użytkowników</h3>
-          <p>{feel.map(([label, avg, n]) => <span key={label} className="pill" style={{ marginRight: 6 }}>{label} {fx(avg)}/10 ({n})</span>)}</p>
+          <dl className="klist feel">
+            {feel.map(([label, avg, n]) => <div key={label}><dt>{label}</dt><dd><b>{fx(avg)}</b>/10 <span className="muted">· {n} {n === 1 ? 'ocena' : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 'oceny' : 'ocen'}</span></dd></div>)}
+          </dl>
           {tags.length > 0 && <p>Tagi: {tags.map((t) => <span key={t} className="chip tag">{t}</span>)}</p>}
         </>
       )}

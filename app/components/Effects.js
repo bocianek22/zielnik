@@ -26,8 +26,8 @@ function Radar({ avg, mine }) {
           </g>
         );
       })}
-      <polygon points={poly(avg)} fill="rgba(217,153,43,.30)" stroke="#d9992b" strokeWidth="2" />
-      <polygon points={poly(mine)} fill="rgba(47,91,58,.18)" stroke="#2f5b3a" strokeWidth="2" strokeDasharray="5 3" />
+      <polygon className="radar-avg" points={poly(avg)} fill="rgba(217,153,43,.30)" stroke="#d9992b" strokeWidth="2" />
+      <polygon className="radar-me" points={poly(mine)} fill="rgba(47,91,58,.18)" stroke="#2f5b3a" strokeWidth="2" strokeDasharray="5 3" />
     </svg>
   );
 }

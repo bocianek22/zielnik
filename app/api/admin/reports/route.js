@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
 import { requireAdmin, bad, safe } from '@/lib/guard';
 import { logAudit } from '@/lib/audit';
+import { deletePhotos } from '@/lib/photos';
 
 const list = () => sql()`
   SELECT r.id, r.type, r.ref, r.reason, r.note, tu.username AS target, tu.id AS target_id, ru.username AS reporter,
@@ -23,7 +24,7 @@ export const POST = safe(async (req) => {
   const { id, deleteContent } = await req.json().catch(() => ({}));
   const [r] = await sql()`SELECT type, ref FROM reports WHERE id = ${Number(id)}`;
   if (!r) return bad('Nie znaleziono zgłoszenia.', 404);
-  if (deleteContent && r.type === 'test' && r.ref) await sql()`DELETE FROM strain_tests WHERE id = ${r.ref}`;
+  if (deleteContent && r.type === 'test' && r.ref) await deletePhotos((await sql()`DELETE FROM strain_tests WHERE id = ${r.ref} RETURNING blob_path`).map((x) => x.blob_path));
   await logAudit(user.username, deleteContent ? 'usunął zgłoszony test i zamknął zgłoszenie' : 'zamknął zgłoszenie', String(id));
   await sql()`UPDATE reports SET status = 'resolved' WHERE id = ${Number(id)}`;
   return NextResponse.json({ reports: await list() });

@@ -8,8 +8,13 @@ import FriendButton from './FriendButton';
 import Lightbox from '../../components/Lightbox';
 import ProfileActions from './ProfileActions';
 import ReportButton from '../../components/ReportButton';
+import Icon from '../../components/Icon';
+import { formatDay } from '@/lib/date';
 
 export const dynamic = 'force-dynamic';
+
+const dec = (n) => Number(n).toLocaleString('pl-PL');
+const day = formatDay;
 
 export default async function ProfilePage({ params }) {
   const me = await getUser();
@@ -39,52 +44,65 @@ export default async function ProfilePage({ params }) {
       WHERE t.user_id = ${o.id} AND can_see(${me.id}::int, t.user_id, t.visibility) ORDER BY t.created_at DESC LIMIT 30`;
   }
 
+  const name = o.display_name || o.username;
   return (
     <>
       <Header user={me} />
-      <main className="page stack">
-        <section className="card profile-head">
-          {o.ok && o.has_avatar ? <img className="avatar" src={`/api/users/${o.id}/avatar`} alt={`Awatar ${o.username}`} />
-            : <div className="avatar ph" aria-hidden="true">{o.username[0].toUpperCase()}</div>}
-          <div className="profile-info">
-            <h1>{o.display_name || o.username}</h1>
-            <p className="muted">@{o.username}</p>
-            {o.ok ? (
-              <>
-                {o.bio && <p className="detail-desc">{o.bio}</p>}
-                {o.links?.length > 0 && <ul className="plinks">{o.links.map((l) => <li key={l}><a href={l} target="_blank" rel="nofollow noopener noreferrer ugc">{l.replace(/^https?:\/\//, '')}</a></li>)}</ul>}
-              </>
-            ) : <p className="muted">Ten profil jest prywatny.</p>}
-            {isMe ? <Link className="btn ghost small" href="/profil">Edytuj profil</Link> : <><FriendButton userId={o.id} status={status} /><ProfileActions userId={o.id} blocked={!!blk} /></>}
+      <main className="page social">
+        <section className="card profile-card">
+          <div className="profile-id">
+            {o.ok && o.has_avatar ? <img className="avatar" src={`/api/users/${o.id}/avatar`} alt={`Awatar ${o.username}`} />
+              : <div className="avatar ph" aria-hidden="true">{o.username[0].toUpperCase()}</div>}
+            <div className="profile-who">
+              <h1>{name}</h1>
+              <span className="muted">@{o.username}</span>
+              {status === 'friends' && <span className="profile-rel">Znajomy</span>}
+            </div>
+          </div>
+          {o.ok ? (
+            <>
+              {o.bio && <p className="detail-desc profile-bio">{o.bio}</p>}
+              {o.links?.length > 0 && <ul className="plinks">{o.links.map((l) => <li key={l}><a href={l} target="_blank" rel="nofollow noopener noreferrer ugc">{l.replace(/^https?:\/\//, '')}</a></li>)}</ul>}
+            </>
+          ) : <p className="muted profile-bio">Ten profil jest prywatny.</p>}
+          <div className="profile-actions">
+            {isMe ? <Link className="btn ghost" href="/profil">Edytuj profil</Link> : <FriendButton userId={o.id} status={status} />}
           </div>
         </section>
 
         {o.ok && (
           <>
-            <section className="card">
-              <h2>Oceny i opinie</h2>
-              {opinions.length === 0 ? <p className="muted">Brak widocznych opinii.</p> : (
-                <ul className="wall">{opinions.map((p) => (
-                  <li key={p.id}>
-                    <p><Link href={`/strains/${p.id}`}><b>{p.name}</b></Link> <span className="muted">{p.producer}</span>
-                      {p.rating != null && <span className="pill">{p.rating}/10</span>}
-                      {isMe && <span className="badge">{visLabel(p.visibility)}</span>}</p>
-                    {p.notes && <p className="detail-desc">{p.notes}</p>}
-                  </li>))}</ul>)}
-            </section>
-            <section className="card">
-              <h2>Testy</h2>
-              {tests.length === 0 ? <p className="muted">Brak widocznych testów.</p> : (
-                <ul className="wall">{tests.map((t) => (
-                  <li key={t.id} className="wall-test">
-                    {t.has_photo && <Lightbox className="test-photo" src={`/api/tests/${t.id}/photo?v=${t.pv}`} alt="Zdjęcie z testu" />}
-                    <div><p><Link href={`/strains/${t.strain_id}`}><b>{t.name}</b></Link> <span className="muted">{t.at}</span>
-                      {isMe && <span className="badge">{visLabel(t.visibility)}</span>}{!isMe && <ReportButton type="test" userId={o.id} refId={t.id} />}</p>
-                      {t.note && <p className="detail-desc">{t.note}</p>}</div>
-                  </li>))}</ul>)}
-            </section>
+            <h2 className="section-label">Oceny i opinie</h2>
+            {opinions.length === 0 ? <p className="muted social-note">Brak widocznych opinii.</p> : (
+              <ul className="list">{opinions.map((p) => (
+                <li key={p.id}>
+                  <Link href={`/strains/${p.id}`} className="list-row opinion-row">
+                    <span className="lr-main">
+                      <span className="person-name dn">{p.name}</span>
+                      <span className="lr-sub"><span className="dn">{p.producer}</span>{isMe ? ` · ${visLabel(p.visibility)}` : ''}</span>
+                      {p.notes && <span className="opinion-note">{p.notes}</span>}
+                    </span>
+                    {p.rating != null && <span className="lr-value rating-val"><b>{dec(p.rating)}</b>/10</span>}
+                    <Icon name="chevronRight" size={20} className="lr-chev" />
+                  </Link>
+                </li>))}</ul>)}
+
+            <h2 className="section-label">Testy</h2>
+            {tests.length === 0 ? <p className="muted social-note">Brak widocznych testów.</p> : (
+              <ul className="list">{tests.map((t) => (
+                <li key={t.id} className="list-row wall-test">
+                  {t.has_photo && <Lightbox className="test-photo dn-img" src={`/api/tests/${t.id}/photo?v=${t.pv}`} alt="Zdjęcie z testu" />}
+                  <div className="lr-main">
+                    <Link href={`/strains/${t.strain_id}`} className="person-name dn">{t.name}</Link>
+                    <span className="lr-sub">{day(t.at)}{isMe ? ` · ${visLabel(t.visibility)}` : ''}</span>
+                    {t.note && <span className="opinion-note">{t.note}</span>}
+                    {!isMe && <ReportButton type="test" userId={o.id} refId={t.id} />}
+                  </div>
+                </li>))}</ul>)}
           </>
         )}
+
+        {!isMe && <ProfileActions userId={o.id} blocked={!!blk} />}
       </main>
     </>
   );

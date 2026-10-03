@@ -1,0 +1,72 @@
+/* Formularze: odmiana (na telefonie pełnoekranowy arkusz), testy, import CSV, zmiana hasła.
+   Komponenty: StrainForm.js, OptionSelect.js, TerpenePicker.js, Tests.js, import/ImportForm.js, change-password/ChangePasswordForm.js
+   Tokeny i komponenty bazowe (.field, .input, .btn, .section-label) są w globals.css. */
+
+/* ===== Formularz odmiany ===== */
+.strain-form h2 { margin-bottom: var(--s-4); }
+.strain-form .section-label { margin: var(--s-6) 0 var(--s-3); }
+.strain-form .row { align-items: flex-start; }
+.strain-form .row .field { margin-bottom: var(--s-4); }
+.strain-form .pair .grow { flex: 1 1 150px; }
+.strain-form .nums .grow { flex: 1 1 0; }
+.strain-form .narrow-input { max-width: 160px; }
+.strain-form .suggest .btn { justify-self: start; }
+.terp { display: grid; gap: var(--s-3); }
+.terp .chips { margin: 0; }
+.optsel-add .btn { flex: none; }
+.photo-edit { display: flex; gap: var(--s-4); align-items: center; flex-wrap: wrap; }
+.photo-actions { display: flex; gap: var(--s-2); flex-wrap: wrap; }
+.form-actions { margin-top: var(--s-2); }
+.mobile-form-bar { display: none; }
+@media (max-width: 760px) {
+  .strain-form {
+    position: fixed; inset: 0; z-index: 60; border-radius: 0; border: 0; overflow-y: auto; background: var(--bg);
+    padding: 0 var(--s-4) calc(var(--s-6) + env(safe-area-inset-bottom));
+    -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+  }
+  /* pasek arkusza: Anuluj po lewej, tytuł pośrodku, Zapisz po prawej (zawsze na wierzchu) */
+  .mobile-form-bar {
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: var(--s-2);
+    position: sticky; top: 0; z-index: 2; margin: 0 calc(var(--s-4) * -1) var(--s-2);
+    padding: calc(var(--s-2) + env(safe-area-inset-top)) var(--s-3) var(--s-2);
+    background: var(--surface); border-bottom: 1px solid var(--sep);
+  }
+  .mobile-form-bar .bar-title { font-weight: 600; font-size: var(--fs-md); text-align: center; }
+  .mobile-form-bar .btn.text { justify-self: start; padding-inline: var(--s-1) var(--s-2); }
+  .mobile-form-bar .bar-save { justify-self: end; min-width: 80px; }
+  .strain-form .alert { margin-top: var(--s-3); }
+  .strain-form .section-label:first-of-type { margin-top: var(--s-4); }
+  /* na telefonie zapisuje i zamyka górny pasek; na dole zostaje tylko usuwanie */
+  .strain-form .form-actions .btn:not(.danger) { display: none; }
+  .strain-form .form-actions .push-right { margin-left: 0; width: 100%; }
+  .strain-form .form-actions { margin-top: var(--s-4); }
+}
+
+/* ===== Testy odmiany ===== */
+.tests-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); margin-bottom: var(--s-4); }
+.tests-head h2 { margin: 0; }
+.test-form .form-actions { margin-top: 0; }
+.test-meta .badge { margin-inline: 0; }
+.test-body .row { gap: var(--s-1); }
+
+/* ===== Import CSV ===== */
+.import-form .section-label { margin-top: var(--s-6); }
+.import-form .section-label:first-child { margin-top: var(--s-4); }
+.import-help { margin: 0; color: var(--text-2); }
+.import-help a { color: var(--accent-text); font-weight: 600; }
+.import-run { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); flex-wrap: wrap; }
+.import-form .alert { margin-top: var(--s-4); }
+.import-form .flip { transform: rotate(180deg); }
+
+/* ===== Zmiana hasła ===== */
+.pw-form { max-width: 460px; }
+.pw-form h1 { margin-bottom: var(--s-2); }
+.pw-lead { margin: 0 0 var(--s-4); }
+.pw-form .card .field:last-child { margin-bottom: 0; }
+.pw-form .section-label { margin-top: var(--s-5); }
+.pw-form > .btn { margin-top: var(--s-6); }
+.pw-form .alert { margin-top: var(--s-3); }
+
+/* cele dotykowe >= 44 px także bez pointer: coarse (np. okno przeglądarki w telefonie) */
+.strain-form .chip, .strain-form .btn, .strain-form .btn.small, .terp .chip { min-height: var(--tap); }
+.strain-form .input { font-size: 16px; }

@@ -28,15 +28,6 @@ const edit = async (uid, id, f) => {
   const r = await call(uid, 'strains/[id]', 'PATCH', { type: 'haze', ...f }, { id: String(id) });
   assert.equal(r.status, 200, JSON.stringify(r.json));
 };
-const setRemaining = async (uid, id, remaining) => {
-  const r = await call(uid, 'strains/[id]/entry', 'PUT', { remaining }, { id: String(id) });
-  assert.equal(r.status, 200, JSON.stringify(r.json));
-};
-// "do wykupienia" tak, jak widzi je właściciel na liście odmian
-const remaining = async (uid, id) => Number((await listStrains(uid)).find((s) => s.id === id).entries.find((e) => e.userId === uid).remaining);
-const poolRows = async (key) => (await q`SELECT user_id, remaining_to_buy::float8 AS r FROM user_pool WHERE pool_key = ${key} ORDER BY user_id`)
-  .map((x) => [x.user_id, x.r]);
-
 before(async () => {
   if (skip) return;
   process.env.DATABASE_URL = URL_;

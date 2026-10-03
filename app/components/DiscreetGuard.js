@@ -48,7 +48,7 @@ export default function DiscreetGuard() {
       }
       if (!isDiscreet()) return;
       const dn = e.target.closest?.('.dn,.dn-img');
-      if (dn && !dn.dataset.dnOpen) { e.preventDefault(); e.stopPropagation(); reveal(dn); }
+      if (dn && !dn.dataset.dnOpen) { e.preventDefault(); e.stopImmediatePropagation(); reveal(dn); } // także przed innymi nasłuchami capture (przejście ekranu w aplikacji)
     };
     const onKey = (e) => {
       const dn = e.target.closest?.('.dn,.dn-img');

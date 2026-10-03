@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Leaf from '../components/Leaf';
+import Icon from '../components/Icon';
 import { api } from '@/lib/api';
 
 export default function RegisterPage() {
@@ -25,13 +26,19 @@ export default function RegisterPage() {
   return (
     <div className="auth">
       <aside className="auth-art">
-        <div className="brand"><Leaf size={34} /><span>Zielnik</span></div>
-        <Leaf size={520} className="bigleaf" />
+        <div className="brand"><Leaf size={28} /><span className="brand-name">Zielnik</span><span className="brand-alt">Notatnik</span></div>
         <p className="auth-tagline">Dołącz do zamkniętej społeczności pacjentów. Rejestracja wymaga kodu zaproszenia.</p>
+        <ul className="auth-points">
+          <li><Icon name="list" size={20} />Stan zapasu, zużycie i wykupy w jednym miejscu</li>
+          <li><Icon name="pulse" size={20} />Dziennik objawów i raport dla lekarza</li>
+          <li><Icon name="shield" size={20} />Dane prywatne, widoczność ustawiasz sam</li>
+        </ul>
       </aside>
       <main className="auth-form">
         <form className="auth-box" onSubmit={submit}>
+          <div className="brand auth-mark" aria-hidden="true"><span className="mark"><Leaf size={26} /></span><span className="brand-name">Zielnik</span><span className="brand-alt">Notatnik</span></div>
           <h1>Załóż konto</h1>
+          <p className="auth-lead">Rejestracja wymaga kodu zaproszenia.</p>
           <div className="field"><label htmlFor="r-code">Kod zaproszenia</label>
             <input id="r-code" className="input" value={f.invite} onChange={set('invite')} required autoComplete="off" /></div>
           <div className="field"><label htmlFor="r-user">Nazwa użytkownika (unikalna, widoczna w adresie profilu)</label>
@@ -42,8 +49,8 @@ export default function RegisterPage() {
           <label className="check"><input type="checkbox" checked={f.consent} onChange={set('consent')} />
             <span>Akceptuję <a href="/prywatnosc" target="_blank">regulamin i politykę prywatności</a></span></label>
           {error && <div className="alert error" role="alert">{error}</div>}
-          <button className="btn" disabled={busy}>{busy ? 'Zakładam konto…' : 'Załóż konto'}</button>
-          <p className="muted">Masz już konto? <a href="/login">Zaloguj się</a></p>
+          <button type="submit" className="btn" disabled={busy}>{busy ? 'Zakładam konto…' : 'Załóż konto'}</button>
+          <p className="auth-alt">Masz już konto? <a href="/login">Zaloguj się</a></p>
         </form>
       </main>
     </div>

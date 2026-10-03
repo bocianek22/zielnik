@@ -7,12 +7,21 @@ export default function AuditAdmin() {
   useEffect(() => { api('/api/admin/audit').then((r) => setEntries(r.entries)).catch(() => {}); }, []);
   if (!entries) return null;
   return (
-    <section className="card">
-      <h2>Dziennik działań administratora</h2>
-      <p className="muted">Ostatnie 1000 działań (zaproszenia, plany, zgłoszenia). Rejestr działań, nie logowań.</p>
+    <section className="admin-sec">
+      <h2 className="section-label">Dziennik działań administratora</h2>
+      <p className="muted small admin-note">Ostatnie 1000 działań (zaproszenia, plany, zgłoszenia). To rejestr działań, nie logowań.</p>
       {entries.length === 0 ? <p className="muted">Brak wpisów.</p> : (
-        <div className="table-wrap"><table className="cmp"><thead><tr><th>Czas</th><th>Kto</th><th>Co</th><th>Cel</th></tr></thead>
-          <tbody>{entries.map((e) => (<tr key={e.id}><td>{e.at}</td><td>{e.actor}</td><td>{e.action}</td><td>{e.target || '–'}</td></tr>))}</tbody></table></div>
+        <ul className="list admin-log">
+          {entries.map((e) => (
+            <li key={e.id} className="list-row">
+              <div className="lr-main">
+                {e.action}
+                <span className="lr-sub">{e.actor}{e.target ? ` · ${e.target}` : ''}</span>
+              </div>
+              <span className="lr-value admin-time">{e.at}</span>
+            </li>
+          ))}
+        </ul>
       )}
     </section>
   );

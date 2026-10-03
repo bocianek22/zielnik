@@ -1,0 +1,56 @@
+/* Treści do czytania i plany: app/wiedza, app/prywatnosc, app/premium.
+   Tekst ciągły ma do ok. 65 znaków w linii (65ch), spis treści jest zwykłą listą, ostrzeżenia są stonowane. */
+.read { max-width: 760px; }
+.read-narrow { max-width: 720px; }
+.read h1 { margin-bottom: var(--s-4); }
+.read > * + * { margin-top: var(--s-3); }
+.read > .section-label { margin: var(--s-6) var(--s-1) var(--s-2); }
+.read > .section-label + * { margin-top: 0; }
+.read .alert.note.read-note { display: flex; gap: var(--s-3); align-items: flex-start; margin: 0 0 var(--s-2); background: var(--surface-2); border-color: var(--sep); color: var(--text-2); }
+.read-note .icon { flex: none; margin-top: 1px; color: var(--text-3); }
+.read-note p { font-size: var(--fs-sm); line-height: 1.5; }
+.read > .read-note + nav { margin-top: var(--s-6); }
+
+/* spis treści */
+.toc .list-row { min-height: 48px; color: var(--text); }
+.toc .lr-main { font-weight: 500; }
+
+/* artykuł */
+.read-article { margin-top: var(--s-10); padding-top: var(--s-6); border-top: 1px solid var(--sep); scroll-margin-top: 80px; }
+.read-article > h2 { margin-bottom: var(--s-4); }
+.read-article p { max-width: 65ch; line-height: 1.65; margin: 0 0 var(--s-4); overflow-wrap: anywhere; }
+.read-article p.muted { color: var(--text-2); }
+.read-article .klist { max-width: 65ch; margin: var(--s-4) 0; }
+.read-article .klist > div { grid-template-columns: minmax(96px, 30%) 1fr; }
+.read-article .klist dt { color: var(--text); font-weight: 600; }
+.to-top { display: inline-flex; align-items: center; min-height: var(--tap); font-size: var(--fs-sm); }
+@media (max-width: 560px) {
+  .read-article .klist > div { grid-template-columns: 1fr; gap: 2px; padding: var(--s-3) 0; }
+  .read-article { margin-top: var(--s-8); }
+}
+
+/* katalog terpenów: lista z rozwijaniem */
+.terp-list { margin-bottom: var(--s-3); }
+.terp > summary { cursor: pointer; list-style: none; }
+.terp > summary::-webkit-details-marker { display: none; }
+.terp > summary:hover { background: var(--hover-bg); }
+.terp > summary .lr-chev { margin-left: auto; transition: transform var(--dur-2) var(--ease); }
+.terp[open] > summary .lr-chev { transform: rotate(180deg); }
+.terp-name { display: block; font-weight: 600; }
+.terp-body { margin: 0; padding: 0 var(--s-4) var(--s-4); display: grid; gap: var(--s-3); }
+.terp-body > div { display: grid; gap: 2px; }
+.terp-body dt { font-size: var(--fs-sm); font-weight: 600; color: var(--text-2); }
+.terp-body dd { margin: 0; max-width: 65ch; line-height: 1.6; }
+.terp:target > summary { background: var(--accent-soft); }
+
+/* premium */
+.plan-page .card > .facts { font-size: var(--fs-md); }
+.plan-note { margin: var(--s-3) 0 0; font-size: .9375rem; line-height: 1.55; max-width: 65ch; }
+.plan-list .list-row { align-items: center; }
+.plan-list .lr-main { line-height: 1.4; }
+.plan-tag { flex: none; font-size: var(--fs-xs); font-weight: 600; line-height: 1.6; padding: 1px 8px; border-radius: var(--r-sm); background: var(--surface-2); color: var(--text-2); }
+.plan-tag.pro { background: var(--accent-soft); color: var(--on-accent-soft); }
+.plan-foot { margin: var(--s-3) var(--s-1) 0; max-width: 65ch; line-height: 1.5; }
+.plan-page .card > p { max-width: 65ch; }
+.plan-page .card > .btn { margin-top: var(--s-4); }
+@media (min-width: 761px) { .plan-page .card > .btn.block { width: auto; } }

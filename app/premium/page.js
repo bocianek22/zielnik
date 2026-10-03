@@ -3,8 +3,11 @@ import { getUser } from '@/lib/auth';
 import { sql, ensureDb } from '@/lib/db';
 import { PLAN_FEATURES } from '@/lib/plans';
 import Header from '../components/Header';
+import { formatDay } from '@/lib/date';
 
 export const dynamic = 'force-dynamic';
+
+const day = formatDay;
 
 export default async function Premium() {
   const me = await getUser();
@@ -17,26 +20,36 @@ export default async function Premium() {
   const enforced = process.env.PREMIUM_ENFORCED === '1';
   const donate = process.env.DONATE_URL;
 
+  const expired = !isPremium && row.plan === 'premium';
   return (
     <>
       <Header user={me} />
-      <main className="page stack">
+      <main className="page read plan-page">
         <h1>Premium i wsparcie</h1>
+
+        <h2 className="section-label">Twój plan</h2>
         <section className="card">
-          <p>Twój plan: <b>{isPremium ? 'Premium' : 'Darmowy'}</b>{isPremium && row.plan_until && <> (ważny do {row.plan_until})</>}{!isPremium && row.plan === 'premium' && <> (Premium wygasło {row.plan_until})</>}.</p>
-          {!enforced && <p className="muted">Na razie wszystkie funkcje są dostępne bezpłatnie. Gdy uruchomimy płatności, podstawowe funkcje pozostaną darmowe, a płatne będą wyłącznie te oznaczone poniżej jako Premium.</p>}
+          <dl className="facts">
+            <div><dt>Plan</dt><dd>{isPremium ? 'Premium' : 'Darmowy'}</dd></div>
+            {row.plan_until && (isPremium || expired) && <div><dt>{isPremium ? 'Ważny do' : 'Wygasł'}</dt><dd>{day(row.plan_until)}</dd></div>}
+          </dl>
+          {!enforced && <p className="muted plan-note">Na razie wszystkie funkcje są dostępne bezpłatnie. Gdy uruchomimy płatności, podstawowe funkcje pozostaną darmowe, a płatne będą wyłącznie te oznaczone poniżej jako Premium.</p>}
         </section>
+
+        <h2 className="section-label">Co obejmują plany</h2>
+        <ul className="list plan-list">
+          {PLAN_FEATURES.map(([label, tier]) => (
+            <li key={label} className="list-row">
+              <span className="lr-main">{label}</span>
+              <span className={`plan-tag${tier === 'free' ? '' : ' pro'}`}>{tier === 'free' ? 'Darmowy' : 'Premium'}</span>
+            </li>))}
+        </ul>
+        <p className="muted small plan-foot">Premium obejmuje też wszystkie funkcje planu Darmowego. Nigdy nie sprzedajemy danych ani nie pokazujemy reklam produktów leczniczych i aptek.</p>
+
+        <h2 className="section-label">Wesprzyj projekt</h2>
         <section className="card">
-          <h2>Co jest w planach</h2>
-          <div className="table-wrap"><table className="cmp"><thead><tr><th>Funkcja</th><th>Darmowy</th><th>Premium</th></tr></thead>
-            <tbody>{PLAN_FEATURES.map(([label, tier]) => (
-              <tr key={label}><td>{label}</td><td>{tier === 'free' ? '✓' : '–'}</td><td>✓</td></tr>))}</tbody></table></div>
-          <p className="muted small">Nigdy nie sprzedajemy danych ani nie pokazujemy reklam produktów leczniczych i aptek.</p>
-        </section>
-        <section className="card">
-          <h2>Wesprzyj projekt</h2>
           <p>Zielnik utrzymuje się z dobrowolnego wsparcia użytkowników i, w przyszłości, z planu Premium. Każda wpłata pokrywa serwer, bazę danych i rozwój.</p>
-          {donate ? <a className="btn" href={donate} target="_blank" rel="noopener noreferrer">Wesprzyj Zielnik</a>
+          {donate ? <a className="btn block" href={donate} target="_blank" rel="noopener noreferrer">Wesprzyj Zielnik</a>
             : <p className="muted">Link do wpłat zostanie dodany wkrótce.</p>}
         </section>
       </main>

@@ -9,7 +9,12 @@ import { listStrains, strainIndex } from '@/lib/strains';
 import { formLabel } from '@/lib/forms';
 import Header from '../../components/Header';
 import CharacteristicCard from '../../components/CharacteristicCard';
+import Icon from '../../components/Icon';
 import AddFromCatalog from './AddFromCatalog';
+import { formatDay } from '@/lib/date';
+
+const dec = (n) => Number(n).toLocaleString('pl-PL', { maximumFractionDigits: 1 });
+const cap = (t) => (t ? t[0].toUpperCase() + t.slice(1) : '');
 
 export const dynamic = 'force-dynamic';
 
@@ -30,20 +35,23 @@ export default async function KatalogItem({ params }) {
     <>
       <Header user={me} />
       <main className="page stack">
-        <Link href="/katalog" className="back">← Katalog</Link>
-        <section className={`card strain detail k-${item.kind || 'none'}`}>
-          <h1>{item.name}</h1>
+        <Link href="/katalog" className="back"><Icon name="chevronLeft" size={20} />Katalog</Link>
+        <section className="card cat-head">
+          <h1 className="dn">{item.name}</h1>
           <p className="strain-meta">
-            <span>{item.producer}</span>
-            {item.kind && <span className={`badge kind-${item.kind}`}>{item.kind}</span>}
-            {item.form !== 'susz' && <span className="badge form">{formLabel(item.form)}</span>}
-            {item.thc != null && <span className="pill">THC {item.thc}%</span>}
-            {item.cbd != null && <span className="pill">CBD {item.cbd}%</span>}
-            {item.availability && <span className="badge">{item.availability}</span>}
-            {!item.active && <span className="badge low">Brak w źródle</span>}
+            <span className="dn">{item.producer}</span>
+            {item.kind && <span className={`kind kind-${item.kind}`}><i className="kind-dot" aria-hidden="true" />{cap(item.kind)}</span>}
+            {item.form !== 'susz' && <span>{formLabel(item.form)}</span>}
           </p>
-          <p className="muted small">Ostatnio widziana w katalogu: {item.last_seen}. Dostępność zmienia się często i nie jest gwarancją.</p>
+          <dl className="facts">
+            {item.thc != null && <div><dt>THC</dt><dd className="num">{dec(item.thc)}%</dd></div>}
+            {item.cbd != null && <div><dt>CBD</dt><dd className="num">{dec(item.cbd)}%</dd></div>}
+            <div><dt>Dostępność</dt><dd>{item.availability ? cap(item.availability) : 'brak informacji'}</dd></div>
+            <div><dt>Status w źródle</dt><dd>{item.active ? 'Aktualna' : 'Brak w źródle'}</dd></div>
+            <div><dt>Ostatnio widziana</dt><dd className="num">{formatDay(item.last_seen)}</dd></div>
+          </dl>
           {match ? <Link className="btn" href={`/strains/${match.id}`}>Otwórz pełną kartę odmiany</Link> : <AddFromCatalog item={item} />}
+          <p className="muted small">Dostępność zmienia się często i nie jest gwarancją.</p>
         </section>
         {match ? <CharacteristicCard strain={match} hidePrice={isNativeApp(await headers())} /> : (
           <section className="card"><h2>Karta charakterystyki</h2>

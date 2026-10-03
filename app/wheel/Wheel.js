@@ -1,31 +1,50 @@
 'use client';
+import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { KINDS } from '@/lib/kinds';
-import Leaf from '../components/Leaf';
+import Icon from '../components/Icon';
+import { parseNum, decimalProps } from '../components/num';
 
-const COLORS = [['#2f5b3a', '#fff'], ['#78a952', '#10230f'], ['#d9992b', '#2b1c02'], ['#7e6798', '#fff'], ['#1d3b27', '#fff'], ['#b9d68f', '#10230f']];
 const TAU = Math.PI * 2;
+const dec = (n) => Number(n).toLocaleString('pl-PL', { maximumFractionDigits: 1 });
+const cap = (t) => (t ? t[0].toUpperCase() + t.slice(1) : '');
+
+// Kolory z tokenów motywu (canvas nie widzi zmiennych CSS), odczytywane przy każdym rysowaniu, więc zmiana motywu działa
+function tokens() {
+  const cs = getComputedStyle(document.documentElement);
+  const t = (n) => cs.getPropertyValue(n).trim();
+  return {
+    a: t('--surface-2'), b: t('--surface-3'), c: t('--bg'), text: t('--text'), gap: t('--surface'), ring: t('--sep-strong'),
+    kind: { indica: t('--kind-indica'), sativa: t('--kind-sativa'), hybryda: t('--kind-hybryda') }, none: t('--text-3'),
+  };
+}
 
 function draw(cv, items, rot) {
   const hide = document.documentElement.dataset.discreet === '1'; // tryb dyskretny: na kole tylko numery
+  const k = tokens();
   const size = cv.clientWidth, dpr = window.devicePixelRatio || 1;
   cv.width = cv.height = size * dpr;
   const g = cv.getContext('2d');
   g.scale(dpr, dpr);
-  const c = size / 2, R = c - 6, n = items.length, a = TAU / n;
-  const fs = Math.max(11, Math.min(17, (TAU * R * 0.65) / n * 0.6));
+  const c = size / 2, R = c - 4, n = items.length, a = TAU / n;
+  const fs = Math.max(12, Math.min(17, (TAU * R * 0.65) / n * 0.6));
+  const font = getComputedStyle(cv).fontFamily || 'sans-serif';
   items.forEach((it, i) => {
-    const [bg, fg] = COLORS[i % COLORS.length];
-    g.beginPath(); g.moveTo(c, c); g.arc(c, c, R, rot + i * a, rot + (i + 1) * a); g.closePath();
-    g.fillStyle = bg; g.fill(); g.strokeStyle = '#fbfaf2'; g.lineWidth = 2; g.stroke();
-    g.save(); g.translate(c, c); g.rotate(rot + (i + 0.5) * a);
-    g.font = `600 ${fs}px sans-serif`; g.fillStyle = fg; g.textAlign = 'right'; g.textBaseline = 'middle';
-    let t = hide ? `Pozycja ${i + 1}` : it.name; const max = R - 62;
+    const a0 = rot + i * a, a1 = rot + (i + 1) * a;
+    // przy nieparzystej liczbie ostatni segment sąsiadowałby z pierwszym tym samym tłem: dostaje trzeci odcień
+    g.beginPath(); g.moveTo(c, c); g.arc(c, c, R, a0, a1); g.closePath();
+    g.fillStyle = n % 2 === 1 && i === n - 1 ? k.c : i % 2 === 0 ? k.a : k.b; g.fill();
+    g.strokeStyle = k.gap; g.lineWidth = 2; g.stroke();
+    // rodzaj odmiany jako cienki łuk przy krawędzi (znacznik danych)
+    g.beginPath(); g.arc(c, c, R - 3, a0 + 0.012, a1 - 0.012); g.strokeStyle = k.kind[it.kind] || k.none; g.lineWidth = 6; g.stroke();
+    g.save(); g.translate(c, c); g.rotate(a0 + a / 2);
+    g.font = `600 ${fs}px ${font}`; g.fillStyle = k.text; g.textAlign = 'right'; g.textBaseline = 'middle';
+    let t = hide ? `Pozycja ${i + 1}` : it.name; const max = R - 66;
     while (g.measureText(t).width > max && t.length > 3) t = t.slice(0, -2);
-    g.fillText(hide || t === it.name ? t : t + '…', R - 14, 0);
+    g.fillText(hide || t === it.name ? t : t + '…', R - 16, 0);
     g.restore();
   });
-  g.beginPath(); g.arc(c, c, R, 0, TAU); g.strokeStyle = '#1d3b27'; g.lineWidth = 6; g.stroke();
+  g.beginPath(); g.arc(c, c, R, 0, TAU); g.strokeStyle = k.ring; g.lineWidth = 1.5; g.stroke();
 }
 
 export default function Wheel({ items: all }) {
@@ -36,7 +55,7 @@ export default function Wheel({ items: all }) {
   const [kind, setKind] = useState('');
   const [minThc, setMinThc] = useState('');
   const items = useMemo(
-    () => all.filter((i) => (!kind || i.kind === kind) && (minThc === '' || (i.thc != null && i.thc >= Number(minThc)))),
+    () => all.filter((i) => (!kind || i.kind === kind) && (!(parseNum(minThc) >= 0) || (i.thc != null && i.thc >= parseNum(minThc)))),
     [all, kind, minThc],
   );
 
@@ -45,7 +64,12 @@ export default function Wheel({ items: all }) {
     const paint = () => draw(cv.current, items, rot.current);
     paint();
     window.addEventListener('resize', paint);
-    return () => window.removeEventListener('resize', paint);
+    // zmiana motywu (ręczna lub systemu) i trybu dyskretnego przemalowuje koło
+    const mo = new MutationObserver(paint);
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-discreet'] });
+    const mq = matchMedia('(prefers-color-scheme: dark)');
+    mq.addEventListener('change', paint);
+    return () => { window.removeEventListener('resize', paint); mo.disconnect(); mq.removeEventListener('change', paint); };
   }, [items]);
 
   function spin() {
@@ -72,24 +96,25 @@ export default function Wheel({ items: all }) {
   if (!all.length) {
     return (
       <div className="card empty">
+        <Icon name="shuffle" size={32} />
         <h2>Koło jest puste</h2>
-        <p className="muted">Na kole pojawiają się odmiany, których Twój stan („Mam teraz”) jest większy od 0. Uzupełnij stany na liście odmian.</p>
+        <p>Na kole pojawiają się odmiany, których Twój stan („Mam teraz”) jest większy od 0. Uzupełnij stany na liście odmian.</p>
+        <Link href="/" className="btn">Przejdź do odmian</Link>
       </div>
     );
   }
 
+  const pick = (v) => { setKind(v); setWinner(null); };
   const filters = (
-    <div className="toolbar">
-      <div className="chips" role="group" aria-label="Filtr rodzaju">
-        <button className={`chip ${kind === '' ? 'on' : ''}`} onClick={() => { setKind(''); setWinner(null); }}>Wszystkie</button>
-        {KINDS.map((k) => (
-          <button key={k.value} className={`chip kind-${k.value} ${kind === k.value ? 'on' : ''}`}
-            onClick={() => { setKind(kind === k.value ? '' : k.value); setWinner(null); }}>{k.label}</button>
+    <div className="wh-tools">
+      <div className="seg" role="group" aria-label="Rodzaj">
+        {[['', 'Wszystkie'], ...KINDS.map((k) => [k.value, k.label])].map(([v, l]) => (
+          <button key={v || 'all'} type="button" aria-pressed={kind === v} className={kind === v ? 'on' : ''} onClick={() => pick(v)}>{l}</button>
         ))}
       </div>
       <div className="sortbox">
         <label htmlFor="minthc">Minimalne THC (%)</label>
-        <input id="minthc" className="input" type="number" min="0" max="100" step="0.5" inputMode="decimal" value={minThc}
+        <input id="minthc" className="input" {...decimalProps} value={minThc}
           onChange={(e) => { setMinThc(e.target.value); setWinner(null); }} />
       </div>
     </div>
@@ -100,34 +125,41 @@ export default function Wheel({ items: all }) {
       <div className="wheel-box">
         <div className="wheel-pointer" aria-hidden="true" />
         <canvas ref={cv} className="wheel-canvas" role="img" aria-label={`Koło z ${items.length} odmianami`} />
-        <button className="wheel-hub" onClick={spin} disabled={spinning} aria-label="Zakręć kołem">
-          <Leaf size={34} />
+        <button type="button" className="wheel-hub" onClick={spin} disabled={spinning} aria-label="Zakręć kołem">
+          <Icon name="shuffle" size={22} />
           <span>{spinning ? '…' : 'Kręć'}</span>
         </button>
       </div>
-      <div className="card wheel-side" aria-live="polite">
+      <div className="wheel-side" aria-live="polite">
         {winner ? (
           <>
-            <p className="muted">Wylosowano</p>
-            <h2 className="dn">{winner.name}</h2>
-            <p className="strain-meta"><span className="dn">{winner.producer}</span><span className="badge">{winner.type}</span></p>
-            <p>Masz jeszcze <b>{winner.current} g</b>.</p>
-            <button className="btn ghost small" onClick={spin} disabled={spinning}>Losuj jeszcze raz</button>
+            <h2 className="section-label">Wylosowano</h2>
+            <ul className="list">
+              <li><Link href={`/strains/${winner.id}`} className="list-row wheel-result">
+                <span className="lr-main"><b className="cat-name dn">{winner.name}</b>
+                  <span className="lr-sub"><span className="dn">{winner.producer}</span>{winner.kind && <> · <span className={`kind kind-${winner.kind}`}><i className="kind-dot" aria-hidden="true" />{cap(winner.kind)}</span></>}{winner.thc != null && <span className="num"> · THC {dec(winner.thc)}%</span>}</span></span>
+                <span className="lr-value">{dec(winner.current)} g<small>na stanie</small></span>
+                <Icon name="chevronRight" size={20} className="lr-chev" /></Link></li>
+            </ul>
+            <button type="button" className="btn ghost wheel-again" onClick={spin} disabled={spinning}>Losuj jeszcze raz</button>
           </>
         ) : (
-          <>
-            <p className="muted">Na kole: {items.length} {items.length === 1 ? 'odmiana' : 'odmian'} z zapasem większym od 0.</p>
-            <p>Naciśnij środek koła, żeby wylosować, czego spróbować dziś.</p>
-          </>
+          <p className="muted wheel-hint"><span className="num">{items.length}</span> {items.length === 1 ? 'odmiana' : items.length % 10 >= 2 && items.length % 10 <= 4 && (items.length % 100 < 12 || items.length % 100 > 14) ? 'odmiany' : 'odmian'} z zapasem większym od 0. Naciśnij środek koła, żeby wylosować, czego spróbować dziś.</p>
         )}
       </div>
     </div>
   );
 
   return (
-    <div className="stack">
+    <div className="wh">
       {filters}
-      {items.length ? wheel : <div className="card empty"><h2>Brak odmian dla tych filtrów</h2><p className="muted">Zmień rodzaj lub obniż minimalne THC.</p></div>}
+      {items.length ? wheel : (
+        <div className="card empty">
+          <Icon name="filter" size={32} />
+          <h2>Brak odmian dla tych filtrów</h2>
+          <p>Zmień rodzaj lub obniż minimalne THC.</p>
+        </div>
+      )}
     </div>
   );
 }

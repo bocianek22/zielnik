@@ -1,6 +1,6 @@
 {
   "name": "zielnik-mobile",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Natywna powłoka Zielnika (Capacitor): Android i iOS ładujące produkcyjną aplikację webową.",
   "scripts": {
@@ -17,6 +17,7 @@
     "@capacitor/app": "^8.1.2",
     "@capacitor/browser": "^8.0.5",
     "@capacitor/core": "^8.5.2",
+    "@capacitor/haptics": "^8.0.2",
     "@capacitor/ios": "^8.5.2",
     "@capacitor/preferences": "^8.0.1",
     "@capacitor/push-notifications": "^8.1.3",

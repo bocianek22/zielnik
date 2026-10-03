@@ -8,6 +8,31 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.31.0] - 2026-10
+### Dodano
+- Zdjęcia odmian i testów w prywatnym Vercel Blob (PLA-4, krok 1): gdy jest `BLOB_READ_WRITE_TOKEN` i `PHOTOS_BLOB=1` (opt-in), nowe zdjęcie trafia do `zielnik-photos/<losowy-uuid>.<rozszerzenie>` (`access: 'private'`), a w bazie zostaje tylko ścieżka w nowej kolumnie `blob_path` (`strain_photos`, `strain_tests`; `data = ''`). Odczyt dalej idzie przez trasy `/api/strains/[id]/photo` i `/api/tests/[tid]/photo` z tą samą kontrolą uprawnień (`can_see` dla testów) i prywatnym cache. Bez tokenu lub bez flagi działa jak dotąd (base64 w bazie); sam token (używany przez kopie) włącza tylko odczyt i usuwanie. Brak obiektu lub tokenu przy odczycie daje 404.
+- Usunięcie lub podmiana zdjęcia, testu, odmiany (także przez admina i zgłoszenie) oraz konta usuwa obiekt z Blob (best effort, błąd tylko w logu).
+- `scripts/photos-to-blob.js`: jednorazowa, idempotentna migracja istniejących zdjęć base64 do Blob, partiami, z trybem `--dry-run` (patrz `docs/ARCHITEKTURA.md`).
+- Powiadomienia push do aplikacji natywnej przez Firebase Cloud Messaging (HTTP v1): `lib/fcm.js` (token OAuth z konta usługi w `FIREBASE_SERVICE_ACCOUNT`, podpis RS256, cache tokenu). Przypomnienia i powiadomienie testowe trafiają też na tokeny FCM, z neutralną treścią (do FCM zawsze bez szczegółów, bo przechodzi przez Google). Token z `UNREGISTERED`/404/`SENDER_ID_MISMATCH` jest usuwany; błędy konfiguracji i usługi (OAuth, 403, 429, 5xx, timeout) nie liczą się jako porażka tokenu, a nieudane OAuth jest pamiętane 60 s. Bez zmiennej wysyłka FCM jest wyłączona.
+- ESLint 9 (`npm run lint`, `eslint.config.mjs`) z regułami `no-undef`, `no-unused-vars` i reguł hooków Reacta, uruchamiany w CI po `npm run check`; reguły React Compiler działają jako ostrzeżenia.
+- System projektowy (`docs/DESIGN.md`): tokeny kolorów, typografii, odstępów i promieni w `app/globals.css` (jasny i ciemny motyw), jeden zestaw ikon SVG (`Icon.js`), style podzielone na pliki obszarów w `app/styles/`.
+- Aplikacja Android wygląda natywnie: bez pasków przewijania i efektu przeciągnięcia przeglądarki, haptyka, odświeżanie przeciągnięciem, przejścia między ekranami, ekran startowy i ikona, ekran offline, obsługa klawiatury, ciasteczko sesji zapisywane przy zejściu do tła.
+- Wspólny parser liczb (`app/components/num.js`) i format daty (`lib/date.js`) z testami.
+### Zmieniono
+- Eksport konta z `?photos=1` dołącza zdjęcia z Blob jako base64 (bez zmiany formatu). Kopia zapasowa: `strain_tests` zawiera teraz `blob_path` (ścieżka zamiast base64, jak dotąd bez `data`); `strain_photos` nadal nie jest w kopii.
+- Cron przypomnień i test działają, gdy skonfigurowany jest Web Push albo FCM (wcześniej tylko VAPID); `/api/push/config` zwraca też `fcm` i `any`. W profilu w aplikacji przycisk testu pojawia się, gdy serwer ma Firebase.
+- Nowy wygląd wszystkich ekranów: nawigacja, lista i karta odmiany, szczegóły, profil jako ustawienia, logowanie i rejestracja, katalog i wyszukiwanie, rankingi i koło, historia, raport, dziennik objawów, recepty, znajomi, grupy, profil publiczny, wiedza, premium, panel admina (zakładki, listy zamiast tabel), ekrany błędu i 404.
+- Na telefonie „Dodaj odmianę” jest pod przyciskiem „+”, a „Wyloguj” w menu „Więcej”; zwinięta karta to wiersz listy (nazwa, dane, ocena, szybkie akcje, stan), a pola ocen i stanów są po „Szczegóły”.
+- Pola ilości, THC, CBD i cen przyjmują przecinek („0,5”) i pokazują klawiaturę dziesiętną; błędna liczba daje komunikat zamiast cichego zera.
+- Cele dotykowe co najmniej 44 px, karta odmiany mieści się na ekranie 320 px, przycisk „+” nie zasłania końca strony szczegółów.
+- Tryb dyskretny obejmuje też profil publiczny, grupy, raport (wydruk pokazuje nazwy), historię zmian odmiany i komunikaty katalogu.
+### Naprawiono
+- Przełączenie zakładki w panelu admina kasowało komunikat z hasłem tymczasowym po resecie konta.
+- Aplikacja Android: przytrzymanie pola tekstowego nie pozwalało wkleić tekstu; nawigacja po kotwicy (#) zamrażała ekran na chwilę; podwójna wibracja przełączników; przerwane przeciąganie odświeżania mogło przeładować stronę.
+- Build APK przerywał niepoprawny komentarz w `colors.xml`.
+### Uwaga przy wdrożeniu
+- Migracja addytywna: kolumna `blob_path` w `strain_photos` i `strain_tests` (pierwsze żądanie po wdrożeniu). Zdjęcia nadal w bazie, dopóki nie ustawisz `PHOTOS_BLOB=1`; migrację starych zdjęć (`scripts/photos-to-blob.js`) uruchom dopiero po kopii bazy, najpierw `--dry-run` i `--limit=5`.
+
 ## [0.30.0] - 2026-10
 ### Dodano
 - Szybkie akcje „Zużyłem” i „Wykupiłem” na wierzchu karty odmiany, z panelem gramów i szybkimi wartościami (UX-3).
