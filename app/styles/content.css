@@ -54,3 +54,6 @@
 .plan-page .card > p { max-width: 65ch; }
 .plan-page .card > .btn { margin-top: var(--s-4); }
 @media (min-width: 761px) { .plan-page .card > .btn.block { width: auto; } }
+
+.sources { margin: var(--s-2) 0 0; padding-left: var(--s-5); color: var(--text-2); }
+.sources li { margin-bottom: var(--s-1); overflow-wrap: anywhere; }

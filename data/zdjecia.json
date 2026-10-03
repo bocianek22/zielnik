@@ -1,0 +1,76 @@
+{
+  "_info": "Manifest zdjęć na wolnych licencjach (Wikimedia Commons). Wszystkie wpisy są POGLĄDOWE (rodzaj rośliny lub kwiatu konopi), żaden nie przedstawia konkretnej odmiany z katalogu. Pobieranie nie jest zaimplementowane. Pole verified=false oznacza, że licencję odczytano z wyników wyszukiwarki, a autor i dokładne warunki (strona pliku) nie zostały potwierdzone, bo commons.wikimedia.org, en.wikipedia.org i api.openverse.org są zablokowane w środowisku redakcyjnym. Przed użyciem w aplikacji trzeba otworzyć sourcePage, wpisać author i potwierdzić licencję (verified=true).",
+  "updated": "2026-10-03",
+  "photos": [
+    {
+      "id": "commons-cannabis-sativa-1",
+      "fileUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Cannabis_sativa.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Cannabis_sativa.jpg",
+      "author": null,
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "depicts": "poglądowe",
+      "subject": "roślina Cannabis sativa",
+      "verified": false
+    },
+    {
+      "id": "commons-hampa-narbild",
+      "fileUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Hampa_Cannabis_sativa_L._(n%C3%A4rbild).jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Hampa_Cannabis_sativa_L._(n%C3%A4rbild).jpg",
+      "author": null,
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "depicts": "poglądowe",
+      "subject": "zbliżenie Cannabis sativa L.",
+      "verified": false
+    },
+    {
+      "id": "commons-trichomes-flower",
+      "fileUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Trichomes_on_a_Cannabis_Sativa_Flower.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Trichomes_on_a_Cannabis_Sativa_Flower.jpg",
+      "author": null,
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "depicts": "poglądowe",
+      "subject": "trichomy na kwiecie (ilustracja do artykułu o trichomach)",
+      "verified": false
+    },
+    {
+      "id": "commons-cannabis-sativa-2",
+      "fileUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Cannabis_sativa_2.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Cannabis_sativa_2.jpg",
+      "author": null,
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "depicts": "poglądowe",
+      "subject": "roślina Cannabis sativa",
+      "verified": false
+    },
+    {
+      "id": "commons-cannabis-sativa-paren-2",
+      "fileUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Cannabis_sativa_(2).jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Cannabis_sativa_(2).jpg",
+      "author": null,
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "depicts": "poglądowe",
+      "subject": "roślina Cannabis sativa",
+      "verified": false
+    },
+    {
+      "id": "commons-kohler-1897",
+      "fileUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Cannabis_sativa_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-026.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Cannabis_sativa_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-026.jpg",
+      "author": "Köhler's Medizinal-Pflanzen (ilustracja botaniczna, 1897; autor szczegółowy do potwierdzenia na stronie pliku)",
+      "license": "domena publiczna",
+      "licenseUrl": null,
+      "depicts": "poglądowe",
+      "subject": "ilustracja botaniczna rośliny (nie fotografia)",
+      "verified": false
+    }
+  ],
+  "notSuitable": [
+    "Zdjęcia konkretnych odmian z aptek, sklepów, forów i stron producentów: brak licencji lub zgody, nie używać.",
+    "Pliki z Commons dotyczące kwiatów suszonych (Marijuana-Cannabis-Weed-Bud-Gram.jpg, Macro cannabis bud.jpg, Drying Cannabis Buds.jpg): licencji nie udało się odczytać z wyników wyszukiwania, więc nie wpisano ich do manifestu."
+  ]
+}
