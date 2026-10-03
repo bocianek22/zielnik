@@ -70,7 +70,7 @@ test('FCM: zapis tokenu bez VAPID, walidacja, tylko własne, pominięte przy wys
   // deliver() wysyła tylko Web Push: token FCM nie trafia do wysyłki VAPID
   const sent = [];
   const r = await push.deliver(A, { title: 'x' }, async (s) => { sent.push(s); });
-  assert.deepEqual(r, { ok: 0, failed: 0, removed: 0 });
+  assert.deepEqual(r, { ok: 0, failed: 0, removed: 0, skipped: 1 }); // token FCM pominięty (brak konta Firebase)
   assert.equal(sent.length, 0);
 
   assert.deepEqual((await call(A, 'push/subscription', 'DELETE', { kind: 'fcm', token: TOKEN })).json, { ok: true, removed: true });
@@ -99,19 +99,19 @@ test('FCM: wysyłka przypomnień i testu do tokenu, UNREGISTERED usuwa token, in
     await q`DELETE FROM push_subscriptions`;
     for (const t of [GOOD, DEAD, FLAKY]) assert.equal((await call(A, 'push/subscription', 'POST', { kind: 'fcm', token: t, claim: true })).json.owned, true);
     assert.equal((await call(A, 'push/test', 'POST')).status, 503);
-    assert.deepEqual(await push.deliver(A, push.TEST_PAYLOAD), { ok: 0, failed: 0, removed: 0 });
+    assert.deepEqual(await push.deliver(A, push.TEST_PAYLOAD), { ok: 0, failed: 0, removed: 0, skipped: 3 });
     assert.equal(sent.length, 0);
 
     process.env.FIREBASE_SERVICE_ACCOUNT = JSON.stringify({ project_id: 'zielnik-test', client_email: 'p@zielnik-test.iam.gserviceaccount.com', private_key: privateKey });
     resetFcmCache();
     assert.equal((await call(A, 'push/config', 'GET')).json.fcm, true);
 
-    // powiadomienie testowe: dobry dotarł, martwy usunięty, niestabilny policzony
+    // powiadomienie testowe: dobry dotarł, martwy usunięty, niestabilny (503) zostaje, bez zwiększania fails
     const t = await call(A, 'push/test', 'POST');
     assert.equal(t.status, 200, JSON.stringify(t.json));
     assert.deepEqual({ ok: t.json.ok, failed: t.json.failed, removed: t.json.removed }, { ok: 1, failed: 1, removed: 1 });
     assert.deepEqual((await q`SELECT endpoint, fails FROM push_subscriptions ORDER BY endpoint`).map((r) => [r.endpoint, r.fails]),
-      [[`fcm:${FLAKY}`, 1], [`fcm:${GOOD}`, 0]]);
+      [[`fcm:${FLAKY}`, 0], [`fcm:${GOOD}`, 0]]);
     const m = sent.find((x) => x.token === GOOD);
     assert.deepEqual(m.notification, { title: 'Zielnik', body: push.TEST_PAYLOAD.body });
     assert.equal(m.data.url, '/profil');
@@ -129,5 +129,57 @@ test('FCM: wysyłka przypomnień i testu do tokenu, UNREGISTERED usuwa token, in
     globalThis.fetch = realFetch;
     delete process.env.FIREBASE_SERVICE_ACCOUNT;
     resetFcmCache();
+  }
+});
+
+test('FCM: błędy usługi nie zwiększają fails, treść bez szczegółów mimo showDetails, test bez konfiguracji daje 503', { skip }, async () => {
+  const { generateKeyPairSync } = await import('node:crypto');
+  const { privateKey } = generateKeyPairSync('rsa', { modulusLength: 2048, privateKeyEncoding: { type: 'pkcs8', format: 'pem' }, publicKeyEncoding: { type: 'spki', format: 'pem' } });
+  const { resetFcmCache } = await import('../../lib/fcm.js');
+  const { bartek: B } = ids;
+  const T = 'svc' + TOKEN;
+  const realFetch = globalThis.fetch, realErr = console.error;
+  const reply = (status, body) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
+  let mode = 'ok', oauth = 200; const sent = [];
+  globalThis.fetch = async (url, init) => {
+    if (String(url) === 'https://oauth2.googleapis.com/token') return oauth === 200 ? reply(200, { access_token: 'tok', expires_in: 3600 }) : reply(oauth, {});
+    sent.push(JSON.parse(init.body).message);
+    return mode === 'ok' ? reply(200, {}) : reply(Number(mode), { error: { status: 'X' } });
+  };
+  console.error = () => {};
+  try {
+    process.env.FIREBASE_SERVICE_ACCOUNT = JSON.stringify({ project_id: 'p', client_email: 'p@p.iam.gserviceaccount.com', private_key: privateKey });
+    resetFcmCache();
+    await q`DELETE FROM push_subscriptions`;
+    await call(B, 'push/subscription', 'POST', { kind: 'fcm', token: T, claim: true });
+    const fails = async () => (await q`SELECT fails FROM push_subscriptions WHERE user_id = ${B}`)[0].fails;
+    for (const m of ['403', '429', '503']) { mode = m; assert.equal((await push.deliver(B, { title: 'x' })).failed, 1); }
+    assert.equal(await fails(), 0);
+    mode = '400'; await push.deliver(B, { title: 'x' }); // błąd 400 niedotyczący tokenu jest liczony
+    assert.equal(await fails(), 1);
+    mode = 'ok'; oauth = 500; resetFcmCache();
+    assert.equal((await push.deliver(B, { title: 'x' })).failed, 1);
+    const r = await push.deliver(B, { title: 'x' }); // negatywny cache: pominięte, bez błędu
+    assert.deepEqual(r, { ok: 0, failed: 0, removed: 0, skipped: 1 });
+    assert.equal(await fails(), 1);
+    oauth = 200; resetFcmCache();
+
+    // szczegóły włączone: FCM i tak dostaje neutralną treść
+    await call(B, 'push/prefs', 'PUT', { showDetails: true });
+    const [{ d }] = await q`SELECT (now() AT TIME ZONE 'Europe/Warsaw')::date AS d`;
+    await q`INSERT INTO prescriptions (user_id, issued_on, valid_until, grams) VALUES (${B}, ${d}::date - 10, ${d}::date + 2, 10)`;
+    sent.length = 0;
+    assert.equal((await push.sendReminders({ userId: B, respectHour: false })).notifications, 1);
+    assert.equal(sent[0].notification.body, 'Masz 1 przypomnienie. Otwórz aplikację, aby zobaczyć szczegóły.');
+
+    // test: jedyna subskrypcja jest rodzaju bez konfiguracji (Web Push bez VAPID) = czytelny 503, nie 502
+    await q`DELETE FROM push_subscriptions`;
+    await q`INSERT INTO push_subscriptions (user_id, kind, endpoint, keys) VALUES (${B}, 'webpush', 'https://fcm.googleapis.com/wp/x', '{}'::jsonb)`;
+    const t = await call(B, 'push/test', 'POST');
+    assert.equal(t.status, 503);
+    assert.match(t.json.error, /nie są jeszcze skonfigurowane/);
+  } finally {
+    globalThis.fetch = realFetch; console.error = realErr;
+    delete process.env.FIREBASE_SERVICE_ACCOUNT; resetFcmCache();
   }
 });
