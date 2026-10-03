@@ -76,3 +76,58 @@ test('FCM: zapis tokenu bez VAPID, walidacja, tylko własne, pominięte przy wys
   assert.deepEqual((await call(A, 'push/subscription', 'DELETE', { kind: 'fcm', token: TOKEN })).json, { ok: true, removed: true });
   assert.equal((await q`SELECT count(*)::int AS n FROM push_subscriptions`)[0].n, 0);
 });
+
+test('FCM: wysyłka przypomnień i testu do tokenu, UNREGISTERED usuwa token, inne błędy są liczone', { skip }, async () => {
+  const { generateKeyPairSync } = await import('node:crypto');
+  const { privateKey } = generateKeyPairSync('rsa', { modulusLength: 2048, privateKeyEncoding: { type: 'pkcs8', format: 'pem' }, publicKeyEncoding: { type: 'spki', format: 'pem' } });
+  const { resetFcmCache } = await import('../../lib/fcm.js');
+  const { ania: A } = ids;
+  const GOOD = 'good' + TOKEN, DEAD = 'dead' + TOKEN, FLAKY = 'flaky' + TOKEN;
+  const realFetch = globalThis.fetch;
+  const sent = [];
+  const reply = (status, body) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
+  globalThis.fetch = async (url, init) => {
+    if (String(url) === 'https://oauth2.googleapis.com/token') return reply(200, { access_token: 'tok', expires_in: 3600 });
+    const m = JSON.parse(init.body).message;
+    sent.push(m);
+    if (m.token === DEAD) return reply(404, { error: { status: 'NOT_FOUND', details: [{ errorCode: 'UNREGISTERED' }] } });
+    if (m.token === FLAKY) return reply(503, { error: { status: 'UNAVAILABLE' } });
+    return reply(200, { name: 'projects/p/messages/1' });
+  };
+  try {
+    // bez konta Firebase tokeny są pomijane: żadnych żądań ani błędów
+    await q`DELETE FROM push_subscriptions`;
+    for (const t of [GOOD, DEAD, FLAKY]) assert.equal((await call(A, 'push/subscription', 'POST', { kind: 'fcm', token: t, claim: true })).json.owned, true);
+    assert.equal((await call(A, 'push/test', 'POST')).status, 503);
+    assert.deepEqual(await push.deliver(A, push.TEST_PAYLOAD), { ok: 0, failed: 0, removed: 0 });
+    assert.equal(sent.length, 0);
+
+    process.env.FIREBASE_SERVICE_ACCOUNT = JSON.stringify({ project_id: 'zielnik-test', client_email: 'p@zielnik-test.iam.gserviceaccount.com', private_key: privateKey });
+    resetFcmCache();
+    assert.equal((await call(A, 'push/config', 'GET')).json.fcm, true);
+
+    // powiadomienie testowe: dobry dotarł, martwy usunięty, niestabilny policzony
+    const t = await call(A, 'push/test', 'POST');
+    assert.equal(t.status, 200, JSON.stringify(t.json));
+    assert.deepEqual({ ok: t.json.ok, failed: t.json.failed, removed: t.json.removed }, { ok: 1, failed: 1, removed: 1 });
+    assert.deepEqual((await q`SELECT endpoint, fails FROM push_subscriptions ORDER BY endpoint`).map((r) => [r.endpoint, r.fails]),
+      [[`fcm:${FLAKY}`, 1], [`fcm:${GOOD}`, 0]]);
+    const m = sent.find((x) => x.token === GOOD);
+    assert.deepEqual(m.notification, { title: 'Zielnik', body: push.TEST_PAYLOAD.body });
+    assert.equal(m.data.url, '/profil');
+
+    // przypomnienie z crona: neutralna treść (bez szczegółów i nazw odmian) trafia na token FCM
+    sent.length = 0;
+    const [{ d }] = await q`SELECT (now() AT TIME ZONE 'Europe/Warsaw')::date AS d`;
+    await q`INSERT INTO prescriptions (user_id, issued_on, valid_until, grams) VALUES (${A}, ${d}::date - 10, ${d}::date + 2, 10)`;
+    const stats = await push.sendReminders({ userId: A, respectHour: false });
+    assert.equal(stats.notifications, 1);
+    const rem = sent.find((x) => x.token === GOOD);
+    assert.equal(rem.notification.body, 'Masz 1 przypomnienie. Otwórz aplikację, aby zobaczyć szczegóły.');
+    assert.equal(rem.data.url, '/recepty');
+  } finally {
+    globalThis.fetch = realFetch;
+    delete process.env.FIREBASE_SERVICE_ACCOUNT;
+    resetFcmCache();
+  }
+});

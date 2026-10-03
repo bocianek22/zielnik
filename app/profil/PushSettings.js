@@ -130,12 +130,12 @@ export default function PushSettings() {
   else if (!env.supported) body = <p className="muted">Ta przeglądarka nie obsługuje powiadomień push.</p>;
   body ??= (
     <>
-      {env.native && <p className="muted small">Wysyłka do aplikacji (Firebase) jest w przygotowaniu: telefon zostanie zapisany, a przypomnienia zaczną docierać, gdy serwer ją obsłuży.</p>}
+      {env.native && !cfg.fcm && <p className="muted small">Serwer nie ma jeszcze włączonej wysyłki do aplikacji (Firebase): telefon zostanie zapisany, a przypomnienia zaczną docierać po jej skonfigurowaniu.</p>}
       <div className="row">
         {sub
           ? <button type="button" className="btn ghost" onClick={disable} disabled={busy}>Wyłącz na tym urządzeniu</button>
           : <button type="button" className="btn" onClick={enable} disabled={busy}>Włącz powiadomienia</button>}
-        {sub && !sub.native && <button type="button" className="btn ghost" onClick={test} disabled={busy}>Wyślij testowe powiadomienie</button>}
+        {sub && (!sub.native || cfg.fcm) && <button type="button" className="btn ghost" onClick={test} disabled={busy}>Wyślij testowe powiadomienie</button>}
       </div>
       {prefs && (
         <fieldset className="push-prefs" aria-label="Rodzaje przypomnień" disabled={!sub && !prefs.devices}>
