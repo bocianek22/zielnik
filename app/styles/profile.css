@@ -23,7 +23,7 @@
 .danger-zone h2 { color: var(--danger); }
 .settings .card > h2 + .seg { margin-top: var(--s-3); }
 .settings .vis-select { max-width: none; }
-.settings .row > [role="status"]:empty { display: none; } /* pusty komunikat nie zabiera miejsca w rzędzie przycisków */
+.settings .row > [role="status"]:empty { position: absolute; } /* pusty komunikat nie zabiera miejsca, ale zostaje dla czytnika ekranu */
 .profile-id { padding-bottom: var(--s-4); border-bottom: 1px solid var(--sep); }
 .native-version { text-align: center; font-size: var(--fs-sm); }
 

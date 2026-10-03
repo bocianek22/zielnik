@@ -353,13 +353,9 @@ a.chip.static:hover { background: var(--surface-3); color: var(--text); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .seg button.on { background: var(--surface-3); box-shadow: 0 0 0 1px var(--sep-strong); } }
 @media (max-width: 480px) {
   .seg button { padding: 0 var(--s-3); }
-  .seg:not(.admin-tabs) { width: 100%; flex-wrap: nowrap; }
-  .seg:not(.admin-tabs) button { flex: 1 1 0; white-space: nowrap; }
-}
-/* 320 px: cztery opcje się nie mieszczą, więc segmenty wracają do zawijania */
-@media (max-width: 359px) {
-  .seg:not(.admin-tabs) { flex-wrap: wrap; }
-  .seg:not(.admin-tabs) button { flex: 1 1 auto; }
+  /* pełna szerokość; gdy opcje się nie mieszczą (wąski ekran, duża czcionka systemowa), segmenty się zawijają */
+  .seg:not(.admin-tabs) { width: 100%; flex-wrap: wrap; }
+  .seg:not(.admin-tabs) button { flex: 1 1 auto; white-space: nowrap; }
 }
 
 /* ===== Tabele ===== */
