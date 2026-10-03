@@ -162,7 +162,6 @@ const cap = (s) => (s ? s[0].toUpperCase() + s.slice(1) : s);
 
 export default function StrainCard({ strain, meId, hidePrice = false, mates, low, cmpOn, onCmp, onEdit, onEntrySaved }) {
   const [expanded, setExpanded] = useState(false); // na telefonie szczegóły są domyślnie zwinięte
-  const [quickUsed, setQuickUsed] = useState(false); // po zapisie panel zostaje, żeby komunikat nie zniknął przy stanie 0 g
   const mine = strain.entries.find((e) => e.userId === meId);
   const others = strain.entries.filter((e) => e.userId !== meId);
   const rated = strain.entries.filter((e) => e.rating != null);
@@ -229,8 +228,9 @@ export default function StrainCard({ strain, meId, hidePrice = false, mates, low
         </div>
       )}
 
-      {mine && (quickUsed || Number(mine.current) > 0 || Number(mine.remaining) > 0) && (
-        <QuickActions strainId={strain.id} name={strain.name} current={mine.current} remaining={mine.remaining} onSaved={(en) => { setQuickUsed(true); onEntrySaved(strain.id, en); }} />
+      {/* „Wykupiłem” zawsze na wierzchu: pierwszy zakup nowej odmiany bez rozwijania karty */}
+      {mine && (
+        <QuickActions strainId={strain.id} name={strain.name} current={mine.current} remaining={mine.remaining} onSaved={(en) => { onEntrySaved(strain.id, en); }} />
       )}
 
       <div className="entries">

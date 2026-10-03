@@ -19,8 +19,7 @@
 .detail-actions { margin-top: var(--s-2); }
 .detail-desc { white-space: pre-wrap; overflow-wrap: anywhere; margin: 0 0 var(--s-3); }
 @media (max-width: 760px) {
-  /* FAB (56 px + 16 px odstępu) nie może zasłaniać ostatniej treści (np. historii zmian) */
-  .detail-page { padding-bottom: calc(56px + var(--s-6)); }
+  .detail-page { padding-bottom: var(--s-6); }
   .detail { padding: 0; overflow: hidden; }
   .detail-top { gap: 0; }
   .detail .photo-open, .detail-photo { width: 100%; border-radius: 0; }

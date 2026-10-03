@@ -41,7 +41,8 @@ export default function BottomNav({ isAdmin }) {
           <Link href="/historia" role="menuitem" className="list-row"><Icon name="clock" /><span className="lr-main">Historia zużycia i zakupów</span></Link>
         </div>
       )}
-      {!open && (
+      {/* „+” tylko na liście odmian: tam dodaje się odmiany i notuje zużycie */}
+      {!open && path === '/' && (
         <button type="button" className="fab" onClick={() => setFab((f) => !f)} aria-label={fab ? 'Zamknij' : 'Dodaj'} aria-expanded={fab}>
           <Icon name={fab ? 'close' : 'plus'} />
         </button>
