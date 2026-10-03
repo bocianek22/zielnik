@@ -12,7 +12,7 @@ export const POST = safe(async (req, { params }) => {
   const id = intId((await params).id);
   const body = await req.json().catch(() => ({}));
   const g = parseNumber(body.grams, 0.01, 1000);
-  if (g == null || Number.isNaN(g)) return bad('Podaj ilość w gramach (0,01–1000).');
+  if (g == null || Number.isNaN(g)) return bad('Podaj ilość (g lub ml, 0,01–1000).');
   const rid = requestId(body.requestId);
   if (rid === undefined) return bad('Błędny identyfikator zapisu.');
 

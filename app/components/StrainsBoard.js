@@ -10,15 +10,21 @@ import StrainCard from './StrainCard';
 import StrainForm from './StrainForm';
 import Icon from './Icon';
 import TodayPanel from './TodayPanel';
+import SearchSuggest from './SearchSuggest';
+import { matches } from '@/lib/searchMatch';
+import { strainItems, producerItems, flavorItems } from '@/lib/searchItems';
+import { unitOf } from '@/lib/units';
 
 const avgOf = (s) => {
   const r = s.entries.filter((e) => e.rating != null);
   return r.length ? r.reduce((a, e) => a + Number(e.rating), 0) / r.length : null;
 };
 
-export default function StrainsBoard({ initialStrains, initialOptions, me, usage = { perDay: 0, cost: 0 }, bought = { grams: 0, cost: 0 },
+export default function StrainsBoard({ initialStrains, initialOptions, me, usage = { perDay: 0, perDayMl: 0, cost: 0 }, bought = { grams: 0, ml: 0, cost: 0 },
   series: initialSeries = [], prescriptions = { items: [], total: 0, urgent: false }, recent: initialRecent = [], symptoms = null }) {
-  const [boughtG, setBoughtG] = useState(bought.grams);
+  // wykup w tym miesiącu osobno w g (susz) i ml (olej, pen)
+  const [boughtU, setBoughtU] = useState({ g: bought.grams, ml: bought.ml || 0 });
+  const boughtG = boughtU.g;
   const [series, setSeries] = useState(initialSeries);
   const [recent, setRecent] = useState(initialRecent);
   const [low, setLow] = useState(3);      // próg "Kończy się" (g), zapisywany w tej przeglądarce
@@ -33,7 +39,7 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
     set(e.target.value === '' ? 0 : Number(e.target.value));
     try { localStorage.setItem(key, e.target.value || '0'); } catch {}
   };
-  const dailyUse = usage.perDay;
+  const dailyUse = usage.perDay; // g/dzień (susz); ml/dzień: usage.perDayMl
   const [strains, setStrains] = useState(initialStrains);
   const [options, setOptions] = useState(initialOptions);
   const [query, setQuery] = useState('');
@@ -78,10 +84,13 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
   // "Do wykupienia" jest wspólne dla puli, więc aktualizujemy je we wszystkich odmianach z tej samej puli
   function entrySaved(strainId, rawEntry) {
     const { bought: b, used, ...entry } = rawEntry;
-    if (b) setBoughtG((x) => x + b);
+    // gramy i ml liczone osobno: jednostka z postaci zapisanej odmiany
+    const unit = unitOf(strains.find((s) => s.id === strainId)?.form);
+    if (b) setBoughtU((x) => ({ ...x, [unit]: x[unit] + b }));
     // zapisane zużycie trafia do dzisiejszego słupka wykresu w panelu „Dziś”
     // ujemne used: „Cofnij” zdejmuje cofnięte zużycie ze słupka (wpis był z ostatnich minut, więc z dzisiaj)
-    if (used) setSeries((list) => list.map((d, i) => (i === list.length - 1 ? { ...d, grams: Math.max(d.grams + Number(used), 0) } : d)));
+    const sk = unit === 'ml' ? 'ml' : 'grams';
+    if (used) setSeries((list) => list.map((d, i) => (i === list.length - 1 ? { ...d, [sk]: Math.max((Number(d[sk]) || 0) + Number(used), 0) } : d)));
     if (used > 0) setRecent((ids) => [strainId, ...ids.filter((x) => x !== strainId)]);
     setStrains((list) => {
       const key = list.find((s) => s.id === strainId)?.pool_key;
@@ -102,14 +111,26 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
     return m;
   }, [strains]);
   const matesOf = (s) => (pools.get(s.pool_key) || []).filter((o) => o.id !== s.id).map((o) => o.name);
-  const totalRemaining = [...pools.values()].reduce((a, list) => a + Number(mine(list[0]).remaining), 0);
+  // sumy osobno dla g i ml (pula łączy tylko odmiany tej samej postaci, więc ma jedną jednostkę)
+  const byUnit = (list, val) => list.reduce((a, s) => { a[unitOf(s.form)] += val(s); return a; }, { g: 0, ml: 0 });
+  const remainingU = byUnit([...pools.values()].map((list) => list[0]), (s) => Number(mine(s).remaining) || 0);
+  const totalRemaining = remainingU.g;
 
-  const totalStock = strains.reduce((a, s) => a + Number(mine(s).current || 0), 0);
+  const stockU = byUnit(strains, (s) => Number(mine(s).current || 0));
+  const totalStock = stockU.g;
 
   const tastes = useMemo(() => [...new Set(strains.map((s) => s.taste).filter(Boolean))], [strains]);
 
+  // podpowiedzi pod polem wyszukiwania: wszystko z listy, którą przeglądarka już ma; wybór ustawia filtr
+  const suggestGroups = useMemo(() => [
+    { key: 'strains', title: 'Odmiany', items: strainItems(strains) },
+    { key: 'producers', title: 'Producenci', items: producerItems(strains) },
+    { key: 'flavors', title: 'Terpeny i smaki', items: flavorItems(strains) },
+  ], [strains]);
+  const pickSuggestion = (item) => { setQuery(item.label); document.activeElement?.blur?.(); };
+
   const visible = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = query.trim();
     const get = SORTS[sortKey][1];
     const sign = dir === 'asc' ? 1 : -1;
     return strains
@@ -123,7 +144,7 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
         if (kindFilter && s.kind !== kindFilter) return false;
         if (formFilter && (s.form || 'susz') !== formFilter) return false;
         if (tagFilter && !strainTags(s).includes(tagFilter)) return false;
-        return !q || `${s.name} ${s.producer} ${s.type} ${s.kind || ''} ${s.taste} ${(s.terpenes || []).join(' ')} ${strainTags(s).join(' ')}`.toLowerCase().includes(q);
+        return !q || matches(`${s.name} ${s.producer} ${s.type} ${s.kind || ''} ${s.taste} ${(s.terpenes || []).join(' ')} ${strainTags(s).join(' ')}`, q);
       })
       .sort((a, b) => {
         const x = get(a), y = get(b);
@@ -140,7 +161,10 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
   useEffect(() => {
     const open = () => { setFormFor('new'); window.scrollTo({ top: 0, behavior: 'smooth' }); };
     window.addEventListener('zielnik:new-strain', open);
-    if (new URLSearchParams(window.location.search).get('new') === '1') { open(); window.history.replaceState(null, '', '/'); }
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('new') === '1') { open(); window.history.replaceState(null, '', '/'); }
+    // filtr z podpowiedzi strony /szukaj (producent, terpen, smak)
+    else if (params.get('q')) { setQuery(params.get('q').slice(0, 60)); window.history.replaceState(null, '', '/'); }
     return () => window.removeEventListener('zielnik:new-strain', open);
   }, []);
   useEffect(() => { setVisibleLimit(30); }, [query, onlyStock, kindFilter, formFilter, tagFilter, scope, sortKey, dir]);
@@ -158,7 +182,7 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
     for (const id of recent) {
       const s = strains.find((x) => x.id === id);
       const cur = s ? Number(mine(s).current) : 0;
-      if (cur > 0) return { id: s.id, name: s.name, current: cur };
+      if (cur > 0) return { id: s.id, name: s.name, form: s.form, current: cur };
     }
     return null;
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -167,24 +191,26 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
   return (
     <div className="stack">
       {series.length > 0 && (
-        <TodayPanel stock={totalStock} dailyUse={dailyUse} boughtG={boughtG} low={low} series={series} prescriptions={prescriptions} symptoms={symptoms}
+        <TodayPanel stock={stockU} dailyUse={{ g: dailyUse, ml: usage.perDayMl || 0 }} bought={boughtU} low={low} series={series} prescriptions={prescriptions} symptoms={symptoms}
           quick={quick} onUsed={entrySaved} settings={(
             <details className="prefs">
               <summary>Szczegóły i ustawienia <Icon name="chevronDown" size={18} /></summary>
               <dl className="facts">
-                {daysLeft != null && <div><dt>Średnie zużycie</dt><dd>{n2(dailyUse)} g/dzień</dd></div>}
+                {daysLeft != null && <div><dt>Średnie zużycie{usage.perDayMl > 0 && ' suszu'}</dt><dd>{n2(dailyUse)} g/dzień</dd></div>}
+                {usage.perDayMl > 0 && <div><dt>Średnie zużycie oleju i pena</dt><dd>{n2(usage.perDayMl)} ml/dzień</dd></div>}
                 {bought.cost > 0 && <div><dt>Koszt wykupu w tym miesiącu</dt><dd>ok. {n2(bought.cost)} zł</dd></div>}
-                {limit > 0 && <div><dt>Limit miesięczny</dt><dd>{n2(limit)} g, zostało {n2(Math.max(limit - boughtG, 0))} g</dd></div>}
+                {limit > 0 && <div><dt>Limit miesięczny (susz)</dt><dd>{n2(limit)} g, zostało {n2(Math.max(limit - boughtG, 0))} g</dd></div>}
                 {usage.cost > 0 && <div><dt>Koszt zużycia (30 dni)</dt><dd>{n2(usage.cost)} zł</dd></div>}
-                {totalRemaining > 0 && <div><dt>Do wykupienia łącznie</dt><dd>{n2(totalRemaining)} g</dd></div>}
+                {totalRemaining > 0 && <div><dt>Do wykupienia łącznie{remainingU.ml > 0 && ', susz'}</dt><dd>{n2(totalRemaining)} g</dd></div>}
+                {remainingU.ml > 0 && <div><dt>Do wykupienia łącznie, olej i pen</dt><dd>{n2(remainingU.ml)} ml</dd></div>}
               </dl>
               {daysLeft == null && <p className="muted small">Zapisuj zużycie w karcie odmiany („Zużyłem”), a policzę średnie tempo i prognozę, na ile dni starczy zapasu.</p>}
-              {totalRemaining > 0 && <p className="muted small">Odmiany z jednej puli „do wykupienia” liczone są raz.</p>}
+              {(totalRemaining > 0 || remainingU.ml > 0) && <p className="muted small">Odmiany z jednej puli „do wykupienia” liczone są raz.</p>}
               <h3 className="prefs-title">Na tym urządzeniu</h3>
               <div className="row">
-                <div className="field"><label htmlFor="pref-low">Próg „Kończy się” (g)</label>
+                <div className="field"><label htmlFor="pref-low">Próg „Kończy się” dla suszu (g)</label>
                   <input id="pref-low" className="input" type="number" min="0" step="0.5" inputMode="decimal" value={low || ''} onChange={savePref('zielnik.low', setLow)} /></div>
-                <div className="field"><label htmlFor="pref-limit">Miesięczny limit wykupu (g)</label>
+                <div className="field"><label htmlFor="pref-limit">Miesięczny limit wykupu suszu (g)</label>
                   <input id="pref-limit" className="input" type="number" min="0" step="1" inputMode="numeric" value={limit || ''} onChange={savePref('zielnik.limit', setLimit)} /></div>
               </div>
             </details>
@@ -194,11 +220,9 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
       <h2 className="home-section">Odmiany</h2>
 
       <div className="toolbar">
-        <div className="search-wrap">
-          <Icon name="search" size={20} />
-          <input className="input search" type="search" placeholder="Szukaj: odmiana, producent, smak, terpen…" aria-label="Szukaj"
-            value={query} onChange={(e) => setQuery(e.target.value)} />
-        </div>
+        <SearchSuggest value={query} onChange={setQuery} groups={suggestGroups} onPick={pickSuggestion} historyKey="zielnik.odmiany.ostatnie"
+          onEnter={() => document.activeElement?.blur?.()}
+          inputProps={{ placeholder: 'Szukaj: odmiana, producent, smak, terpen…', 'aria-label': 'Szukaj odmian', maxLength: 60 }} />
         <button type="button" className={`btn ghost only-mobile filter-btn${activeFilters ? ' active' : ''}`} onClick={() => setShowFilters((v) => !v)} aria-expanded={showFilters}
           aria-label={`Filtry i sortowanie${activeFilters ? ` (aktywne: ${activeFilters})` : ''}`}>
           <Icon name="filter" size={20} />{activeFilters ? <span className="count">{activeFilters}</span> : null}

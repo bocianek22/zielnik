@@ -10,10 +10,11 @@ const daysLeft = (iso) => Math.ceil((new Date(`${iso}T23:59:59`) - Date.now()) /
 const nf = (n) => Number(n).toLocaleString('pl-PL', { maximumFractionDigits: 2 });
 const fmt = formatDay;
 const dni = (n) => (n === 1 ? '1 dzień' : `${n} dni`);
+const uOf = (p) => (p.unit === 'ml' ? 'ml' : 'g'); // recepta na susz (g) albo olej / pen (ml)
 
 export default function Prescriptions() {
   const [list, setList] = useState(null);
-  const [f, setF] = useState({ issuedOn: todayPL(), validUntil: '', grams: '', note: '' });
+  const [f, setF] = useState({ issuedOn: todayPL(), validUntil: '', grams: '', unit: 'g', note: '' });
   const [msg, setMsg] = useState('');
   const [open, setOpen] = useState(false);
   useEffect(() => { api('/api/prescriptions').then((r) => setList(r.prescriptions)).catch((e) => setMsg(e.message)); }, []);
@@ -22,7 +23,7 @@ export default function Prescriptions() {
   async function add(e) {
     e.preventDefault();
     const grams = parseNum(f.grams);
-    if (!(grams > 0)) { setMsg('Podaj przepisaną ilość w gramach, np. 10 lub 7,5.'); return; }
+    if (!(grams > 0)) { setMsg(f.unit === 'ml' ? 'Podaj przepisaną ilość w ml, np. 30.' : 'Podaj przepisaną ilość w gramach, np. 10 lub 7,5.'); return; }
     try { setList((await api('/api/prescriptions', 'POST', { ...f, grams })).prescriptions); setF({ ...f, grams: '', note: '' }); setMsg(''); setOpen(false); }
     catch (err) { setMsg(err.message); }
   }
@@ -34,7 +35,7 @@ export default function Prescriptions() {
 
   return (
     <div className="stack">
-      <div className="alert note">Notatnik recept służy tylko do Twojej orientacji: ilość wykupioną liczymy z Twoich zapisanych zakupów w okresie ważności recepty. To nie jest dokument ani rejestr medyczny. Dane są prywatne.</div>
+      <div className="alert note">Notatnik recept służy tylko do Twojej orientacji: ilość wykupioną liczymy z Twoich zapisanych zakupów w okresie ważności recepty (susz w gramach, olej i pen w ml osobno). To nie jest dokument ani rejestr medyczny. Dane są prywatne.</div>
 
       {msg && !showForm && <div className="alert error" role="alert">{msg}</div>}
       {list === null ? <p className="muted" aria-busy="true">Ładuję…</p> : list.length === 0 ? (
@@ -49,6 +50,7 @@ export default function Prescriptions() {
           <ul className="list">
             {list.map((p) => {
               const left = Math.max(p.grams - p.bought, 0);
+              const u = uOf(p);
               const d = p.valid_until ? daysLeft(p.valid_until) : null;
               const expired = d != null && d < 0;
               const done = left === 0;
@@ -61,13 +63,13 @@ export default function Prescriptions() {
               return (
                 <li key={p.id} className={`rx-row${done ? ' done' : ''}${expired ? ' expired' : ''}`}>
                   <div className="rx-top">
-                    <h3 className="rx-title">{nf(p.grams)} g{p.note && <small>{p.note}</small>}</h3>
+                    <h3 className="rx-title">{nf(p.grams)} {u}{p.note && <small>{p.note}</small>}</h3>
                     {state}
                   </div>
                   <progress value={Math.min(p.bought, p.grams)} max={p.grams} aria-label="Wykupiono z przepisanej ilości" />
-                  <p className="rx-amount">Wykupiono <b>{nf(p.bought)} g</b>, zostało <b>{nf(left)} g</b>{expired && !done && ' (niewykorzystane)'}</p>
+                  <p className="rx-amount">Wykupiono <b>{nf(p.bought)} {u}</b>, zostało <b>{nf(left)} {u}</b>{expired && !done && ' (niewykorzystane)'}</p>
                   <p className="rx-dates">Wystawiona {fmt(p.issued_on)}{p.valid_until ? `, ważna do ${fmt(p.valid_until)}` : ''}</p>
-                  <div className="rx-foot"><button type="button" className="btn text small" onClick={() => remove(p.id)} aria-label={`Usuń receptę ${nf(p.grams)} g`}>Usuń</button></div>
+                  <div className="rx-foot"><button type="button" className="btn text small" onClick={() => remove(p.id)} aria-label={`Usuń receptę ${nf(p.grams)} ${u}`}>Usuń</button></div>
                 </li>
               );
             })}
@@ -78,10 +80,20 @@ export default function Prescriptions() {
       <details className="card rx-add" open={showForm} onToggle={(e) => { if (list?.length) setOpen(e.currentTarget.open); }}>
         <summary><Icon name="plus" size={20} />Nowa recepta</summary>
         <form className="stack" onSubmit={add} noValidate>
+          <fieldset className="field rx-unit">
+            <legend>Na co jest recepta</legend>
+            <div className="seg" role="radiogroup" aria-label="Jednostka recepty">
+              {[['g', 'Susz (g)'], ['ml', 'Olej lub pen (ml)']].map(([v, l]) => (
+                <button key={v} type="button" role="radio" aria-checked={f.unit === v} className={f.unit === v ? 'on' : ''}
+                  onClick={() => setF({ ...f, unit: v })}>{l}</button>
+              ))}
+            </div>
+            <small className="muted">Wykupione liczymy tylko z zakupów w tej samej jednostce.</small>
+          </fieldset>
           <div className="row">
             <div className="field grow"><label htmlFor="rx-from">Data wystawienia</label><input id="rx-from" className="input" type="date" required value={f.issuedOn} onChange={set('issuedOn')} /></div>
             <div className="field grow"><label htmlFor="rx-to">Ważna do (opcjonalnie)</label><input id="rx-to" className="input" type="date" value={f.validUntil} onChange={set('validUntil')} /></div>
-            <div className="field grow"><label htmlFor="rx-g">Przepisana ilość (g)</label><input id="rx-g" className="input" {...decimalProps} required value={f.grams} onChange={set('grams')} /></div>
+            <div className="field grow"><label htmlFor="rx-g">Przepisana ilość ({f.unit})</label><input id="rx-g" className="input" {...decimalProps} required value={f.grams} onChange={set('grams')} /></div>
           </div>
           <div className="field"><label htmlFor="rx-n">Notatka (np. lekarz, numer)</label><input id="rx-n" className="input" maxLength={120} value={f.note} onChange={set('note')} /></div>
           {msg && <div className="alert error" role="alert">{msg}</div>}

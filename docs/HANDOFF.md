@@ -52,8 +52,16 @@ Tryb awaryjny (rozmowa bez dostępu do repozytorium):
 - Wybór bramki płatności i platformy wpłat (`DONATE_URL`), decyzja o `PREMIUM_ENFORCED`.
 - Źródło danych do katalogu (`CATALOG_FEED_URL`), plan Vercel Pro przy działalności komercyjnej.
 
-## 6. Następne kroki (aktualne dla wersji 0.33.0)
+## 6. Następne kroki (aktualne dla wersji 0.34.0)
 Pełna lista z uzasadnieniem: `docs/PRZEGLAD-2026-10.md`; aplikacje natywne: `docs/APLIKACJE-NATYWNE.md`; system projektowy: `docs/DESIGN.md`. Praca z podziałem na subagentów (`.claude/agents/`): koordynator scala gałęzie, uruchamia kontrole, zleca przegląd (reviewer) i prowadzi CHANGELOG/wersję. Przebieg pracy nocnej: `docs/PLAN-NOC.md`.
+1. **Ręcznie na telefonie (0.34.0):** podpowiedzi wyszukiwania (pole na liście odmian przesuwa się do góry, lista mieści się nad klawiaturą w aplikacji Android; tryb dyskretny), jednostki ml (przełącznik g/ml na wykresie „Dziś” przy 320 px, „Zużyłem” 0,25 ml i „Cofnij”, „Wykupiłem” dla pena 0,45/0,9 ml, jednostka w nowej recepcie, korekta wpisu w ml, wydruk raportu). Jednorazowo po wdrożeniu (tylko jeśli pule olejów/penów się rozjechały):
+   ```sql
+   INSERT INTO user_pool (user_id, pool_key, remaining_to_buy)
+   SELECT up.user_id, pool_key(s.id, s.producer, s.thc, s.cbd, s.form), up.remaining_to_buy
+   FROM user_pool up JOIN strains s ON up.pool_key = pool_key(s.id, s.producer, s.thc, s.cbd)
+   WHERE s.form <> 'susz' AND s.thc IS NOT NULL
+   ON CONFLICT (user_id, pool_key) DO UPDATE SET remaining_to_buy = EXCLUDED.remaining_to_buy;
+   ```
 1. **Ręcznie na telefonie (0.33.0):** „Cofnij” po „Zużyłem”/„Wykupiłem” (8 s), korekta wpisu w Historii (zapas i „do wykupienia” po zmianie gramów, uzupełnienie brakujących cen), szybki wpis objawów w „Dziś”, „Zdjęcie z apteki → CSV” w panelu admina (po ustawieniu klucza), „Pobierz CSV” w aplikacji Android.
 1. **Ręcznie na telefonie (0.32.0):** panel „Dziś” (dotknięcie słupków wykresu, „Zużyłem” z panelu, pilna recepta nad zapasem), szczegóły odmiany (przesuwanie palcem po wykresie a przewijanie strony, zdjęcie i podgląd w aplikacji, wyrównanie ocen na 320 px - `subgrid` w Android WebView), tryb dyskretny w panelu i nagłówku odmiany. Właściciel może scalać sam; Claude scala PR po zielonym CI.
 2. **Ręcznie na telefonie (0.31.0):** wpisanie „0,5” w zużyciu i „1,5” w THC zapisuje 0,5 i 1,5; karta na wąskim ekranie (320 px); wklejanie po przytrzymaniu pola tekstowego w APK; przytrzymanie linku nie otwiera menu; jedna wibracja na przełącznikach; zakładki admina po resecie hasła; tryb dyskretny w profilu publicznym, grupie, raporcie (wydruk z nazwami); link z rozmytą nazwą przy pierwszym dotknięciu tylko odsłania.

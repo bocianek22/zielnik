@@ -153,7 +153,7 @@ test('wybór przypomnień: recepta ≤7 dni z niewykorzystanymi gramami, zapas �
   let due = await push.dueReminders({ userId: C });
   assert.equal(due.length, 1);
   // ostatnia recepta (2 g) też łapie zakup 4 g z dziś, więc jest wykupiona - jak w prescriptionAlerts
-  assert.deepEqual(due[0].items, [{ key: `rx:${rx.id}`, type: 'rx', validUntil: (await q`SELECT to_char(${d}::date + 3, 'YYYY-MM-DD') AS v`)[0].v, daysLeft: 3, remaining: 6 }]);
+  assert.deepEqual(due[0].items, [{ key: `rx:${rx.id}`, type: 'rx', validUntil: (await q`SELECT to_char(${d}::date + 3, 'YYYY-MM-DD') AS v`)[0].v, daysLeft: 3, remaining: 6, unit: 'g' }]);
 
   // zapas: 10 g zużyte w ~10 dni = 1 g/dzień, na stanie 3 g -> 3 dni (próg domyślny 5)
   const [s] = await q`INSERT INTO strains (producer, name, type) VALUES ('Aurora', 'Tajna Odmiana', 'haze') RETURNING id`;
@@ -162,7 +162,7 @@ test('wybór przypomnień: recepta ≤7 dni z niewykorzystanymi gramami, zapas �
     (${C}, ${s.id}, 5, now() - interval '9 days 12 hours'), (${C}, ${s.id}, 5, now() - interval '1 day')`;
   due = await push.dueReminders({ userId: C });
   const stock = due[0].items.find((i) => i.type === 'stock');
-  assert.deepEqual(stock, { key: 'stock', type: 'stock', daysLeft: 3, total: 3, perDay: 1 });
+  assert.deepEqual(stock, { key: 'stock', type: 'stock', daysLeft: 3, total: 3, perDay: 1, unit: 'g' });
   await q`INSERT INTO push_prefs (user_id, stock_days) VALUES (${C}, 2) ON CONFLICT (user_id) DO UPDATE SET stock_days = 2`;
   assert.equal((await push.dueReminders({ userId: C }))[0].items.some((i) => i.type === 'stock'), false);
   await q`UPDATE push_prefs SET stock_days = 5, notify_prescription = FALSE WHERE user_id = ${C}`;

@@ -12,7 +12,7 @@ export const POST = safe(async (req) => {
   const strainId = intId(b.strainId);
   const price = parseNumber(b.pricePerG, 0.01, 10000);
   if (!strainId) return bad('Nie znaleziono odmiany.', 404);
-  if (price == null || Number.isNaN(price)) return bad('Podaj cenę za gram (0,01–10000 zł).');
+  if (price == null || Number.isNaN(price)) return bad('Podaj cenę za gram lub ml (0,01–10000 zł).');
   const rows = await sql()`UPDATE purchases SET cost = round(grams * ${price}::numeric, 2)
                            WHERE user_id = ${user.id}::int AND strain_id = ${strainId}::int AND cost IS NULL
                              AND grams * ${price}::numeric <= ${MAX_COST}::numeric

@@ -16,6 +16,7 @@ import UsageChart from './UsageChart';
 import { expiryInfo } from '@/lib/expiry';
 import { formLabel } from '@/lib/forms';
 import { formatDay } from '@/lib/date';
+import { unitOf } from '@/lib/units';
 
 const cap = (s) => (s ? s[0].toUpperCase() + s.slice(1) : s);
 const num = (n, d = 2) => Number(n).toLocaleString('pl-PL', { maximumFractionDigits: d });
@@ -55,7 +56,7 @@ function lastUseText(s) {
   return [formatDay(s.lastUse).replace(/ \d{4}$/, ''), `${s.lastDaysAgo} dni temu`];
 }
 
-function MyStats({ stats }) {
+function MyStats({ stats, unit }) {
   const empty = !stats.uses && !stats.purchases;
   const [last, lastSub] = lastUseText(stats);
   return (
@@ -66,12 +67,12 @@ function MyStats({ stats }) {
       ) : (
         <>
           <dl className="mystats-grid">
-            <div><dt>Wykupione</dt><dd><b>{num(stats.bought)}</b> g</dd><dd className="sub">{stats.purchases} {plural(stats.purchases, 'zakup', 'zakupy', 'zakupów')}</dd></div>
-            <div><dt>Zużyte</dt><dd><b>{num(stats.used)}</b> g</dd><dd className="sub">{stats.uses} {plural(stats.uses, 'raz', 'razy', 'razy')}</dd></div>
-            <div><dt>Średnio dziennie</dt><dd><b>{stats.perDay == null ? '–' : num(stats.perDay)}</b>{stats.perDay != null && ' g'}</dd><dd className="sub">w ostatnich 12 tyg.</dd></div>
+            <div><dt>Wykupione</dt><dd><b>{num(stats.bought)}</b> {unit}</dd><dd className="sub">{stats.purchases} {plural(stats.purchases, 'zakup', 'zakupy', 'zakupów')}</dd></div>
+            <div><dt>Zużyte</dt><dd><b>{num(stats.used)}</b> {unit}</dd><dd className="sub">{stats.uses} {plural(stats.uses, 'raz', 'razy', 'razy')}</dd></div>
+            <div><dt>Średnio dziennie</dt><dd><b>{stats.perDay == null ? '–' : num(stats.perDay)}</b>{stats.perDay != null && ` ${unit}`}</dd><dd className="sub">w ostatnich 12 tyg.</dd></div>
             <div><dt>Ostatnie użycie</dt><dd><b className="txt">{last}</b></dd><dd className="sub">{lastSub}</dd></div>
           </dl>
-          <UsageChart weeks={stats.weeks} />
+          <UsageChart weeks={stats.weeks} unit={unit} />
         </>
       )}
     </section>
@@ -91,13 +92,14 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, st
   const ex = expiryInfo(strain.expires_on);
   const canDelete = me.isAdmin || strain.created_by === me.id;
   const kind = strain.kind ? `kind-${strain.kind}` : 'kind-none';
+  const unit = unitOf(strain.form);
   const meta = [strain.type && strain.type !== 'nieokreślony' && cap(strain.type), strain.form && strain.form !== 'susz' && formLabel(strain.form)].filter(Boolean);
   const facts = [
     strain.taste && ['Smak i aromat', strain.taste],
-    strain.form && ['Postać', formLabel(strain.form)],
+    strain.form && ['Postać', `${formLabel(strain.form)} (ilości w ${unit})`],
     strain.batch && ['Seria', strain.batch],
     strain.expires_on && ['Ważne do', formatDay(strain.expires_on)],
-    strain.price_per_g != null && !me.hidePrices && ['Cena', `${dec(strain.price_per_g)} zł/g`],
+    strain.price_per_g != null && !me.hidePrices && ['Cena', `${dec(strain.price_per_g)} zł/${unit}`],
   ].filter(Boolean);
   const hasComposition = strain.thc != null || strain.cbd != null || strain.terpenes?.length > 0 || facts.length > 0;
 
@@ -174,11 +176,11 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, st
       )}
 
       <h2 className="section-label">Mój dziennik</h2>
-      <MyStats stats={stats} />
+      <MyStats stats={stats} unit={unit} />
 
       <section className="card dmine" aria-labelledby="dmine-h">
         <h2 id="dmine-h">Mój wpis</h2>
-        {mine && <OwnEntry strainId={strain.id} entry={mine} mates={mates} hidePrice={me.hidePrices}
+        {mine && <OwnEntry strainId={strain.id} form={strain.form} entry={mine} mates={mates} hidePrice={me.hidePrices}
           onSaved={(x) => { if (x && !('rating' in x)) router.refresh(); /* zakup lub zużycie: odśwież statystyki */ }} />}
       </section>
 

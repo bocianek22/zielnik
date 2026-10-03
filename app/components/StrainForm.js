@@ -8,6 +8,7 @@ import OptionSelect from './OptionSelect';
 import TerpenePicker from './TerpenePicker';
 import Icon from './Icon';
 import { parseNum, decimalProps } from './num';
+import { unitOf, suggestForm } from '@/lib/units';
 
 // Formularz pól wspólnych: producent, odmiana, rodzaj, typ, THC/CBD, terpeny, opis, smak, zdjęcie
 // hidePrice: aplikacja natywna (lib/client.js); pole ceny znika, ale wartość zostaje w stanie, więc zapis jej nie kasuje
@@ -40,6 +41,10 @@ export default function StrainForm({ strain, options, tastes, canDelete, hidePri
   const [busy, setBusy] = useState(false);
   const set = (k) => (v) => setF((p) => ({ ...p, [k]: v }));
   const uid = strain ? `s${strain.id}` : 'new';
+  // nowa odmiana o nazwie „Extractum …”: podpowiedź postaci „Olej” (bez wymuszania; znika po ręcznym wyborze postaci)
+  const [formTouched, setFormTouched] = useState(false);
+  const formHint = !strain && !formTouched ? suggestForm(f.name) : null;
+  const showFormHint = formHint && formHint !== f.form;
   const inp = (k) => ({ value: f[k] ?? '', onChange: (e) => set(k)(e.target.value) });
   // atrybuty błędu pola: aria-invalid i powiązanie z komunikatem
   const bad = (k) => (fe[k] ? { 'aria-invalid': true, 'aria-describedby': `${uid}-${k}-err` } : {});
@@ -171,11 +176,22 @@ export default function StrainForm({ strain, options, tastes, canDelete, hidePri
         </div>
         <div className="field grow">
           <label htmlFor={`${uid}-form`}>Postać</label>
-          <select id={`${uid}-form`} className="input vis-select" {...inp('form')}>
+          <select id={`${uid}-form`} className="input vis-select" value={f.form} aria-describedby={showFormHint ? `${uid}-form-hint` : undefined}
+            onChange={(e) => { setFormTouched(true); set('form')(e.target.value); }}>
             {FORMS.map(([v, label]) => <option key={v} value={v}>{label}</option>)}
           </select>
+          <small className="muted">Ilości w {unitOf(f.form) === 'ml' ? 'mililitrach (ml)' : 'gramach (g)'}</small>
         </div>
       </div>
+      {showFormHint && (
+        <div id={`${uid}-form-hint`} className="alert note form-hint">
+          <p role="status">Nazwa wygląda na ekstrakt olejowy. Oleje kupuje się i zużywa w ml.</p>
+          <div className="row">
+            <button type="button" className="btn small" onClick={() => { setFormTouched(true); set('form')(formHint); }}>Ustaw postać „Olej”</button>
+            <button type="button" className="btn small ghost" onClick={() => setFormTouched(true)}>Zostaw {FORMS.find(([v]) => v === f.form)?.[1].toLowerCase()}</button>
+          </div>
+        </div>
+      )}
       <div className="field suggest">
         <button type="button" className="btn ghost" onClick={suggest} disabled={ai.busy || !f.producer || !f.name}>
           {ai.busy ? 'Szukam w internecie…' : 'Uzupełnij z internetu (podgląd)'}
@@ -212,7 +228,7 @@ export default function StrainForm({ strain, options, tastes, canDelete, hidePri
       <div className="row pair">
         {!hidePrice && (
           <div className="field grow">
-            <label htmlFor={`${uid}-price`}>Cena za gram (zł)</label>
+            <label htmlFor={`${uid}-price`}>{unitOf(f.form) === 'ml' ? 'Cena za ml (zł)' : 'Cena za gram (zł)'}</label>
             <input id={`${uid}-price`} className="input" {...decimalProps} {...bad('price')} {...inp('price')} />
             {err('price')}
           </div>

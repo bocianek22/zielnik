@@ -8,6 +8,16 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.34.0] - 2026-10
+### Dodano
+- Podpowiedzi wyszukiwania od pierwszej litery na stronie /szukaj i na liście odmian: grupy (odmiany, producenci, terpeny i smaki, katalog, Wiedza, grupy, osoby od 2 znaków), dopasowanie bez polskich znaków („zolw” → „Żółw”), wyróżnienie dopasowania, ostatnie wyszukiwania (bez zapisu w trybie dyskretnym), obsługa klawiatury i czytnika ekranu (ARIA combobox).
+- Jednostki: olej i pen w ml, susz w g - karta odmiany, szybkie akcje i „Cofnij”, panel „Dziś” (osobny zapas g i ml, przełącznik wykresu), Historia i korekty, statystyki odmiany, raport z osobnymi sumami, recepty z wyborem jednostki, push, eksport i CSV (kolumna „Jednostka”). Podpowiedź postaci „Olej” dla nazw „Extractum …”.
+### Zmieniono
+- Pula „do wykupienia” łączy tylko odmiany tej samej postaci; wykup na recepcie liczony z zakupów tej samej jednostki.
+- Znacznik „Kończy się”, próg i miesięczny limit dotyczą suszu.
+### Uwaga przy wdrożeniu
+- Migracje addytywne: funkcje `form_unit`, `strain_unit`, `pool_key(…, form)` (stara wersja zostaje), `prescriptions.unit` (domyślnie 'g'); pule olejów i penów kopiowane jednorazowo pod nowe klucze. Jeśli między pierwszym podglądem a wdrożeniem ktoś zmienił „do wykupienia” oleju lub pena, uruchom SQL z sekcji 6 `docs/HANDOFF.md`.
+
 ## [0.33.0] - 2026-10
 ### Dodano
 - Korekta wpisów w Historii: „Popraw” i „Usuń” przy zużyciu i wykupie (gramy, data, cena za gram lub łączny koszt). Zmiana gramów przelicza zapas i pulę „do wykupienia”; zmiana daty nie zmienia stanu. Zakupy bez ceny są oznaczone, a po wpisaniu „Ceny u mnie” aplikacja proponuje uzupełnienie ich kosztu.

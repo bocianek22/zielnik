@@ -10,8 +10,12 @@ async function load(me, days = 60) {
   const q = sql();
   const rows = await q`SELECT to_char(day, 'YYYY-MM-DD') AS day, pain, sleep, anxiety, mood, note FROM symptom_log
                        WHERE user_id = ${me}::int AND day >= (now() AT TIME ZONE 'Europe/Warsaw')::date - ${days}::int ORDER BY day`;
-  const usage = await q`SELECT to_char((created_at AT TIME ZONE 'Europe/Warsaw')::date, 'YYYY-MM-DD') AS day, SUM(grams)::float8 AS grams
-                        FROM usage_log WHERE user_id = ${me}::int AND (created_at AT TIME ZONE 'Europe/Warsaw')::date >= (now() AT TIME ZONE 'Europe/Warsaw')::date - ${days}::int
+  // zużycie dzienne: gramy (susz) i ml (olej, pen) osobno
+  const usage = await q`SELECT to_char((l.created_at AT TIME ZONE 'Europe/Warsaw')::date, 'YYYY-MM-DD') AS day,
+                               COALESCE(SUM(l.grams) FILTER (WHERE form_unit(s.form) = 'g'), 0)::float8 AS grams,
+                               COALESCE(SUM(l.grams) FILTER (WHERE form_unit(s.form) = 'ml'), 0)::float8 AS ml
+                        FROM usage_log l JOIN strains s ON s.id = l.strain_id
+                        WHERE l.user_id = ${me}::int AND (l.created_at AT TIME ZONE 'Europe/Warsaw')::date >= (now() AT TIME ZONE 'Europe/Warsaw')::date - ${days}::int
                         GROUP BY 1 ORDER BY 1`;
   return { rows, usage };
 }

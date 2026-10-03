@@ -33,11 +33,19 @@
 .gauge-scale > .mid, .usage-axis > .mid { transform: translateX(-50%); }
 .gauge-scale > .end, .usage-axis > .end { left: auto; right: 0; }
 .today-note { margin: var(--s-3) 0 0; font-size: var(--fs-sm); color: var(--text-2); line-height: 1.45; }
+/* susz (g) i olej/pen (ml): dwa osobne bloki zapasu, bez sumowania jednostek */
+.today-stocks.two .today-stock + .today-stock { border-top: 1px solid var(--sep); }
+/* ostrzeżenie dotyczy tylko jednostki, której zapas się kończy */
+.today-card.warn .today-stock.ok .kpi-mid b { color: var(--text); }
+.today-card.warn .today-stock.ok .gauge > span { background: var(--accent); }
+.today-stocks.two .kpi-big b { font-size: 2.25rem; }
+.today-stocks.two .kpi-mid b { font-size: 1.5rem; }
 
 /* ===== Zużycie z 14 dni ===== */
 .usage { padding: var(--s-4) var(--s-5); border-top: 1px solid var(--sep); }
 .usage-head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s-3); }
 .usage-sel { margin: 0; font-size: var(--fs-sm); color: var(--text-2); white-space: nowrap; }
+.usage-unit { margin: var(--s-2) 0 var(--s-1); }
 .usage-sel b { font-family: var(--font-display), Georgia, serif; font-size: var(--fs-xl); font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums lining-nums; margin-left: 2px; }
 .usage-chart { display: block; width: 100%; height: auto; max-height: 132px; margin-top: var(--s-3); overflow: visible; }
 .ubar { cursor: pointer; }
@@ -130,6 +138,8 @@
 @media (min-width: 900px) {
   .today-card { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .today-stock { grid-column: 1; grid-row: 1; padding: var(--s-5) var(--s-6); }
+  .today-stocks { grid-column: 1; grid-row: 1; }
+  .today-stocks.two .kpi-big b { font-size: 2.5rem; }
   .usage { grid-column: 2; grid-row: 1 / span 2; border-top: 0; border-left: 1px solid var(--sep); padding: var(--s-5) var(--s-6); }
   .today-quick { grid-column: 1; grid-row: 2; padding-inline: var(--s-6); align-self: end; }
   .today-card .prefs { grid-column: 1 / -1; }

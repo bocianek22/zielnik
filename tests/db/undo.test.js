@@ -35,7 +35,7 @@ const buy = (uid, id, grams, requestId) => call(uid, 'strains/[id]/purchase', 'P
 const undoUse = (uid, id, entryId) => call(uid, 'strains/[id]/usage', 'DELETE', { id: entryId }, { id: String(id) });
 const undoBuy = (uid, id, entryId) => call(uid, 'strains/[id]/purchase', 'DELETE', { id: entryId }, { id: String(id) });
 const stock = async (uid, id) => Number((await q`SELECT current_amount FROM user_strain WHERE strain_id = ${id} AND user_id = ${uid}`)[0].current_amount);
-const poolOf = async (uid, id) => Number((await q`SELECT p.remaining_to_buy FROM user_pool p JOIN strains s ON p.pool_key = pool_key(s.id, s.producer, s.thc, s.cbd)
+const poolOf = async (uid, id) => Number((await q`SELECT p.remaining_to_buy FROM user_pool p JOIN strains s ON p.pool_key = pool_key(s.id, s.producer, s.thc, s.cbd, s.form)
                                                   WHERE s.id = ${id} AND p.user_id = ${uid}`)[0]?.remaining_to_buy ?? 0);
 const usageRows = async (uid, id) => (await q`SELECT count(*)::int AS n FROM usage_log WHERE user_id = ${uid} AND strain_id = ${id}`)[0].n;
 const purchaseRows = async (uid, id) => (await q`SELECT count(*)::int AS n FROM purchases WHERE user_id = ${uid} AND strain_id = ${id}`)[0].n;

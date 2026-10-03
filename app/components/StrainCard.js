@@ -11,15 +11,20 @@ import { useQuickSave, SaveNote } from './useQuickSave';
 import Icon from './Icon';
 import { parseNum, decimalProps } from './num';
 import { strainTags } from '@/lib/effects';
+import { unitOf, quickValues, consumePlaceholder, buyPlaceholder } from '@/lib/units';
 
-export const LOW_STOCK = 3; // g: poniżej tej ilości odmiana dostaje znacznik "Kończy się"
+export const LOW_STOCK = 3; // g: poniżej tej ilości susz dostaje znacznik "Kończy się" (próg w gramach, więc nie dla ml)
 const fmt = (n) => (n == null ? '–' : String(Number(n)).replace('.', ','));
 // wyświetlanie liczb z polskim przecinkiem (wartości w danych zostają bez zmian)
 export const dec = (n) => String(n).replace('.', ',');
 
 // Edytowalne, osobiste pola zalogowanego użytkownika (autozapis po opuszczeniu pola)
 // hidePrice: aplikacja natywna (lib/client.js); cena zostaje w stanie formularza, więc zapis jej nie kasuje
-export function OwnEntry({ strainId, entry, onSaved, mates, hidePrice = false }) {
+// form: postać odmiany; ilości i cena w jej jednostce (susz: g, olej i pen: ml)
+export function OwnEntry({ strainId, form = 'susz', entry, onSaved, mates, hidePrice = false }) {
+  const unit = unitOf(form);
+  const qv = quickValues(form);
+  const inUnit = unit === 'ml' ? 'mililitrach' : 'gramach';
   const [f, setF] = useState({
     rating: entry.rating ?? '', current: entry.current ?? 0, remaining: entry.remaining ?? 0, notes: entry.notes ?? '',
     visibility: entry.visibility ?? 'me',
@@ -52,23 +57,23 @@ export function OwnEntry({ strainId, entry, onSaved, mates, hidePrice = false })
   async function buy() {
     const g = parseNum(buyG);
     if (g == null) return;
-    if (!(g > 0)) { buyQs.show('Podaj ilość w gramach, np. 10 lub 0,5.', true); return; }
+    if (!(g > 0)) { buyQs.show(`Podaj ilość w ${inUnit}, ${buyPlaceholder(form)}.`, true); return; }
     try {
       const r = await buyQs.save('purchase', g);
       applyStock(r, { bought: r.bought ?? g });
-      setBuyG(''); buyQs.show(`Zapisano zakup: ${dec(r.bought ?? g)} g`, false, r.id ? { kind: 'purchase', id: r.id } : null);
+      setBuyG(''); buyQs.show(`Zapisano zakup: ${dec(r.bought ?? g)} ${unit}`, false, r.id ? { kind: 'purchase', id: r.id } : null);
     } catch (e) { buyQs.show(e.message, true); }
   }
 
   async function consume() {
     const g = parseNum(use);
     if (g == null) return;
-    if (!(g > 0)) { useQs.show('Podaj ilość w gramach, np. 0,5.', true); return; }
+    if (!(g > 0)) { useQs.show(`Podaj ilość w ${inUnit}, ${consumePlaceholder(form)}.`, true); return; }
     try {
       const r = await useQs.save('usage', g);
       applyStock(r, { used: r.used });
       setUse('');
-      useQs.show(r.stockShort ? `Zapisano zużycie ${dec(r.used)} g (zapisany stan był mniejszy, ustawiono 0 g)` : `Zapisano zużycie ${dec(r.used)} g, zostało ${dec(r.current)} g`,
+      useQs.show(r.stockShort ? `Zapisano zużycie ${dec(r.used)} ${unit} (zapisany stan był mniejszy, ustawiono 0 ${unit})` : `Zapisano zużycie ${dec(r.used)} ${unit}, zostało ${dec(r.current)} ${unit}`,
         false, r.id ? { kind: 'usage', id: r.id } : null);
     } catch (e) { useQs.show(e.message, true); }
   }
@@ -98,7 +103,7 @@ export function OwnEntry({ strainId, entry, onSaved, mates, hidePrice = false })
       last.current = key;
       onSaved(r.entry);
       setStatus({ kind: 'ok', msg: 'Zapisano' });
-      // nowa cena za gram, a są zakupy tej odmiany bez kosztu (np. cenę wpisano po wykupie): propozycja uzupełnienia
+      // nowa cena za gram (ml), a są zakupy tej odmiany bez kosztu (np. cenę wpisano po wykupie): propozycja uzupełnienia
       if (r.missingCost > 0 && nums.price > 0 && parseNum(prev.price) !== nums.price) setFill({ n: r.missingCost, price: nums.price, msg: '' });
     } catch (e) { setStatus({ kind: 'err', msg: e.message }); }
   }
@@ -119,11 +124,11 @@ export function OwnEntry({ strainId, entry, onSaved, mates, hidePrice = false })
         <input id={`${id}-r`} className="input" {...decimalProps} {...bind('rating')} />
       </div>
       <div className="entry-field">
-        <label htmlFor={`${id}-c`}>Mam teraz (g)</label>
+        <label htmlFor={`${id}-c`}>Mam teraz ({unit})</label>
         <input id={`${id}-c`} className="input" {...decimalProps} {...bind('current')} />
       </div>
       <div className="entry-field">
-        <label htmlFor={`${id}-m`}>Do wykupienia (g)</label>
+        <label htmlFor={`${id}-m`}>Do wykupienia ({unit})</label>
         <input id={`${id}-m`} className="input" {...decimalProps} {...bind('remaining')} />
         {mates?.length > 0 && <small className="pool-note">Jedna pula z: <span className="dn">{mates.join(', ')}</span></small>}
       </div>
@@ -133,11 +138,11 @@ export function OwnEntry({ strainId, entry, onSaved, mates, hidePrice = false })
       </div>
       {!hidePrice && (
         <div className="entry-field price">
-          <label htmlFor={`${id}-pr`}>Cena u mnie (zł/g), tworzy średnią cen</label>
+          <label htmlFor={`${id}-pr`}>Cena u mnie (zł/{unit}), tworzy średnią cen</label>
           <input id={`${id}-pr`} className="input" {...decimalProps} {...bind('price')} />
           {fill && (
             <div className="pool-note fill-offer" role="status">
-              {fill.n > 0 && <>Zakupy tej odmiany bez ceny: {fill.n}. Uzupełnić po {dec(fill.price)} zł/g?{' '}
+              {fill.n > 0 && <>Zakupy tej odmiany bez ceny: {fill.n}. Uzupełnić po {dec(fill.price)} zł/{unit}?{' '}
                 <button type="button" className="btn small ghost" onClick={fillCosts}>Uzupełnij</button>{' '}
                 <button type="button" className="btn small text" onClick={() => setFill(null)}>Nie</button></>}
               {fill.msg}
@@ -152,19 +157,19 @@ export function OwnEntry({ strainId, entry, onSaved, mates, hidePrice = false })
         </select>
       </div>
       <div className="entry-field use">
-        <label htmlFor={`${id}-u`}>Zużycie (g)</label>
+        <label htmlFor={`${id}-u`}>Zużycie ({unit})</label>
         <div className="use-row">
-          <input id={`${id}-u`} className="input" {...decimalProps} placeholder="np. 0,5" value={use}
+          <input id={`${id}-u`} className="input" {...decimalProps} placeholder={consumePlaceholder(form)} value={use}
             onChange={(e) => setUse(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); consume(); } }} />
           <button type="button" className="btn small" onClick={consume}>Zużyj</button>
         </div>
-        <div className="chips small">{[0.1, 0.25, 0.5, 1].map((v) => <button key={v} type="button" className="chip use-chip" onClick={() => setUse(String(v))}>{dec(v)} g</button>)}</div>
+        <div className="chips small">{qv.use.map((v) => <button key={v} type="button" className="chip use-chip" onClick={() => setUse(dec(v))}>{dec(v)} {unit}</button>)}</div>
         <SaveNote note={useQs.note} undoing={useQs.undoing} onUndo={() => undoWith(useQs, 'used')} className="pool-note" />
       </div>
       <div className="entry-field buy">
-        <label htmlFor={`${id}-b`}>Wykupiłem (g)</label>
+        <label htmlFor={`${id}-b`}>Wykupiłem ({unit})</label>
         <div className="use-row">
-          <input id={`${id}-b`} className="input" {...decimalProps} placeholder="np. 10" value={buyG}
+          <input id={`${id}-b`} className="input" {...decimalProps} placeholder={buyPlaceholder(form)} value={buyG}
             onChange={(e) => setBuyG(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); buy(); } }} />
           <button type="button" className="btn small" onClick={buy}>Dodaj zakup</button>
         </div>
@@ -195,11 +200,12 @@ export default function StrainCard({ strain, meId, hidePrice = false, mates, low
 
   const ex = expiryInfo(strain.expires_on);
   const photoSrc = `/api/strains/${strain.id}/photo?v=${strain.photo_v}`;
-  const lowStock = mine && Number(mine.current) > 0 && Number(mine.current) <= (low ?? LOW_STOCK);
+  const unit = unitOf(strain.form);
+  const lowStock = unit === 'g' && mine && Number(mine.current) > 0 && Number(mine.current) <= (low ?? LOW_STOCK);
   const facts = [
     strain.thc != null && `THC ${dec(strain.thc)}%`,
     strain.cbd != null && `CBD ${dec(strain.cbd)}%`,
-    strain.price_per_g != null && !hidePrice && `${dec(strain.price_per_g)} zł/g`,
+    strain.price_per_g != null && !hidePrice && `${dec(strain.price_per_g)} zł/${unit}`,
   ].filter(Boolean);
   const tags = strainTags(strain);
 
@@ -256,11 +262,11 @@ export default function StrainCard({ strain, meId, hidePrice = false, mates, low
 
       {/* „Wykupiłem” zawsze na wierzchu: pierwszy zakup nowej odmiany bez rozwijania karty */}
       {mine && (
-        <QuickActions strainId={strain.id} name={strain.name} current={mine.current} remaining={mine.remaining} onSaved={(en) => { onEntrySaved(strain.id, en); }} />
+        <QuickActions strainId={strain.id} name={strain.name} form={strain.form} current={mine.current} remaining={mine.remaining} onSaved={(en) => { onEntrySaved(strain.id, en); }} />
       )}
 
       <div className="entries">
-        {mine && <OwnEntry strainId={strain.id} entry={mine} mates={mates} hidePrice={hidePrice} onSaved={(en) => onEntrySaved(strain.id, en)} />}
+        {mine && <OwnEntry strainId={strain.id} form={strain.form} entry={mine} mates={mates} hidePrice={hidePrice} onSaved={(en) => onEntrySaved(strain.id, en)} />}
         {others.map((e) => <OtherEntry key={e.userId} e={e} />)}
       </div>
 

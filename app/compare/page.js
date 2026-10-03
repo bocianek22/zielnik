@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { unitOf } from '@/lib/units';
 import { intId } from '@/lib/ids';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -36,14 +37,14 @@ export default async function Compare({ searchParams }) {
     ['THC', (s) => v(s.thc, '%')],
     ['CBD', (s) => v(s.cbd, '%')],
     // w aplikacji natywnej bez cen (lib/client.js)
-    ...(isNativeApp(await headers()) ? [] : [['Cena za gram', (s) => v(s.price_per_g, ' zł/g')]]),
+    ...(isNativeApp(await headers()) ? [] : [['Cena za g / ml', (s) => v(s.price_per_g, ` zł/${unitOf(s.form)}`)]]),
     ['Ocena końcowa', (s) => v(s.final_rating)],
     ['Średnia ocen', avg],
     ['Twoja ocena', (s) => v(mine(s)?.rating)],
     ['Smak', (s) => v(s.taste)],
     ['Terpeny', (s) => (s.terpenes?.length ? <span className="dn">{s.terpenes.join(', ')}</span> : '–')],
-    ['Mam teraz', (s) => v(mine(s)?.current, ' g')],
-    ['Do wykupienia (pula)', (s) => v(mine(s)?.remaining, ' g')],
+    ['Mam teraz', (s) => v(mine(s)?.current, ` ${unitOf(s.form)}`)],
+    ['Do wykupienia (pula)', (s) => v(mine(s)?.remaining, ` ${unitOf(s.form)}`)],
   ];
 
   return (
