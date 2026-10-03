@@ -7,6 +7,11 @@ Wersje 0.1.0 do 0.14.0 zostały odtworzone z historii prac (wgrywanych paczkami 
 Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow „Wydanie” (patrz `CONTRIBUTING.md`).
 
 ## [Unreleased]
+### Dodano
+- Panel admina, zakładka System: „Zdjęcie z apteki → CSV”. Zdjęcie (aparat lub galeria, do 4 naraz) listy, półki albo cennika apteki odczytuje Claude API (`ANTHROPIC_API_KEY`, model `ZIELNIK_VISION_MODEL`, domyślnie `claude-opus-5-5`): nazwa rejestrowa, producent, odmiana, THC, CBD, postać, opakowanie, cena. Edytowalny podgląd z oznaczeniem „Niepewne”, usuwanie wierszy, „Pobierz CSV”, „Kopiuj CSV” i „Importuj do katalogu” (scalanie bez duplikatów po producencie i nazwie, bez oznaczania innych pozycji jako „Brak w źródle”). Oleje („Extractum…”) i wkłady mają opakowanie w ml. Zdjęcia nie są zapisywane.
+- „Sprawdź dostępność w aptekach” (wyszukiwarka gdziepolek.pl) na stronie odmiany i w katalogu, z neutralnym tekstem odnośnika; w Wiedzy nowa sekcja „Gdzie sprawdzić dostępność w aptekach”.
+### Zmieniono
+- `syncCatalog` ma tryb scalania (`merge`), a `POST /api/catalog` przyjmuje `mode: 'zdjecie'`. Testy z bazą wczytują JSON importowany bez atrybutu (hak `load` w `tests/db/loader.mjs`).
 
 ## [0.32.0] - 2026-10
 ### Dodano

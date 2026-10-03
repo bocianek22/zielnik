@@ -11,6 +11,9 @@ import Header from '../../components/Header';
 import CharacteristicCard from '../../components/CharacteristicCard';
 import Icon from '../../components/Icon';
 import AddFromCatalog from './AddFromCatalog';
+import PharmacyLink from '../../components/PharmacyLink';
+import { norm } from '@/lib/pharmacy-ocr';
+import reference from '@/data/odmiany.json';
 import { formatDay } from '@/lib/date';
 
 const dec = (n) => Number(n).toLocaleString('pl-PL', { maximumFractionDigits: 1 });
@@ -28,6 +31,9 @@ export default async function KatalogItem({ params }) {
   const [item] = await sql()`SELECT id, producer, name, thc::float8 AS thc, cbd::float8 AS cbd, kind, form, availability, active,
       to_char(last_seen AT TIME ZONE 'Europe/Warsaw', 'YYYY-MM-DD') AS last_seen FROM market_catalog WHERE id = ${id}`;
   if (!item) notFound();
+  // nazwa rejestrowa z katalogu Zielnika (producent i nazwa lub alias), do wyszukiwania w aptekach
+  const ref = reference.strains.filter((e) => [e.producer, ...(e.producerAliases || [])].some((x) => norm(x) === norm(item.producer))
+    && [e.name, ...(e.aliases || [])].some((x) => norm(x) === norm(item.name)));
   const found = (await strainIndex()).find((s) => s.producer.toLowerCase() === item.producer.toLowerCase() && s.name.toLowerCase() === item.name.toLowerCase());
   const [match] = found ? await listStrains(me.id, { ids: [found.id] }) : [];
 
@@ -52,6 +58,7 @@ export default async function KatalogItem({ params }) {
           </dl>
           {match ? <Link className="btn" href={`/strains/${match.id}`}>Otwórz pełną kartę odmiany</Link> : <AddFromCatalog item={item} />}
           <p className="muted small">Dostępność zmienia się często i nie jest gwarancją.</p>
+          <PharmacyLink registeredName={ref.length === 1 ? ref[0].registeredName : ''} producer={item.producer} name={item.name} />
         </section>
         {match ? <CharacteristicCard strain={match} hidePrice={isNativeApp(await headers())} /> : (
           <section className="card"><h2>Karta charakterystyki</h2>

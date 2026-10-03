@@ -9,6 +9,7 @@ import Tests from './Tests';
 import dynamicImport from 'next/dynamic';
 const Effects = dynamicImport(() => import('./Effects'), { loading: () => <div className="card"><p className="muted">Wczytuję skalę odczuć…</p></div> });
 import CharacteristicCard from './CharacteristicCard';
+import PharmacyLink from './PharmacyLink';
 import Lightbox from './Lightbox';
 import StrainHistory from './StrainHistory';
 import UsageChart from './UsageChart';
@@ -185,6 +186,7 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, st
 
       <h2 className="section-label">O odmianie</h2>
       <CharacteristicCard strain={strain} hidePrice={me.hidePrices} compact />
+      <PharmacyLink producer={strain.producer} name={strain.name} />
 
       <h2 className="section-label">Społeczność</h2>
       <section className="card dopinions" aria-labelledby="dop-h">
