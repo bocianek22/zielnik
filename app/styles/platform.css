@@ -3,7 +3,9 @@
 /* ===== Wydruk (raport dla lekarza) ===== */
 @media print {
   .topbar, .bottomnav, .fab, .no-print { display: none !important; }
-  body { background: #fff !important; color: #000; padding: 0 !important; }
+  html, body { background: #fff !important; }
+  :root, html[data-theme] { color-scheme: light !important; }
+  body { color: #000; padding: 0 !important; }
   .page { max-width: none; padding: 0; }
   .card { border: none !important; box-shadow: none !important; padding: 0 !important; background: #fff !important; }
   .cmp th, .cmp td { padding: 4px 8px; }

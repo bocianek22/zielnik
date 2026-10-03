@@ -234,7 +234,7 @@ test('statystyki: dzienne zużycie, wykres 14 dni, wykup i podsumowanie miesiąc
   assert.deepEqual(rep.totals.used, { g: 1, ml: 0.75 });
   assert.deepEqual(rep.totals.bought, { g: 5, ml: 30 });
   assert.deepEqual(rep.usage.map((u) => [u.name, u.unit, u.grams]), [['St Susz', 'g', 1], ['St Olej', 'ml', 0.75]]);
-  assert.deepEqual({ g: rep.weekly.at(-1).grams, ml: rep.weekly.at(-1).ml }, { g: 1, ml: 0.75 });
+  assert.deepEqual({ g: rep.weekly.at(-1).used_g, ml: rep.weekly.at(-1).used_ml }, { g: 1, ml: 0.75 });
 });
 
 test('przypomnienie o zapasie osobno dla g i ml; treść z jednostką', { skip }, async () => {
