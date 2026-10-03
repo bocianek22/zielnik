@@ -59,13 +59,13 @@
 .obs-lead { margin: calc(var(--s-2) * -1) 0 var(--s-4); color: var(--text-2); max-width: 68ch; }
 .obs-page .alert.note { margin-bottom: var(--s-4); }
 .obs-period { margin-bottom: var(--s-4); }
-/* przełącznik okresu z linkami (adres ?okres=…) w tym samym wyglądzie co .seg button */
-.seg a { flex: 1 1 auto; display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 0 var(--s-4); border-radius: 8px; font-size: var(--fs-sm); font-weight: 600; color: var(--text-2); text-decoration: none; white-space: nowrap; }
-.seg a.on { background: var(--surface); color: var(--text); box-shadow: var(--shadow-1), 0 0 0 1px var(--sep); }
-:root[data-theme="dark"] .seg a.on { background: var(--surface-3); box-shadow: 0 0 0 1px var(--sep-strong); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .seg a.on { background: var(--surface-3); box-shadow: 0 0 0 1px var(--sep-strong); } }
-@media (max-width: 480px) { .seg a { padding: 0 var(--s-3); } }
-@media (pointer: coarse) { .seg a { min-height: var(--tap); } }
+/* przełącznik okresu z linkami (adres ?okres=…) w tym samym wyglądzie co .seg button (tylko tutaj) */
+.obs-period a { flex: 1 1 auto; display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 0 var(--s-4); border-radius: 8px; font-size: var(--fs-sm); font-weight: 600; color: var(--text-2); text-decoration: none; white-space: nowrap; }
+.obs-period a.on { background: var(--surface); color: var(--text); box-shadow: var(--shadow-1), 0 0 0 1px var(--sep); }
+:root[data-theme="dark"] .obs-period a.on { background: var(--surface-3); box-shadow: 0 0 0 1px var(--sep-strong); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .obs-period a.on { background: var(--surface-3); box-shadow: 0 0 0 1px var(--sep-strong); } }
+@media (max-width: 480px) { .obs-period a { padding: 0 var(--s-3); } }
+@media (pointer: coarse) { .obs-period a { min-height: var(--tap); } }
 .obs-summary { margin: 0; color: var(--text-2); font-size: var(--fs-sm); font-variant-numeric: tabular-nums; }
 .obs-summary b { color: var(--text); font-weight: 600; }
 .obs-sym { margin-top: var(--s-5); }

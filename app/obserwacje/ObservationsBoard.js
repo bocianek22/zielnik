@@ -18,9 +18,10 @@ function Row({ title, sub, cell, minDays, dn, label }) {
         <span className="lr-sub">{cell.days} {dayWord(cell.days)}{sub ? ` · ${sub}` : ''}{ok ? '' : ` · za mało danych (min. ${minDays})`}</span>
       </span>
       {ok ? (
-        <span className="obs-val" aria-label={desc}>
+        <span className="obs-val">
+          <span className="sr-only">{desc}</span>
           <span className="obs-track" aria-hidden="true"><i style={{ left: `${cell.avg * 10}%` }} /></span>
-          <b>{fmtNum(cell.avg, 1)}</b>
+          <b aria-hidden="true">{fmtNum(cell.avg, 1)}</b>
         </span>
       ) : <span className="obs-val none" aria-hidden="true">–</span>}
     </li>

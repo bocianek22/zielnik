@@ -37,7 +37,7 @@ before(async () => {
   await db.ensureDb();
   q = db.sql();
   await q`INSERT INTO invites (code, max_uses) VALUES ('TEST', 10)`;
-  for (const n of ['ania', 'bartek', 'celina', 'darek', 'ewa']) {
+  for (const n of ['ania', 'bartek', 'celina', 'darek', 'ewa', 'filip']) {
     const r = await call(null, 'auth/register', 'POST', { username: n, password: 'haslo1234', invite: 'test', adult: true, consent: true });
     assert.equal(r.status, 200, JSON.stringify(r.json));
   }
@@ -155,4 +155,17 @@ test('tylko własne dane: cudze zużycie tej samej odmiany i cudze objawy nic ni
   assert.deepEqual(o.strains.map((x) => x.id), [t]);
   assert.equal(o.mixed.days, 0);
   assert.equal(o.entries, 10);
+});
+
+test('okres 30 dni: zużycie z dnia przed okresem liczy się do snu z pierwszego dnia, ale nie do sum zużycia', { skip }, async () => {
+  const F = ids.filip;
+  const w = await create(F, 'Przed oknem');
+  await use(F, w, 30, 1); // dzień przed 30-dniowym okresem (dziś = 0, okres to 0..29 dni temu)
+  await sym(F, 29, { sleep: 6 });
+  const o = await observations(F, 30);
+  assert.deepEqual(row(o, 'sleep', w), { id: w, name: 'Przed oknem', unit: 'g', days: 1, avg: null });
+  assert.deepEqual(o.strains, []);
+  assert.equal(o.mixed.days, 0);
+  // w okresie 90 dni ta sama ilość jest już w sumach
+  assert.deepEqual((await observations(F, 90)).strains, [{ id: w, name: 'Przed oknem', unit: 'g', total: 1, useDays: 1 }]);
 });
