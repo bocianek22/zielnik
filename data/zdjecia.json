@@ -1,76 +1,166 @@
 {
-  "_info": "Manifest zdjęć na wolnych licencjach (Wikimedia Commons). Wszystkie wpisy są POGLĄDOWE (rodzaj rośliny lub kwiatu konopi), żaden nie przedstawia konkretnej odmiany z katalogu. Pobieranie nie jest zaimplementowane. Pole verified=false oznacza, że licencję odczytano z wyników wyszukiwarki, a autor i dokładne warunki (strona pliku) nie zostały potwierdzone, bo commons.wikimedia.org, en.wikipedia.org i api.openverse.org są zablokowane w środowisku redakcyjnym. Przed użyciem w aplikacji trzeba otworzyć sourcePage, wpisać author i potwierdzić licencję (verified=true).",
+  "_info": "Manifest zdjęć na wolnych licencjach (domena publiczna, CC0, CC BY, CC BY-SA). Autor, licencja i adresy plików zostały odczytane z API Wikimedia Commons (extmetadata) 2026-10-03; wpis flickr-pink-kush z Openverse (strona Flickra niedostępna z środowiska redakcyjnego, licencja CC BY 2.0 wg Openverse). depicts='poglądowe' = zdjęcie nie przedstawia konkretnej odmiany z katalogu (import NIE przypisuje go automatycznie żadnej odmianie). depicts='odmiana' + pole strain = autor podpisał zdjęcie nazwą tej odmiany (to nie jest produkt konkretnego producenta); import przypisuje je tylko odmianie o tej samej nazwie. thumbUrl = skalowana kopia 960 px (pobierana przez import), fileUrl = oryginał. verified=true tylko po potwierdzeniu licencji.",
   "updated": "2026-10-03",
   "photos": [
     {
       "id": "commons-cannabis-sativa-1",
-      "fileUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Cannabis_sativa.jpg",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e1/Cannabis_sativa.jpg",
+      "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e1/Cannabis_sativa.jpg",
       "sourcePage": "https://commons.wikimedia.org/wiki/File:Cannabis_sativa.jpg",
-      "author": null,
+      "author": "Michael w (de.wikipedia)",
       "license": "CC BY-SA 3.0",
-      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
       "depicts": "poglądowe",
-      "subject": "roślina Cannabis sativa",
-      "verified": false
+      "subject": "roślina Cannabis sativa (stara, mała fotografia)",
+      "verified": true
     },
     {
       "id": "commons-hampa-narbild",
-      "fileUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Hampa_Cannabis_sativa_L._(n%C3%A4rbild).jpg",
-      "sourcePage": "https://commons.wikimedia.org/wiki/File:Hampa_Cannabis_sativa_L._(n%C3%A4rbild).jpg",
-      "author": null,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/7/78/Hampa_Cannabis_sativa_L._%28n%C3%A4rbild%29.jpg",
+      "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Hampa_Cannabis_sativa_L._%28n%C3%A4rbild%29.jpg/960px-Hampa_Cannabis_sativa_L._%28n%C3%A4rbild%29.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Hampa_Cannabis_sativa_L._(närbild).jpg",
+      "author": "Skalle-Per Hedenhös",
       "license": "CC BY-SA 4.0",
-      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
       "depicts": "poglądowe",
-      "subject": "zbliżenie Cannabis sativa L.",
-      "verified": false
+      "subject": "zbliżenie kwiatu Cannabis sativa L. z trichomami",
+      "verified": true
     },
     {
       "id": "commons-trichomes-flower",
-      "fileUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Trichomes_on_a_Cannabis_Sativa_Flower.jpg",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/4/46/Trichomes_on_a_Cannabis_Sativa_Flower.jpg",
+      "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Trichomes_on_a_Cannabis_Sativa_Flower.jpg/960px-Trichomes_on_a_Cannabis_Sativa_Flower.jpg",
       "sourcePage": "https://commons.wikimedia.org/wiki/File:Trichomes_on_a_Cannabis_Sativa_Flower.jpg",
-      "author": null,
+      "author": "Indirectantagonist",
       "license": "CC BY-SA 3.0",
-      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
       "depicts": "poglądowe",
-      "subject": "trichomy na kwiecie (ilustracja do artykułu o trichomach)",
-      "verified": false
+      "subject": "trichomy na kwiecie",
+      "verified": true
     },
     {
       "id": "commons-cannabis-sativa-2",
-      "fileUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Cannabis_sativa_2.jpg",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/e/ed/Cannabis_sativa_2.jpg",
+      "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Cannabis_sativa_2.jpg/960px-Cannabis_sativa_2.jpg",
       "sourcePage": "https://commons.wikimedia.org/wiki/File:Cannabis_sativa_2.jpg",
-      "author": null,
+      "author": "Thayne Tuason",
       "license": "CC BY-SA 4.0",
-      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
       "depicts": "poglądowe",
-      "subject": "roślina Cannabis sativa",
-      "verified": false
+      "subject": "roślina żeńska Cannabis sativa (typ rekreacyjny/medyczny)",
+      "verified": true
     },
     {
       "id": "commons-cannabis-sativa-paren-2",
-      "fileUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Cannabis_sativa_(2).jpg",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5c/Cannabis_sativa_%282%29.jpg",
+      "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Cannabis_sativa_%282%29.jpg/960px-Cannabis_sativa_%282%29.jpg",
       "sourcePage": "https://commons.wikimedia.org/wiki/File:Cannabis_sativa_(2).jpg",
-      "author": null,
+      "author": "Sevela.p",
       "license": "CC BY-SA 3.0",
-      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
       "depicts": "poglądowe",
       "subject": "roślina Cannabis sativa",
-      "verified": false
+      "verified": true
     },
     {
       "id": "commons-kohler-1897",
-      "fileUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Cannabis_sativa_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-026.jpg",
-      "sourcePage": "https://commons.wikimedia.org/wiki/File:Cannabis_sativa_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-026.jpg",
-      "author": "Köhler's Medizinal-Pflanzen (ilustracja botaniczna, 1897; autor szczegółowy do potwierdzenia na stronie pliku)",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f9/Cannabis_sativa_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-026.jpg",
+      "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f9/Cannabis_sativa_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-026.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Cannabis_sativa_-_Köhler–s_Medizinal-Pflanzen-026.jpg",
+      "author": "Franz Eugen Köhler (Köhler’s Medizinal-Pflanzen)",
       "license": "domena publiczna",
-      "licenseUrl": null,
+      "licenseUrl": "",
       "depicts": "poglądowe",
       "subject": "ilustracja botaniczna rośliny (nie fotografia)",
-      "verified": false
+      "verified": true
+    },
+    {
+      "id": "commons-uk-medical-flower",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b5/UK_Medical_Cannabis_Flower.jpg",
+      "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/UK_Medical_Cannabis_Flower.jpg/960px-UK_Medical_Cannabis_Flower.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:UK_Medical_Cannabis_Flower.jpg",
+      "author": "Iic02p",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "depicts": "poglądowe",
+      "subject": "susz medyczny (kwiat konopi), poglądowo",
+      "verified": true
+    },
+    {
+      "id": "commons-dank-nug",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b1/Dank_Nug_Xyren.jpg",
+      "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Dank_Nug_Xyren.jpg/960px-Dank_Nug_Xyren.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Dank_Nug_Xyren.jpg",
+      "author": "Psychonaught",
+      "license": "CC0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "depicts": "poglądowe",
+      "subject": "zbliżenie szyszki konopi",
+      "verified": true
+    },
+    {
+      "id": "commons-macro-bud",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/1/1d/Macro_cannabis_bud.jpg",
+      "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Macro_cannabis_bud.jpg/960px-Macro_cannabis_bud.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Macro_cannabis_bud.jpg",
+      "author": "HighInBC",
+      "license": "CC BY 2.5",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.5",
+      "depicts": "poglądowe",
+      "subject": "zbliżenie wysuszonej szyszki konopi",
+      "verified": true
+    },
+    {
+      "id": "commons-bubba-kush",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/3/36/Bubba_Kush.jpg",
+      "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Bubba_Kush.jpg/960px-Bubba_Kush.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Bubba_Kush.jpg",
+      "author": "Coaster420",
+      "license": "domena publiczna",
+      "licenseUrl": "",
+      "depicts": "odmiana",
+      "subject": "szyszka odmiany Bubba Kush wg opisu autora",
+      "verified": true,
+      "strain": "Bubba Kush"
+    },
+    {
+      "id": "commons-og-kush",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/3/37/OG_Kush.jpg",
+      "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/OG_Kush.jpg/960px-OG_Kush.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:OG_Kush.jpg",
+      "author": "Coaster420",
+      "license": "domena publiczna",
+      "licenseUrl": "",
+      "depicts": "odmiana",
+      "subject": "szyszka odmiany OG Kush wg opisu autora",
+      "verified": true,
+      "strain": "OG Kush"
+    },
+    {
+      "id": "commons-gg4",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/9/90/420Natural_GG-4_Bud_on_desk.jpg",
+      "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/420Natural_GG-4_Bud_on_desk.jpg/960px-420Natural_GG-4_Bud_on_desk.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:420Natural_GG-4_Bud_on_desk.jpg",
+      "author": "HerrBlaze",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "depicts": "odmiana",
+      "subject": "kwiat medycznego suszu 420 Natural Gorilla Glue (GG-4)",
+      "verified": true,
+      "strain": "Gorilla Glue #4"
+    },
+    {
+      "id": "flickr-pink-kush",
+      "fileUrl": "https://live.staticflickr.com/65535/51670428306_4c02d5a626_b.jpg",
+      "thumbUrl": "https://live.staticflickr.com/65535/51670428306_4c02d5a626_b.jpg",
+      "sourcePage": "https://www.flickr.com/photos/189516854@N06/51670428306",
+      "author": "elsaolofsson",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "depicts": "odmiana",
+      "strain": "Pink Kush",
+      "subject": "szyszka odmiany Pink Kush wg opisu autora (nie produkt konkretnego producenta)",
+      "verified": true
     }
-  ],
-  "notSuitable": [
-    "Zdjęcia konkretnych odmian z aptek, sklepów, forów i stron producentów: brak licencji lub zgody, nie używać.",
-    "Pliki z Commons dotyczące kwiatów suszonych (Marijuana-Cannabis-Weed-Bud-Gram.jpg, Macro cannabis bud.jpg, Drying Cannabis Buds.jpg): licencji nie udało się odczytać z wyników wyszukiwania, więc nie wpisano ich do manifestu."
   ]
 }

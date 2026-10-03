@@ -14,7 +14,7 @@ Reguła wyboru: brak zależności od decyzji właściciela (🌐 ⚖️ 💳 �
 |---|---|---|---|
 | 1 | **POM-01 Dzień w czasie polskim w całym kliencie** (+ POM-02 „Cofnij” i idempotencja zapisów) | S + S/M | To błąd, nie funkcja: między 0:00 a ok. 2:00 czasu polskiego „Dziś” w dzienniku objawów to wczoraj, a pole daty nie pozwala wybrać prawdziwego dnia. Idempotencja jest otwarta w HANDOFF (przegląd 0.30.0) i jest warunkiem kolejki offline (POM-14). Małe, testowalne, bez ryzyka. |
 | 2 | **POM-04 Szybki wpis objawów w panelu „Dziś”** | M | Dziennik objawów jest dziś osobnym ekranem z czterema suwakami. Bez regularnych wpisów korelacje (POM-06) i raport nie mają danych. Wpis jednym dotknięciem z ekranu, który i tak otwiera się co dzień, to największa dźwignia jakości danych. |
-| 3 | **POM-06 „Moje obserwacje”: objawy a odmiany (opisowo)** | M | Najczęstsze pytanie pacjenta: „po której odmianie lepiej śpię”. Dane już są (`usage_log`, `symptom_log`). Liczymy wyłącznie opisowe średnie z własnych danych, z liczbą dni i przesunięciem snu o jeden dzień, bez porad i bez linii trendu dawka-objaw. Zawęża PAC-7 (L) do bezpiecznej wersji M. |
+| 3 | **POM-06 „Moje obserwacje”: objawy a odmiany (opisowo)** (zrobione: `/obserwacje`) | M | Najczęstsze pytanie pacjenta: „po której odmianie lepiej śpię”. Dane już są (`usage_log`, `symptom_log`). Liczymy wyłącznie opisowe średnie z własnych danych, z liczbą dni i przesunięciem snu o jeden dzień, bez porad i bez linii trendu dawka-objaw. Zawęża PAC-7 (L) do bezpiecznej wersji M. |
 | 4 | **POM-09 Raport dla lekarza 2.0**: tydzień po tygodniu, objawy przy odmianach, aktualne recepty | M | Raport to jedyny wynik aplikacji, który trafia poza pacjenta. Dziś objawy to średnia z okresu (lekarz nie zobaczy zmiany), a recepty w ogóle nie występują. Wszystko liczy się z istniejących tabel. |
 | 5 | **POM-21 Dostępność wykresów i formularzy** (wykres objawów, suwaki, kolory) | S/M | Wykres objawów odróżnia cztery linie tylko kolorem i nie ma listy dla czytnika ekranu (wykres w panelu „Dziś” ją ma). UX-2 jest na liście kontrolnej 1.0.0; ta część jest tania i zamyka największe luki na ekranach zdrowotnych. |
 
@@ -29,10 +29,10 @@ Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnieni
 | POM-03 | Pora i sposób przyjęcia przy „Zużyłem” | 3 | M | P | – | nowy | – |
 | POM-04 | Szybki wpis objawów w panelu „Dziś” | 5 | M | P | – | nowy | PAC-14 |
 | POM-05 | Wieczorne przypomnienie o wpisie objawów | 4 | S | P | ⏱ 🔑 | nowy | PAC-9 |
-| POM-06 | Moje obserwacje: objawy a odmiany | 5 | M | P, Pr | – | nowy | PAC-7 (zawężenie) |
+| POM-06 | Moje obserwacje: objawy a odmiany | 5 | M | P, Pr | – | zrobiony (ekran `/obserwacje`; sekcja w szczegółach odmiany zostaje do POM-18) | PAC-7 (zawężenie) |
 | POM-07 | Własne objawy i skale (np. VAS, nudności, apetyt) | 4 | M | P | – | nowy | PAC-14, PAC-6 |
 | POM-08 | Nawyki bez presji: seria wpisów objawów | 3 | S | Pr | – | nowy | – |
-| POM-09 | Raport dla lekarza 2.0 | 5 | M | P | – | nowy | MON-4 (przedsionek) |
+| POM-09 | Raport dla lekarza 2.0 | 5 | M | P | – | zrobiony (czeka na wydanie) | MON-4 (przedsionek) |
 | POM-10 | Bezpieczne udostępnienie raportu lekarzowi linkiem | 4 | M | P, Pr | ⚖️ | nowy | MON-4 |
 | POM-11 | Eksport CSV dziennika (objawy + zużycie) | 3 | S | P | – | nowy | – |
 | POM-12 | Skróty aplikacji w APK i głęboki link „Zużyłem” | 3 | S | P | – | nowy | MOB-14 (APK) |
@@ -120,6 +120,7 @@ Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnieni
   - liczone na żądanie po stronie serwera tylko dla właściciela, nie trafia do profilu publicznego ani grup.
 - Ryzyko: Pr (granica porady medycznej, wymaga przeglądu słownictwa przy PRA-3), P (dane wrażliwe, ale nie opuszczają konta).
 - Jak zmierzyć: test w `tests/db/insights.test.js` na danych syntetycznych (przesunięcie snu, próg 5 dni, dni mieszane); liczba otwarć sekcji niepotrzebna, wystarczy ręczny przegląd tekstów.
+- **Stan: zrobione** jako osobny ekran `/obserwacje` (arkusz „Więcej” > Dziennik, link pod dziennikiem objawów), obliczenia w `lib/observations.js`, testy w `tests/db/observations.test.js` (próg, sen z poprzedniego dnia, północ w czasie polskim, g/ml osobno, dni mieszane, tylko własne dane). Grupy rozłączne dla każdego objawu: wiersz na odmianę (dni z tylko tą odmianą), „Dni z kilkoma odmianami”, „Dni bez zużycia” (liczone od pierwszego zapisu zużycia). Poniżej 5 dni średnia nie opuszcza serwera. Kolejność wierszy według liczby dni, bez kolorów lepiej/gorzej; ilości tylko jako sumy w okresie w jednostce odmiany (bez ilości na dzień obok średniej). Nie zapisuje nowych danych, więc bez zmian w `can_see`, eksporcie i kopii. Zostaje: sekcja „W dniach z tą odmianą” w szczegółach odmiany (razem z POM-18) i przegląd słownictwa przy PRA-3.
 
 **POM-18 Porównanie z moimi statystykami i objawami**
 - Ekran / element: `app/compare/page.js`.
@@ -134,6 +135,7 @@ Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnieni
 - Problem: objawy to jedna średnia z okresu (lekarz nie zobaczy, czy jest lepiej, czy gorzej), brak recept i ich wykorzystania, brak powiązania objawów z odmianami, domyślny zakres liczony w UTC (POM-01).
 - Propozycja: tabela tygodniowa (gramy, liczba dni z użyciem, średnie objawów w tym samym wierszu), sekcja „Recepty w okresie” (przepisano / wykupiono / niewykorzystane), przy odmianach „dni użycia” i średnie objawów w te dni (zasady POM-06), wybór gotowego okresu (30/90 dni, od ostatniej wizyty). Tekst o charakterze zestawienia zostaje. Funkcja dalej w planie Premium (`doctor_report`), decyzja o udostępnieniu darmowo należy do właściciela.
 - Jak zmierzyć: wydruk do PDF na telefonie mieści się na 2 stronach A4 dla 90 dni; test zapytań w `tests/db/report.test.js`.
+- Stan: zrobiony (czeka na wydanie). `lib/report.js` liczy tygodnie od poniedziałku w czasie polskim (zużycie i wykup osobno w g i ml, dni z użyciem, dni z wpisem i średnie objawów), recepty w okresie ze stanem na koniec okresu (wykup do daty „do”) oraz objawy w dniach z odmianą (sen z dnia następnego, dni mieszane liczone przy każdej odmianie, średnia od 5 dni z wpisem, kolejność po liczbie dni). Gotowe okresy 30/90 dni i „od ostatniej wizyty” (data tylko w `localStorage` urządzenia), przycisk „Udostępnij / Zapisz PDF” (`window.print`, tytuł strony = nazwa pliku). Wydruk A4 dla 90 dni: 2 strony (Chromium). Do ręcznej próby: drukowanie w APK (WebView może ignorować `window.print`).
 
 **POM-10 Bezpieczne udostępnienie raportu lekarzowi** (MON-4, ⚖️)
 - Ekran / element: raport, przycisk „Udostępnij lekarzowi”.

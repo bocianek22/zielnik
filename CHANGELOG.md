@@ -8,6 +8,17 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.35.0] - 2026-10
+### Dodano
+- „Moje obserwacje” (`/obserwacje`, z „Więcej” i dziennika objawów): średnie objawów w dniach z jedną odmianą, osobno dni z kilkoma odmianami i bez zużycia, sen zestawiany ze zużyciem z poprzedniego dnia, średnia od 5 dni, kolejność według liczby dni; zużycie w okresie w g i ml osobno; bez ocen skuteczności i zaleceń.
+- Raport dla lekarza 2.0: tabela tydzień po tygodniu (objawy, zużycie i wykup w g/ml), recepty w okresie ze stanem na koniec okresu, objawy w dniach z odmianą, gotowe okresy 30/90 dni i „od ostatniej wizyty”, przycisk „Udostępnij / Zapisz PDF”, wydruk A4 (90 dni na 2 stronach).
+- Zdjęcia odmian z wolnych licencji: podpis „Fot. autor, licencja (źródło)” pod zdjęciem i w podglądzie, przycisk admina „Dodaj zdjęcia z wolnych licencji” (tylko odmiany bez zdjęcia, tylko zweryfikowane zdjęcia konkretnej odmiany), zweryfikowany manifest `data/zdjecia.json`.
+- Źródła w artykułach Wiedzy o terpenach, THC/CBD i certyfikacie COA.
+### Zmieniono
+- Wydruk zawsze na białym tle także w ciemnym motywie.
+### Uwaga przy wdrożeniu
+- Migracje addytywne: `strain_photos.credit`, `license`, `license_url`, `source_url`.
+
 ## [0.34.0] - 2026-10
 ### Dodano
 - Podpowiedzi wyszukiwania od pierwszej litery na stronie /szukaj i na liście odmian: grupy (odmiany, producenci, terpeny i smaki, katalog, Wiedza, grupy, osoby od 2 znaków), dopasowanie bez polskich znaków („zolw” → „Żółw”), wyróżnienie dopasowania, ostatnie wyszukiwania (bez zapisu w trybie dyskretnym), obsługa klawiatury i czytnika ekranu (ARIA combobox).

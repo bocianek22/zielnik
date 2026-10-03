@@ -14,6 +14,7 @@ export const NAV_ITEMS = [
   { href: '/grupy', label: 'Grupy', badge: 'groups', top: 'main', sheet: 'discover', icon: 'group' },
   { href: '/historia', label: 'Historia', top: 'more', sheet: 'journal', icon: 'clock' },
   { href: '/dziennik', label: 'Dziennik objawów', top: 'more', sheet: 'journal', icon: 'pulse' },
+  { href: '/obserwacje', label: 'Moje obserwacje', top: 'more', sheet: 'journal', icon: 'chart' },
   { href: '/recepty', label: 'Recepty', top: 'more', sheet: 'journal', icon: 'file' },
   { href: '/raport', label: 'Raport dla lekarza', top: 'more', sheet: 'journal', icon: 'clipboard' },
   { href: '/wiedza', label: 'Wiedza', top: 'more', sheet: 'discover', icon: 'info' },

@@ -52,8 +52,9 @@ Tryb awaryjny (rozmowa bez dostępu do repozytorium):
 - Wybór bramki płatności i platformy wpłat (`DONATE_URL`), decyzja o `PREMIUM_ENFORCED`.
 - Źródło danych do katalogu (`CATALOG_FEED_URL`), plan Vercel Pro przy działalności komercyjnej.
 
-## 6. Następne kroki (aktualne dla wersji 0.34.0)
+## 6. Następne kroki (aktualne dla wersji 0.35.0)
 Pełna lista z uzasadnieniem: `docs/PRZEGLAD-2026-10.md`; aplikacje natywne: `docs/APLIKACJE-NATYWNE.md`; system projektowy: `docs/DESIGN.md`. Praca z podziałem na subagentów (`.claude/agents/`): koordynator scala gałęzie, uruchamia kontrole, zleca przegląd (reviewer) i prowadzi CHANGELOG/wersję. Przebieg pracy nocnej: `docs/PLAN-NOC.md`.
+1. **Ręcznie na telefonie (0.35.0):** „Moje obserwacje” (przełączanie objawów i okresów, tryb dyskretny), raport: „Udostępnij / Zapisz PDF” w Chrome na Androidzie i w iOS (w APK `window.print()` może nie działać - wtedy potrzebne rozwiązanie natywne), „Od ostatniej wizyty” po ponownym otwarciu aplikacji, admin: „Dodaj zdjęcia z wolnych licencji” (zdjęcie Pink Kush pochodzi z Flickra - sprawdzić, czy się pobiera).
 1. **Ręcznie na telefonie (0.34.0):** podpowiedzi wyszukiwania (pole na liście odmian przesuwa się do góry, lista mieści się nad klawiaturą w aplikacji Android; tryb dyskretny), jednostki ml (przełącznik g/ml na wykresie „Dziś” przy 320 px, „Zużyłem” 0,25 ml i „Cofnij”, „Wykupiłem” dla pena 0,45/0,9 ml, jednostka w nowej recepcie, korekta wpisu w ml, wydruk raportu). Jednorazowo po wdrożeniu (tylko jeśli pule olejów/penów się rozjechały):
    ```sql
    INSERT INTO user_pool (user_id, pool_key, remaining_to_buy)

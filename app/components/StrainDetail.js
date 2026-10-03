@@ -10,7 +10,7 @@ import dynamicImport from 'next/dynamic';
 const Effects = dynamicImport(() => import('./Effects'), { loading: () => <div className="card"><p className="muted">Wczytuję skalę odczuć…</p></div> });
 import CharacteristicCard from './CharacteristicCard';
 import PharmacyLink from './PharmacyLink';
-import Lightbox from './Lightbox';
+import Lightbox, { PhotoCredit } from './Lightbox';
 import StrainHistory from './StrainHistory';
 import UsageChart from './UsageChart';
 import { expiryInfo } from '@/lib/expiry';
@@ -119,7 +119,8 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, st
           <header className={`dhero ${kind}${photo ? ' has-photo' : ' no-photo'}`}>
             {photo && (
               <div className="dhero-media">
-                <Lightbox className="dhero-img dn-img" src={photo} alt={`Zdjęcie: ${strain.name}`} />
+                <Lightbox className="dhero-img dn-img" src={photo} alt={`Zdjęcie: ${strain.name}`} attr={strain.photo_attr} />
+                <PhotoCredit attr={strain.photo_attr} />
               </div>
             )}
             <div className="dhero-body">
