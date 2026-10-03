@@ -81,6 +81,9 @@
 .strain-foot .check { font-size: var(--fs-sm); min-height: var(--tap); }
 .strain-foot .chev { transition: transform var(--dur-2) var(--ease); }
 .strain.expanded .strain-foot .chev { transform: rotate(180deg); }
+.strain-foot .cmp-check { color: var(--text-2); font-weight: 500; }
+.strain-foot .btn.text[aria-label] { color: var(--text-2); font-weight: 500; }
+.strain-foot .btn.text[aria-label] .icon { color: var(--text-3); }
 .pool-note { color: var(--text-2); font-size: var(--fs-xs); line-height: 1.35; }
 @media (max-width: 760px) {
   .strain { padding: var(--s-4); }
@@ -137,9 +140,20 @@
   .entry.other { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 760px) {
-  .strain:not(.expanded) .entry-field.notes, .strain:not(.expanded) .entry-field.vis, .strain:not(.expanded) .entry-field.price,
-  .strain:not(.expanded) .entry-field.buy, .strain:not(.expanded) .entry-field.use, .strain:not(.expanded) .entry.other,
-  .strain:not(.expanded) .entry-who, .strain:not(.expanded) .strain-more { display: none; }
+  /* zwinięta karta na telefonie to wiersz listy: nazwa, dane, ocena, szybkie akcje. Pola edycji dopiero po „Szczegóły”. */
+  .strain:not(.expanded) .entries, .strain:not(.expanded) .strain-more { display: none; }
+  /* rozwinięta: pola użytkownika bez szarego pudełka w karcie, oddzielone linią jak sekcja */
+  .entries { gap: 0; }
+  .entry, .entry.mine { background: transparent; border-radius: 0; padding: var(--s-3) 0; border-top: 1px solid var(--sep); }
+  .card > h2 + .entries > .entry:first-child { border-top: 0; padding-top: 0; } /* szczegóły: nagłówek sekcji wystarczy */
+  .entry-who { font-size: var(--fs-sm); color: var(--text-2); }
+  .entry-field.price .input, .entry-field.vis .input, .vis-select, .use-row { max-width: none; }
+  /* wpis innej osoby: „Ocena 7,5” w jednej linii zamiast etykiety nad wartością */
+  .entry.other { grid-template-columns: 1fr; gap: var(--s-1); padding-bottom: var(--s-3); }
+  .entry.other .entry-who { color: var(--text); }
+  .entry.other .entry-field { display: flex; gap: var(--s-2); align-items: baseline; }
+  .entry.other .entry-field b, .entry.other .entry-field.notes > span:last-child { padding-top: 0; }
+  .entry.other .entry-field .lbl { flex: none; min-width: 56px; font-weight: 500; font-size: var(--fs-sm); }
 }
 
 /* ===== Szybkie akcje „Zużyłem” / „Wykupiłem” ===== */

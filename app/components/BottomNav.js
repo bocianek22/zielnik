@@ -75,7 +75,7 @@ export default function BottomNav({ isAdmin }) {
       )}
       <nav className="bottomnav" aria-label="Główna nawigacja">
         {navItems('bar', isAdmin).map((i) => {
-          const on = isActive(path, i.href);
+          const on = !open && isActive(path, i.href); // przy otwartym arkuszu aktywna jest tylko zakładka „Więcej”
           return (
             <Link key={i.href} href={i.href} className={on ? 'on' : ''} aria-current={on ? 'page' : undefined}>
               <span className="bn-ic"><Icon name={i.icon} /></span><span>{i.label}</span>{i.badge && <NavBadge kind={i.badge} />}

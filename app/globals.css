@@ -321,6 +321,7 @@ input.switch:disabled { opacity: .5; cursor: default; }
 .alert.note a { color: inherit; font-weight: 600; }
 .alert p { margin: 0; }
 .alert p + p { margin-top: var(--s-2); }
+@media (max-width: 760px) { .page > .alert.note { font-size: var(--fs-sm); line-height: 1.45; } } /* ostrzeżenie nad treścią nie zajmuje pół ekranu */
 
 /* ===== Plakietki (oszczędnie: stan, rodzaj), pigułki z liczbami, chipy filtrów ===== */
 .badge { display: inline-block; padding: 1px 8px; border-radius: var(--r-sm); font-size: var(--fs-xs); font-weight: 600; line-height: 1.6; background: var(--surface-2); color: var(--text-2); white-space: nowrap; }
@@ -348,9 +349,18 @@ a.chip.static:hover { background: var(--surface-3); color: var(--text); }
 .seg { display: flex; flex-wrap: wrap; max-width: 100%; padding: 2px; background: var(--surface-2); border-radius: var(--r-md); gap: 2px; width: fit-content; }
 .seg button { flex: 1 1 auto; border: 0; background: transparent; min-height: 36px; padding: 0 var(--s-4); border-radius: 8px; font: inherit; font-size: var(--fs-sm); font-weight: 600; color: var(--text-2); cursor: pointer; }
 .seg button.on { background: var(--surface); color: var(--text); box-shadow: var(--shadow-1), 0 0 0 1px var(--sep); }
-:root[data-theme="dark"] .seg button.on { background: var(--surface-3); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .seg button.on { background: var(--surface-3); } }
-@media (max-width: 480px) { .seg button { padding: 0 var(--s-3); } }
+:root[data-theme="dark"] .seg button.on { background: var(--surface-3); box-shadow: 0 0 0 1px var(--sep-strong); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .seg button.on { background: var(--surface-3); box-shadow: 0 0 0 1px var(--sep-strong); } }
+@media (max-width: 480px) {
+  .seg button { padding: 0 var(--s-3); }
+  .seg:not(.admin-tabs) { width: 100%; flex-wrap: nowrap; }
+  .seg:not(.admin-tabs) button { flex: 1 1 0; white-space: nowrap; }
+}
+/* 320 px: cztery opcje się nie mieszczą, więc segmenty wracają do zawijania */
+@media (max-width: 359px) {
+  .seg:not(.admin-tabs) { flex-wrap: wrap; }
+  .seg:not(.admin-tabs) button { flex: 1 1 auto; }
+}
 
 /* ===== Tabele ===== */
 .table, .cmp { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }

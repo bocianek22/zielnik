@@ -51,6 +51,9 @@ a.who-name:hover { color: var(--on-bar); }
   .sheet::before { content: ''; display: block; width: 36px; height: 4px; border-radius: 2px; background: var(--sep-strong); margin: 0 auto var(--s-3); }
   .sheet .section-label { margin-top: var(--s-4); }
   .sheet .list a { color: var(--text); }
+  /* linie między wierszami zaczynają się od tekstu, nie od ikony (jak w ustawieniach systemowych) */
+  .sheet .list > .list-row + .list-row { border-top: 0; background-image: linear-gradient(var(--sep), var(--sep)); background-size: calc(100% - 52px) 1px; background-position: right top; background-repeat: no-repeat; }
+  .sheet .list > .list-row[aria-current="page"] .lr-main { font-weight: 600; }
   .sheet .list .nbadge { margin-left: auto; }
   .sheet .list .nbadge + .lr-chev { margin-left: 0; }
   .sheet .logout { color: var(--danger); }

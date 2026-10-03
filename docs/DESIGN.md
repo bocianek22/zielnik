@@ -108,6 +108,34 @@ Zrzuty: 390 px jasny i ciemny oraz 1280 px, wszystkie główne ekrany.
 12. Ikony: mieszanka liścia, własnych SVG i znaków tekstowych („+”, „×”, „▾”).
 13. Pozostałe: tabele w panelu admina przepełniają szerokość telefonu. Wykres dziennika ma stałe kolory i nie dopasowuje się do motywu. Daty w polu dnia w formacie przeglądarki, a w kilku miejscach kreska „—” w tytułach.
 
+## Przegląd dopracowania 2026-10
+
+Zrzuty 390 px (jasny, ciemny) i 1280 px po wdrożeniu systemu. Cel: wygląd dopracowanej aplikacji natywnej, bez „pudełek w pudełkach” i nadmiaru akcentu. Kolejność według tego, jak często ekran jest oglądany.
+
+| # | Ekran, element | Problem | Poprawka |
+|---|---|---|---|
+| 1 | Odmiany, zwinięta karta (telefon) | Każda karta pokazuje szare pudełko z trzema polami („Ocena”, „Mam teraz”, „Do wykupienia”). Lista wygląda jak formularz, karta ma dwukrotną wysokość, na ekran mieści się jedna odmiana. | Zwinięta karta to wiersz: nazwa, dane, ocena, szybkie akcje „Zużyłem/Wykupiłem” i stan. Pola edycji dopiero po „Szczegóły”. Koszt: przy stanie 0 g i 0 g do wykupienia (brak szybkich akcji) wpisanie zapasu wymaga jednego dotknięcia więcej. |
+| 2 | Odmiany, rozwinięta karta | Pola użytkownika w szarym pudełku wewnątrz karty (karta w karcie). Pola ceny i widoczności węższe (260 px) niż pozostałe, prawa krawędź poszarpana. | Na telefonie bez tła, oddzielone linią jak sekcja; wszystkie pola na pełną szerokość. |
+| 3 | Odmiany, stopka karty | Trzy kontrolki w kolorze akcentu obok siebie („Szczegóły”, „Porównaj”, „Edytuj”). Akcent przestaje oznaczać główną akcję. | „Szczegóły” zostaje w akcencie, „Porównaj” i „Edytuj” w `--text-2`. |
+| 4 | Szczegóły, wpisy innych osób | „Ocena” i „Opinia” jako etykieta nad wartością z dużymi odstępami; jeden wpis zajmuje ćwierć ekranu. | Etykieta i wartość w jednej linii („Ocena 7,5”). |
+| 5 | Szczegóły, karta charakterystyki | Druga lista faktów w innym stylu niż pierwsza (gruba etykieta, odstęp 10 px), stężenie z kropką („CBD 0.5%”). | Ten sam rytm co `.facts` (12 px, etykieta zwykła, wartość 500), liczby przez `fx()` z przecinkiem. |
+| 6 | Szczegóły, „Odczucia użytkowników” | Pięć pogrubionych pigułek z liczbami w nawiasach, zawijanych w nierówne rzędy, styl inline. | Lista faktów: efekt po lewej, „4/10 · 1 ocena” po prawej, liczby tabelaryczne. |
+| 7 | Dolny pasek | Przy otwartym arkuszu „Więcej” podświetlone są dwie zakładki naraz („Odmiany” i „Więcej”). | Gdy arkusz jest otwarty, aktywna jest tylko „Więcej”. |
+| 8 | Arkusz „Więcej” | Linie między wierszami biegną od krawędzi, przez kolumnę ikon; bieżąca strona nie jest wyróżniona. | Linie zaczynają się od tekstu (wcięcie 52 px, jak w ustawieniach iOS), bieżąca pozycja pogrubiona. |
+| 9 | Rankingi | Trzy przełączniki segmentowe o trzech różnych szerokościach jeden pod drugim, przycisk filtrów wisi obok drugiego. | Na telefonie siatka: „Wspólne/Moje” + filtr w pierwszym rzędzie, pozostałe przełączniki na pełną szerokość. |
+| 10 | Przełączniki segmentowe (katalog, profil, dziennik, koło) | Szerokość „do treści”, więc każdy kończy się w innym miejscu i nie trzyma prawej krawędzi. | Na telefonie (≤ 480 px) pełna szerokość i równe segmenty, jak systemowy `UISegmentedControl` (bez zakładek panelu admina). |
+| 11 | Profil, „Wygląd” | Przełącznik przyklejony do nagłówka (0 px odstępu). | Odstęp 12 px. |
+| 12 | Profil, nagłówek | Awatar i nazwa zlewają się z polami formularza poniżej. | Linia oddzielająca tożsamość od pól; pole „Kto widzi mój profil” na pełną szerokość jak pozostałe. |
+| 13 | Profil, rząd przycisków | Pusty komunikat stanu (`role="status"`) zajmuje miejsce w rzędzie, przez co „Udostępnij” jest węższy od karty o odstęp. | Pusty komunikat jest ukryty. |
+| 14 | Przełącznik segmentowy, tryb ciemny | Wybrany segment (`--surface-3` na `--surface-2`) prawie nie odróżnia się od pozostałych. | Obwódka `--sep-strong` wokół wybranego segmentu w obu blokach ciemnego motywu. |
+| 15 | Odmiany, ostrzeżenie o receptach | Przy dwóch receptach blok 15 px zajmuje 1/4 pierwszego ekranu. | Na telefonie 14 px i ciaśniejsza interlinia; treść bez zmian. |
+
+Zostaje do decyzji lub ręcznej kontroli:
+- Przycisk „+” (56 px, cień) przykrywa prawy dolny róg treści na każdym ekranie, także tam, gdzie nie ma sensu dodawać odmiany (rankingi, katalog). Wyświetlanie tylko na liście odmian to zmiana zachowania, nie wyglądu.
+- Ostrzeżenie o receptach: przy wielu receptach nadal kilka akapitów; do rozważenia jedno zdanie z liczbą i link (zmiana treści).
+- Przycisk „+” i przyciski główne w ciemnym motywie (jasna mięta `--accent`) są najjaśniejszym elementem ekranu; do rozważenia ciemniejsze wypełnienie przy zachowaniu kontrastu `--on-accent`.
+- W zrzutach z Chromium bez GPU (dpr 2) Figtree ma nierówne odstępy między literami („Znajom i”). Na 1280 px tego nie ma; sprawdzić na prawdziwym telefonie, nie poprawiać `letter-spacing` na ślepo.
+
 ## Do przeniesienia na system
 
 Ekrany poniżej korzystają już z nowych tokenów: tryb ciemny działa, a karty, przyciski, pola i przełączniki segmentowe są w nowym stylu. Ich układ nie był jednak jeszcze przeprojektowany. Paczki są niezależne. Każda paczka zmienia tylko swoje pliki, a swój blok CSS przenosi z `app/styles/screens.css` do nowego pliku `app/styles/<ekran>.css`, z importem w `app/layout.js` przed `platform.css`. W `screens.css` usuwa tylko własny blok, żeby paczki się nie nakładały. Nie zmieniaj `globals.css` poza dopisaniem brakującego komponentu bazowego; taką zmianę zgłoś w raporcie.

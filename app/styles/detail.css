@@ -32,11 +32,14 @@
 /* karta charakterystyki */
 .charcard h3 { margin-top: var(--s-5); font-size: var(--fs-lg); }
 .klist { display: grid; margin: var(--s-3) 0; }
-.klist > div { display: grid; grid-template-columns: minmax(110px, 34%) 1fr; gap: var(--s-3); padding: 10px 0; border-top: 1px solid var(--sep); }
+.klist > div { display: grid; grid-template-columns: minmax(110px, 34%) 1fr; gap: var(--s-3); padding: var(--s-3) 0; border-top: 1px solid var(--sep); }
 .klist > div:first-child { border-top: 0; }
-.klist dt { color: var(--text-2); font-weight: 500; }
+.klist dt { color: var(--text-2); font-weight: 400; }
 .klist dd { margin: 0; }
 .klist dd::first-letter { text-transform: uppercase; }
+.klist dd { font-weight: 500; }
+.klist.feel dd { font-variant-numeric: tabular-nums; }
+.klist.feel dd .muted { font-weight: 400; font-size: var(--fs-sm); }
 
 /* testy */
 .tests h2 { margin-bottom: var(--s-4); }

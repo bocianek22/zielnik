@@ -21,6 +21,10 @@
 .list.inset .list-row { min-height: 48px; color: var(--accent-text); font-weight: 500; }
 .list.inset .list-row .icon { color: var(--accent-text); }
 .danger-zone h2 { color: var(--danger); }
+.settings .card > h2 + .seg { margin-top: var(--s-3); }
+.settings .vis-select { max-width: none; }
+.settings .row > [role="status"]:empty { display: none; } /* pusty komunikat nie zabiera miejsca w rzędzie przycisków */
+.profile-id { padding-bottom: var(--s-4); border-bottom: 1px solid var(--sep); }
 .native-version { text-align: center; font-size: var(--fs-sm); }
 
 /* powiadomienia */
