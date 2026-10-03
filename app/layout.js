@@ -7,6 +7,7 @@ import './styles/detail.css';
 import './styles/profile.css';
 import './styles/auth.css';
 import './styles/screens.css';
+import './styles/forms.css';
 import './styles/platform.css';
 import { cookies, headers } from 'next/headers';
 import { isNativeApp } from '@/lib/client';

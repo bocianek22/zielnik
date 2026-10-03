@@ -5,6 +5,7 @@ import { fileToDataUrl } from '@/lib/image';
 import { VIS, visLabel } from '@/lib/visibility';
 import ReportButton from './ReportButton';
 import Lightbox from './Lightbox';
+import Icon from './Icon';
 
 const fmtDate = (iso) => new Date(iso).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
 const photoUrl = (t) => `/api/tests/${t.id}/photo?v=${t.pv}`;
@@ -25,7 +26,7 @@ function TestForm({ test, onSubmit, onCancel, busy, error }) {
     if (file) try { setImage(await fileToDataUrl(file)); setRemovePhoto(false); setErr(''); } catch (x) { setErr(x.message); }
   }
   return (
-    <form className="test-form" onSubmit={(e) => { e.preventDefault(); onSubmit({ note, visibility: vis, image, removePhoto }); }}>
+    <form className="test-form" aria-label={test ? 'Edytuj test' : 'Nowy test'} onSubmit={(e) => { e.preventDefault(); onSubmit({ note, visibility: vis, image, removePhoto }); }}>
       <div className="field">
         <label htmlFor={`${id}-note`}>Opis testu (sposób użycia, odczucia, wrażenia)</label>
         <textarea id={`${id}-note`} className="input" rows={3} maxLength={1500} value={note} onChange={(e) => setNote(e.target.value)} />
@@ -36,14 +37,21 @@ function TestForm({ test, onSubmit, onCancel, busy, error }) {
           {VIS.map(([v, label]) => <option key={v} value={v}>{label}</option>)}
         </select>
       </div>
-      <div className="photo-edit">
-        {current && <img className="strain-photo" src={current} alt="Zdjęcie z testu" />}
-        <label className="btn ghost small file-btn">{current ? 'Zmień zdjęcie' : 'Dodaj zdjęcie'}<input type="file" accept="image/*" hidden onChange={pick} /></label>
-        {current && <button type="button" className="btn ghost small" onClick={() => { setImage(null); setRemovePhoto(true); }}>Usuń zdjęcie</button>}
-        <button className="btn small" disabled={busy}>{busy ? 'Zapisuję…' : test ? 'Zapisz zmiany' : 'Dodaj test'}</button>
-        {onCancel && <button type="button" className="btn ghost small" onClick={onCancel}>Anuluj</button>}
+      <div className="field">
+        <span className="label">Zdjęcie</span>
+        <div className="photo-edit">
+          {current && <img className="strain-photo" src={current} alt="Zdjęcie z testu" />}
+          <div className="photo-actions">
+            <label className="btn ghost small file-btn">{current ? 'Zmień zdjęcie' : 'Dodaj zdjęcie'}<input type="file" accept="image/*" hidden onChange={pick} /></label>
+            {current && <button type="button" className="btn ghost small" onClick={() => { setImage(null); setRemovePhoto(true); }}>Usuń zdjęcie</button>}
+          </div>
+        </div>
       </div>
       {(err || error) && <div className="alert error" role="alert">{err || error}</div>}
+      <div className="row form-actions">
+        <button className="btn" disabled={busy}>{busy ? 'Zapisuję…' : test ? 'Zapisz zmiany' : 'Dodaj test'}</button>
+        {onCancel && <button type="button" className="btn ghost" onClick={onCancel}>Anuluj</button>}
+      </div>
     </form>
   );
 }
@@ -52,6 +60,7 @@ function TestForm({ test, onSubmit, onCancel, busy, error }) {
 export default function Tests({ strainId, initialTests, me }) {
   const [tests, setTests] = useState(initialTests);
   const [editing, setEditing] = useState(null);
+  const [adding, setAdding] = useState(false); // formularz nowego testu jest zwinięty pod przyciskiem
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
@@ -59,7 +68,10 @@ export default function Tests({ strainId, initialTests, me }) {
     setBusy(true); setError('');
     try { await fn(); return true; } catch (e) { setError(e.message); return false; } finally { setBusy(false); }
   }
-  const add = (d) => run(async () => { setTests((await api(`/api/strains/${strainId}/tests`, 'POST', { note: d.note, image: d.image, visibility: d.visibility })).tests); });
+  const add = async (d) => {
+    const ok = await run(async () => { setTests((await api(`/api/strains/${strainId}/tests`, 'POST', { note: d.note, image: d.image, visibility: d.visibility })).tests); });
+    if (ok) setAdding(false);
+  };
   const save = (id, d) => run(async () => {
     setTests((await api(`/api/tests/${id}`, 'PATCH', { note: d.note, visibility: d.visibility, image: d.image, removePhoto: d.removePhoto })).tests);
     setEditing(null);
@@ -71,8 +83,12 @@ export default function Tests({ strainId, initialTests, me }) {
 
   return (
     <section className="card tests">
-      <h2>Testy</h2>
-      <TestForm key={tests.length} onSubmit={add} busy={busy} error={editing ? '' : error} />
+      <div className="tests-head">
+        <h2>Testy</h2>
+        {!adding && <button type="button" className="btn small" onClick={() => { setError(''); setEditing(null); setAdding(true); }}><Icon name="plus" size={18} />Dodaj test</button>}
+      </div>
+      {adding && <TestForm key={tests.length} onSubmit={add} onCancel={() => { setAdding(false); setError(''); }} busy={busy} error={editing ? '' : error} />}
+      {!adding && !editing && error && <div className="alert error" role="alert">{error}</div>}
       {tests.length === 0 ? <p className="muted">Nie ma jeszcze żadnych testów tej odmiany.</p> : (
         <ul className="test-list">
           {tests.map((t) => (
@@ -89,8 +105,8 @@ export default function Tests({ strainId, initialTests, me }) {
                     {t.note && <p className="test-note">{t.note}</p>}
                     <div className="row">
                       {t.userId && t.userId !== me.id && <ReportButton type="test" userId={t.userId} refId={t.id} />}
-                      {t.userId === me.id && <button className="btn ghost small" onClick={() => { setError(''); setEditing(t.id); }}>Edytuj</button>}
-                      {(me.isAdmin || t.userId === me.id) && <button className="btn ghost small" onClick={() => remove(t.id)}>Usuń</button>}
+                      {t.userId === me.id && <button className="btn text small" onClick={() => { setError(''); setAdding(false); setEditing(t.id); }}><Icon name="edit" size={18} />Edytuj</button>}
+                      {(me.isAdmin || t.userId === me.id) && <button className="btn text small" onClick={() => remove(t.id)}>Usuń</button>}
                     </div>
                   </div>
                 </>

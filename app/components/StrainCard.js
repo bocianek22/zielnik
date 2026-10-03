@@ -11,7 +11,9 @@ import Icon from './Icon';
 import { strainTags } from '@/lib/effects';
 
 export const LOW_STOCK = 3; // g: poniżej tej ilości odmiana dostaje znacznik "Kończy się"
-const fmt = (n) => (n == null ? '–' : String(Number(n)));
+const fmt = (n) => (n == null ? '–' : String(Number(n)).replace('.', ','));
+// wyświetlanie liczb z polskim przecinkiem (wartości w danych zostają bez zmian)
+export const dec = (n) => String(n).replace('.', ',');
 
 // Edytowalne, osobiste pola zalogowanego użytkownika (autozapis po opuszczeniu pola)
 // hidePrice: aplikacja natywna (lib/client.js); cena zostaje w stanie formularza, więc zapis jej nie kasuje
@@ -44,7 +46,7 @@ export function OwnEntry({ strainId, entry, onSaved, mates, hidePrice = false })
       const next = { ...f, current: r.current, remaining: r.remaining };
       setF(next); last.current = JSON.stringify(next);
       onSaved({ current: r.current, remaining: r.remaining, bought: g });
-      setBuyG(''); setBuyMsg(`Zapisano zakup: ${g} g`);
+      setBuyG(''); setBuyMsg(`Zapisano zakup: ${dec(g)} g`);
     } catch (e) { setBuyMsg(e.message); }
   }
 
@@ -57,7 +59,7 @@ export function OwnEntry({ strainId, entry, onSaved, mates, hidePrice = false })
       setF(next); last.current = JSON.stringify(next);
       onSaved({ current: r.current });
       setUse('');
-      setUseMsg(r.stockShort ? `Zapisano zużycie ${r.used} g (zapisany stan był mniejszy, ustawiono 0 g)` : `Zapisano zużycie ${r.used} g, zostało ${r.current} g`);
+      setUseMsg(r.stockShort ? `Zapisano zużycie ${dec(r.used)} g (zapisany stan był mniejszy, ustawiono 0 g)` : `Zapisano zużycie ${dec(r.used)} g, zostało ${dec(r.current)} g`);
     } catch (e) { setUseMsg(e.message); }
   }
 
@@ -81,7 +83,7 @@ export function OwnEntry({ strainId, entry, onSaved, mates, hidePrice = false })
 
   return (
     <div className="entry mine">
-      <div className="entry-who">Twoje pola <span className={`save-state ${status.kind}`} role="status">{status.msg}</span></div>
+      <div className="entry-who"><span>Twoje pola</span> <span className={`save-state ${status.kind}`} role="status">{status.msg}</span></div>
       <div className="entry-field">
         <label htmlFor={`${id}-r`}>Ocena</label>
         <input id={`${id}-r`} className="input" type="number" min="0" max="10" step="0.5" inputMode="decimal" {...bind('rating')} />
@@ -114,11 +116,11 @@ export function OwnEntry({ strainId, entry, onSaved, mates, hidePrice = false })
       <div className="entry-field use">
         <label htmlFor={`${id}-u`}>Zużycie (g)</label>
         <div className="use-row">
-          <input id={`${id}-u`} className="input" type="number" min="0" step="0.05" inputMode="decimal" placeholder="np. 0.5" value={use}
+          <input id={`${id}-u`} className="input" type="number" min="0" step="0.05" inputMode="decimal" placeholder="np. 0,5" value={use}
             onChange={(e) => setUse(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); consume(); } }} />
           <button type="button" className="btn small" onClick={consume}>Zużyj</button>
         </div>
-        <div className="chips small">{[0.1, 0.25, 0.5, 1].map((v) => <button key={v} type="button" className="chip use-chip" onClick={() => setUse(String(v))}>{v} g</button>)}</div>
+        <div className="chips small">{[0.1, 0.25, 0.5, 1].map((v) => <button key={v} type="button" className="chip use-chip" onClick={() => setUse(String(v))}>{dec(v)} g</button>)}</div>
         {useMsg && <small className="pool-note" role="status">{useMsg}</small>}
       </div>
       <div className="entry-field buy">
@@ -144,8 +146,6 @@ export function OtherEntry({ e }) {
   );
 }
 
-// wyświetlanie liczb z polskim przecinkiem (wartości w danych zostają bez zmian)
-export const dec = (n) => String(n).replace('.', ',');
 const cap = (s) => (s ? s[0].toUpperCase() + s.slice(1) : s);
 
 export default function StrainCard({ strain, meId, hidePrice = false, mates, low, cmpOn, onCmp, onEdit, onEntrySaved }) {
@@ -228,10 +228,10 @@ export default function StrainCard({ strain, meId, hidePrice = false, mates, low
 
       <div className="strain-foot">
         <button type="button" className="btn text small only-mobile" onClick={() => setExpanded((v) => !v)} aria-expanded={expanded}>
-          {expanded ? 'Zwiń szczegóły' : 'Pokaż szczegóły'}<Icon name="chevronDown" size={18} className="chev" />
+          {expanded ? 'Zwiń' : 'Szczegóły'}<Icon name="chevronDown" size={18} className="chev" />
         </button>
-        <label className="check"><input type="checkbox" checked={!!cmpOn} onChange={onCmp} /> Porównaj</label>
-        <button type="button" className="btn text small" onClick={onEdit} aria-label="Edytuj pola wspólne">Edytuj<span className="hide-narrow"> pola wspólne</span></button>
+        <label className="check cmp-check"><input type="checkbox" checked={!!cmpOn} onChange={onCmp} /> <span>Porównaj</span></label>
+        <button type="button" className="btn text small" onClick={onEdit} aria-label="Edytuj pola wspólne"><Icon name="edit" size={18} />Edytuj<span className="hide-narrow"> pola wspólne</span></button>
       </div>
     </article>
   );

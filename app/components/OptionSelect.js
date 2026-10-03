@@ -5,7 +5,7 @@ import { api } from '@/lib/api';
 const NEW = '__new__';
 
 // Lista wyboru z możliwością dopisania nowej opcji (zapisywanej na stałe dla wszystkich)
-export default function OptionSelect({ id, kind, options, value, onChange, onOptionsChange }) {
+export default function OptionSelect({ id, kind, options, value, onChange, onOptionsChange, invalid = false }) {
   const [adding, setAdding] = useState(false);
   const [draft, setDraft] = useState('');
   const [error, setError] = useState('');
@@ -28,6 +28,7 @@ export default function OptionSelect({ id, kind, options, value, onChange, onOpt
       <select
         id={id}
         className="input"
+        aria-invalid={invalid || undefined}
         value={adding ? NEW : value}
         onChange={(e) => {
           if (e.target.value === NEW) setAdding(true);
@@ -36,7 +37,7 @@ export default function OptionSelect({ id, kind, options, value, onChange, onOpt
       >
         {!value && <option value="" disabled>Wybierz…</option>}
         {options.map((o) => <option key={o} value={o}>{o}</option>)}
-        <option value={NEW}>＋ Dodaj nową opcję…</option>
+        <option value={NEW}>Dodaj nową opcję…</option>
       </select>
       {adding && (
         <div className="optsel-add">
@@ -50,8 +51,8 @@ export default function OptionSelect({ id, kind, options, value, onChange, onOpt
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); confirmNew(); } }}
           />
-          <button type="button" className="btn small" disabled={busy} onClick={confirmNew}>Dodaj</button>
-          <button type="button" className="btn ghost small" onClick={() => { setAdding(false); setError(''); }}>Anuluj</button>
+          <button type="button" className="btn" disabled={busy} onClick={confirmNew}>Dodaj</button>
+          <button type="button" className="btn ghost" onClick={() => { setAdding(false); setError(''); }}>Anuluj</button>
         </div>
       )}
       {error && <p className="field-err" role="alert">{error}</p>}

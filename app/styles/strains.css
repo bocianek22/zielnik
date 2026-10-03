@@ -91,18 +91,20 @@
   .score b { font-size: 1.625rem; }
   .score.soft b { font-size: 1.125rem; }
   .strain-foot { flex-wrap: nowrap; gap: 0; margin-inline: calc(var(--s-2) * -1); }
-  .strain-foot .btn.text { padding-inline: var(--s-2); }
+  .strain-foot .btn.text { padding-inline: var(--s-2); white-space: nowrap; flex: none; }
   .strain-foot .hide-narrow { display: none; }
+  .strain-foot .cmp-check { padding-inline: var(--s-2); gap: 8px; white-space: nowrap; }
 }
+@media (max-width: 359px) { .strain-foot .cmp-check span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); } }
 
 /* ===== Pola użytkownika w karcie ===== */
 .entries { display: grid; gap: var(--s-2); margin-top: var(--s-3); }
 .entries:empty { display: none; }
 .entry { display: grid; grid-template-columns: 120px 100px 130px 140px 1fr; gap: var(--s-3); align-items: start; padding: var(--s-3); border-radius: var(--r-md); background: var(--surface-2); }
 .entry.mine { background: var(--surface-2); }
-.entry-who { font-weight: 600; font-size: var(--fs-sm); padding-top: 22px; overflow-wrap: anywhere; }
+.entry-who { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-2); font-weight: 600; font-size: var(--fs-sm); padding-top: 22px; overflow-wrap: anywhere; }
 .entry-who a { color: var(--text); }
-.save-state { display: block; font-size: var(--fs-xs); font-weight: 500; color: var(--text-2); min-height: 1.2em; }
+.save-state { font-size: var(--fs-xs); font-weight: 500; color: var(--text-2); text-align: right; }
 .save-state.ok { color: var(--ok); }
 .save-state.err { color: var(--danger); }
 .entry-field { display: grid; gap: 4px; min-width: 0; }
@@ -146,28 +148,3 @@
 .quick-msg.warn { color: var(--danger); }
 @keyframes quick-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 @media (max-width: 480px) { .quick-stock { margin-left: 0; width: 100%; } }
-
-/* ===== Formularz odmiany (na telefonie pełnoekranowy arkusz, MOB-6) ===== */
-.strain-form h2 { margin-bottom: var(--s-4); }
-.terp { display: grid; gap: 10px; }
-.photo-edit { display: flex; gap: var(--s-4); align-items: center; flex-wrap: wrap; }
-.photo-actions { display: flex; gap: 10px; flex-wrap: wrap; }
-.mobile-form-bar { display: none; }
-@media (max-width: 760px) {
-  .strain-form {
-    position: fixed; inset: 0; z-index: 60; border-radius: 0; border: 0; overflow-y: auto; background: var(--bg);
-    padding: 0 16px calc(24px + env(safe-area-inset-bottom));
-    -webkit-overflow-scrolling: touch;
-  }
-  .mobile-form-bar {
-    display: flex; align-items: center; justify-content: space-between; gap: 8px;
-    position: sticky; top: 0; z-index: 2; margin: 0 -16px 16px; padding: calc(6px + env(safe-area-inset-top)) 6px 6px;
-    background: var(--surface); border-bottom: 1px solid var(--sep); font-weight: 600; font-size: var(--fs-lg);
-  }
-  .mobile-form-bar .linklike { padding: 10px 12px; color: var(--accent-text); font-weight: 500; }
-  .strain-form .form-actions .btn.ghost { display: none; } /* na telefonie zamykamy tylko przez górny pasek, żeby nie duplikować akcji */
-  .strain-form .form-actions .push-right { margin-left: 0; }
-}
-
-/* telefon: pola w jednym rzędzie wyrównane do dołu, gdy etykieta zawija się do dwóch linii */
-@media (max-width: 760px) { .entry { align-items: end; } .entry-who { align-self: start; } }
