@@ -10,11 +10,13 @@ export const GET = safe(async () => {
   return NextResponse.json({ items: items.filter((i) => i.active).map((i) => ({ producer: i.producer, name: i.name })) });
 });
 
-// Ręczny import katalogu (tylko admin): { rows: [ { producent, odmiana, thc, cbd, rodzaj, dostępność } ] }
+// Ręczny import katalogu (tylko admin): { rows: [ { producent, odmiana, thc, cbd, rodzaj, dostępność } ], mode? }
+// mode 'zdjecie': lista częściowa ze zdjęcia apteki, scalana bez oznaczania braków (syncCatalog merge)
 export const POST = safe(async (req) => {
   const { res } = await requireAdmin('Tylko admin może wczytać katalog.');
   if (res) return res;
-  const { rows } = await req.json().catch(() => ({}));
+  const { rows, mode } = await req.json().catch(() => ({}));
   if (!Array.isArray(rows) || !rows.length) return bad('Brak wierszy do wczytania.');
+  if (mode === 'zdjecie') return NextResponse.json(await syncCatalog(rows, 'zdjęcie z apteki', { merge: true }));
   return NextResponse.json(await syncCatalog(rows, 'import ręczny'));
 });

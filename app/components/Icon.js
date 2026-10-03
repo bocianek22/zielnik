@@ -29,6 +29,7 @@ const P = {
   filter: <><path d="M4 6h16M7 12h10M10 18h4" /></>,
   edit: <><path d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17z" /></>,
   download: <><path d="M12 4v11M7 10l5 5 5-5M5 20h14" /></>,
+  camera: <><path d="M4.5 7.5h3l1.5-2.5h6l1.5 2.5h3A1.5 1.5 0 0 1 21 9v9.5a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18.5V9a1.5 1.5 0 0 1 1.5-1.5z" /><circle cx="12" cy="13.5" r="3.5" /></>,
   share: <><path d="M12 15V3M7 8l5-5 5 5" /><path d="M5 12v7.5A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V12" /></>,
   alert: <><path d="M12 3 2 20h20z" /><path d="M12 10v4M12 17h.01" /></>,
   calendar: <><rect x="3.5" y="5" width="17" height="15.5" rx="1.5" /><path d="M3.5 10h17M8 3v4M16 3v4" /></>,

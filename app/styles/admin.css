@@ -56,6 +56,22 @@
 .admin-report-title { font-weight: 600; font-size: var(--fs-lg); }
 .admin-quote { margin-top: var(--s-2) !important; padding-left: var(--s-3) !important; border-left: 2px solid var(--sep-strong); overflow-wrap: anywhere; }
 
+/* zdjęcie z apteki -> CSV */
+.ph-pick { padding: var(--s-3) var(--s-4); }
+.ph-pick .admin-actions-bar { margin-top: 0; }
+.ph-thumbs { list-style: none; margin: 0 0 var(--s-3); padding: 0; display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.ph-thumbs li { position: relative; }
+.ph-thumbs img { display: block; width: 88px; height: 88px; object-fit: cover; border-radius: var(--r-md); border: 1px solid var(--sep); }
+.ph-thumbs .btn { position: absolute; top: 0; right: 0; min-height: var(--tap); min-width: var(--tap); padding: 0; background: var(--surface); border-radius: var(--r-md); }
+.ph-count { margin: var(--s-4) var(--s-1) var(--s-2); }
+.ph-tags { display: flex; flex-wrap: wrap; gap: var(--s-1); margin-top: var(--s-1); }
+.ph-edit { padding: var(--s-3) var(--s-4); }
+.ph-edit .field { margin-bottom: var(--s-3); }
+.ph-edit .field label { display: flex; align-items: center; gap: var(--s-2); }
+.ph-field.unsure .input { border-color: var(--warn); }
+.ph-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 0 var(--s-3); }
+.ph-del { color: var(--danger); }
+
 @media (min-width: 720px) {
   .admin-form .admin-pair { grid-template-columns: 1fr 1fr; }
   .admin-form > .btn { width: auto; }

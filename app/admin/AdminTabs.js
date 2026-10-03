@@ -9,6 +9,7 @@ import BackupsAdmin from './BackupsAdmin';
 import ErrorsAdmin from './ErrorsAdmin';
 import AuditAdmin from './AuditAdmin';
 import EnrichAdmin from './EnrichAdmin';
+import PharmacyPhotoAdmin from './PharmacyPhotoAdmin';
 
 const TABS = [['konta', 'Konta'], ['zgloszenia', 'Zgłoszenia'], ['system', 'System']];
 
@@ -49,7 +50,7 @@ export default function AdminTabs({ meId }) {
         <ReportsAdmin onCount={setReportCount} />
       </div>
       <div id="apanel-system" role="tabpanel" aria-labelledby="atab-system" hidden={tab !== 'system'} className="admin-panel">
-        <BackupsAdmin /><EnrichAdmin /><ErrorsAdmin /><AuditAdmin />
+        <BackupsAdmin /><EnrichAdmin /><PharmacyPhotoAdmin /><ErrorsAdmin /><AuditAdmin />
       </div>
     </div>
   );

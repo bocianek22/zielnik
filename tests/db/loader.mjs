@@ -19,10 +19,17 @@ export async function resolve(spec, ctx, next) {
     const p = fileURLToPath(url);
     for (const c of [p, p + '.js', path.join(p, 'index.js')]) {
       if (fs.existsSync(c) && fs.statSync(c).isFile()) {
-        const attrs = c.endsWith('.json') ? { type: 'json' } : ctx.importAttributes;
-        return next(pathToFileURL(c).href, { ...ctx, importAttributes: attrs });
+        return next(pathToFileURL(c).href, ctx);
       }
     }
   }
   return next(spec, ctx);
+}
+
+// Kod aplikacji importuje JSON bez `with { type: 'json' }` (to obsługuje Next.js): podajemy go jako moduł ES
+export async function load(url, ctx, next) {
+  if (url.startsWith('file:') && url.endsWith('.json') && ctx.importAttributes?.type !== 'json') {
+    return { format: 'module', source: `export default ${fs.readFileSync(fileURLToPath(url), 'utf8')};`, shortCircuit: true };
+  }
+  return next(url, ctx);
 }
