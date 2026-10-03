@@ -10,6 +10,9 @@ import StrainCard from './StrainCard';
 import StrainForm from './StrainForm';
 import Icon from './Icon';
 import TodayPanel from './TodayPanel';
+import SearchSuggest from './SearchSuggest';
+import { matches } from '@/lib/searchMatch';
+import { strainItems, producerItems, flavorItems } from '@/lib/searchItems';
 
 const avgOf = (s) => {
   const r = s.entries.filter((e) => e.rating != null);
@@ -108,8 +111,16 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
 
   const tastes = useMemo(() => [...new Set(strains.map((s) => s.taste).filter(Boolean))], [strains]);
 
+  // podpowiedzi pod polem wyszukiwania: wszystko z listy, którą przeglądarka już ma; wybór ustawia filtr
+  const suggestGroups = useMemo(() => [
+    { key: 'strains', title: 'Odmiany', items: strainItems(strains) },
+    { key: 'producers', title: 'Producenci', items: producerItems(strains) },
+    { key: 'flavors', title: 'Terpeny i smaki', items: flavorItems(strains) },
+  ], [strains]);
+  const pickSuggestion = (item) => { setQuery(item.label); document.activeElement?.blur?.(); };
+
   const visible = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = query.trim();
     const get = SORTS[sortKey][1];
     const sign = dir === 'asc' ? 1 : -1;
     return strains
@@ -123,7 +134,7 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
         if (kindFilter && s.kind !== kindFilter) return false;
         if (formFilter && (s.form || 'susz') !== formFilter) return false;
         if (tagFilter && !strainTags(s).includes(tagFilter)) return false;
-        return !q || `${s.name} ${s.producer} ${s.type} ${s.kind || ''} ${s.taste} ${(s.terpenes || []).join(' ')} ${strainTags(s).join(' ')}`.toLowerCase().includes(q);
+        return !q || matches(`${s.name} ${s.producer} ${s.type} ${s.kind || ''} ${s.taste} ${(s.terpenes || []).join(' ')} ${strainTags(s).join(' ')}`, q);
       })
       .sort((a, b) => {
         const x = get(a), y = get(b);
@@ -140,7 +151,10 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
   useEffect(() => {
     const open = () => { setFormFor('new'); window.scrollTo({ top: 0, behavior: 'smooth' }); };
     window.addEventListener('zielnik:new-strain', open);
-    if (new URLSearchParams(window.location.search).get('new') === '1') { open(); window.history.replaceState(null, '', '/'); }
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('new') === '1') { open(); window.history.replaceState(null, '', '/'); }
+    // filtr z podpowiedzi strony /szukaj (producent, terpen, smak)
+    else if (params.get('q')) { setQuery(params.get('q').slice(0, 60)); window.history.replaceState(null, '', '/'); }
     return () => window.removeEventListener('zielnik:new-strain', open);
   }, []);
   useEffect(() => { setVisibleLimit(30); }, [query, onlyStock, kindFilter, formFilter, tagFilter, scope, sortKey, dir]);
@@ -194,11 +208,9 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
       <h2 className="home-section">Odmiany</h2>
 
       <div className="toolbar">
-        <div className="search-wrap">
-          <Icon name="search" size={20} />
-          <input className="input search" type="search" placeholder="Szukaj: odmiana, producent, smak, terpen…" aria-label="Szukaj"
-            value={query} onChange={(e) => setQuery(e.target.value)} />
-        </div>
+        <SearchSuggest value={query} onChange={setQuery} groups={suggestGroups} onPick={pickSuggestion} historyKey="zielnik.odmiany.ostatnie"
+          onEnter={() => document.activeElement?.blur?.()}
+          inputProps={{ placeholder: 'Szukaj: odmiana, producent, smak, terpen…', 'aria-label': 'Szukaj odmian', maxLength: 60 }} />
         <button type="button" className={`btn ghost only-mobile filter-btn${activeFilters ? ' active' : ''}`} onClick={() => setShowFilters((v) => !v)} aria-expanded={showFilters}
           aria-label={`Filtry i sortowanie${activeFilters ? ` (aktywne: ${activeFilters})` : ''}`}>
           <Icon name="filter" size={20} />{activeFilters ? <span className="count">{activeFilters}</span> : null}

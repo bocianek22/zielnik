@@ -43,8 +43,14 @@ const it = (label, extra) => ({ label, extra });
 test('rank: kolejność według jakości, remis krótsza etykieta, potem alfabet', () => {
   const r = rank([{ key: 's', items: [it('Skunk'), it('Pink Kush'), it('Kush Mints'), it('Kush'), it('Kosmos')] }], 'ku');
   assert.deepEqual(r[0].items.map((x) => x.label), ['Kush', 'Kush Mints', 'Pink Kush', 'Skunk']);
-  const t = rank([{ key: 's', items: [it('Bb'), it('Ab'), it('Ć')] }], 'b');
-  assert.deepEqual(t[0].items.map((x) => x.label), ['Bb', 'Ab']);
+  const t = rank([{ key: 's', items: [it('Xbb'), it('Abb'), it('Bbc'), it('Ć')] }], 'bb');
+  assert.deepEqual(t[0].items.map((x) => x.label), ['Bbc', 'Abb', 'Xbb']);
+});
+
+test('rank: przy jednej literze tylko początki słów, od dwóch także środek słowa', () => {
+  const items = [it('Ghost Train Haze'), it('Zkittlez'), it('Żółw Ninja', ['Łódzkie Zioła'])];
+  assert.deepEqual(rank([{ key: 's', items }], 'z')[0].items.map((x) => x.label), ['Zkittlez', 'Żółw Ninja']);
+  assert.deepEqual(rank([{ key: 's', items }], 'ze')[0].items.map((x) => x.label), ['Ghost Train Haze']);
 });
 
 test('rank: pole dodatkowe (producent) ustępuje dopasowaniu nazwy', () => {

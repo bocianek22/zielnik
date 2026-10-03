@@ -52,7 +52,7 @@ export default function SearchSuggest({ value, onChange, groups, remote, onPick,
   // Serwer: dopiero od minChars znaków, z opóźnieniem; stare wyniki zostają (filtrowane lokalnie), dopóki nie przyjdą nowe
   useEffect(() => {
     if (!remote) return undefined;
-    if (q.length < (remote.minChars || 1)) { setRemoteGroup(null); return undefined; }
+    if (q.length < (remote.minChars || 1)) return undefined;
     const ctrl = new AbortController();
     const t = setTimeout(() => {
       remote.load(q, ctrl.signal).then((g) => { if (!ctrl.signal.aborted) setRemoteGroup(g); }).catch(() => {});
@@ -62,11 +62,13 @@ export default function SearchSuggest({ value, onChange, groups, remote, onPick,
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q, !!remote]);
 
+  // poniżej minChars wyniki serwera są pomijane (bez czyszczenia stanu, żeby nie migały przy kasowaniu i ponownym wpisaniu)
+  const remoteShown = remote && q.length >= (remote.minChars || 1) ? remoteGroup : null;
   const showHistory = !q && !discreet && history.length > 0;
   const shown = useMemo(() => {
     if (!q) return showHistory ? [{ key: 'recent', title: 'Ostatnie wyszukiwania', items: history.map((h) => ({ label: h, recent: true })) }] : [];
-    return rank(remoteGroup ? [...groups, remoteGroup] : groups, q);
-  }, [q, groups, remoteGroup, showHistory, history]);
+    return rank(remoteShown ? [...groups, remoteShown] : groups, q);
+  }, [q, groups, remoteShown, showHistory, history]);
 
   const flat = useMemo(() => shown.flatMap((g) => g.items), [shown]);
   const sig = `${q}|${flat.map((x) => x.label).join('|')}`;
@@ -126,9 +128,11 @@ export default function SearchSuggest({ value, onChange, groups, remote, onPick,
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeIndex]);
 
+  const remember = (text) => { rememberSearch(historyKey, text); if (historyKey) setHistory(readHistory(historyKey)); };
+
   function pick(item) {
     setOpen(false);
-    rememberSearch(historyKey, item.label);
+    remember(item.label);
     onPick?.(item);
   }
 
@@ -149,7 +153,7 @@ export default function SearchSuggest({ value, onChange, groups, remote, onPick,
     } else if (e.key === 'Enter') {
       if (expanded && activeIndex >= 0) { e.preventDefault(); pick(flat[activeIndex]); return; }
       setOpen(false);
-      if (q) rememberSearch(historyKey, q);
+      if (q) remember(q);
       onEnter?.(q, e);
     } else if (e.key === 'Escape') {
       // otwarta lista: Escape tylko ją zamyka (nie czyści pola, jak domyślnie robi type="search")
@@ -176,7 +180,7 @@ export default function SearchSuggest({ value, onChange, groups, remote, onPick,
         <div id={listId} role="listbox" aria-label={q ? 'Podpowiedzi' : 'Ostatnie wyszukiwania'}>
           {expanded && shown.map((g) => (
             <div key={g.key} role="group" aria-labelledby={`${uid}-g-${g.key}`}>
-              <div id={`${uid}-g-${g.key}`} className="suggest-head">{g.title}</div>
+              <div id={`${uid}-g-${g.key}`} className="suggest-head" role="presentation">{g.title}</div>
               {g.items.map((item) => {
                 idx += 1;
                 const i = idx;

@@ -39,3 +39,25 @@
 .pharmacy-link { display: grid; justify-items: start; gap: 2px; margin: var(--s-2) var(--s-1) 0; }
 .pharmacy-link a { display: inline-flex; align-items: center; min-height: var(--tap); color: var(--accent-text); font-weight: 600; }
 .pharmacy-link .small { font-size: var(--fs-sm); }
+
+/* Podpowiedzi wyszukiwania (SearchSuggest): lista pod polem, nad treścią i przyciskiem „+” */
+.suggest { scroll-margin-top: var(--s-2); }
+.suggest-pop { position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 47; overflow-y: auto; overscroll-behavior: contain;
+  max-height: min(60vh, 440px); padding: var(--s-1) 0; background: var(--surface); border: 1px solid var(--sep); border-radius: var(--r-lg); box-shadow: var(--shadow-2); }
+.suggest-pop[hidden] { display: none; }
+.suggest-head { padding: var(--s-2) var(--s-4) var(--s-1); font-size: var(--fs-xs); font-weight: 600; color: var(--text-2); letter-spacing: .02em; }
+[role="group"] + [role="group"] .suggest-head { margin-top: var(--s-1); border-top: 1px solid var(--sep); padding-top: var(--s-3); }
+.suggest-opt { display: flex; align-items: center; gap: var(--s-3); min-height: var(--tap); padding: var(--s-2) var(--s-4); cursor: pointer; color: var(--text); }
+.suggest-opt.on { background: var(--surface-2); }
+.suggest-opt:active { background: var(--press-bg); }
+.suggest-opt .icon { position: static; transform: none; flex: none; color: var(--text-3); }
+.sg-main { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: var(--s-2); }
+.sg-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sg-sub { flex: none; max-width: 50%; margin-left: auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-sm); color: var(--text-2); }
+.suggest-opt mark { background: none; color: inherit; font-weight: 700; }
+.btn.text.suggest-clear { display: flex; width: 100%; justify-content: flex-start; min-height: var(--tap); padding: 0 var(--s-4); border-top: 1px solid var(--sep); border-radius: 0; color: var(--text-2); }
+@media (hover: hover) { .suggest-opt:hover { background: var(--hover-bg); } }
+/* na stronie /szukaj lista podpowiedzi ma szerokość całego formularza (pole i przycisk) */
+.search-form { position: relative; }
+.search-form .search-wrap.suggest { position: static; }
+.search-form:has([aria-expanded="true"]) + .search-hint { visibility: hidden; }

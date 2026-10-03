@@ -1,11 +1,15 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
-import { sql, ensureDb } from '@/lib/db';
+import { sql } from '@/lib/db';
 import { ARTICLES, TERPENES } from '@/lib/knowledge';
 import { formLabel } from '@/lib/forms';
+import { searchIndex } from '@/lib/search';
+import { matches, rank } from '@/lib/searchMatch';
+import { strainItems, catalogItems } from '@/lib/searchItems';
 import Header from '../components/Header';
 import Icon from '../components/Icon';
+import SearchBox from './SearchBox';
 
 const cap = (t) => (t ? t[0].toUpperCase() + t.slice(1) : '');
 
@@ -29,22 +33,31 @@ export default async function Szukaj({ searchParams }) {
 
   const raw = String((await searchParams).q || '').trim().slice(0, 60);
   const q = raw.replace(/[%_\\]/g, '');
+  // Spis służy podpowiedziom pod polem i wynikom poniżej, więc oba dopasowują tak samo (bez polskich znaków)
+  const index = await searchIndex(me.id);
+  // przeglądarka dostaje tylko pola potrzebne podpowiedziom
+  const lite = {
+    strains: index.strains.map(({ id, name, producer, taste, terpenes }) => ({ id, name, producer, taste, terpenes })),
+    catalog: index.catalog.map(({ id, name, producer }) => ({ id, name, producer })),
+    groups: index.groups,
+  };
   let strains = [], users = [], catalog = [], groups = [];
   const terps = [], articles = [];
+  const ranked = (items, list, max) => (rank([{ key: 'x', items }], q, { max, perGroup: max })[0]?.items || []).map((it) => list.find((x) => x.id === it.id));
+  if (q) {
+    strains = ranked(strainItems(index.strains), index.strains, 20);
+    catalog = ranked(catalogItems(index.catalog), index.catalog, 10);
+    groups = index.groups.filter((g) => matches(g.name, q)).slice(0, 10);
+    for (const t of TERPENES) if (matches(`${t.name} ${t.aroma} ${t.found}`, q)) terps.push(t);
+    for (const a of ARTICLES) if (matches(a.title, q)) articles.push(a);
+  }
+  // osoby: od 2 znaków, jak w podpowiedziach
   if (q.length >= 2) {
-    await ensureDb();
-    const like = `%${q}%`, s = sql();
-    strains = await s`SELECT id, name, producer, kind FROM strains WHERE name ILIKE ${like} OR producer ILIKE ${like} ORDER BY name LIMIT 20`;
-    users = await s`SELECT u.username, u.display_name FROM users u
+    const like = `%${q}%`;
+    users = await sql()`SELECT u.username, u.display_name FROM users u
       WHERE u.id <> ${me.id}::int AND (u.username ILIKE ${like} OR u.display_name ILIKE ${like})
         AND NOT EXISTS (SELECT 1 FROM blocks b WHERE (b.blocker = ${me.id}::int AND b.blocked = u.id) OR (b.blocker = u.id AND b.blocked = ${me.id}::int))
       ORDER BY lower(u.username) LIMIT 10`;
-    catalog = await s`SELECT name, producer, form FROM market_catalog WHERE active AND (name ILIKE ${like} OR producer ILIKE ${like}) ORDER BY name LIMIT 10`;
-    groups = await s`SELECT g.id, g.name FROM groups g JOIN group_members gm ON gm.group_id = g.id AND gm.user_id = ${me.id}::int AND gm.status = 'active'
-      WHERE g.name ILIKE ${like} ORDER BY g.name LIMIT 10`;
-    const ql = q.toLowerCase();
-    for (const t of TERPENES) if (`${t.name} ${t.aroma} ${t.found}`.toLowerCase().includes(ql)) terps.push(t);
-    for (const a of ARTICLES) if (a.title.toLowerCase().includes(ql)) articles.push(a);
   }
   const total = strains.length + users.length + catalog.length + groups.length + terps.length + articles.length;
 
@@ -53,15 +66,9 @@ export default async function Szukaj({ searchParams }) {
       <Header user={me} />
       <main className="page stack">
         <h1>Szukaj</h1>
-        <form className="search-form" method="get" role="search">
-          <div className="search-wrap">
-            <Icon name="search" size={20} />
-            <input id="q" name="q" type="search" className="input search" defaultValue={raw} minLength={2} autoFocus aria-label="Szukaj" placeholder="Odmiana, producent, terpen, osoba…" />
-          </div>
-          <button className="btn">Szukaj</button>
-        </form>
-        {q.length < 2 && <p className="search-hint">Wpisz co najmniej 2 znaki. Szukamy w odmianach, katalogu, terpenach, wiedzy, ludziach i Twoich grupach.</p>}
-        {q.length >= 2 && total === 0 && (
+        <SearchBox key={raw} initial={raw} index={lite} />
+        {!q && <p className="search-hint">Podpowiedzi pojawiają się od pierwszej litery. Szukamy w odmianach, katalogu, terpenach, wiedzy, ludziach (od 2 znaków) i Twoich grupach.</p>}
+        {q && total === 0 && (
           <div className="card empty">
             <Icon name="search" size={32} />
             <h2>Nic nie znaleziono</h2>
@@ -71,8 +78,8 @@ export default async function Szukaj({ searchParams }) {
         <Group title="Odmiany" n={strains.length}>{strains.map((x) => (
           <li key={x.id}><Link href={`/strains/${x.id}`} className="list-row"><span className="lr-main"><b className="dn">{x.name}</b><span className="lr-sub dn">{x.producer}</span></span>
             {x.kind && <span className={`lr-value kind kind-${x.kind}`}><i className="kind-dot" aria-hidden="true" />{cap(x.kind)}</span>}<Icon name="chevronRight" size={20} className="lr-chev" /></Link></li>))}</Group>
-        <Group title="Katalog w Polsce" n={catalog.length}>{catalog.map((x, i) => (
-          <li key={i}><Link href="/katalog" className="list-row"><span className="lr-main"><b className="dn">{x.name}</b><span className="lr-sub dn">{x.producer}</span></span>
+        <Group title="Katalog w Polsce" n={catalog.length}>{catalog.map((x) => (
+          <li key={x.id}><Link href={`/katalog/${x.id}`} className="list-row"><span className="lr-main"><b className="dn">{x.name}</b><span className="lr-sub dn">{x.producer}</span></span>
             {x.form !== 'susz' && <span className="lr-value">{formLabel(x.form)}</span>}<Icon name="chevronRight" size={20} className="lr-chev" /></Link></li>))}</Group>
         <Group title="Terpeny" n={terps.length}>{terps.map((t) => (
           <li key={t.name}><Link href={`/wiedza#t-${t.name.toLowerCase().split(' ')[0]}`} className="list-row"><span className="lr-main"><b>{t.name}</b><span className="lr-sub">{t.aroma}</span></span><Icon name="chevronRight" size={20} className="lr-chev" /></Link></li>))}</Group>
