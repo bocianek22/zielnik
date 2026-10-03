@@ -59,7 +59,7 @@
   .report-narrow { display: none; }
   .report-wide { display: block; }
 }
-.fx-line { color: var(--text-2); font-size: var(--fs-sm); line-height: 1.5; }
+.report-narrow .lr-value small { display: block; font-size: var(--fs-sm); color: var(--text-3); }
 
 @media print {
   .report-narrow { display: none !important; }
