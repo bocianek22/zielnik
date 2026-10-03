@@ -569,3 +569,21 @@ html.native-app body { padding-bottom: max(env(safe-area-inset-bottom, 0px), var
 .native-lock .btn { min-height: 48px; min-width: 180px; background: #eef1e2; color: var(--hemp-deep); border-color: #eef1e2; }
 .native-lock [role="alert"] { color: #ffd6cc; }
 .native-check { min-height: 44px; }
+
+/* ===== Aplikacja natywna: wygląd i zachowanie jak w aplikacji, nie w przeglądarce ===== */
+html.native-app { scrollbar-width: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+  overscroll-behavior: none; -webkit-text-size-adjust: 100%; }
+html.native-app body { overscroll-behavior: none; }
+html.native-app ::-webkit-scrollbar { display: none; width: 0; height: 0; }
+html.native-app * { scrollbar-width: none; }
+/* elementy interfejsu nie zaznaczają się przy przytrzymaniu; treści (notatki, opisy) i pola formularzy - tak */
+html.native-app :is(button, .btn, a, nav, .topbar, .bottomnav, .chip, label, summary, .tabs, .quick-btns, h1, h2, h3) {
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+html.native-app img { -webkit-user-drag: none; -webkit-touch-callout: none; }
+html.native-app :is(input, textarea, select, [contenteditable]) { -webkit-user-select: text; user-select: text; }
+/* natywna informacja zwrotna przy dotknięciu zamiast efektów hover z myszy */
+html.native-app :is(.btn, button, .chip, .bottomnav a, .card a):active { opacity: .7; transform: scale(.98); }
+@media (prefers-reduced-motion: no-preference) {
+  html.native-app :is(.btn, button, .chip, .bottomnav a) { transition: opacity .12s ease, transform .12s ease; }
+}
+@media (hover: none) { html.native-app :is(.btn, a):hover { filter: none; } }

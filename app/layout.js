@@ -1,6 +1,7 @@
 import { Fraunces, Figtree } from 'next/font/google';
 import './globals.css';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
+import { isNativeApp } from '@/lib/client';
 import RegisterSW from './components/RegisterSW';
 import DiscreetGuard from './components/DiscreetGuard';
 import NativeShell from './components/NativeShell';
@@ -8,12 +9,18 @@ import NativeShell from './components/NativeShell';
 const display = Fraunces({ subsets: ['latin', 'latin-ext'], variable: '--font-display', display: 'swap' });
 const body = Figtree({ subsets: ['latin', 'latin-ext'], variable: '--font-body' });
 
-export const viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  viewportFit: 'cover',
-  themeColor: '#1d3b27',
-};
+// W aplikacji natywnej bez powiększania dwoma palcami i podwójnym dotknięciem (jak w aplikacjach systemowych);
+// w przeglądarce powiększanie zostaje (dostępność).
+export async function generateViewport() {
+  const native = isNativeApp(await headers());
+  return {
+    width: 'device-width',
+    initialScale: 1,
+    viewportFit: 'cover',
+    themeColor: '#1d3b27',
+    ...(native && { maximumScale: 1, userScalable: false }),
+  };
+}
 
 // Tryb dyskretny (ciasteczko ustawia przełącznik w profilu): neutralny tytuł karty
 export async function generateMetadata() {
@@ -25,8 +32,10 @@ export async function generateMetadata() {
 
 export default async function RootLayout({ children }) {
   const discreet = (await cookies()).get('zielnik_discreet')?.value === '1';
+  // klasa aplikacji natywnej już z serwera, żeby styl aplikacji nie „doskakiwał” po załadowaniu strony
+  const native = isNativeApp(await headers());
   return (
-    <html lang="pl" data-discreet={discreet ? '1' : undefined} className={`${display.variable} ${body.variable}`} suppressHydrationWarning>
+    <html lang="pl" data-discreet={discreet ? '1' : undefined} className={`${display.variable} ${body.variable}${native ? ' native-app' : ''}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: "try{var t=localStorage.getItem('zielnik.theme');if(t==='dark'||t==='light')document.documentElement.dataset.theme=t}catch(e){}try{if(localStorage.getItem('zielnik.discreet')==='1'&&document.documentElement.dataset.discreet!=='1'){document.documentElement.dataset.discreet='1';document.cookie='zielnik_discreet=1; path=/; max-age=31536000; SameSite=Lax'}}catch(e){}" }} />
       </head>
