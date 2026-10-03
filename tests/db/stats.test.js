@@ -88,7 +88,29 @@ test('prescriptionCountdown: ważne i wygasłe z resztą do wykupienia, w kolejn
   // wykup 5 g dziś: liczy się do obu ważnych recept; 5 g sprzed 75 dni domyka najstarszą
   await q`INSERT INTO purchases (user_id, strain_name, grams, created_at) VALUES (${A}, 'Lemon', 5, now()), (${A}, 'Lemon', 5, ${await at(75, '12:00')})`;
   const r = await stats.prescriptionCountdown(A);
-  assert.deepEqual(r.map((x) => [x.grams, x.days_left, x.remaining]), [[10, 3, 5], [30, 20, 25], [20, -30, 20]]);
+  assert.deepEqual(r.items.map((x) => [x.grams, x.days_left, x.remaining, x.urgent]), [[10, 3, 5, true], [30, 20, 25, false], [20, -30, 20, true]]);
+  assert.equal(r.total, 3);
+  assert.equal(r.urgent, true);
   const b = await stats.prescriptionCountdown(ids.bartek);
-  assert.deepEqual(b.map((x) => [x.grams, x.days_left, x.remaining]), [[10, 5, 10]]);
+  assert.deepEqual(b.items.map((x) => [x.grams, x.days_left, x.remaining]), [[10, 5, 10]]);
+  assert.equal(b.urgent, true);
+});
+
+test('prescriptionCountdown: wygasłe z resztą tylko do 60 dni wstecz (starsze w total), pilność', { skip }, async () => {
+  const [{ id: E }] = await q`INSERT INTO users (username, password_hash) VALUES ('ewa', 'x') RETURNING id`;
+  const day = (back) => q`SELECT ((now() AT TIME ZONE 'Europe/Warsaw')::date - ${back}::int) AS d`.then((r) => r[0].d);
+  await q`INSERT INTO prescriptions (user_id, issued_on, valid_until, grams) VALUES
+    (${E}, ${await day(40)}, ${await day(-30)}, 10),
+    (${E}, ${await day(90)}, ${await day(60)}, 6),
+    (${E}, ${await day(120)}, ${await day(61)}, 7)`;
+  let r = await stats.prescriptionCountdown(E);
+  // 60 dni temu: jeszcze widoczna; 61 dni temu: tylko w liczniku; ważna 30 dni: niepilna
+  assert.deepEqual(r.items.map((x) => [x.grams, x.days_left, x.urgent]), [[10, 30, false], [6, -60, true]]);
+  assert.equal(r.total, 3);
+  assert.equal(r.urgent, true);
+  await q`DELETE FROM prescriptions WHERE user_id = ${E} AND grams = 6`;
+  r = await stats.prescriptionCountdown(E);
+  assert.deepEqual(r.items.map((x) => x.grams), [10]);
+  assert.equal(r.total, 2);
+  assert.equal(r.urgent, false);
 });
