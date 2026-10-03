@@ -17,5 +17,10 @@ export default function AddFromCatalog({ item }) {
       router.push(`/strains/${r.id}`);
     } catch (e) { setErr(e.message); setBusy(false); }
   }
-  return <div className="row"><button className="btn" onClick={add} disabled={busy}>{busy ? 'Dodaję…' : 'Dodaj do moich odmian'}</button>{err && <span className="field-err">{err}</span>}</div>;
+  return (
+    <div className="cat-add">
+      <button type="button" className="btn" onClick={add} disabled={busy}>{busy ? 'Dodaję…' : 'Dodaj do moich odmian'}</button>
+      {err && <span className="field-err" role="alert">{err}</span>}
+    </div>
+  );
 }

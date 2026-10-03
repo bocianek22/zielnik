@@ -44,11 +44,6 @@
 .terp-card h3 { margin-bottom: .4em; }
 .terp-card p { margin: .35em 0; font-size: .94rem; }
 
-/* ===== Katalog (app/katalog) ===== */
-.cat-item { display: flex; justify-content: space-between; align-items: center; gap: var(--s-4); padding: var(--s-4) var(--s-5); }
-.cat-item.inactive { opacity: .6; }
-.cat-item h3 { margin: 0 0 .2em; }
-
 /* ===== Profil publiczny, znajomi, grupy, wyszukiwanie (app/u, app/znajomi, app/grupy, app/szukaj) ===== */
 .avatar { width: 88px; height: 88px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background: var(--surface-2); }
 .avatar.ph { display: grid; place-items: center; background: var(--accent-soft); color: var(--on-accent-soft); font-family: var(--font-display), Georgia, serif; font-size: 2rem; font-weight: 600; }
