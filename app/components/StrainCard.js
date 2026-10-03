@@ -98,7 +98,16 @@ export function OwnEntry({ strainId, entry, onSaved, mates, hidePrice = false })
       last.current = key;
       onSaved(r.entry);
       setStatus({ kind: 'ok', msg: 'Zapisano' });
+      // nowa cena za gram, a są zakupy tej odmiany bez kosztu (np. cenę wpisano po wykupie): propozycja uzupełnienia
+      if (r.missingCost > 0 && nums.price > 0 && parseNum(prev.price) !== nums.price) setFill({ n: r.missingCost, price: nums.price, msg: '' });
     } catch (e) { setStatus({ kind: 'err', msg: e.message }); }
+  }
+  const [fill, setFill] = useState(null); // { n, price, msg }
+  async function fillCosts() {
+    try {
+      const r = await api('/api/history/purchases/fill', 'POST', { strainId, pricePerG: fill.price });
+      setFill({ n: 0, price: fill.price, msg: `Uzupełniono koszt zakupów: ${r.filled}.` });
+    } catch (e) { setFill((p) => ({ ...p, msg: e.message })); }
   }
   const bind = (k) => ({ value: f[k], onChange: (e) => setF((p) => ({ ...p, [k]: e.target.value })), onBlur: save });
 
@@ -126,6 +135,14 @@ export function OwnEntry({ strainId, entry, onSaved, mates, hidePrice = false })
         <div className="entry-field price">
           <label htmlFor={`${id}-pr`}>Cena u mnie (zł/g), tworzy średnią cen</label>
           <input id={`${id}-pr`} className="input" {...decimalProps} {...bind('price')} />
+          {fill && (
+            <div className="pool-note fill-offer" role="status">
+              {fill.n > 0 && <>Zakupy tej odmiany bez ceny: {fill.n}. Uzupełnić po {dec(fill.price)} zł/g?{' '}
+                <button type="button" className="btn small ghost" onClick={fillCosts}>Uzupełnij</button>{' '}
+                <button type="button" className="btn small text" onClick={() => setFill(null)}>Nie</button></>}
+              {fill.msg}
+            </div>
+          )}
         </div>
       )}
       <div className="entry-field vis">
