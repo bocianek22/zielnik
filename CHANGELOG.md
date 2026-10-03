@@ -7,6 +7,8 @@ Wersje 0.1.0 do 0.14.0 zostały odtworzone z historii prac (wgrywanych paczkami 
 Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow „Wydanie” (patrz `CONTRIBUTING.md`).
 
 ## [Unreleased]
+### Dodano
+- ESLint 9 (`npm run lint`, `eslint.config.mjs`) z regułami `no-undef`, `no-unused-vars` i reguł hooków Reacta, uruchamiany w CI po `npm run check`; reguły React Compiler działają jako ostrzeżenia.
 
 ## [0.31.0] - 2026-10
 ### Dodano

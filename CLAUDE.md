@@ -12,7 +12,7 @@ Dziennik odmian medycznej konopi. Next.js 15 (App Router, JavaScript, bez TypeSc
 
 ## Kontrole przed commitem
 ```
-npm run check && npm test && npm run build
+npm run check && npm run lint && npm test && npm run build
 TEST_DATABASE_URL=postgres://z:z@localhost/<własna_baza> npm run test:db   # lokalny PostgreSQL, baza jest czyszczona
 ```
 Lokalny PostgreSQL w sesji chmurowej: `service postgresql start`, użytkownik `z`/`z` (superuser); własną bazę utwórz przez `psql postgres://z:z@localhost/postgres -c 'CREATE DATABASE nazwa'`.
