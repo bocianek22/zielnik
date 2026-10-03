@@ -72,9 +72,11 @@ export function installKeyboard() {
   const onIn = (e) => {
     if (!e.target?.matches?.(TEXTUAL)) return;
     clearTimeout(scroll);
+    // pole z podpowiedziami (SearchSuggest) jedzie do góry ekranu, żeby lista zmieściła się nad klawiaturą
+    const combo = e.target.getAttribute('role') === 'combobox';
     // po animacji klawiatury i zmianie rozmiaru okna pole mogłoby zostać pod nią
     scroll = setTimeout(() => {
-      if (document.activeElement === e.target) e.target.scrollIntoView({ block: 'center', behavior: reduceMotion() ? 'auto' : 'smooth' });
+      if (document.activeElement === e.target) e.target.scrollIntoView({ block: combo ? 'start' : 'center', behavior: reduceMotion() ? 'auto' : 'smooth' });
     }, 320);
   };
   window.addEventListener('resize', check);
