@@ -7,6 +7,7 @@ import { VIS } from '@/lib/visibility';
 import { formLabel } from '@/lib/forms';
 import Lightbox from './Lightbox';
 import QuickActions from './QuickActions';
+import Icon from './Icon';
 import { strainTags } from '@/lib/effects';
 
 export const LOW_STOCK = 3; // g: poniżej tej ilości odmiana dostaje znacznik "Kończy się"
@@ -143,6 +144,10 @@ export function OtherEntry({ e }) {
   );
 }
 
+// wyświetlanie liczb z polskim przecinkiem (wartości w danych zostają bez zmian)
+export const dec = (n) => String(n).replace('.', ',');
+const cap = (s) => (s ? s[0].toUpperCase() + s.slice(1) : s);
+
 export default function StrainCard({ strain, meId, hidePrice = false, mates, low, cmpOn, onCmp, onEdit, onEntrySaved }) {
   const [expanded, setExpanded] = useState(false); // na telefonie szczegóły są domyślnie zwinięte
   const [quickUsed, setQuickUsed] = useState(false); // po zapisie panel zostaje, żeby komunikat nie zniknął przy stanie 0 g
@@ -153,36 +158,56 @@ export default function StrainCard({ strain, meId, hidePrice = false, mates, low
 
   const ex = expiryInfo(strain.expires_on);
   const photoSrc = `/api/strains/${strain.id}/photo?v=${strain.photo_v}`;
+  const lowStock = mine && Number(mine.current) > 0 && Number(mine.current) <= (low ?? LOW_STOCK);
+  const facts = [
+    strain.thc != null && `THC ${dec(strain.thc)}%`,
+    strain.cbd != null && `CBD ${dec(strain.cbd)}%`,
+    strain.price_per_g != null && !hidePrice && `${dec(strain.price_per_g)} zł/g`,
+  ].filter(Boolean);
+  const tags = strainTags(strain);
 
   return (
     <article className={`card strain k-${strain.kind || 'none'}${expanded ? ' expanded' : ''}`}>
       <header className="strain-head">
         {strain.photo_v && (
-<div className="photo-link dn-img"><Lightbox className="strain-photo" src={photoSrc} alt={`Zdjęcie: ${strain.name}`} /></div>
+          <div className="photo-link dn-img"><Lightbox className="strain-photo" src={photoSrc} alt={`Zdjęcie: ${strain.name}`} /></div>
         )}
         <div className="strain-title">
           <h3><Link href={`/strains/${strain.id}`} className="dn">{strain.name}</Link></h3>
           <p className="strain-meta">
             <span className="dn">{strain.producer}</span>
-            {strain.kind && <span className={`badge kind-${strain.kind}`}>{strain.kind}</span>}
-            <span className="badge">{strain.type}</span>
-            {strain.form && strain.form !== 'susz' && <span className="badge form">{formLabel(strain.form)}</span>}
-            {ex?.expired && <span className="badge low">Po terminie</span>}
-            {ex?.soon && <span className="badge low">Ważne jeszcze {ex.days} dni</span>}
-            {mine && Number(mine.current) > 0 && Number(mine.current) <= (low ?? LOW_STOCK) && <span className="badge low">Kończy się</span>}
+            {strain.kind && <span className={`kind kind-${strain.kind}`}><i className="kind-dot" aria-hidden="true" />{cap(strain.kind)}</span>}
+            <span>{cap(strain.type)}</span>
+            {strain.form && strain.form !== 'susz' && <span>{formLabel(strain.form)}</span>}
           </p>
-          <p className="strain-meta">
-            {strain.thc != null && <span className="pill">THC {strain.thc}%</span>}
-            {strain.cbd != null && <span className="pill">CBD {strain.cbd}%</span>}
-            {strain.price_per_g != null && !hidePrice && <span className="pill">{strain.price_per_g} zł/g</span>}
-          </p>
+          {facts.length > 0 && <p className="strain-facts">{facts.map((f) => <span key={f}>{f}</span>)}</p>}
+          {(ex?.expired || ex?.soon || lowStock) && (
+            <p className="strain-status">
+              {ex?.expired && <span className="badge low">Po terminie</span>}
+              {ex?.soon && <span className="badge low">Ważne jeszcze {ex.days} dni</span>}
+              {lowStock && <span className="badge low">Kończy się</span>}
+            </p>
+          )}
+        </div>
+        <div className="scores">
+          <div className="score" title="Ocena końcowa">
+            <b>{strain.final_rating != null ? dec(strain.final_rating) : '–'}</b><small>ocena końcowa</small>
+          </div>
+          {avg && <div className="score soft" title="Średnia ocen użytkowników">
+            <b>{dec(avg)}</b><small>średnia ({rated.length})</small>
+          </div>}
+        </div>
+      </header>
+
+      {(strain.batch || strain.expires_on || strain.taste || tags.length > 0 || strain.terpenes?.length > 0 || strain.description) && (
+        <div className="strain-more">
           {(strain.batch || strain.expires_on) && (
             <p className="strain-taste">
-              {strain.batch && <>Seria: {strain.batch}. </>}{strain.expires_on && <>Ważne do: {strain.expires_on}.</>}
+              {strain.batch && <>Seria {strain.batch}. </>}{strain.expires_on && <>Ważne do {strain.expires_on}.</>}
             </p>
           )}
           {strain.taste && <p className="strain-taste">Smak: {strain.taste}</p>}
-          {strainTags(strain).length > 0 && <div className="chips small">{strainTags(strain).map((t) => <span key={t} className="chip tag">{t}</span>)}</div>}
+          {tags.length > 0 && <div className="chips small">{tags.map((t) => <span key={t} className="chip tag">{t}</span>)}</div>}
           {strain.terpenes?.length > 0 && (
             <div className="chips small">{strain.terpenes.map((t) => <Link key={t} href={`/wiedza#t-${t.toLowerCase().split(' ')[0]}`} className="chip on static dn">{t}</Link>)}</div>
           )}
@@ -190,15 +215,7 @@ export default function StrainCard({ strain, meId, hidePrice = false, mates, low
             <details className="strain-desc"><summary>Opis</summary><p>{strain.description}</p></details>
           )}
         </div>
-        <div className="scores">
-          <div className="score" title="Ocena końcowa">
-            <b>{strain.final_rating ?? '–'}</b><small>ocena końcowa</small>
-          </div>
-          {avg && <div className="score soft" title="Średnia ocen użytkowników">
-            <b>{avg}</b><small>średnia ({rated.length})</small>
-          </div>}
-        </div>
-      </header>
+      )}
 
       {mine && (quickUsed || Number(mine.current) > 0 || Number(mine.remaining) > 0) && (
         <QuickActions strainId={strain.id} name={strain.name} current={mine.current} remaining={mine.remaining} onSaved={(en) => { setQuickUsed(true); onEntrySaved(strain.id, en); }} />
@@ -210,11 +227,11 @@ export default function StrainCard({ strain, meId, hidePrice = false, mates, low
       </div>
 
       <div className="strain-foot">
-        <button type="button" className="btn ghost small only-mobile" onClick={() => setExpanded((v) => !v)} aria-expanded={expanded}>
-          {expanded ? 'Zwiń szczegóły' : hidePrice ? 'Więcej: opinia, zakup, inni' : 'Więcej: opinia, cena, zakup, inni'}
+        <button type="button" className="btn text small only-mobile" onClick={() => setExpanded((v) => !v)} aria-expanded={expanded}>
+          {expanded ? 'Zwiń szczegóły' : 'Pokaż szczegóły'}<Icon name="chevronDown" size={18} className="chev" />
         </button>
         <label className="check"><input type="checkbox" checked={!!cmpOn} onChange={onCmp} /> Porównaj</label>
-        <button className="btn ghost small" onClick={onEdit}>Edytuj pola wspólne</button>
+        <button type="button" className="btn text small" onClick={onEdit} aria-label="Edytuj pola wspólne">Edytuj<span className="hide-narrow"> pola wspólne</span></button>
       </div>
     </article>
   );

@@ -8,6 +8,7 @@ import { FORMS } from '@/lib/forms';
 import { TAG_LIST, strainTags } from '@/lib/effects';
 import StrainCard from './StrainCard';
 import StrainForm from './StrainForm';
+import Icon from './Icon';
 
 const avgOf = (s) => {
   const r = s.entries.filter((e) => e.rating != null);
@@ -140,84 +141,104 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
   const canDelete = (s) => me.isAdmin || s.created_by === me.id;
   const done = () => refresh().catch((e) => setError(e.message));
 
+  // liczby w interfejsie: polski przecinek dziesiętny, najwyżej 2 miejsca
+  const n2 = (x) => Number(Number(x).toFixed(2)).toLocaleString('pl-PL');
+  const daysLeft = dailyUse > 0 && totalStock > 0 ? Math.floor(totalStock / dailyUse) : null;
+
   return (
     <div className="stack">
+      <section className="card summary" aria-label="Podsumowanie zapasu">
+        <dl className="stat-strip">
+          <div><dt>Zapas</dt><dd><b>{n2(totalStock)}</b> g</dd></div>
+          <div><dt>Starczy na</dt><dd>{daysLeft != null ? <><b>{daysLeft}</b> {daysLeft === 1 ? 'dzień' : 'dni'}</> : <b>–</b>}</dd></div>
+          <div><dt>Wykupiono</dt><dd><b>{n2(boughtG)}</b> g</dd><span className="stat-sub">w tym miesiącu</span></div>
+        </dl>
+        <details className="prefs">
+          <summary>Szczegóły i ustawienia <Icon name="chevronDown" size={18} /></summary>
+          <dl className="facts">
+            {daysLeft != null && <div><dt>Średnie zużycie</dt><dd>{n2(dailyUse)} g/dzień</dd></div>}
+            {bought.cost > 0 && <div><dt>Koszt wykupu w tym miesiącu</dt><dd>ok. {n2(bought.cost)} zł</dd></div>}
+            {limit > 0 && <div><dt>Limit miesięczny</dt><dd>{n2(limit)} g, zostało {n2(Math.max(limit - boughtG, 0))} g</dd></div>}
+            {usage.cost > 0 && <div><dt>Koszt zużycia (30 dni)</dt><dd>{n2(usage.cost)} zł</dd></div>}
+            {totalRemaining > 0 && <div><dt>Do wykupienia łącznie</dt><dd>{n2(totalRemaining)} g</dd></div>}
+          </dl>
+          {daysLeft == null && <p className="muted small">Zapisuj zużycie w karcie odmiany („Zużyłem”), a policzę średnie tempo i prognozę, na ile dni starczy zapasu.</p>}
+          {totalRemaining > 0 && <p className="muted small">Odmiany z jednej puli „do wykupienia” liczone są raz.</p>}
+          <h3 className="prefs-title">Na tym urządzeniu</h3>
+          <div className="row">
+            <div className="field"><label htmlFor="pref-low">Próg „Kończy się” (g)</label>
+              <input id="pref-low" className="input" type="number" min="0" step="0.5" inputMode="decimal" value={low || ''} onChange={savePref('zielnik.low', setLow)} /></div>
+            <div className="field"><label htmlFor="pref-limit">Miesięczny limit wykupu (g)</label>
+              <input id="pref-limit" className="input" type="number" min="0" step="1" inputMode="numeric" value={limit || ''} onChange={savePref('zielnik.limit', setLimit)} /></div>
+          </div>
+        </details>
+      </section>
+
       <div className="toolbar">
-        <input className="input search" type="search" placeholder="Szukaj: odmiana, producent, smak, terpen…" aria-label="Szukaj"
-          value={query} onChange={(e) => setQuery(e.target.value)} />
+        <div className="search-wrap">
+          <Icon name="search" size={20} />
+          <input className="input search" type="search" placeholder="Szukaj: odmiana, producent, smak, terpen…" aria-label="Szukaj"
+            value={query} onChange={(e) => setQuery(e.target.value)} />
+        </div>
+        <button type="button" className={`btn ghost only-mobile filter-btn${activeFilters ? ' active' : ''}`} onClick={() => setShowFilters((v) => !v)} aria-expanded={showFilters}
+          aria-label={`Filtry i sortowanie${activeFilters ? ` (aktywne: ${activeFilters})` : ''}`}>
+          <Icon name="filter" size={20} />{activeFilters ? <span className="count">{activeFilters}</span> : null}
+        </button>
         {cmp.length >= 2 && <Link className="btn ghost" href={`/compare?ids=${cmp.join(',')}`}>Porównaj ({cmp.length})</Link>}
-        <button className="btn" onClick={() => setFormFor('new')}>Dodaj odmianę</button>
+        <button className="btn add-btn" onClick={() => setFormFor('new')}><Icon name="plus" size={20} />Dodaj odmianę</button>
       </div>
 
-      <button type="button" className="btn ghost only-mobile" onClick={() => setShowFilters((v) => !v)} aria-expanded={showFilters}>
-        Filtry i sortowanie{activeFilters ? ` (${activeFilters})` : ''}
-      </button>
-      <div className={`toolbar filters-panel ${showFilters ? 'open' : ''}`}>
-        <div className="seg" role="tablist" aria-label="Postać produktu">
-          {[['', 'Wszystko'], ...FORMS].map(([k, label]) => (
-            <button key={k || 'all'} role="tab" aria-selected={formFilter === k} className={formFilter === k ? 'on' : ''} onClick={() => setFormFilter(k)}>{label}</button>
-          ))}
+      <div className={`filters-panel ${showFilters ? 'open' : ''}`}>
+        <div className="filters-row">
+          <div className="seg" role="tablist" aria-label="Postać produktu">
+            {[['', 'Wszystko'], ...FORMS].map(([k, label]) => (
+              <button key={k || 'all'} role="tab" aria-selected={formFilter === k} className={formFilter === k ? 'on' : ''} onClick={() => setFormFilter(k)}>{label}</button>
+            ))}
+          </div>
+          <div className="seg" role="tablist" aria-label="Zakres widoku">
+            {[['all', 'Wszystkie'], ['mine', 'Moje odmiany']].map(([k, label]) => (
+              <button key={k} role="tab" aria-selected={scope === k} className={scope === k ? 'on' : ''} onClick={() => setScope(k)}>{label}</button>
+            ))}
+          </div>
         </div>
-        <div className="seg" role="tablist" aria-label="Zakres widoku">
-          {[['all', 'Wszystkie'], ['mine', 'Moje odmiany']].map(([k, label]) => (
-            <button key={k} role="tab" aria-selected={scope === k} className={scope === k ? 'on' : ''} onClick={() => setScope(k)}>{label}</button>
-          ))}
+        <div className="filters-row">
+          <div className="sortbox">
+            <label htmlFor="sort">Sortuj</label>
+            <select id="sort" className="input" value={sortKey}
+              onChange={(e) => { setSortKey(e.target.value); setDir(SORTS[e.target.value][2]); }}>
+              {Object.entries(SORTS).map(([k, [label]]) => <option key={k} value={k}>{label}</option>)}
+            </select>
+            <button className="btn ghost small" onClick={() => setDir(dir === 'asc' ? 'desc' : 'asc')}
+              aria-label={dir === 'asc' ? 'Rosnąco, kliknij by odwrócić' : 'Malejąco, kliknij by odwrócić'}>
+              {dir === 'asc' ? '↑ rosnąco' : '↓ malejąco'}
+            </button>
+          </div>
+          <div className="sortbox">
+            <label htmlFor="tagf">Efekt</label>
+            <select id="tagf" className="input" value={tagFilter} onChange={(e) => setTagFilter(e.target.value)}>
+              <option value="">Wszystkie</option>
+              {TAG_LIST.map((t) => <option key={t} value={t}>{t}</option>)}
+            </select>
+          </div>
         </div>
-        <div className="sortbox">
-          <label htmlFor="sort">Sortuj</label>
-          <select id="sort" className="input" value={sortKey}
-            onChange={(e) => { setSortKey(e.target.value); setDir(SORTS[e.target.value][2]); }}>
-            {Object.entries(SORTS).map(([k, [label]]) => <option key={k} value={k}>{label}</option>)}
-          </select>
-          <button className="btn ghost small" onClick={() => setDir(dir === 'asc' ? 'desc' : 'asc')}
-            aria-label={dir === 'asc' ? 'Rosnąco, kliknij by odwrócić' : 'Malejąco, kliknij by odwrócić'}>
-            {dir === 'asc' ? '↑ rosnąco' : '↓ malejąco'}
-          </button>
+        <div className="filters-row">
+          <div className="chips" role="group" aria-label="Filtr rodzaju">
+            <button className={`chip ${kindFilter === '' ? 'on' : ''}`} onClick={() => setKindFilter('')}>Wszystkie</button>
+            {KINDS.map((k) => (
+              <button key={k.value} className={`chip kind-${k.value} ${kindFilter === k.value ? 'on' : ''}`}
+                onClick={() => setKindFilter(kindFilter === k.value ? '' : k.value)}>{k.label}</button>
+            ))}
+          </div>
+          <label className="check">
+            <input type="checkbox" checked={onlyStock} onChange={(e) => setOnlyStock(e.target.checked)} />
+            Tylko te, które mam
+          </label>
         </div>
-        <div className="sortbox">
-          <label htmlFor="tagf">Efekt</label>
-          <select id="tagf" className="input" value={tagFilter} onChange={(e) => setTagFilter(e.target.value)}>
-            <option value="">Wszystkie</option>
-            {TAG_LIST.map((t) => <option key={t} value={t}>{t}</option>)}
-          </select>
+        <div className="filters-row filters-foot">
+          <a className="btn text small" href="/api/export"><Icon name="download" size={18} />Eksport CSV</a>
+          <Link className="btn text small" href="/import">Import CSV</Link>
         </div>
-        <div className="chips" role="group" aria-label="Filtr rodzaju">
-          <button className={`chip ${kindFilter === '' ? 'on' : ''}`} onClick={() => setKindFilter('')}>Wszystkie</button>
-          {KINDS.map((k) => (
-            <button key={k.value} className={`chip kind-${k.value} ${kindFilter === k.value ? 'on' : ''}`}
-              onClick={() => setKindFilter(kindFilter === k.value ? '' : k.value)}>{k.label}</button>
-          ))}
-        </div>
-        <label className="check">
-          <input type="checkbox" checked={onlyStock} onChange={(e) => setOnlyStock(e.target.checked)} />
-          Tylko te, które mam
-        </label>
-        <a className="btn ghost small" href="/api/export">Eksport CSV</a>
-        <Link className="btn ghost small" href="/import">Import CSV</Link>
       </div>
-      <p className="muted">
-        {dailyUse > 0 && totalStock > 0
-          ? <>Średnie zużycie: <b>{Number(dailyUse.toFixed(2))} g/dzień</b>. Twój zapas ({Number(totalStock.toFixed(2))} g) starczy na ok. <b>{Math.floor(totalStock / dailyUse)} dni</b>.</>
-          : <>Zapisuj zużycie w karcie odmiany (pole „Zużycie”), a policzę średnie tempo i prognozę, na ile dni starczy zapasu.</>}
-      </p>
-      <p className="muted">
-        Wykupiono w tym miesiącu: <b>{Number(boughtG.toFixed(2))} g</b>
-        {bought.cost > 0 && <> (ok. {Number(bought.cost.toFixed(2))} zł)</>}
-        {limit > 0 && <>, limit {limit} g, zostało <b>{Number(Math.max(limit - boughtG, 0).toFixed(2))} g</b></>}.
-      </p>
-      <details className="prefs">
-        <summary>Ustawienia (na tym urządzeniu)</summary>
-        <div className="row">
-          <div className="field"><label htmlFor="pref-low">Próg „Kończy się” (g)</label>
-            <input id="pref-low" className="input" type="number" min="0" step="0.5" inputMode="decimal" value={low || ''} onChange={savePref('zielnik.low', setLow)} /></div>
-          <div className="field"><label htmlFor="pref-limit">Miesięczny limit wykupu (g)</label>
-            <input id="pref-limit" className="input" type="number" min="0" step="1" inputMode="numeric" value={limit || ''} onChange={savePref('zielnik.limit', setLimit)} /></div>
-        </div>
-      </details>
-      {usage.cost > 0 && <p className="muted">Koszt zużycia z ostatnich 30 dni: <b>{Number(usage.cost.toFixed(2))} zł</b></p>}
-      {totalRemaining > 0 && (
-        <p className="muted">Do wykupienia łącznie: <b>{Number(totalRemaining.toFixed(2))} g</b> (odmiany z jednej puli liczone raz).</p>
-      )}
       {error && <div className="alert error" role="alert">{error}</div>}
 
       {formFor === 'new' && (
@@ -226,11 +247,13 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
 
       {strains.length === 0 && formFor !== 'new' && (
         <div className="card empty">
+          <Icon name="list" size={32} />
           <h2>Zielnik jest jeszcze pusty</h2>
-          <p className="muted">Dodaj pierwszą odmianę. Każdy użytkownik dostanie dla niej własne pola: ocenę, ilość, ilość do wykupienia i spostrzeżenia.</p>
+          <p>Dodaj pierwszą odmianę. Każdy użytkownik dostanie dla niej własne pola: ocenę, ilość, ilość do wykupienia i spostrzeżenia.</p>
+          <button className="btn" onClick={() => setFormFor('new')}>Dodaj odmianę</button>
         </div>
       )}
-      {strains.length > 0 && visible.length === 0 && <p className="muted">Nic nie pasuje do filtrów.</p>}
+      {strains.length > 0 && visible.length === 0 && <p className="muted empty-inline">Nic nie pasuje do filtrów.</p>}
 
       {visible.slice(0, visibleLimit).map((s) => (formFor === s.id ? (
         <StrainForm key={s.id} strain={s} options={options} tastes={tastes} canDelete={canDelete(s)} hidePrice={me.hidePrices}
@@ -238,7 +261,7 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
       ) : (
         <StrainCard key={s.id} strain={s} meId={me.id} hidePrice={me.hidePrices} mates={matesOf(s)} low={low} cmpOn={cmp.includes(s.id)} onCmp={() => setCmp((c) => (c.includes(s.id) ? c.filter((x) => x !== s.id) : [...c, s.id].slice(-3)))} onEdit={() => setFormFor(s.id)} onEntrySaved={entrySaved} />
       )))}
-      {visible.length > visibleLimit && <button className="btn ghost" onClick={() => setVisibleLimit((l) => l + 30)}>Pokaż więcej ({visible.length - visibleLimit})</button>}
+      {visible.length > visibleLimit && <button className="btn ghost block" onClick={() => setVisibleLimit((l) => l + 30)}>Pokaż więcej ({visible.length - visibleLimit})</button>}
     </div>
   );
 }

@@ -2,7 +2,8 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { OwnEntry, OtherEntry } from './StrainCard';
+import { OwnEntry, OtherEntry, dec } from './StrainCard';
+import Icon from './Icon';
 import StrainForm from './StrainForm';
 import Tests from './Tests';
 import dynamicImport from 'next/dynamic';
@@ -11,6 +12,8 @@ import CharacteristicCard from './CharacteristicCard';
 import Lightbox from './Lightbox';
 import StrainHistory from './StrainHistory';
 import { expiryInfo } from '@/lib/expiry';
+
+const cap = (s) => (s ? s[0].toUpperCase() + s.slice(1) : s);
 
 export default function StrainDetail({ strain, options, tastes, mates, tests, me }) {
   const router = useRouter();
@@ -24,7 +27,7 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, me
 
   return (
     <div className="stack">
-      <Link href="/" className="back">← Wszystkie odmiany</Link>
+      <Link href="/" className="back"><Icon name="chevronLeft" size={20} />Wszystkie odmiany</Link>
 
       {editing ? (
         <StrainForm strain={strain} options={opts} tastes={tastes} canDelete={canDelete} hidePrice={me.hidePrices} onOptionsChange={setOpts}
@@ -40,26 +43,33 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, me
               <h1 className="dn">{strain.name}</h1>
               <p className="strain-meta">
                 <span className="dn">{strain.producer}</span>
-                {strain.kind && <span className={`badge kind-${strain.kind}`}>{strain.kind}</span>}
-                <span className="badge">{strain.type}</span>
+                {strain.kind && <span className={`kind kind-${strain.kind}`}><i className="kind-dot" aria-hidden="true" />{cap(strain.kind)}</span>}
+                <span>{cap(strain.type)}</span>
               </p>
-              <p className="strain-meta">
-                {strain.thc != null && <span className="pill">THC {strain.thc}%</span>}
-                {strain.cbd != null && <span className="pill">CBD {strain.cbd}%</span>}
-                {strain.final_rating != null && <span className="pill">Ocena końcowa {strain.final_rating}</span>}
-                {strain.price_per_g != null && !me.hidePrices && <span className="pill">{strain.price_per_g} zł/g</span>}
-                {ex?.expired && <span className="badge low">Po terminie</span>}
-                {ex?.soon && <span className="badge low">Ważne jeszcze {ex.days} dni</span>}
-              </p>
-              {(strain.batch || strain.expires_on) && <p><b>Partia:</b> {strain.batch && <>seria {strain.batch}; </>}{strain.expires_on && <>ważne do {strain.expires_on}</>}</p>}
-              {strain.taste && <p><b>Smak:</b> {strain.taste}</p>}
+              {(ex?.expired || ex?.soon) && (
+                <p className="strain-status">
+                  {ex?.expired && <span className="badge low">Po terminie</span>}
+                  {ex?.soon && <span className="badge low">Ważne jeszcze {ex.days} dni</span>}
+                </p>
+              )}
+              <dl className="facts detail-facts">
+                {strain.final_rating != null && <div><dt>Ocena końcowa</dt><dd>{dec(strain.final_rating)}</dd></div>}
+                {strain.thc != null && <div><dt>THC</dt><dd>{dec(strain.thc)}%</dd></div>}
+                {strain.cbd != null && <div><dt>CBD</dt><dd>{dec(strain.cbd)}%</dd></div>}
+                {strain.price_per_g != null && !me.hidePrices && <div><dt>Cena</dt><dd>{dec(strain.price_per_g)} zł/g</dd></div>}
+                {strain.batch && <div><dt>Seria</dt><dd>{strain.batch}</dd></div>}
+                {strain.expires_on && <div><dt>Ważne do</dt><dd>{strain.expires_on}</dd></div>}
+                {strain.taste && <div><dt>Smak</dt><dd>{strain.taste}</dd></div>}
+              </dl>
               {strain.terpenes?.length > 0 && (
                 <>
                   <p className="label">Profil terpenowy</p>
                   <div className="chips small">{strain.terpenes.map((t) => <Link key={t} href={`/wiedza#t-${t.toLowerCase().split(' ')[0]}`} className="chip on static dn">{t}</Link>)}</div>
                 </>
               )}
-              <button className="btn ghost small" onClick={() => setEditing(true)}>Edytuj odmianę</button>
+              <div className="detail-actions">
+                <button className="btn ghost" onClick={() => setEditing(true)}><Icon name="edit" size={18} />Edytuj odmianę</button>
+              </div>
             </div>
           </div>
         </article>
