@@ -33,3 +33,7 @@ Gałąź: claude/project-review-planning-rcakq1. Na koniec: jeden PR z opisem i 
 ## Stan 07:50 UTC
 - Scalone G+I (admin, systemowe, porównanie), przegląd reviewera (Opus) całości: „warunkowo gotowe”. Poprawki z przeglądu w dwóch paczkach (Sonnet): liczby z przecinkiem, karta 320 px, FAB, cele dotykowe, error.html (c4c23e9); zakładki admina, luki trybu dyskretnego, format daty, behaviors/PullRefresh, MainActivity (wklejanie), martwy CSS (785b5d9).
 - Wersja 0.31.0: CHANGELOG, package.json, mobile 0.2.0, HANDOFF sekcja 6. PR otwarty, nie scalony.
+
+## Stan 08:30 UTC
+- Scalone: ESLint w CI, wysyłka FCM (+ poprawki z przeglądu: klasyfikacja błędów, negatywny cache OAuth, neutralna treść, klucz), zdjęcia w Blob za flagą PHOTOS_BLOB (PLA-4 krok 1), drobne poprawki przeglądu, dopracowanie wyglądu (zwarta karta, nawigacja, rankingi, profil). Wszystko w 0.31.0, PR #3 otwarty, CI zielone.
+- Zrzuty końcowe: scratchpad/design/final-before i final.

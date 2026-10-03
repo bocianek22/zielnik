@@ -22,7 +22,7 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 - Eksport konta z `?photos=1` dołącza zdjęcia z Blob jako base64 (bez zmiany formatu). Kopia zapasowa: `strain_tests` zawiera teraz `blob_path` (ścieżka zamiast base64, jak dotąd bez `data`); `strain_photos` nadal nie jest w kopii.
 - Cron przypomnień i test działają, gdy skonfigurowany jest Web Push albo FCM (wcześniej tylko VAPID); `/api/push/config` zwraca też `fcm` i `any`. W profilu w aplikacji przycisk testu pojawia się, gdy serwer ma Firebase.
 - Nowy wygląd wszystkich ekranów: nawigacja, lista i karta odmiany, szczegóły, profil jako ustawienia, logowanie i rejestracja, katalog i wyszukiwanie, rankingi i koło, historia, raport, dziennik objawów, recepty, znajomi, grupy, profil publiczny, wiedza, premium, panel admina (zakładki, listy zamiast tabel), ekrany błędu i 404.
-- Na telefonie „Dodaj odmianę” jest pod przyciskiem „+”, a „Wyloguj” w menu „Więcej”; zwinięta karta pokazuje szybkie akcje zamiast pola zużycia.
+- Na telefonie „Dodaj odmianę” jest pod przyciskiem „+”, a „Wyloguj” w menu „Więcej”; zwinięta karta to wiersz listy (nazwa, dane, ocena, szybkie akcje, stan), a pola ocen i stanów są po „Szczegóły”.
 - Pola ilości, THC, CBD i cen przyjmują przecinek („0,5”) i pokazują klawiaturę dziesiętną; błędna liczba daje komunikat zamiast cichego zera.
 - Cele dotykowe co najmniej 44 px, karta odmiany mieści się na ekranie 320 px, przycisk „+” nie zasłania końca strony szczegółów.
 - Tryb dyskretny obejmuje też profil publiczny, grupy, raport (wydruk pokazuje nazwy), historię zmian odmiany i komunikaty katalogu.
