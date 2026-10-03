@@ -3,8 +3,9 @@ import Link from 'next/link';
 import { useState } from 'react';
 import QuickActions from './QuickActions';
 import Icon from './Icon';
+import SymptomsQuick from './SymptomsQuick';
 
-// Panel „Dziś” na stronie głównej: zapas i prognoza, zużycie z 14 dni, szybkie „Zużyłem”, recepty.
+// Panel „Dziś” na stronie głównej: zapas i prognoza, zużycie z 14 dni, szybkie „Zużyłem”, szybki wpis objawów, recepty.
 // Daty liczy z dni z serwera (czas polski), a nie z zegara przeglądarki, żeby serwer i klient renderowały to samo.
 
 const HORIZON = 30; // pełny miernik = zapas na 30 dni
@@ -106,7 +107,7 @@ function Prescriptions({ items, total }) {
   );
 }
 
-export default function TodayPanel({ stock, dailyUse, boughtG, low, series, prescriptions, quick, onUsed, settings }) {
+export default function TodayPanel({ stock, dailyUse, boughtG, low, series, prescriptions, symptoms, quick, onUsed, settings }) {
   const today = series.at(-1).day;
   const daysLeft = dailyUse > 0 && stock > 0 ? Math.floor(stock / dailyUse) : null;
   const warn = stock > 0 && ((low > 0 && stock <= low) || (daysLeft != null && daysLeft < 7));
@@ -165,6 +166,8 @@ export default function TodayPanel({ stock, dailyUse, boughtG, low, series, pres
 
         {settings}
       </section>
+
+      <SymptomsQuick day={today} initial={symptoms} />
 
       {!prescriptions.urgent && rx}
 
