@@ -8,6 +8,22 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.31.0] - 2026-10
+### Dodano
+- System projektowy (`docs/DESIGN.md`): tokeny kolorów, typografii, odstępów i promieni w `app/globals.css` (jasny i ciemny motyw), jeden zestaw ikon SVG (`Icon.js`), style podzielone na pliki obszarów w `app/styles/`.
+- Aplikacja Android wygląda natywnie: bez pasków przewijania i efektu przeciągnięcia przeglądarki, haptyka, odświeżanie przeciągnięciem, przejścia między ekranami, ekran startowy i ikona, ekran offline, obsługa klawiatury, ciasteczko sesji zapisywane przy zejściu do tła.
+- Wspólny parser liczb (`app/components/num.js`) i format daty (`lib/date.js`) z testami.
+### Zmieniono
+- Nowy wygląd wszystkich ekranów: nawigacja, lista i karta odmiany, szczegóły, profil jako ustawienia, logowanie i rejestracja, katalog i wyszukiwanie, rankingi i koło, historia, raport, dziennik objawów, recepty, znajomi, grupy, profil publiczny, wiedza, premium, panel admina (zakładki, listy zamiast tabel), ekrany błędu i 404.
+- Na telefonie „Dodaj odmianę” jest pod przyciskiem „+”, a „Wyloguj” w menu „Więcej”; zwinięta karta pokazuje szybkie akcje zamiast pola zużycia.
+- Pola ilości, THC, CBD i cen przyjmują przecinek („0,5”) i pokazują klawiaturę dziesiętną; błędna liczba daje komunikat zamiast cichego zera.
+- Cele dotykowe co najmniej 44 px, karta odmiany mieści się na ekranie 320 px, przycisk „+” nie zasłania końca strony szczegółów.
+- Tryb dyskretny obejmuje też profil publiczny, grupy, raport (wydruk pokazuje nazwy), historię zmian odmiany i komunikaty katalogu.
+### Naprawiono
+- Przełączenie zakładki w panelu admina kasowało komunikat z hasłem tymczasowym po resecie konta.
+- Aplikacja Android: przytrzymanie pola tekstowego nie pozwalało wkleić tekstu; nawigacja po kotwicy (#) zamrażała ekran na chwilę; podwójna wibracja przełączników; przerwane przeciąganie odświeżania mogło przeładować stronę.
+- Build APK przerywał niepoprawny komentarz w `colors.xml`.
+
 ## [0.30.0] - 2026-10
 ### Dodano
 - Szybkie akcje „Zużyłem” i „Wykupiłem” na wierzchu karty odmiany, z panelem gramów i szybkimi wartościami (UX-3).

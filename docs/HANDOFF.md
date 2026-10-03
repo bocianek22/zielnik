@@ -52,18 +52,19 @@ Tryb awaryjny (rozmowa bez dostępu do repozytorium):
 - Wybór bramki płatności i platformy wpłat (`DONATE_URL`), decyzja o `PREMIUM_ENFORCED`.
 - Źródło danych do katalogu (`CATALOG_FEED_URL`), plan Vercel Pro przy działalności komercyjnej.
 
-## 6. Następne kroki (aktualne dla wersji 0.30.0)
-Pełna lista z uzasadnieniem: `docs/PRZEGLAD-2026-10.md`; aplikacje natywne: `docs/APLIKACJE-NATYWNE.md`. Praca z podziałem na subagentów (`.claude/agents/`): koordynator scala gałęzie, uruchamia kontrole, zleca przegląd (reviewer) i prowadzi CHANGELOG/wersję.
-1. **Scalić PR 0.30.0.** Po wdrożeniu: migracje dodają tabele `strain_edits`, `push_subscriptions`, `push_prefs`, `push_sent`, kolumny `strain_photos.uploaded_by`, `backups.blob_path` i indeksy (jednorazowo przy pierwszym żądaniu). Sprawdzić „Dziennik błędów”.
-2. **Właściciel - ustawienia w Vercel:**
+## 6. Następne kroki (aktualne dla wersji 0.31.0)
+Pełna lista z uzasadnieniem: `docs/PRZEGLAD-2026-10.md`; aplikacje natywne: `docs/APLIKACJE-NATYWNE.md`; system projektowy: `docs/DESIGN.md`. Praca z podziałem na subagentów (`.claude/agents/`): koordynator scala gałęzie, uruchamia kontrole, zleca przegląd (reviewer) i prowadzi CHANGELOG/wersję. Przebieg pracy nocnej: `docs/PLAN-NOC.md`.
+1. **Scalić PR 0.31.0** (nowy wygląd, bez zmian bazy). Przed scaleniem obejrzeć podgląd Vercel na telefonie i zainstalować APK z workflow „Aplikacja Android”.
+2. **Ręcznie na telefonie (0.31.0):** wpisanie „0,5” w zużyciu i „1,5” w THC zapisuje 0,5 i 1,5; karta na wąskim ekranie (320 px); wklejanie po przytrzymaniu pola tekstowego w APK; przytrzymanie linku nie otwiera menu; jedna wibracja na przełącznikach; zakładki admina po resecie hasła; tryb dyskretny w profilu publicznym, grupie, raporcie (wydruk z nazwami); link z rozmytą nazwą przy pierwszym dotknięciu tylko odsłania.
+3. **Właściciel - ustawienia w Vercel:**
    - `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT=mailto:...` (z `node scripts/vapid-keys.js`) - bez nich push jest wyłączony.
    - `BACKUP_ENCRYPTION_KEY` (`openssl rand -base64 32`, kopia klucza w menedżerze haseł) - zalecane, kopie zawierają dane zdrowotne. `BLOB_READ_WRITE_TOKEN` już ustawiony (magazyn `zielnik-kopie`, prywatny, fra1).
    - Osobna gałąź bazy Neon dla podglądów (PLA-3): dziś podglądy działają na produkcyjnej bazie.
    - Region funkcji: dziś `iad1` (USA). Jeśli baza Neon jest w UE, ustawić `"regions": ["fra1"]` w `vercel.json` (opóźnienia i RODO).
-3. **Ręcznie na telefonie:** szybkie akcje (klawiatura, podwójne dotknięcie), push na Androidzie i iOS (po dodaniu do ekranu głównego), tryb dyskretny (odsłanianie dotknięciem, dwuklik logo), historia zmian odmiany.
-4. **Aplikacje natywne (MOB-16):** szkielet w `mobile/` (Capacitor 8). Pierwszy build Gradle tylko w CI (workflow „Aplikacja Android”, artefakt APK) - sprawdzić przebieg i poprawić, jeśli trzeba. Właściciel: keystore i sekrety `ANDROID_KEYSTORE_*`, projekt Firebase (`GOOGLE_SERVICES_JSON`). Dalej: wysyłka FCM po stronie serwera (HTTP v1), test na telefonie wg checklisty w `mobile/README.md`, Google Play (12 testerów × 14 dni przy koncie prywatnym), iOS po założeniu konta Apple.
-5. **Z przeglądu 0.30.0 (niski priorytet):** idempotencja szybkich akcji przy ponowieniu po zerwanym połączeniu; przypomnienia o recepcie codziennie przez 8 dni (rozważyć progi 7/3/1/0); subskrypcja push na wspólnym urządzeniu po wygaśnięciu sesji; zakres kopii (kody zaproszeń, zgłoszenia) - świadoma decyzja; zdjęcia odmian po usunięciu konta (RODO).
-6. **Dalej:** KAT-1 krok 2 (propozycje zmian katalogu), PLA-5 (paginacja po stronie UI), PLA-4 (zdjęcia w Blob), pełny CSP (PLA-8), po zakupie domeny: KON-1, KON-3, MON-1.
+4. **Aplikacje natywne (MOB-16):** APK budowany w CI. Właściciel: keystore i sekrety `ANDROID_KEYSTORE_*`, projekt Firebase (`GOOGLE_SERVICES_JSON`). Dalej: wysyłka FCM po stronie serwera (HTTP v1), Google Play (12 testerów × 14 dni przy koncie prywatnym), iOS po założeniu konta Apple.
+5. **Dług UI:** ostrzeżenia ESLint `react-hooks/set-state-in-effect` w `UsersAdmin`, `BottomNav`, `StrainCard`, `StrainsBoard`, `ThemeToggle` oraz `react-hooks/refs` w `StrainCard` (projekt nie ma ESLinta w CI; warto dodać); pole progu „Kończy się” w `StrainsBoard` i pola admina zostały `type="number"`.
+6. **Z przeglądu 0.30.0 (niski priorytet):** idempotencja szybkich akcji przy ponowieniu po zerwanym połączeniu; przypomnienia o recepcie codziennie przez 8 dni (rozważyć progi 7/3/1/0); subskrypcja push na wspólnym urządzeniu po wygaśnięciu sesji; zakres kopii (kody zaproszeń, zgłoszenia); zdjęcia odmian po usunięciu konta (RODO).
+7. **Dalej:** KAT-1 krok 2 (propozycje zmian katalogu), PLA-5 (paginacja po stronie UI), PLA-4 (zdjęcia w Blob), pełny CSP (PLA-8), po zakupie domeny: KON-1, KON-3, MON-1.
 
 **Znane ograniczenia wdrożeniowe:**
 - *Wycofanie do < 0.30.0*: najpierw SQL z sekcji „Uwaga przy wycofaniu wdrożenia” w CHANGELOG 0.30.0 (stary kod wymaga wpisów `user_strain` dla wszystkich par); do < 0.29.0 dodatkowo unieważnione sesje znów działają.
