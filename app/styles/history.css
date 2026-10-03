@@ -88,3 +88,30 @@
 .hist-old { color: var(--text-3); text-decoration: line-through; overflow-wrap: anywhere; }
 .hist-new { color: var(--text); overflow-wrap: anywhere; }
 .hist-entry .btn { margin-top: var(--s-2); margin-left: calc(var(--s-2) * -1); }
+
+/* Korekty wpisów w Historii (Entries.js): jeden edytor nad listą/tabelą, przyciski przy każdym wpisie */
+.hist-actions { display: flex; gap: var(--s-1); margin-top: var(--s-1); }
+.hist-actions .btn.small { min-height: var(--tap); }
+.hist-act-cell { width: 1%; white-space: nowrap; }
+.hist-act-cell .hist-actions { margin-top: 0; justify-content: flex-end; }
+.hist-list .lr-main { display: grid; }
+.list-row.editing, .hist-cmp tr.editing { background: var(--accent-soft); }
+.hist-edit { margin-bottom: var(--s-4); display: grid; gap: var(--s-3); }
+.hist-edit > p { margin: 0; }
+.hist-edit-title { font-weight: 600; }
+.hist-edit-form { display: grid; gap: var(--s-2); }
+.hist-edit-form .field { margin-bottom: 0; }
+.hist-edit-form .input { font-size: 16px; min-height: var(--tap); }
+.hist-edit-form > p { margin: 0; }
+.hist-cost { border: 0; padding: 0; margin: 0; min-width: 0; }
+.hist-cost legend { font-weight: 600; font-size: var(--fs-sm); padding: 0; margin-bottom: 6px; }
+.hist-cost-modes { display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-4); }
+.hist-cost-modes label { display: inline-flex; align-items: center; gap: var(--s-2); min-height: var(--tap); }
+.hist-edit-btns, .hist-offer-btns { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.hist-edit-btns .btn, .hist-offer-btns .btn { min-height: var(--tap); }
+.hist-offer { display: grid; gap: var(--s-2); }
+.hist-offer p { margin: 0; }
+.hist-msg { margin: 0 0 var(--s-2); font-size: var(--fs-sm); color: var(--ok); font-weight: 600; }
+.hist-msg:empty { display: none; }
+.badge.warn-badge { background: var(--warn-soft); color: var(--text); border: 1px solid var(--warn-line); }
+@media print { .hist-actions, .hist-act-cell, .hist-edit { display: none !important; } }

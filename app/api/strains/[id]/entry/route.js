@@ -50,8 +50,12 @@ export const PUT = safe(async (req, { params }) => {
                 SELECT ${user.id}::int, pool_key(s.id, s.producer, s.thc, s.cbd), ${remaining}::numeric FROM strains s WHERE s.id = ${id}
                 ON CONFLICT (user_id, pool_key) DO UPDATE SET remaining_to_buy = EXCLUDED.remaining_to_buy`;
   }
+  // z ceną za gram: ile własnych zakupów tej odmiany nie ma kosztu (karta proponuje ich uzupełnienie)
+  const missingCost = price > 0
+    ? (await sql()`SELECT count(*)::int AS n FROM purchases WHERE user_id = ${user.id}::int AND strain_id = ${id}::int AND cost IS NULL`)[0].n
+    : 0;
   const { current: cur, ...rest } = e;
   // niewysłanych ilości nie odsyłamy, żeby spóźniona odpowiedź nie cofnęła w UI stanu po szybkiej akcji
   return NextResponse.json({ entry: { ...rest, ...(hasCurrent && { current: cur }), ...(hasRemaining && { remaining }),
-    ratedAt: e.ratedAt ? new Date(e.ratedAt).toISOString() : null } });
+    ratedAt: e.ratedAt ? new Date(e.ratedAt).toISOString() : null }, missingCost });
 });

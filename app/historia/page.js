@@ -4,12 +4,11 @@ import { getUser } from '@/lib/auth';
 import { history, monthlyRecap, purchaseStats } from '@/lib/strains';
 import Header from '../components/Header';
 import Icon from '../components/Icon';
-import { formatDay } from '@/lib/date';
+import Entries from './Entries';
 
 export const dynamic = 'force-dynamic';
 
 const nf = (n, max = 1) => Number(n).toLocaleString('pl-PL', { maximumFractionDigits: max });
-const day = formatDay;
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
 function Empty({ icon, title, text }) {
@@ -95,40 +94,14 @@ export default async function Historia() {
         {purchases.length === 0 ? (
           <Empty icon="list" title="Brak zakupów" text="Dodaj je w karcie odmiany, w polu „Wykupiłem”." />
         ) : (
-          <>
-            <ul className="list hist-list">
-              {purchases.map((p, i) => (
-                <li key={i} className="list-row">
-                  <span className="lr-main"><span className="dn">{p.name}</span><span className="lr-sub">{day(p.at)}</span></span>
-                  <span className="lr-value">{nf(p.grams, 2)} g{p.cost != null && <small>{nf(p.cost, 2)} zł</small>}</span>
-                </li>
-              ))}
-            </ul>
-            <div className="card hist-table"><div className="table-wrap"><table className="cmp hist-cmp"><thead><tr><th>Data</th><th>Odmiana</th><th className="num">Ilość</th><th className="num">Koszt</th></tr></thead>
-              <tbody>{purchases.map((p, i) => (
-                <tr key={i}><td>{day(p.at)}</td><td><span className="dn">{p.name}</span></td><td className="num">{nf(p.grams, 2)} g</td><td className="num">{p.cost != null ? `${nf(p.cost, 2)} zł` : '–'}</td></tr>
-              ))}</tbody></table></div></div>
-          </>
+          <Entries kind="purchase" rows={purchases} />
         )}
 
         <h2 className="section-label">Zużycie</h2>
         {usage.length === 0 ? (
           <Empty icon="clipboard" title="Brak wpisów" text="Dodaj je w karcie odmiany, w polu „Zużycie”." />
         ) : (
-          <>
-            <ul className="list hist-list">
-              {usage.map((u, i) => (
-                <li key={i} className="list-row">
-                  <span className="lr-main"><span className="dn">{u.name}</span><span className="lr-sub">{day(u.at)}</span></span>
-                  <span className="lr-value">{nf(u.grams, 2)} g</span>
-                </li>
-              ))}
-            </ul>
-            <div className="card hist-table"><div className="table-wrap"><table className="cmp hist-cmp"><thead><tr><th>Data</th><th>Odmiana</th><th className="num">Ilość</th></tr></thead>
-              <tbody>{usage.map((u, i) => (
-                <tr key={i}><td>{day(u.at)}</td><td><span className="dn">{u.name}</span></td><td className="num">{nf(u.grams, 2)} g</td></tr>
-              ))}</tbody></table></div></div>
-          </>
+          <Entries kind="usage" rows={usage} />
         )}
       </main>
     </>
