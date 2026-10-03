@@ -58,7 +58,7 @@ export default async function KatalogItem({ params }) {
           </dl>
           {match ? <Link className="btn" href={`/strains/${match.id}`}>Otwórz pełną kartę odmiany</Link> : <AddFromCatalog item={item} />}
           <p className="muted small">Dostępność zmienia się często i nie jest gwarancją.</p>
-          <PharmacyLink registeredName={ref.length === 1 ? ref[0].registeredName : ''} producer={item.producer} name={item.name} />
+          <PharmacyLink url={ref.length === 1 ? ref[0].gdziepolek : ''} registeredName={ref.length === 1 ? ref[0].registeredName : ''} producer={item.producer} name={item.name} />
         </section>
         {match ? <CharacteristicCard strain={match} hidePrice={isNativeApp(await headers())} /> : (
           <section className="card"><h2>Karta charakterystyki</h2>

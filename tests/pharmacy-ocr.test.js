@@ -195,9 +195,12 @@ test('CSV: separator ;, BOM, kolumny importu katalogu i przecinek dziesiętny', 
   assert.equal(objs[1]['Nazwa rejestrowa'], 'Extractum Cannabis "Spectrum"; THC 10', 'cudzysłów i średnik w polu');
 });
 
-test('gdziepolek: wyszukiwanie po nazwie rejestrowej albo producencie i nazwie', () => {
+test('gdziepolek: znana strona produktu, inaczej wyszukiwanie w obrębie gdziepolek.pl', () => {
+  const page = 'https://www.gdziepolek.pl/produkty/100242/cannabis-flos-thc-22-cbd-1-aurora-deutschland-gmbh-ghost-train-haze-marihuana-lecznicza-medyczna/apteki';
+  assert.equal(pharmacySearchUrl({ url: page, producer: 'Aurora' }), page);
+  assert.equal(pharmacySearchUrl({ url: 'https://zla.example/x', producer: 'Aurora', name: 'Pink  Kush' }),
+    'https://www.google.com/search?q=site%3Agdziepolek.pl%20Aurora%20Pink%20Kush');
   assert.equal(pharmacySearchUrl({ registeredName: 'Cannabis flos Aurora THC 22%, CBD <1%' }),
-    'https://www.gdziepolek.pl/szukaj?q=Cannabis%20flos%20Aurora%20THC%2022%25%2C%20CBD%20%3C1%25');
-  assert.equal(pharmacySearchUrl({ producer: 'Aurora', name: 'Pink  Kush' }), 'https://www.gdziepolek.pl/szukaj?q=Aurora%20Pink%20Kush');
+    'https://www.google.com/search?q=site%3Agdziepolek.pl%20Cannabis%20flos%20Aurora%20THC%2022%25%2C%20CBD%20%3C1%25');
   assert.equal(pharmacySearchUrl({}), 'https://www.gdziepolek.pl/');
 });
