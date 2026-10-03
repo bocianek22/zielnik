@@ -16,7 +16,7 @@ Ten katalog ma własny `package.json`: zależności Capacitora nie trafiają do 
 | Rozpoznanie aplikacji na serwerze | `lib/client.js` (`isNativeApp(headers)`) |
 | CI | `.github/workflows/mobile-android.yml`, `.github/workflows/mobile-ios.yml` |
 
-Wersje: `@capacitor/core|cli|android|ios` 8.5.2, `@capacitor/app` 8.1.2, `browser` 8.0.5, `preferences` 8.0.1, `push-notifications` 8.1.3, `splash-screen` 8.0.2, `status-bar` 8.0.4, `@aparajita/capacitor-biometric-auth` 10.0.0, `@capacitor/assets` 3.0.5. Android: `compileSdk`/`targetSdk` 36 (wymóg Google Play od 31.08.2026), `minSdk` 24, AGP 8.13, Gradle 8.14.3, JDK 21. iOS: minimum 15, Xcode z obsługą SPM.
+Wersje: `@capacitor/core|cli|android|ios` 8.5.2, `@capacitor/app` 8.1.2, `browser` 8.0.5, `haptics` 8.0.2, `preferences` 8.0.1, `push-notifications` 8.1.3, `splash-screen` 8.0.2, `status-bar` 8.0.4, `@aparajita/capacitor-biometric-auth` 10.0.0, `@capacitor/assets` 3.0.5. Android: `compileSdk`/`targetSdk` 36 (wymóg Google Play od 31.08.2026), `minSdk` 24, AGP 8.13, Gradle 8.14.3, JDK 21. iOS: minimum 15, Xcode z obsługą SPM.
 
 `appId` = **`pl.zielnik.app`**. To tożsamość aplikacji w Google Play i App Store: **po pierwszej publikacji nie da się jej zmienić** (zmiana = nowa aplikacja, bez aktualizacji u dotychczasowych użytkowników). Jeśli ma być inna (np. domena firmy), zmień ją przed pierwszym wydaniem w `capacitor.config.js`, `android/app/build.gradle` (`namespace`, `applicationId`), pakiecie `MainActivity.java` i w projekcie Xcode.
 
@@ -30,7 +30,13 @@ Wersje: `@capacitor/core|cli|android|ios` 8.5.2, `@capacitor/app` 8.1.2, `browse
 - **Paski systemowe**: jasne ikony na zielonym pasku (`--hemp-deep`); od Androida 15 strona rysuje się pod paskiem, a nagłówek dostaje odstęp `safe-area-inset-top` (klasa `native-app` w `app/globals.css`).
 - **Ekran startowy**: zielone tło z logo; strona chowa go, gdy wie już, czy pokazać blokadę (najpóźniej po 3 s).
 - **Sesja**: ciasteczko `zielnik_session` (30 dni) jest zapisywane na dysk przy każdym zejściu do tła (`MainActivity.java`), żeby przetrwało ubicie aplikacji.
-- **Brak sieci**: lokalna strona `www/error.html` z przyciskiem „Spróbuj ponownie”.
+- **Brak sieci**: lokalna strona `www/error.html` (kolory aplikacji, „Spróbuj ponownie”, sama ponawia po odzyskaniu sieci). Gdy sieć zniknie w trakcie pracy, strona pokazuje pasek „Brak połączenia” (`NativeShell.js`).
+- **Haptyka** (`@capacitor/haptics`, wywoływana przez `window.Capacitor`, bez paczki w bundlu): lekka wibracja przy przełącznikach i chipach, sygnał sukcesu/błędu przy każdym zapisie (żądanie POST/PUT/PATCH/DELETE do `/api/` w ciągu 10 s od dotknięcia; push i powiadomienia pomijane). Ustawienie wibracji telefonu respektuje system. Kod: `app/components/native/behaviors.js`.
+- **Przeciągnij, aby odświeżyć**: na górze strony, własna obsługa dotyku (`native/PullRefresh.js`): `router.refresh()` plus zdarzenie `zielnik:refresh`, na które listy z własnym stanem (odmiany, grupy, znajomi, recepty) reagują hookiem `useNativeRefresh`. Nie działa w polach, oknach i przewijanych kontenerach (`data-no-ptr` wyłącza ręcznie).
+- **Przejścia między ekranami**: View Transitions API (Android WebView 111+), delikatne wygaszenie z przesunięciem; bez wsparcia albo przy „ogranicz ruch” brak animacji.
+- **Klawiatura**: okno WebView zmniejsza Capacitor (`SystemBars` dodaje odstęp na klawiaturę, `windowSoftInputMode=adjustResize`), więc osobna wtyczka Keyboard nie jest potrzebna. Strona wykrywa klawiaturę po zmniejszeniu okna (klasa `kbd-open`): chowa dolny pasek i przyciski pływające, a aktywne pole przewija na środek.
+- **Wersja**: profil pokazuje `versionName` (`App.getInfo()`); `build.gradle` bierze ją z `ZIELNIK_VERSION_NAME` (CI) albo z `mobile/package.json`. iOS: `MARKETING_VERSION` w projekcie Xcode jest osobno (1.0), do ustawienia przed TestFlight.
+- **Ekran startowy i ikona**: tło `#1d3b27` w motywach (`windowSplashScreenBackground` dla Androida 12+, `windowBackground` po starcie: bez białego mignięcia). Ikona adaptacyjna (tło kolorem, przezroczysta warstwa liścia `drawable-nodpi/ic_launcher_fg.png`) i warstwa monochromatyczna dla Androida 13+. `npm run assets` nadpisuje `mipmap-anydpi-v26/ic_launcher*.xml` i gubi warstwę monochromatyczną: po jego użyciu przywróć je z gita.
 - Service worker PWA w aplikacji jest wyłączany (`RegisterSW.js`), bo powłoka ma własną stronę offline i push.
 
 ## Budowanie
@@ -105,3 +111,10 @@ Następne kroki: konto Apple Developer (99 USD/rok), w Xcode zespół i podpis, 
 - [ ] Tryb samolotowy: strona „Nie można połączyć się z Zielnikiem”, po włączeniu sieci „Spróbuj ponownie” wraca do aplikacji.
 - [ ] (z Firebase) Profil, „Włącz powiadomienia”: zgoda systemowa, komunikat o zapisaniu telefonu; w eksporcie danych pojawia się urządzenie `fcm`.
 - [ ] Eksport CSV / raport dla lekarza (pobieranie plików w aplikacji).
+- [ ] Haptyka: wibracja przy przełączniku/chipie, przy zapisie zużycia i wykupu (sukces), przy błędzie (np. złe hasło); brak wibracji, gdy telefon ma ją wyłączoną.
+- [ ] Przeciągnięcie listy odmian w dół na samej górze: spinner, odświeżenie (zmień dane w przeglądarce i sprawdź). Przewijanie w górę/dół i formularz nie wywołują odświeżenia.
+- [ ] Przejście między ekranami (dolny pasek, przycisk wstecz): subtelne, bez migotania paska; po wyłączeniu animacji w telefonie brak przejść.
+- [ ] Ekran startowy zielony bez białego mignięcia (Android 12+ i starszy), ikona adaptacyjna w różnych kształtach, ikona tematyczna (Android 13+: Ustawienia, tapeta i styl, ikony tematyczne).
+- [ ] Tryb samolotowy w trakcie pracy: pasek „Brak połączenia”; przy starcie bez sieci strona błędu z przyciskiem, po włączeniu sieci wraca sama.
+- [ ] Klawiatura: przy otwartej klawiaturze dolny pasek znika, pole jest widoczne nad klawiaturą; po schowaniu klawiatury przyciskiem wstecz pasek wraca.
+- [ ] Profil: na dole „Wersja aplikacji: 0.1.0”.
