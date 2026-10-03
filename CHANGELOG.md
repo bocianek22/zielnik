@@ -8,6 +8,14 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.32.0] - 2026-10
+### Dodano
+- Panel „Dziś” na ekranie głównym: duży zapas z „starczy na N dni” i miernikiem, wykres zużycia z 14 dni, szybkie „Zużyłem” dla ostatnio używanej odmiany, karty recept z odliczaniem (pilne nad zapasem, wygasłe z resztą do 60 dni wstecz) zamiast ramki ostrzeżeń (`lib/stats.js`).
+- Nowa strona szczegółów odmiany: zdjęcie na pełną szerokość albo blok w kolorze rodzaju, duże oceny (końcowa, średnia, moja), THC/CBD jako paski, terpeny jako chipy, „Moje statystyki” (wykupione, zużyte, średnio dziennie, ostatnie użycie) z wykresem tygodniowym z 12 tygodni (`lib/strain-stats.js`).
+### Zmieniono
+- „Wykupiłem” jest zawsze na karcie odmiany (także przy 0 g), przycisk „+” tylko na liście odmian.
+- Opinie innych w szczegółach odmiany jako wiersze; karta charakterystyki w trybie zwartym bez powtórzeń z nagłówka.
+
 ## [0.31.0] - 2026-10
 ### Dodano
 - Zdjęcia odmian i testów w prywatnym Vercel Blob (PLA-4, krok 1): gdy jest `BLOB_READ_WRITE_TOKEN` i `PHOTOS_BLOB=1` (opt-in), nowe zdjęcie trafia do `zielnik-photos/<losowy-uuid>.<rozszerzenie>` (`access: 'private'`), a w bazie zostaje tylko ścieżka w nowej kolumnie `blob_path` (`strain_photos`, `strain_tests`; `data = ''`). Odczyt dalej idzie przez trasy `/api/strains/[id]/photo` i `/api/tests/[tid]/photo` z tą samą kontrolą uprawnień (`can_see` dla testów) i prywatnym cache. Bez tokenu lub bez flagi działa jak dotąd (base64 w bazie); sam token (używany przez kopie) włącza tylko odczyt i usuwanie. Brak obiektu lub tokenu przy odczycie daje 404.
