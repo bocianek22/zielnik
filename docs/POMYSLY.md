@@ -50,7 +50,7 @@ Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnieni
 | POM-24 | Budżety Lighthouse w CI | 2 | S | – | – | nowy | PLA-16, MOB-15 |
 | POM-25 | Blokada PIN/biometrią także w PWA i automatyczne wylogowanie | 4 | M | P | – | nowy | KON-11 |
 | POM-26 | Klucze dostępu (passkeys) | 3 | M | T | 🌐 | nowy | KON-9 |
-| POM-27 | Lista sesji i urządzeń | 3 | M | T | – | nowy | KON-4 |
+| POM-27 | Lista sesji i urządzeń | 3 | M | T | – | zrobiony (czeka na wydanie) | KON-4 |
 | POM-28 | Szyfrowanie notatek i dziennika objawów w bazie | 4 | L | T | – | nowy | PRA-8 |
 | POM-29 | Tryb opiekuna (wgląd tylko do odczytu) | 3 | L | P, Pr | ⚖️ | nowy | PAC-15 |
 | POM-30 | Grupy: wspólne pytania i odpowiedzi bez ocen produktów | 2 | M | Pr | ⚖️ | nowy | SPO-8 |
@@ -254,6 +254,7 @@ Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnieni
 - Ekran / element: profil, obok „Wyloguj ze wszystkich urządzeń”.
 - Propozycja: tabela sesji (urządzenie z User-Agent, ostatnie użycie, przybliżony kraj bez IP), wylogowanie pojedynczej; wymaga identyfikatora sesji w JWT i tabeli `sessions`.
 - Jak zmierzyć: test w `tests/db/security.test.js`.
+- Stan: zrobione. Tabela `sessions` (losowe `sid` w JWT, opis urządzenia z User-Agent, kraj z `x-vercel-ip-country`, bez IP), lista „Zalogowane urządzenia” w profilu (`app/profil/Sessions.js`, `GET/DELETE /api/account/sessions`, `DELETE /api/account/sessions/[id]`), tokeny sprzed `sid` przyjmowane do wygaśnięcia i dopisywane do listy. Testy w `tests/db/sessions.test.js`, opis w `docs/BEZPIECZENSTWO.md` (#26).
 
 **POM-28 Szyfrowanie notatek i dziennika w bazie** (PRA-8)
 - Problem: notatki, objawy i opinie są w bazie jawnym tekstem; kopie są szyfrowane, baza nie.

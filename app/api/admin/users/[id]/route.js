@@ -21,6 +21,7 @@ export const PATCH = safe(async (_req, { params }) => {
                              session_version = session_version + 1
                            WHERE id = ${id} RETURNING id, username`;
   if (!rows.length) return NextResponse.json({ error: 'Nie znaleziono użytkownika.' }, { status: 404 });
+  await sql()`UPDATE sessions SET revoked_at = now() WHERE user_id = ${id} AND revoked_at IS NULL`;
   await logAudit(me.username, 'zresetował hasło', rows[0].username);
   return NextResponse.json({ tempPassword: temp });
 });
