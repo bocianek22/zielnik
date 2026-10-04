@@ -4,4 +4,11 @@
     <string name="title_activity_main">Zielnik</string>
     <string name="package_name">pl.zielnik.app</string>
     <string name="custom_url_scheme">pl.zielnik.app</string>
+    <!-- skróty aplikacji (xml/shortcuts.xml): neutralne etykiety, widoczne także przy włączonym trybie dyskretnym -->
+    <string name="shortcut_use_short">Zapisz</string>
+    <string name="shortcut_use_long">Szybki zapis</string>
+    <string name="shortcut_symptoms_short">Samopoczucie</string>
+    <string name="shortcut_symptoms_long">Samopoczucie dziś</string>
+    <string name="shortcut_report_short">Raport</string>
+    <string name="shortcut_report_long">Raport</string>
 </resources>

@@ -117,6 +117,15 @@ export function haptic(kind = 'light') {
   } catch {}
 }
 
+// --- druk raportu (wtyczka ZielnikPrint w mobile/android: PrintManager z WebView, okno z „Zapisz jako PDF”) ---
+// Zwraca obietnicę, gdy aplikacja ma wtyczkę, albo false (przeglądarka, iOS, starsza wersja APK: wtedy window.print()).
+// Bez await przed window.print(), żeby przeglądarka nie potraktowała druku jako wywołanego bez dotknięcia.
+export function nativePrint(name) {
+  const P = plugin('ZielnikPrint');
+  if (!P?.print) return false;
+  try { return Promise.resolve(P.print({ name })); } catch (e) { return Promise.reject(e); }
+}
+
 // Wersja aplikacji natywnej: { version, build } z App.getInfo() albo null (przeglądarka)
 export async function appInfo() {
   const A = plugin('App');

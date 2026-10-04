@@ -92,7 +92,7 @@
 .trx.soon .trx-bar > span { background: var(--warn); }
 
 /* ===== Szybki wpis objawów (SymptomsQuick.js) ===== */
-.tsym { padding: 0; }
+.tsym { padding: 0; scroll-margin-top: var(--s-4); }
 .tsym-form { display: grid; gap: var(--s-4); padding: var(--s-1) var(--s-5) var(--s-4); }
 .tsym-hint { margin: 0; font-size: var(--fs-sm); color: var(--text-2); line-height: 1.45; }
 .tsym-row { display: grid; gap: 6px; min-width: 0; }
