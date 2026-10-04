@@ -34,7 +34,7 @@ Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnieni
 | POM-08 | Nawyki bez presji: seria wpisów objawów | 3 | S | Pr | – | nowy | – |
 | POM-09 | Raport dla lekarza 2.0 | 5 | M | P | – | zrobiony (czeka na wydanie) | MON-4 (przedsionek) |
 | POM-10 | Bezpieczne udostępnienie raportu lekarzowi linkiem | 4 | M | P, Pr | ⚖️ | nowy | MON-4 |
-| POM-11 | Eksport CSV dziennika (objawy + zużycie) | 3 | S | P | – | nowy | – |
+| POM-11 | Eksport CSV dziennika (objawy + zużycie) | 3 | S | P | – | gotowe (do wydania) | – |
 | POM-12 | Skróty aplikacji w APK i głęboki link „Zużyłem” | 3 | S | P | – | zrobiony (APK 0.3.0: skróty „Zapisz”, „Samopoczucie”, „Raport”; `/?zuzylem=1`, `/#objawy`) | MOB-14 (APK) |
 | POM-13 | Widżet Androida „Zapas i Zużyłem” | 4 | L | P | – | nowy | MOB-16 |
 | POM-14 | Zapisy offline z kolejką | 4 | M/L | P, T | POM-02 | zrobiony (czeka na wydanie; kolejka w IndexedDB dla „Zużyłem”, „Wykupiłem” i objawów) | MOB-8 |
@@ -43,7 +43,7 @@ Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnieni
 | POM-17 | Wyszukiwanie bez polskich znaków i w moich notatkach | 3 | S/M | P | – | nowy | – |
 | POM-18 | Porównanie z moimi statystykami i objawami | 3 | S | P | POM-06 | nowy | – |
 | POM-19 | Kreator pierwszego uruchomienia | 4 | M | – | – | nowy | UX-6 |
-| POM-20 | Puste stany prowadzące do pierwszego wpisu | 3 | S | – | – | nowy | UX-5 |
+| POM-20 | Puste stany prowadzące do pierwszego wpisu | 3 | S | – | – | częściowo (bez Historii i raportu) | UX-5 |
 | POM-21 | Dostępność wykresów i formularzy | 4 | S/M | – | – | nowy | UX-2 |
 | POM-22 | Większy tekst i tryb „duże cele” | 3 | S | – | – | nowy | UX-2 |
 | POM-23 | Wydajność ekranu głównego (dane „Dziś” bez pełnej listy) | 3 | M | T | – | nowy | PLA-5, MOB-9 |

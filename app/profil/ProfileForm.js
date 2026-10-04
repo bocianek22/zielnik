@@ -20,6 +20,8 @@ export default function ProfileForm({ me, initial, children }) {
   const [msg, setMsg] = useState('');
   const [busy, setBusy] = useState(false);
   const [pw, setPw] = useState('');
+  const [csvFrom, setCsvFrom] = useState('');
+  const [csvTo, setCsvTo] = useState('');
 
   const shown = avatar === undefined ? (initial.has_avatar ? `/api/users/${me.id}/avatar?t=${Date.now() % 1e6}` : null) : avatar;
 
@@ -95,7 +97,15 @@ export default function ProfileForm({ me, initial, children }) {
           <a className="list-row" href="/api/account/export"><Icon name="download" /><span className="lr-main">Pobierz dane (JSON)</span></a>
           <a className="list-row" href="/api/account/export?photos=1"><Icon name="download" /><span className="lr-main">Pobierz ze zdjęciami</span></a>
           <a className="list-row" href="/api/export"><Icon name="download" /><span className="lr-main">Moje odmiany (CSV)</span></a>
+          <a className="list-row" href={`/api/account/export/csv${csvFrom || csvTo ? `?${new URLSearchParams({ ...(csvFrom && { od: csvFrom }), ...(csvTo && { do: csvTo }) })}` : ''}`}>
+            <Icon name="download" /><span className="lr-main">Dziennik (CSV: objawy, zużycie, zakupy)</span>
+          </a>
         </div>
+        <div className="row">
+          <div className="field"><label htmlFor="csv-od">Dziennik od</label><input id="csv-od" type="date" value={csvFrom} max={csvTo || undefined} onChange={(e) => setCsvFrom(e.target.value)} /></div>
+          <div className="field"><label htmlFor="csv-do">do</label><input id="csv-do" type="date" value={csvTo} min={csvFrom || undefined} onChange={(e) => setCsvTo(e.target.value)} /></div>
+        </div>
+        <p className="muted">Pusty zakres dat oznacza cały dziennik. Plik otwiera się w Excelu (separator „;”, przecinek dziesiętny).</p>
       </section>
 
       <section className="card">
