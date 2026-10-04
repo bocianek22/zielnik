@@ -1,12 +1,19 @@
 'use client';
 import Icon from '../components/Icon';
+import { nativePrint } from '../components/native/bridge';
+import { isDiscreet } from '@/lib/discreet';
+import { reportTitle } from '@/lib/shortcuts';
 
-// Wydruk z przeglądarki: „Zapisz jako PDF” w oknie drukowania albo udostępnienie wydruku z telefonu.
-// Tytuł strony staje się nazwą pliku PDF, więc na czas drukowania ustawiamy go na opis raportu.
-export default function PrintButton({ title }) {
+// Przeglądarka: okno drukowania z „Zapisz jako PDF”; tytuł strony staje się nazwą pliku, więc na czas druku go podmieniamy.
+// Aplikacja Android: window.print() w WebView nic nie robi, więc systemowe okno druku otwiera wtyczka natywna
+// (ZielnikPrint, mobile/README.md). Tryb dyskretny sprawdzamy w chwili dotknięcia (serwer go nie zna).
+export default function PrintButton({ from, to }) {
   const print = () => {
+    const title = reportTitle(from, to, isDiscreet());
+    const native = nativePrint(title);
+    if (native) { native.catch(() => window.alert('Nie udało się otworzić okna drukowania. Spróbuj ponownie.')); return; }
     const prev = document.title;
-    if (title) document.title = title;
+    document.title = title;
     const restore = () => { document.title = prev; window.removeEventListener('afterprint', restore); };
     window.addEventListener('afterprint', restore);
     window.print();

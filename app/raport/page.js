@@ -80,7 +80,6 @@ export default async function Raport({ searchParams }) {
   // objawy przy odmianach: średnia tylko przy co najmniej MIN_SYMPTOM_DAYS dniach z wpisem
   const symCell = (s, k) => (s[`n_${k}`] >= MIN_SYMPTOM_DAYS ? `${nf(s[k])} (${dniGen(s[`n_${k}`])})` : s[`n_${k}`] ? `za mało dni (${s[`n_${k}`]})` : '–');
 
-  const title = `Raport dla lekarza ${from} – ${to}`;
   const presetHref = (n) => `/raport?from=${addDaysIso(today, -(n - 1))}&to=${today}${notesQs}`;
   const presetOn = (n) => !visit && to === today && from === addDaysIso(today, -(n - 1));
   const custom = !visit && !PRESETS.some(([n]) => presetOn(n));
@@ -107,7 +106,7 @@ export default async function Raport({ searchParams }) {
               <button className="btn ghost">Pokaż raport</button>
             </form>
           </details>
-          <PrintButton title={title} />
+          <PrintButton from={from} to={to} />
           <p className="muted small">Na telefonie wybierz w oknie drukowania „Zapisz jako PDF”, a potem udostępnij plik. Na wydruku nazwy odmian są widoczne także w trybie dyskretnym.</p>
         </div>
 

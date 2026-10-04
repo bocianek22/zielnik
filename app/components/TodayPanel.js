@@ -1,10 +1,11 @@
 'use client';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import QuickActions from './QuickActions';
 import Icon from './Icon';
 import SymptomsQuick from './SymptomsQuick';
 import { unitOf } from '@/lib/units';
+import { shortcutAction, withoutUseParam } from '@/lib/shortcuts';
 
 // Panel „Dziś” na stronie głównej: zapas i prognoza, zużycie z 14 dni, szybkie „Zużyłem”, szybki wpis objawów, recepty.
 // Daty liczy z dni z serwera (czas polski), a nie z zegara przeglądarki, żeby serwer i klient renderowały to samo.
@@ -177,10 +178,27 @@ export default function TodayPanel({ stock, dailyUse, bought, low, series, presc
   };
   const warn = units.some(warnOf);
 
+  // Skróty aplikacji (POM-12): /?zuzylem=1 otwiera „Zużyłem” ostatnio używanej odmiany, /#objawy przewija do objawów.
+  // Panel otwieramy dotknięciem przycisku z QuickActions (bez zmiany jego API); bez odmiany z zapasem panelu nie ma
+  // i zostaje widok zapasu na górze.
+  const root = useRef(null);
+  useEffect(() => {
+    const { pathname, search, hash } = window.location;
+    const action = shortcutAction(search, hash);
+    if (!action) return;
+    if (action === 'use') window.history.replaceState(window.history.state, '', withoutUseParam(pathname, search, hash));
+    const target = action === 'use'
+      ? root.current?.querySelector('.today-quick .quick-btn[aria-expanded="false"]')
+      : document.getElementById('objawy');
+    if (!target) return;
+    target.scrollIntoView({ block: action === 'use' ? 'center' : 'start' });
+    if (action === 'use') target.click();
+  }, []);
+
   // pilne recepty (wygasa w ≤ 7 dni albo wygasła z resztą) nad zapasem, żeby były na pierwszym ekranie
   const rx = prescriptions.items.length > 0 && <Prescriptions items={prescriptions.items} total={prescriptions.total} />;
   return (
-    <div className="today">
+    <div className="today" ref={root}>
       {prescriptions.urgent && rx}
       <section className={`card today-card${warn ? ' warn' : ''}`} aria-labelledby={`today-stock-h-${units[0]}`}>
         <div className={`today-stocks${units.length > 1 ? ' two' : ''}`}>

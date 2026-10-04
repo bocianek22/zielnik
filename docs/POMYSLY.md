@@ -18,7 +18,7 @@ Reguła wyboru: brak zależności od decyzji właściciela (🌐 ⚖️ 💳 �
 | 4 | **POM-09 Raport dla lekarza 2.0**: tydzień po tygodniu, objawy przy odmianach, aktualne recepty | M | Raport to jedyny wynik aplikacji, który trafia poza pacjenta. Dziś objawy to średnia z okresu (lekarz nie zobaczy zmiany), a recepty w ogóle nie występują. Wszystko liczy się z istniejących tabel. |
 | 5 | **POM-21 Dostępność wykresów i formularzy** (wykres objawów, suwaki, kolory) | S/M | Wykres objawów odróżnia cztery linie tylko kolorem i nie ma listy dla czytnika ekranu (wykres w panelu „Dziś” ją ma). UX-2 jest na liście kontrolnej 1.0.0; ta część jest tania i zamyka największe luki na ekranach zdrowotnych. |
 
-Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnienie o objawach (⏱ 🔑), POM-14 zapisy offline (po POM-02), POM-12 skróty w APK (S).
+Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnienie o objawach (⏱ 🔑), POM-14 zapisy offline (po POM-02).
 
 ## Tabela pomysłów
 
@@ -35,7 +35,7 @@ Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnieni
 | POM-09 | Raport dla lekarza 2.0 | 5 | M | P | – | zrobiony (czeka na wydanie) | MON-4 (przedsionek) |
 | POM-10 | Bezpieczne udostępnienie raportu lekarzowi linkiem | 4 | M | P, Pr | ⚖️ | nowy | MON-4 |
 | POM-11 | Eksport CSV dziennika (objawy + zużycie) | 3 | S | P | – | nowy | – |
-| POM-12 | Skróty aplikacji w APK i głęboki link „Zużyłem” | 3 | S | P | – | nowy | MOB-14 (APK) |
+| POM-12 | Skróty aplikacji w APK i głęboki link „Zużyłem” | 3 | S | P | – | zrobiony (APK 0.3.0: skróty „Zapisz”, „Samopoczucie”, „Raport”; `/?zuzylem=1`, `/#objawy`) | MOB-14 (APK) |
 | POM-13 | Widżet Androida „Zapas i Zużyłem” | 4 | L | P | – | nowy | MOB-16 |
 | POM-14 | Zapisy offline z kolejką | 4 | M/L | P, T | POM-02 | nowy | MOB-8 |
 | POM-15 | Przypomnienie o wizycie i kontroli recepty | 4 | S | P | 🔑 | nowy | PAC-16 |
@@ -169,6 +169,7 @@ Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnieni
 - Ekran / element: `app/manifest.js` (skróty działają tylko w PWA), `mobile/android` (brak `shortcuts.xml`).
 - Problem: w aplikacji z APK przytrzymanie ikony nie pokazuje skrótów; nie ma adresu, który otwiera od razu „Zużyłem” (jest tylko `/?new=1`).
 - Propozycja: `/?zuzylem=1` otwiera panel gramów dla ostatnio używanej odmiany w panelu „Dziś”; statyczne skróty Androida (`shortcuts.xml`) do zużycia, objawów i recept. Etykiet skrótów nie da się przełączać razem z trybem dyskretnym, więc od początku są neutralne („Szybki wpis”, „Dziennik”, „Notatki”).
+- Zrobione (APK 0.3.0): `/?zuzylem=1` otwiera „Zużyłem” ostatnio używanej odmiany z zapasem (bez takiej odmiany zwykła strona główna), `/#objawy` przewija do karty objawów; statyczne skróty `mobile/android/app/src/main/res/xml/shortcuts.xml` z neutralnymi etykietami „Zapisz”, „Samopoczucie”, „Raport” (zamiast recept raport dla lekarza). Ścieżkę otwiera `MainActivity` pod adresem `server.url`. Logika w `lib/shortcuts.js`, testy `tests/shortcuts.test.js`. Do zmierzenia ręcznie na telefonie.
 - Jak zmierzyć: ręcznie na telefonie (przytrzymanie ikony, czas od ikony do zapisu < 5 s).
 
 **POM-13 Widżet Androida „Zapas i Zużyłem”** (MOB-16)

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Skróty aplikacji (POM-12): przytrzymanie ikony na ekranie głównym. Etykiety są statyczne, więc od początku
+     neutralne (tryb dyskretny działa tylko w aplikacji). Ścieżka strony w dodatku pl.zielnik.app.PATH, którą
+     MainActivity otwiera pod adresem server.url; dozwolone ścieżki: SHORTCUT_PATHS w lib/shortcuts.js. -->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="zapisz"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_add"
+        android:shortcutShortLabel="@string/shortcut_use_short"
+        android:shortcutLongLabel="@string/shortcut_use_long">
+        <intent
+            android:action="pl.zielnik.app.SHORTCUT"
+            android:targetPackage="pl.zielnik.app"
+            android:targetClass="pl.zielnik.app.MainActivity">
+            <extra android:name="pl.zielnik.app.PATH" android:value="/?zuzylem=1" />
+        </intent>
+    </shortcut>
+    <shortcut
+        android:shortcutId="samopoczucie"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_mood"
+        android:shortcutShortLabel="@string/shortcut_symptoms_short"
+        android:shortcutLongLabel="@string/shortcut_symptoms_long">
+        <intent
+            android:action="pl.zielnik.app.SHORTCUT"
+            android:targetPackage="pl.zielnik.app"
+            android:targetClass="pl.zielnik.app.MainActivity">
+            <extra android:name="pl.zielnik.app.PATH" android:value="/#objawy" />
+        </intent>
+    </shortcut>
+    <shortcut
+        android:shortcutId="raport"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_report"
+        android:shortcutShortLabel="@string/shortcut_report_short"
+        android:shortcutLongLabel="@string/shortcut_report_long">
+        <intent
+            android:action="pl.zielnik.app.SHORTCUT"
+            android:targetPackage="pl.zielnik.app"
+            android:targetClass="pl.zielnik.app.MainActivity">
+            <extra android:name="pl.zielnik.app.PATH" android:value="/raport" />
+        </intent>
+    </shortcut>
+</shortcuts>
