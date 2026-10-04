@@ -23,6 +23,8 @@ import { isNativeApp } from '@/lib/client';
 import RegisterSW from './components/RegisterSW';
 import DiscreetGuard from './components/DiscreetGuard';
 import NativeShell from './components/NativeShell';
+import WebLock from './components/WebLock';
+import { BOOT_SCRIPT } from '@/lib/applock';
 
 const display = Fraunces({ subsets: ['latin', 'latin-ext'], variable: '--font-display', display: 'swap' });
 const body = Figtree({ subsets: ['latin', 'latin-ext'], variable: '--font-body' });
@@ -59,8 +61,9 @@ export default async function RootLayout({ children }) {
     <html lang="pl" data-discreet={discreet ? '1' : undefined} className={`${display.variable} ${body.variable}${native ? ' native-app' : ''}`} suppressHydrationWarning>
       <head>
         <script nonce={nonce} dangerouslySetInnerHTML={{ __html: "try{var t=localStorage.getItem('zielnik.theme');if(t==='dark'||t==='light')document.documentElement.dataset.theme=t}catch(e){}try{if(localStorage.getItem('zielnik.discreet')==='1'&&document.documentElement.dataset.discreet!=='1'){document.documentElement.dataset.discreet='1';document.cookie='zielnik_discreet=1; path=/; max-age=31536000; SameSite=Lax'}}catch(e){}" }} />
+        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: BOOT_SCRIPT }} />
       </head>
-      <body>{children}<RegisterSW /><DiscreetGuard /><NativeShell /></body>
+      <body>{children}<RegisterSW /><DiscreetGuard /><NativeShell /><WebLock /></body>
     </html>
   );
 }

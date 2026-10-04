@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Leaf from '../components/Leaf';
 import Icon from '../components/Icon';
 import { api } from '@/lib/api';
+import { markFreshLogin } from '@/lib/applock';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -19,7 +20,7 @@ export default function RegisterPage() {
   async function submit(e) {
     e.preventDefault();
     setError(''); setBusy(true);
-    try { await api('/api/auth/register', 'POST', f); router.replace('/profil'); router.refresh(); }
+    try { await api('/api/auth/register', 'POST', f); markFreshLogin(f.username); router.replace('/profil'); router.refresh(); }
     catch (err) { setError(err.message); setBusy(false); }
   }
 

@@ -9,6 +9,7 @@ import { clearDeviceData } from '../components/deviceData';
 import { storedFcm } from '../components/native/bridge';
 import { VIS } from '@/lib/visibility';
 import Icon from '../components/Icon';
+import Sessions from './Sessions';
 
 export default function ProfileForm({ me, initial, children }) {
   const router = useRouter();
@@ -110,7 +111,8 @@ export default function ProfileForm({ me, initial, children }) {
 
       <section className="card">
         <h2>Sesje</h2>
-        <p className="muted">Jeśli logowałeś się na cudzym lub zgubionym urządzeniu, wyloguj się wszędzie. Zmiana hasła robi to samo dla pozostałych urządzeń.</p>
+        <p className="muted">Jeśli logowałeś się na cudzym lub zgubionym urządzeniu, wyloguj je z listy poniżej. Zmiana hasła wylogowuje wszystkie pozostałe urządzenia.</p>
+        <Sessions />
         <div className="row"><button type="button" className="btn ghost" onClick={logoutAll}>Wyloguj ze wszystkich urządzeń</button></div>
       </section>
 

@@ -35,13 +35,14 @@ Waga: K = krytyczna, W = wysoka, Ś = średnia, N = niska. Status: ✅ naprawion
 | 16 | Konto | Usunięcie konta przez admina nie kasowało zdjęć testów z Blob. Teraz kasuje, tak jak samodzielne usunięcie. | N | ✅ | `app/api/admin/users/[id]` |
 | 17 | Profil | Błędny awatar zwracał 400 dopiero po zapisaniu reszty profilu. Teraz walidacja odbywa się przed zapisem. | N | ✅ | `app/api/profile` |
 | 18 | Build | Po dodaniu middleware (paczka Edge) `instrumentation.js` dociągał `lib/db.js`. Teraz import jest wewnątrz warunku `NEXT_RUNTIME`. | — | ✅ | `instrumentation.js` |
-| 19 | Sesje | JWT: HS256 z przypiętym algorytmem, 30 dni, `sv` = `session_version`, token urządzenia na osobnym kluczu z `aud`. Ciasteczko `HttpOnly`, `Secure` (produkcja), `SameSite=Lax`. Limity: logowanie (IP, para IP+nazwa, nazwa), rejestracja, zmiana hasła, usunięcie konta, podpowiedzi AI, OCR apteki, test push. | — | ℹ️ OK | `lib/auth.js` |
+| 19 | Sesje | JWT: HS256 z przypiętym algorytmem, 30 dni, `sv` = `session_version`, `sid` = wiersz w `sessions` (#26), token urządzenia na osobnym kluczu z `aud`. Ciasteczko `HttpOnly`, `Secure` (produkcja), `SameSite=Lax`. Limity: logowanie (IP, para IP+nazwa, nazwa), rejestracja, zmiana hasła, usunięcie konta, podpowiedzi AI, OCR apteki, test push. | — | ℹ️ OK | `lib/auth.js` |
 | 20 | XSS | Jedyne `dangerouslySetInnerHTML` to stały skrypt motywu (teraz z nonce). Linki użytkownika (profil, źródła odmian) są przyjmowane tylko jako http(s) i mają `rel="noopener noreferrer"`. Wiedza to treść statyczna. | — | ℹ️ OK | |
 | 21 | Service Worker | SW cache'uje tylko powłokę (`offline.html`, ikony, manifest), nigdy `/api/` ani stron. Kliknięcie powiadomienia otwiera tylko adres tej samej domeny. | — | ℹ️ OK | `public/sw.js` |
 | 22 | Push | Treść domyślnie neutralna, dla FCM zawsze. Endpointy tylko znanych usług push (bez SSRF). Endpointy nie trafiają do eksportu ani kopii. | — | ℹ️ OK | `lib/push.js` |
 | 23 | Android | Aktywność jest eksportowana (ikona aplikacji). Dodatek skrótu przechodzi przez `SAFE_PATH`, czyli tylko ścieżkę w obrębie `server.url`. Brak `addJavascriptInterface`. `allowMixedContent: false`, `cleartext: false`. Debugowanie WebView tylko w buildzie debug (domyślne Capacitor). `FileProvider` nieeksportowany. | — | ℹ️ OK | `MainActivity.java`, `capacitor.config.js` |
 | 24 | Zależności | `npm audit --omit=dev`: postcss < 8.5.23 (wysoka, w zależnościach `next`). Nie da się tego wykorzystać w działającej aplikacji: postcss działa tylko przy budowaniu, na naszym własnym CSS. Poprawka wymaga Next 16. | N | 👤 | `package.json` |
 | 25 | IP | `clientIp()` bierze pierwszy adres z `x-forwarded-for`. Na Vercel jest to wiarygodne, bo platforma nadpisuje ten nagłówek. Poza Vercel (inny hosting za proxy) limity można by obejść. | — | ℹ️ | `lib/ratelimit.js` |
+| 26 | Sesje (POM-27) | Wylogowanie usuwało tylko ciasteczko: skopiowany wcześniej token działał do wygaśnięcia albo „Wyloguj wszędzie”. Teraz JWT ma `sid`, a `getUser` wymaga aktywnego wiersza w `sessions` (obok `sv`). Wylogowanie unieważnia bieżącą sesję. W profilu jest lista „Zalogowane urządzenia” z wylogowaniem pojedynczej sesji i „Wyloguj inne urządzenia” (podnosi `sv`, bieżąca dostaje nowy token z tym samym `sid`). Zmiana hasła działa tak samo, a reset przez admina i „wyloguj wszędzie” unieważniają wszystkie wiersze. Zapisujemy opis urządzenia („Chrome, Android”), flagę aplikacji natywnej i kraj z `x-vercel-ip-country`. Nie zapisujemy IP ani pełnego User-Agent. `last_used_at` jest aktualizowane najwyżej co 15 min. Przy logowaniu usuwane są wygasłe wiersze, a aktywnych sesji jest najwyżej 50 na konto. Limit: 30 wylogowań na 15 min. Tabela poza kopią, eksport bez `sid`. | Ś | ✅ | `lib/auth.js`, `app/api/account/sessions`, `app/profil/Sessions.js` |
 
 ## Wszystkie trasy API (autoryzacja i wynik)
 `U` = `requireUser`, `A` = `requireAdmin`, `C` = `CRON_SECRET`, `—` = publiczna. Każda trasa zmieniająca stan przechodzi też przez kontrolę Origin w `middleware.js`.
@@ -49,10 +50,12 @@ Waga: K = krytyczna, W = wysoka, Ś = średnia, N = niska. Status: ✅ naprawion
 | Trasa | Metody | Ochrona | Wynik |
 |---|---|---|---|
 | `auth/login`, `auth/register` | POST | — + limity | OK po #4 i #5 |
-| `auth/logout` | POST | sesja opcjonalna | OK, usuwa tylko własny push/FCM |
+| `auth/logout` | POST | sesja opcjonalna | OK, usuwa tylko własny push/FCM; unieważnia bieżącą sesję (#26) |
 | `auth/change-password` | POST | `getUser` (celowo: wymuszona zmiana hasła) + limit | OK |
 | `account` | DELETE | U + hasło + limit | OK |
 | `account/export` | GET | U, tylko własne wiersze | OK po #8 i #9 |
+| `account/sessions` | GET, DELETE | U; DELETE (wyloguj inne) + limit 30 na 15 min | OK po #26 |
+| `account/sessions/[id]` | DELETE | U, `sid` sprawdzany wzorcem `SID_RE` zamiast `intId` (identyfikator tekstowy), tylko własna aktywna sesja (inaczej 404) + limit | OK po #26 |
 | `export` | GET | U, `listStrains` z `can_see` | OK |
 | `strains` | GET, POST | U | OK |
 | `strains/[id]` | PATCH, DELETE | U, `intId`; usuwa twórca (gdy odmiana nieużywana) albo admin | OK (wspólna edycja: DT-7, niżej) |
@@ -90,12 +93,20 @@ Strony serwerowe (`app/**/page.js`) sprawdzają `getUser()` i `must_change_passw
 - **Zdjęcia:** pliki niezgodne z typem albo uszkodzone są teraz odrzucane (400). Przeglądarka zawsze wysyła JPEG z canvas, więc dotyczy to tylko klientów spoza aplikacji.
 - **Android:** `allowBackup=false` oznacza, że po przeniesieniu na nowy telefon trzeba się zalogować ponownie, a ustawienie blokady biometrycznej wraca do domyślnego. Wymaga zbudowania APK; tu sprawdzono tylko statycznie (`tests/android-manifest.test.js`).
 - **Wylogowanie:** usuwa token FCM urządzenia, więc po ponownym zalogowaniu w aplikacji natywnej przypomnienia trzeba włączyć ponownie (Profil). Przy błędzie sieci wylogowanie nie udaje sukcesu (ciasteczko HttpOnly usuwa tylko serwer).
-- **Zgodność wstecz:** stare sesje i tokeny działają bez zmian (format JWT i ciasteczka nietknięte). Bez migracji bazy.
+- **Zgodność wstecz (audyt 0.35):** stare sesje i tokeny działały bez zmian (format JWT i ciasteczka nietknięte), bez migracji bazy. Od POM-27 JWT ma `sid` i jest tabela `sessions` (niżej).
+- **Sesje (#26, POM-27):**
+  - **Tokeny sprzed `sid`:** są przyjmowane do wygaśnięcia, czyli najwyżej 30 dni, więc wdrożenie nikogo nie wylogowuje. Przy pierwszym użyciu dostają wiersz o stałym identyfikatorze ze skrótu tokenu. Wtedy są na liście urządzeń i można je wylogować pojedynczo; unieważniony wiersz zostaje do wygaśnięcia. Tokeny, które nie wróciły na serwer po wdrożeniu, unieważnia „Wyloguj inne urządzenia”, zmiana hasła i „wyloguj wszędzie” (podniesienie `sv`). Wybraliśmy to zamiast wymuszenia ponownego logowania, bo wymuszenie wylogowałoby wszystkich naraz, także w aplikacji natywnej.
+  - **Wycofanie wdrożenia:** stary kod nie sprawdza `sessions`. Pojedynczo wylogowane sesje działałyby wtedy znowu, aż do wygaśnięcia albo podniesienia `sv`.
+  - **Odtworzenie bazy z kopii:** tabela `sessions` nie jest w kopii, więc po odtworzeniu każdy loguje się ponownie.
+  - **Obciążenie:** `getUser` wykonuje jedno zapytanie z `LEFT JOIN sessions`; zapis `last_used_at` najwyżej raz na 15 min na sesję.
+
+## Blokada w przeglądarce (POM-25)
+Ekran PIN zasłania treść (także przy ukryciu karty); chroni przed przypadkowym wglądem (wspólny komputer, odblokowany telefon), nie przed kimś z dostępem do narzędzi przeglądarki: skrót PIN-u leży w `localStorage`, a 4-8 cyfr da się złamać offline, więc realną barierą są opóźnienia i wylogowanie po 10 błędach, które działają tylko w interfejsie. WebAuthn to lokalne potwierdzenie obecności bez serwera (nie sprawdzamy podpisu). Zasłona w podglądzie przełącznika aplikacji (iOS) zależy od systemu i bywa niepełna. Wylogowanie po bezczynności jest po stronie klienta (wymaga otwartej karty lub kolejnego wejścia); serwerowe wygaszanie sesji to osobna sprawa (lista sesji). Sama strona `/login` nie odblokowuje karty (odblokowuje dopiero poprawne logowanie, `markFreshLogin`), a logowanie innej osoby na tym urządzeniu usuwa poprzedni PIN. Testy: `tests/applock.test.js`.
 
 ## Do decyzji właściciela
 1. **`AUTH_SECRET` ≥ 32 znaki:** dziś minimum to 16. Wymuszenie w kodzie wyłączyłoby produkcję, jeśli obecny sekret jest krótszy. Zalecenie: sprawdzić w Vercel i w razie potrzeby wymienić; wymiana wyloguje wszystkich.
 2. **Prefiks `__Host-` dla ciasteczka sesji:** chroni przed nadpisaniem ciasteczka z subdomeny. Zmiana nazwy wyloguje wszystkich jednorazowo. Ma sens po przejściu na własną domenę.
-3. **Unieważnianie pojedynczej sesji po wylogowaniu:** dziś wylogowanie usuwa ciasteczko, a skradziony wcześniej token działa do wygaśnięcia lub do „Wyloguj wszędzie”. Pełne unieważnianie wymaga tabeli sesji (identyfikator w JWT).
+3. ~~**Unieważnianie pojedynczej sesji po wylogowaniu**~~: zrobione w POM-27 (#26).
 4. **Szyfrowanie kopii:** ustawić `BACKUP_ENCRYPTION_KEY`. Bez niego kopie w Blob (wszystkie dane zdrowotne) są tylko skompresowane.
 5. **Pobieranie kopii przez admina:** rozważyć ponowne podanie hasła przed `GET /api/backup`. Przejęta sesja admina daje dziś pełny zrzut bazy.
 6. **DT-7:** każdy zalogowany edytuje wspólne pola odmian. Jest historia i przywracanie przez admina, ale nie ma zatwierdzania.

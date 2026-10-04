@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Leaf from '../components/Leaf';
 import Icon from '../components/Icon';
 import { api } from '@/lib/api';
+import { markFreshLogin } from '@/lib/applock';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -18,6 +19,7 @@ export default function LoginPage() {
     setBusy(true);
     try {
       const r = await api('/api/auth/login', 'POST', { username, password });
+      markFreshLogin(username);
       router.replace(r.mustChange ? '/change-password' : '/');
       router.refresh();
     } catch (err) {

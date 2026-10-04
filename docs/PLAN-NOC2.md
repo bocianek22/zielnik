@@ -4,7 +4,7 @@ Właściciel śpi i pozwolił pracować do wyczerpania limitu oraz wznawiać aut
 
 ## Kolejka (w tej kolejności)
 1. [zrobione] Wspólne narzędzia `scripts/dev/` (Sonnet).
-2. [zrobione, PR] Wydanie 0.37.0 (2 agentów Sonnet, rozłączne pliki):
+2. [zrobione, scalone PR #9] Wydanie 0.37.0 (2 agentów Sonnet, rozłączne pliki):
    - POM-03 pora i sposób przyjęcia przy „Zużyłem” (opcjonalne pola, g/ml, offline, raport i obserwacje mogą je pokazać opisowo).
    - POM-11 eksport CSV dziennika (objawy + zużycie + zakupy, jednostki, czas polski) + POM-20 puste stany prowadzące do pierwszego wpisu.
    - Przegląd całości (reviewer Opus) przed PR; poprawki blokujących.
@@ -19,3 +19,4 @@ Okna limitu odnawiały się co ok. 5 h (ostatnio 22:50 UTC). Zaplanowane wznowie
 
 ## Stan
 - 0.36.0 scalone (PR #8), APK z przebiegu „Aplikacja Android” #11.
+- 0.37.0 scalone (PR #9) 4.10 09:42 UTC, produkcja READY, bez błędów runtime, CSP z nonce. POM-25 scalone do gałęzi (5e1163b). Agenci 0.38.0 zatrzymani limitem w nocy (bez zmian), wznowieni 09:45 UTC.
