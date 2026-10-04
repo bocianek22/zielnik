@@ -19,4 +19,4 @@ Okna limitu odnawiały się co ok. 5 h (ostatnio 22:50 UTC). Zaplanowane wznowie
 
 ## Stan
 - 0.36.0 scalone (PR #8), APK z przebiegu „Aplikacja Android” #11.
-- 0.37.0 scalone (PR #9) 4.10 09:42 UTC. Agenci 0.38.0 zatrzymani limitem w nocy (bez zmian), wznowieni 09:45 UTC.
+- 0.37.0 scalone (PR #9) 4.10 09:42 UTC, produkcja READY, bez błędów runtime, CSP z nonce. POM-25 scalone do gałęzi (5e1163b). Agenci 0.38.0 zatrzymani limitem w nocy (bez zmian), wznowieni 09:45 UTC.
