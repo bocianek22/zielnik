@@ -8,6 +8,19 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.36.0] - 2026-10
+### Dodano
+- Zapisy bez internetu (POM-14): „Zużyłem”, „Wykupiłem” i szybkie objawy trafiają do kolejki na urządzeniu (IndexedDB, powiązanej z kontem) i wysyłają się po powrocie sieci, bez duplikatów (`requestId`); licznik „N czeka” w nagłówku z panelem kolejki, „Cofnij” dla zapisów w kolejce; czas zapisu z telefonu (`at`, do 72 h wstecz).
+- Aplikacja Android 0.3.0: „Udostępnij / Zapisz PDF” raportu przez systemowe okno druku (wtyczka `ZielnikPrint`), skróty pod ikoną: „Zapisz”, „Samopoczucie”, „Raport” (POM-12).
+- Audyt bezpieczeństwa (`docs/BEZPIECZENSTWO.md`): CSP z nonce bez `unsafe-inline` (awaryjnie `CSP_REPORT_ONLY=1`), odrzucanie zapisów API z innej witryny (CSRF), `Cache-Control: no-store` dla API, usuwanie EXIF/GPS ze zdjęć i sprawdzanie ich zawartości, czyszczenie danych urządzenia przy wylogowaniu.
+### Zmieniono
+- Android: wyłączona kopia zapasowa aplikacji (ciasteczko sesji nie trafia na Dysk Google), tylko HTTPS.
+- Rejestracja i logowanie nie zdradzają istnienia konta; zgłoszenia testów tylko dla testów zgłaszanej osoby widocznych dla zgłaszającego.
+### Naprawiono
+- Eksport danych konta przy nazwach z polskimi znakami; błędna data w usuwaniu wpisu objawów dawała błąd serwera.
+### Uwaga przy wdrożeniu
+- Bez migracji bazy. Po wdrożeniu przejrzeć konsolę przeglądarki na podglądzie/produkcji (logowanie, odmiana, zdjęcie, raport, push); w razie blokad CSP ustawić `CSP_REPORT_ONLY=1`. Nowe APK z workflow „Aplikacja Android”: po przeniesieniu na nowy telefon trzeba się zalogować ponownie.
+
 ## [0.35.0] - 2026-10
 ### Dodano
 - „Moje obserwacje” (`/obserwacje`, z „Więcej” i dziennika objawów): średnie objawów w dniach z jedną odmianą, osobno dni z kilkoma odmianami i bez zużycia, sen zestawiany ze zużyciem z poprzedniego dnia, średnia od 5 dni, kolejność według liczby dni; zużycie w okresie w g i ml osobno; bez ocen skuteczności i zaleceń.
