@@ -24,9 +24,14 @@ export const GET = safe(async (req) => {
   const me = user.id;
   const rows = []; // { k: klucz sortowania, cells }
   if (want('objawy')) {
-    for (const r of await q`SELECT to_char(day, 'YYYY-MM-DD') AS d, pain, sleep, anxiety, mood, note FROM symptom_log
-        WHERE user_id = ${me} AND (${from}::date IS NULL OR day >= ${from}::date) AND (${to}::date IS NULL OR day <= ${to}::date)`) {
-      rows.push({ k: `${r.d} 99:99`, cells: [TYPES.objawy, r.d, '', '', '', '', '', '', '', r.pain, r.sleep, r.anxiety, r.mood, csvText(r.note)] });
+    // własne objawy (POM-07) w jednej kolumnie „Nazwa: wartość; ...”; dzień tylko z własnymi objawami też dostaje wiersz
+    for (const r of await q`WITH cv AS (SELECT v.day, string_agg(c.name || ': ' || v.value, '; ' ORDER BY c.slot) AS txt
+          FROM symptom_values v JOIN symptom_custom c ON c.id = v.custom_id WHERE v.user_id = ${me}::int GROUP BY v.day),
+        l AS (SELECT day, pain, sleep, anxiety, mood, note FROM symptom_log WHERE user_id = ${me}::int)
+      SELECT to_char(COALESCE(l.day, cv.day), 'YYYY-MM-DD') AS d, l.pain, l.sleep, l.anxiety, l.mood, COALESCE(l.note, '') AS note, cv.txt AS custom
+      FROM l FULL JOIN cv ON cv.day = l.day
+      WHERE (${from}::date IS NULL OR COALESCE(l.day, cv.day) >= ${from}::date) AND (${to}::date IS NULL OR COALESCE(l.day, cv.day) <= ${to}::date)`) {
+      rows.push({ k: `${r.d} 99:99`, cells: [TYPES.objawy, r.d, '', '', '', '', '', '', '', r.pain, r.sleep, r.anxiety, r.mood, csvText(r.note), csvText(r.custom)] });
     }
   }
   if (want('zuzycie')) {

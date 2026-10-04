@@ -53,6 +53,9 @@ export const GET = safe(async (req) => {
     groups: await q`SELECT g.name, gm.role, gm.status FROM group_members gm JOIN groups g ON g.id = gm.group_id WHERE gm.user_id = ${me}`,
     prescriptions: await q`SELECT issued_on, valid_until, grams::float8 AS grams, unit, note FROM prescriptions WHERE user_id = ${me} ORDER BY issued_on`,
     symptoms: await q`SELECT to_char(day, 'YYYY-MM-DD') AS day, pain, sleep, anxiety, mood, note FROM symptom_log WHERE user_id = ${me} ORDER BY day`,
+    customSymptoms: await q`SELECT name, higher_better AS "higherBetter", created_at AS "createdAt" FROM symptom_custom WHERE user_id = ${me} ORDER BY slot`,
+    customSymptomValues: await q`SELECT to_char(v.day, 'YYYY-MM-DD') AS day, c.name AS symptom, v.value FROM symptom_values v
+      JOIN symptom_custom c ON c.id = v.custom_id WHERE v.user_id = ${me} ORDER BY v.day, c.slot`,
     blocked: await q`SELECT u.username FROM blocks b JOIN users u ON u.id = b.blocked WHERE b.blocker = ${me}`,
     // adresów subskrypcji (endpointy i klucze urządzeń) nie eksportujemy: to dane techniczne przeglądarki,
     // działają jak hasło do wysyłania powiadomień na urządzenie i nie mówią nic o użytkowniku; podajemy tylko ich liczbę i daty

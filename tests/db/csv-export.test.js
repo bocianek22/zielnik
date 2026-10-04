@@ -57,7 +57,7 @@ test('plik: BOM, nagłówki, średnik, no-store i neutralna nazwa', { skip }, as
   const { res, text } = await get(ids.ania);
   assert.equal(res.status, 200);
   assert.ok(text.startsWith('﻿'), 'BOM');
-  assert.equal(lines(text)[0], 'Typ;Data;Godzina;Odmiana;Ilość;Jednostka;Sposób;Pora;Koszt zł;Ból;Sen;Lęk;Nastrój;Notatka');
+  assert.equal(lines(text)[0], 'Typ;Data;Godzina;Odmiana;Ilość;Jednostka;Sposób;Pora;Koszt zł;Ból;Sen;Lęk;Nastrój;Notatka;Własne objawy');
   assert.match(res.headers.get('cache-control'), /no-store/);
   assert.match(res.headers.get('content-disposition'), /filename="zielnik-dziennik-\d{4}-\d{2}-\d{2}\.csv"/);
   const d = await get(ids.ania, '', 'a=b; zielnik_discreet=1');
@@ -71,11 +71,11 @@ test('tylko własne dane, jednostki g/ml, przecinek dziesiętny, czas polski', {
   assert.doesNotMatch(text, /cudzy|;99;|;9;9;9/);
   const l = lines(text);
   assert.equal(l.length, 1 + 5);
-  assert.equal(l[1], 'Zużycie;2026-07-01;00:30;Susz Haze;0,5;g;waporyzator;wieczorem;;;;;;');
-  assert.equal(l[2], 'Zużycie;2026-07-02;12:00;"\'=HYPERLINK(""x"")";0,25;ml;;w ciągu dnia;;;;;;');
-  assert.equal(l[3], 'Objawy;2026-07-02;;;;;;;;3;7;;8;"\'@cmd; ""cytat"""');
-  assert.equal(l[4], 'Zakupy;2026-07-03;10:00;Susz Haze;10;g;;;123,45;;;;;');
-  assert.equal(l[5], 'Zakupy;2026-07-04;10:00;\'+usunięta;5;g;;;;;;;;');
+  assert.equal(l[1], 'Zużycie;2026-07-01;00:30;Susz Haze;0,5;g;waporyzator;wieczorem;;;;;;;');
+  assert.equal(l[2], 'Zużycie;2026-07-02;12:00;"\'=HYPERLINK(""x"")";0,25;ml;;w ciągu dnia;;;;;;;');
+  assert.equal(l[3], 'Objawy;2026-07-02;;;;;;;;3;7;;8;"\'@cmd; ""cytat""";');
+  assert.equal(l[4], 'Zakupy;2026-07-03;10:00;Susz Haze;10;g;;;123,45;;;;;;');
+  assert.equal(l[5], 'Zakupy;2026-07-04;10:00;\'+usunięta;5;g;;;;;;;;;');
 });
 
 test('formuły: komórki tekstowe zaczynające się od = + - @ mają apostrof', { skip }, async () => {

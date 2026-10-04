@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { SYMPTOMS } from '@/lib/symptoms';
+import { SYMPTOMS, customMeta } from '@/lib/symptoms';
 import { fmtNum } from '@/lib/units';
 
 const dayWord = (n) => (n === 1 ? 'dzień' : 'dni');
@@ -28,17 +28,18 @@ function Row({ title, sub, cell, minDays, dn, label }) {
   );
 }
 
-export default function ObservationsBoard({ symptoms, minDays }) {
+export default function ObservationsBoard({ symptoms, minDays, custom = [] }) {
+  const all = [...SYMPTOMS, ...custom.map(customMeta)]; // własne objawy (POM-07) jak wbudowane
   // pierwszy objaw z wpisami (kolejność jak w dzienniku)
-  const [key, setKey] = useState(() => (SYMPTOMS.find((x) => symptoms[x.key].days > 0) || SYMPTOMS[0]).key);
-  const s = SYMPTOMS.find((x) => x.key === key);
+  const [key, setKey] = useState(() => (all.find((x) => symptoms[x.key].days > 0) || all[0]).key);
+  const s = all.find((x) => x.key === key);
   const d = symptoms[key];
   const empty = d.days === 0;
   return (
     <>
       <div className="seg obs-sym" role="group" aria-label="Objaw">
-        {SYMPTOMS.map((x) => (
-          <button key={x.key} type="button" className={x.key === key ? 'on' : ''} aria-pressed={x.key === key} onClick={() => setKey(x.key)}>{SHORT[x.key]}</button>
+        {all.map((x) => (
+          <button key={x.key} type="button" className={x.key === key ? 'on' : ''} aria-pressed={x.key === key} onClick={() => setKey(x.key)}>{SHORT[x.key] ?? x.label}</button>
         ))}
       </div>
       <h2 className="section-label obs-head">
