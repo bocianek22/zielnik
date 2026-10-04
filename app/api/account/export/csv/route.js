@@ -1,6 +1,7 @@
 import { sql } from '@/lib/db';
 import { bad, requireUser, safe } from '@/lib/guard';
 import { buildDiaryCsv, csvNum, csvText } from '@/lib/csv-export';
+import { methodLabel, periodLabel } from '@/lib/usage-meta';
 import { DISCREET_COOKIE } from '@/lib/discreet';
 
 const TYPES = { objawy: 'Objawy', zuzycie: 'Zużycie', zakupy: 'Zakupy' };
@@ -23,16 +24,16 @@ export const GET = safe(async (req) => {
   if (want('objawy')) {
     for (const r of await q`SELECT to_char(day, 'YYYY-MM-DD') AS d, pain, sleep, anxiety, mood, note FROM symptom_log
         WHERE user_id = ${me} AND (${from}::date IS NULL OR day >= ${from}::date) AND (${to}::date IS NULL OR day <= ${to}::date)`) {
-      rows.push({ k: `${r.d} 99:99`, cells: [TYPES.objawy, r.d, '', '', '', '', '', r.pain, r.sleep, r.anxiety, r.mood, csvText(r.note)] });
+      rows.push({ k: `${r.d} 99:99`, cells: [TYPES.objawy, r.d, '', '', '', '', '', '', '', r.pain, r.sleep, r.anxiety, r.mood, csvText(r.note)] });
     }
   }
   if (want('zuzycie')) {
     for (const r of await q`SELECT to_char(l.created_at AT TIME ZONE 'Europe/Warsaw', 'YYYY-MM-DD') AS d, to_char(l.created_at AT TIME ZONE 'Europe/Warsaw', 'HH24:MI') AS t,
-          s.name, l.grams::float8 AS grams, form_unit(s.form) AS unit
+          s.name, l.grams::float8 AS grams, form_unit(s.form) AS unit, l.method, usage_period(l.period, l.created_at) AS period
         FROM usage_log l JOIN strains s ON s.id = l.strain_id
         WHERE l.user_id = ${me} AND (${from}::date IS NULL OR (l.created_at AT TIME ZONE 'Europe/Warsaw')::date >= ${from}::date)
           AND (${to}::date IS NULL OR (l.created_at AT TIME ZONE 'Europe/Warsaw')::date <= ${to}::date)`) {
-      rows.push({ k: `${r.d} ${r.t}`, cells: [TYPES.zuzycie, r.d, r.t, csvText(r.name), csvNum(r.grams), r.unit] });
+      rows.push({ k: `${r.d} ${r.t}`, cells: [TYPES.zuzycie, r.d, r.t, csvText(r.name), csvNum(r.grams), r.unit, methodLabel(r.method) ?? '', periodLabel(r.period) ?? ''] });
     }
   }
   if (want('zakupy')) {
@@ -41,7 +42,7 @@ export const GET = safe(async (req) => {
         FROM purchases
         WHERE user_id = ${me} AND (${from}::date IS NULL OR (created_at AT TIME ZONE 'Europe/Warsaw')::date >= ${from}::date)
           AND (${to}::date IS NULL OR (created_at AT TIME ZONE 'Europe/Warsaw')::date <= ${to}::date)`) {
-      rows.push({ k: `${r.d} ${r.t}`, cells: [TYPES.zakupy, r.d, r.t, csvText(r.name), csvNum(r.grams), r.unit, csvNum(r.cost)] });
+      rows.push({ k: `${r.d} ${r.t}`, cells: [TYPES.zakupy, r.d, r.t, csvText(r.name), csvNum(r.grams), r.unit, '', '', csvNum(r.cost)] });
     }
   }
   rows.sort((a, b) => (a.k < b.k ? -1 : a.k > b.k ? 1 : 0)); // sort stabilny: w obrębie czasu zostaje kolejność objawy, zużycie, zakupy

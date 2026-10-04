@@ -315,8 +315,7 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
         <div className="card empty">
           <Icon name="list" size={32} />
           <h2>Zielnik jest jeszcze pusty</h2>
-          <p>Dodaj pierwszą odmianę. Każdy użytkownik dostanie dla niej własne pola: ocenę, ilość, ilość do wykupienia i spostrzeżenia.</p>
-          <button className="btn" onClick={() => setFormFor('new')}>Dodaj odmianę</button>
+          <p>Pierwszą odmianę dodasz przyciskiem u góry. Każdy użytkownik dostanie dla niej własne pola: ocenę, ilość, ilość do wykupienia i spostrzeżenia.</p>
         </div>
       )}
       {strains.length > 0 && visible.length === 0 && <p className="muted empty-inline">Nic nie pasuje do filtrów.</p>}

@@ -71,6 +71,7 @@ export default async function Raport({ searchParams }) {
   const qty = (g, ml) => units.filter((u) => (u === 'g' ? g : ml) > 0).map((u) => `${nf(u === 'g' ? g : ml, 2)} ${u}`).join(' i ') || 'brak';
   const symLine = (w) => (w.sym_days ? `${dni(w.sym_days)} z wpisem: ${SYMPTOMS.map((s) => `${s.short} ${av(w[s.key])}`).join(', ')}` : 'brak wpisów objawów');
   const anyWeekData = weekly.some((w) => w.use_days || w.sym_days || w.bought_g || w.bought_ml);
+  const noData = !anyWeekData && usage.length === 0 && purchases.length === 0 && rx.length === 0 && !sym.days;
 
   // recepty
   const rxState = (r) => (r.status === 'used' ? 'wykupiona w całości'
@@ -112,6 +113,14 @@ export default async function Raport({ searchParams }) {
           <p className="muted small">Na telefonie wybierz w oknie drukowania „Zapisz jako PDF”, a potem udostępnij plik. Na wydruku nazwy odmian są widoczne także w trybie dyskretnym.</p>
         </div>
 
+        {noData ? (
+          <div className="card empty no-print">
+            <Icon name="file" size={32} />
+            <h2>Brak zapisów w tym okresie</h2>
+            <p>Raport powstaje z zużycia, zakupów, recept i objawów. Zapisz pierwsze zużycie albo wybierz inny okres.</p>
+            <Link className="btn" href="/">Zapisz zużycie</Link>
+          </div>
+        ) : (
         <section className="card report-sheet">
           <h2>Zestawienie stosowania medycznej konopi</h2>
           <p className="report-meta">Pacjent: <b>{plan?.display_name || me.username}</b><br />Okres: <b>{day(from)}</b> do <b>{day(to)}</b> ({dni(daysSpan)})</p>
@@ -241,6 +250,7 @@ export default async function Raport({ searchParams }) {
               <tbody>{feel.map((f, i) => (<tr key={i}><td><span className="dn">{f.name}</span></td><td>{f.rating != null ? nf(f.rating) : '–'}</td>{EFFECTS.map(([k]) => <td key={k}>{fx(f.effects, k) != null ? nf(fx(f.effects, k)) : '–'}</td>)}{withNotes && <td>{f.notes || '–'}</td>}</tr>))}</tbody></table></div>
             <p className="muted small">Ogólne oceny odmian wpisane przez pacjenta, niezwiązane z okresem raportu.</p></>)}
         </section>
+        )}
         <p className="muted small no-print"><Link href="/historia">Historia zakupów i zużycia</Link> · <Link href="/recepty">Recepty</Link> · <Link href="/dziennik">Dziennik objawów</Link></p>
       </main>
     </>

@@ -36,6 +36,7 @@ export default async function Historia() {
   const max = Math.max(1, ...weekly.map(wk));
   const monthLabel = cap(new Date().toLocaleDateString('pl-PL', { month: 'long', year: 'numeric' }));
   const hasRecap = recap.totalGrams > 0 || recap.totalMl > 0 || recap.ratedCount > 0 || bought.grams > 0 || bought.ml > 0;
+  const nothing = !hasRecap && purchases.length === 0 && usage.length === 0 && weekly.every((w) => w.grams === 0 && !(w.ml > 0));
   const weeklyTotal = weekly.reduce((a, w) => a + wk(w), 0);
   const peak = weekly.reduce((a, w) => (wk(w) > wk(a) ? w : a), weekly[0] || { grams: 0, ml: 0, label: '' });
   const unitWord = chartUnit === 'ml' ? 'mililitrach' : 'gramach';
@@ -47,6 +48,9 @@ export default async function Historia() {
       <Header user={user} />
       <main className="page hist-page">
         <h1>Historia</h1>
+        {nothing ? (
+          <Empty icon="clipboard" title="Historia jest jeszcze pusta" text="Tu pojawią się zakupy, zużycie i wykres tygodniowy. Zacznij od zapisania pierwszego zużycia w karcie odmiany." />
+        ) : (<>
         {hasRecap && (
           <>
             <h2 className="section-label">Twój miesiąc: {monthLabel}</h2>
@@ -114,6 +118,7 @@ export default async function Historia() {
         ) : (
           <Entries kind="usage" rows={usage} />
         )}
+        </>)}
       </main>
     </>
   );
