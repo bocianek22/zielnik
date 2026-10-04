@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Leaf from './Leaf';
 import Icon from './Icon';
 import LogoutButton from './LogoutButton';
+import OfflineQueue from './OfflineQueue';
 import NavBadge from './NavBadge';
 import MoreMenu from './MoreMenu';
 import ThemeToggle from './ThemeToggle';
@@ -32,6 +33,7 @@ export default function Header({ user }) {
           </MoreMenu>
         </nav>
         <div className="who">
+          <OfflineQueue userId={user.id} />
           <Link href="/profil" className="who-name">{user.username}</Link>
           <LogoutButton />
           <Link href="/profil" className="icon-btn who-mobile" aria-label={`Mój profil (${user.username})`}><Icon name="user" /></Link>

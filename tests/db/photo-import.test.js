@@ -2,6 +2,7 @@
 // Uruchom: TEST_DATABASE_URL=postgres://... npm run test:db  (baza zostanie WYCZYSZCZONA).
 import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
+import { jpeg, jpegBytes } from './images.mjs';
 
 const URL_ = process.env.TEST_DATABASE_URL;
 const local = URL_ && /@(localhost|127\.0\.0\.1)(:\d+)?\//.test(URL_);
@@ -11,7 +12,7 @@ const skip = !URL_ ? 'brak TEST_DATABASE_URL'
 let q, pool, importPhotos, real, uid, jar, auth, listStrains;
 
 // minimalny JPEG (nagłówek FFD8) wystarczy: import sprawdza tylko sygnaturę
-const JPEG = Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.alloc(200, 1)]);
+const JPEG = jpegBytes('wolna-licencja');
 const calls = [];
 const fakeFetch = async (url) => {
   calls.push(url);
@@ -125,7 +126,7 @@ test('lista odmian niesie atrybucję, a zdjęcie podmienione przez człowieka j�
   await q`UPDATE users SET must_change_password = FALSE WHERE id = ${uid}`;
   jar.clear(); await auth.createSession(uid);
   const mod = await import('../../app/api/strains/[id]/photo/route.js');
-  const image = 'data:image/jpeg;base64,' + Buffer.from('nowe').toString('base64');
+  const image = jpeg('nowe');
   const r = await mod.PUT(new Request('http://localhost/x', { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ image }) }), { params: Promise.resolve({ id: String(id) }) });
   assert.equal(r.status, 200);
   const p = await photo(id);

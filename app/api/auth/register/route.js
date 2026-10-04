@@ -5,6 +5,7 @@ import { createSession, USERNAME_RE } from '@/lib/auth';
 import { clientIp, hit } from '@/lib/ratelimit';
 
 const err = (msg, status = 400) => NextResponse.json({ error: msg }, { status });
+const BAD_INVITE = 'Nieprawidłowy, wygasły lub wykorzystany kod zaproszenia.';
 
 // Rejestracja z kodem zaproszenia
 export async function POST(req) {
@@ -20,12 +21,15 @@ export async function POST(req) {
     await ensureDb();
     if (!(await hit(`register-ip:${await clientIp()}`, 10, 3600))) return err('Zbyt wiele prób rejestracji. Spróbuj ponownie później.', 429);
     const q = sql();
+    // Najpierw kod (tylko odczyt), potem zajętość nazwy: bez ważnego zaproszenia nie da się sprawdzać, kto ma konto
+    const valid = await q`SELECT 1 FROM invites WHERE code = ${code} AND uses < max_uses AND (expires_at IS NULL OR expires_at > now())`;
+    if (!valid.length) return err(BAD_INVITE);
     const dup = await q`SELECT 1 FROM users WHERE lower(username) = lower(${username})`;
     if (dup.length) return err('Ta nazwa użytkownika jest zajęta.', 409);
     // zużycie kodu jest atomowe, więc kod jednorazowy nie zadziała dwa razy
     const inv = await q`UPDATE invites SET uses = uses + 1
                         WHERE code = ${code} AND uses < max_uses AND (expires_at IS NULL OR expires_at > now()) RETURNING code`;
-    if (!inv.length) return err('Nieprawidłowy, wygasły lub wykorzystany kod zaproszenia.');
+    if (!inv.length) return err(BAD_INVITE);
 
     const hash = await bcrypt.hash(password, 10);
     let u;

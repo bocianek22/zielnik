@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireUser, bad, safe } from '@/lib/guard';
+import { requireUser, bad, safe, intId } from '@/lib/guard';
 
 const list = (me) => sql()`
   SELECT u.id, u.username, u.display_name, f.status, (f.requester = ${me}::int) AS outgoing
@@ -18,8 +18,8 @@ export const POST = safe(async (req) => {
   const { user, res } = await requireUser();
   if (res) return res;
   const { action, userId } = await req.json().catch(() => ({}));
-  const other = Number(userId);
-  if (!Number.isInteger(other) || other === user.id) return bad('Nieprawidłowy użytkownik.');
+  const other = intId(userId);
+  if (!other || other === user.id) return bad('Nieprawidłowy użytkownik.');
   const exists = await sql()`SELECT 1 FROM users WHERE id = ${other}`;
   if (!exists.length) return bad('Nie znaleziono użytkownika.', 404);
 

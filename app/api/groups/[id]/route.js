@@ -40,7 +40,7 @@ export const POST = safe(async (req, { params }) => {
   }
   if (m.role !== 'owner') return bad('Tylko właściciel grupy może to zrobić.', 403);
   if (b.action === 'kick') {
-    const uid = Number(b.userId);
+    const uid = intId(b.userId);
     if (uid === user.id) return bad('Nie możesz usunąć samego siebie.');
     await q`DELETE FROM group_members WHERE group_id = ${gid} AND user_id = ${uid}`;
     return NextResponse.json({ ok: true });

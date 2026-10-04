@@ -14,6 +14,9 @@ import SearchSuggest from './SearchSuggest';
 import { matches } from '@/lib/searchMatch';
 import { strainItems, producerItems, flavorItems } from '@/lib/searchItems';
 import { unitOf } from '@/lib/units';
+import { revertOf } from '@/lib/offline-queue';
+import { hasQueued, wasOptimistic } from '@/lib/offline-client';
+import useQueueEvents from './useQueueEvents';
 
 const avgOf = (s) => {
   const r = s.entries.filter((e) => e.rating != null);
@@ -104,6 +107,26 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
       }));
     });
   }
+
+  // Kolejka offline (POM-14): zapis usunięty z kolejki albo odrzucony przez serwer cofa stan pokazany od razu
+  // (tylko dodany na tej stronie: po przeładowaniu lista pokazuje stan z serwera bez czekających zapisów);
+  // wysłany ustawia stan z serwera, gdy dla tej odmiany nic już nie czeka (inaczej cofnęłoby to kolejne zapisy).
+  useQueueEvents((d) => {
+    const sid = d.item?.meta?.strainId;
+    if (!sid || (d.item.kind !== 'usage' && d.item.kind !== 'purchase')) return;
+    const e = strains.find((s) => s.id === sid)?.entries.find((x) => x.userId === me.id);
+    if (!e) return;
+    if ((d.type === 'removed' || d.type === 'rejected') && wasOptimistic(d.item.id)) {
+      const r = revertOf(d.item);
+      entrySaved(sid, {
+        current: Math.max(Number(e.current) + r.dCur, 0),
+        ...(r.dRem ? { remaining: Number(e.remaining) + r.dRem } : {}),
+        ...(r.used ? { used: r.used } : {}), ...(r.bought ? { bought: r.bought } : {}),
+      });
+    } else if (d.type === 'sent' && d.data && !hasQueued((i) => i.meta?.strainId === sid && i.kind !== 'symptoms')) {
+      entrySaved(sid, { current: d.data.current, ...(d.data.remaining !== undefined ? { remaining: d.data.remaining } : {}) });
+    }
+  });
 
   const pools = useMemo(() => {
     const m = new Map();

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Tylko HTTPS i tylko systemowe urzędy certyfikacji (bez certyfikatów dodanych przez użytkownika, np. do podsłuchu ruchu). -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

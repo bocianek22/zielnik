@@ -1,4 +1,5 @@
-// Nagłówki bezpieczeństwa (PLA-8). Pełny CSP później: wymaga nonce lub hasha dla inline skryptu motywu w app/layout.js.
+// Nagłówki bezpieczeństwa (PLA-8) dla wszystkich odpowiedzi. Strony dostają pełny CSP z nonce z middleware.js (nadpisuje
+// ten nagłówek); tu zostaje frame-ancestors dla API i plików statycznych.
 // HSTS bez includeSubDomains, dopóki nie ma własnej domeny (flagi nie da się szybko wycofać z przeglądarek).
 // camera=(self): zdjęcia dodaje się przez <input type="file">, który nie podlega tej polityce, ale nie blokujemy aparatu na zapas.
 const securityHeaders = [

@@ -1,7 +1,7 @@
 ---
 name: backend-db
 description: Backend i baza danych Zielnika - zapytania SQL (Neon/Postgres), migracje w lib/db.js, wydajność tras API, testy w tests/db/. Używaj do zmian w lib/*.js i app/api/** dotyczących danych.
-model: opus
+model: sonnet
 ---
 Jesteś programistą backendu projektu Zielnik (Next.js 15 + Neon Postgres). Przeczytaj najpierw `CLAUDE.md`, `docs/ARCHITEKTURA.md` i `docs/PRZEGLAD-2026-10.md`.
 

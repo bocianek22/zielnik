@@ -1,9 +1,12 @@
 'use client';
+import { clearQueue } from '@/lib/offline-client';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { fileToDataUrl } from '@/lib/image';
+import { clearDeviceData } from '../components/deviceData';
+import { storedFcm } from '../components/native/bridge';
 import { VIS } from '@/lib/visibility';
 import Icon from '../components/Icon';
 
@@ -42,13 +45,13 @@ export default function ProfileForm({ me, initial, children }) {
 
   async function del() {
     if (!confirm('Trwale usunąć konto i wszystkie Twoje dane? Tego nie da się cofnąć.')) return;
-    try { await api('/api/account', 'DELETE', { password: pw }); router.replace('/login'); router.refresh(); }
+    try { await api('/api/account', 'DELETE', { password: pw }); await clearQueue(); router.replace('/login'); router.refresh(); }
     catch (err) { setMsg(err.message); }
   }
 
   async function logoutAll() {
     if (!confirm('Wylogować ze wszystkich urządzeń, także z tego?')) return;
-    try { await api('/api/auth/logout', 'POST', { all: true }); router.replace('/login'); router.refresh(); }
+    try { await api('/api/auth/logout', 'POST', { all: true, fcmToken: storedFcm() || undefined }); clearDeviceData(); router.replace('/login'); router.refresh(); }
     catch (err) { setMsg(err.message); }
   }
 

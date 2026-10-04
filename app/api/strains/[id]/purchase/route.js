@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
 import { requireUser, bad, safe, intId } from '@/lib/guard';
-import { requestId } from '@/lib/ids';
+import { requestId, clientAt, otherAccount, OTHER_ACCOUNT_MSG } from '@/lib/ids';
 import { parseNumber } from '@/lib/strains';
 
 // Zapis wykupu: zwiększa stan, zmniejsza pulę "do wykupienia", dopisuje wpis do historii zakupów.
@@ -15,6 +15,9 @@ export const POST = safe(async (req, { params }) => {
   if (g == null || Number.isNaN(g)) return bad('Podaj ilość (g lub ml).');
   const rid = requestId(body.requestId);
   if (rid === undefined) return bad('Błędny identyfikator zapisu.');
+  if (otherAccount(body, user)) return bad(OTHER_ACCOUNT_MSG, 409);
+  // zapis z kolejki offline niesie czas zapisu na telefonie (najwyżej 72 h wstecz), inaczej liczy się czas serwera
+  const at = clientAt(body.at)?.toISOString() ?? null;
 
   // jedno zapytanie: blokada puli, wpis do historii (pomijany przy powtórzonym requestId), a dopiero po nim
   // zmiana stanu i puli. Dodawanie w samym zapytaniu (nie z odczytanej wcześniej wartości), żeby równoległe zapisy
@@ -25,9 +28,9 @@ export const POST = safe(async (req, { params }) => {
     ), p AS (
       SELECT remaining_to_buy FROM user_pool WHERE user_id = ${user.id}::int AND pool_key = (SELECT pk FROM s) FOR UPDATE
     ), ins AS (
-      INSERT INTO purchases (user_id, strain_id, strain_name, grams, cost, request_id, pool_delta)
+      INSERT INTO purchases (user_id, strain_id, strain_name, grams, cost, request_id, pool_delta, created_at)
       SELECT ${user.id}::int, s.id, s.name, ${g}::numeric, round(s.price_per_g * ${g}::numeric, 2), ${rid}::text,
-             LEAST(${g}::numeric, GREATEST(coalesce((SELECT remaining_to_buy FROM p), 0), 0))
+             LEAST(${g}::numeric, GREATEST(coalesce((SELECT remaining_to_buy FROM p), 0), 0)), COALESCE(${at}::timestamptz, now())
       FROM s
       ON CONFLICT (user_id, request_id) DO NOTHING
       RETURNING id, grams, pool_delta
