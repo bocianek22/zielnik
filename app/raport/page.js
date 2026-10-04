@@ -11,11 +11,13 @@ import PrintButton from './PrintButton';
 import VisitPeriod from './VisitPeriod';
 import { formatDay, todayPL, addDaysIso } from '@/lib/date';
 import { doctorReport, MIN_SYMPTOM_DAYS } from '@/lib/report';
+import { METHODS, PERIODS, periodLabel } from '@/lib/usage-meta';
 
 export const dynamic = 'force-dynamic';
 
 const MAX_DAYS = 731; // dłuższy okres skracamy (tabela tygodniowa i wydruk przestają być czytelne)
 const validDate = (v) => /^\d{4}-\d{2}-\d{2}$/.test(v || '') && !Number.isNaN(Date.parse(v));
+const PERIOD_KEYS = Object.keys(PERIODS);
 const nf = (n, max = 1) => Number(n).toLocaleString('pl-PL', { maximumFractionDigits: max });
 const day = formatDay;
 const short = (iso) => `${iso.slice(8, 10)}.${iso.slice(5, 7)}`;
@@ -49,7 +51,7 @@ export default async function Raport({ searchParams }) {
   const visit = sp.okres === 'wizyta';
   const notesQs = withNotes ? '&notes=1' : '';
 
-  const { usage, weekly, purchases, feel: feelAll, sym, totals, rx, rxSum, strainSym } = await doctorReport(me.id, from, to);
+  const { usage, weekly, purchases, feel: feelAll, sym, totals, rx, rxSum, strainSym, whenUsed } = await doctorReport(me.id, from, to);
   // bez pustych wierszy: tylko odmiany z oceną, odczuciem albo (gdy dołączone) spostrzeżeniem
   const feel = feelAll.filter((f) => f.rating != null || EFFECTS.some(([k]) => f.effects?.[k] != null) || (withNotes && f.notes));
   const daysSpan = Math.round((Date.parse(to) - Date.parse(from)) / 864e5) + 1;
@@ -194,6 +196,15 @@ export default async function Raport({ searchParams }) {
               </ul>
               <div className="table-wrap report-wide"><table className="cmp"><thead><tr><th>Odmiana</th><th>Producent</th><th>THC</th><th>CBD</th><th className="num">Dni użycia</th><th className="num">Razem</th></tr></thead>
                 <tbody>{usage.map((u, i) => (<tr key={i}><td><span className="dn">{u.name}</span></td><td><span className="dn">{u.producer}</span></td><td>{u.thc != null ? `${nf(u.thc)}%` : '–'}</td><td>{u.cbd != null ? `${nf(u.cbd)}%` : '–'}</td><td className="num">{u.days}</td><td className="num">{nf(u.grams, 2)} {u.unit}</td></tr>))}</tbody></table></div>
+            </>
+          )}
+
+          {whenUsed.period.length > 0 && (
+            <>
+              <h3>Pory dnia i sposób przyjęcia</h3>
+              <p>Wpisy zużycia według pory: {PERIOD_KEYS.filter((k) => whenUsed.period.some((r) => r.key === k)).map((k) => `${periodLabel(k)} ${whenUsed.period.find((r) => r.key === k).n}`).join(', ')}.
+                {whenUsed.method.length > 0 && <> Sposób (tam, gdzie podano): {Object.keys(METHODS).filter((k) => whenUsed.method.some((r) => r.key === k)).map((k) => `${METHODS[k]} ${whenUsed.method.find((r) => r.key === k).n}`).join(', ')}.</>}</p>
+              <p className="muted small">Liczba wpisów zużycia, nie ilość. Pora pochodzi z wyboru pacjenta albo z godziny zapisu.</p>
             </>
           )}
 

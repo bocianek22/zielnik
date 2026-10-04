@@ -26,7 +26,7 @@ Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnieni
 |---|---|---|---|---|---|---|---|
 | POM-01 | Dzień w czasie polskim w kliencie | 4 | S | T | – | nowy (błąd) | DT-5 |
 | POM-02 | „Cofnij” po zapisie i idempotencja szybkich akcji | 4 | S/M | T | – | nowy | HANDOFF 6.6 |
-| POM-03 | Pora i sposób przyjęcia przy „Zużyłem” | 3 | M | P | – | nowy | – |
+| POM-03 | Pora i sposób przyjęcia przy „Zużyłem” | 3 | M | P | – | zrobiony (czeka na wydanie; sposób i pora, bez „kiedy” - dzień poprawia Historia) | – |
 | POM-04 | Szybki wpis objawów w panelu „Dziś” | 5 | M | P | – | nowy | PAC-14 |
 | POM-05 | Wieczorne przypomnienie o wpisie objawów | 4 | S | P | ⏱ 🔑 | nowy | PAC-9 |
 | POM-06 | Moje obserwacje: objawy a odmiany | 5 | M | P, Pr | – | zrobiony (ekran `/obserwacje`; sekcja w szczegółach odmiany zostaje do POM-18) | PAC-7 (zawężenie) |
@@ -82,6 +82,7 @@ Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnieni
 - Problem: `usage_log` ma tylko gramy i czas zapisu. Wpis dodany rano „za wczoraj wieczór” ląduje w złym dniu, a pacjent i lekarz nie widzą, czy to waporyzacja, czy olej.
 - Propozycja: opcjonalne, zwinięte pola „kiedy” (teraz / wcześniej dziś / wczoraj wieczorem) i „sposób” (waporyzator, olej, inne) z zapamiętaniem ostatniego wyboru; kolumny `taken_at`, `method` (addytywnie), eksport i kopia. Domyślnie nic się nie zmienia (jedno dotknięcie jak dziś).
 - Jak zmierzyć: udział wpisów z `taken_at` ≠ czas zapisu (zbiorczo); ręcznie: zapis nie wydłuża się o kolejne dotknięcie.
+- Stan: zrobione. Kolumny `usage_log.method` (waporyzator/olej/inne, domyślnie z postaci) i `period` (rano/w ciągu dnia/wieczorem/w nocy; NULL = z godziny zapisu przez `usage_period()`). Panel „Zużyłem”: zwinięte „Sposób i pora” (zapis nadal jednym dotknięciem), pola idą w treści także przez kolejkę offline. Korekta w Historii zmienia oba pola; Historia i eksport konta je pokazują, raport lekarski ma opisowe zliczenie wpisów wg pory i sposobu. Bez `taken_at` (dzień poprawia się w Historii) i bez zapamiętania ostatniego wyboru. CSV (`/api/export`) dotyczy odmian, nie zużycia, więc bez zmian (zużycie w CSV to POM-11). Testy: `tests/db/usage-method.test.js`.
 
 **POM-04 Szybki wpis objawów w panelu „Dziś”** (PAC-14)
 - Ekran / element: `TodayPanel.js`, nowa karta pod zapasem; dziennik `/dziennik`.

@@ -165,6 +165,10 @@
 .quick-panel { display: grid; gap: var(--s-2); padding: var(--s-3); border: 1px solid var(--sep-strong); border-radius: var(--r-md); background: var(--surface); animation: quick-in var(--dur-2) var(--ease); }
 .quick-panel > label { font-weight: 600; font-size: var(--fs-sm); }
 .quick-chips { margin-top: 0; }
+.quick-more summary { min-height: var(--tap); display: flex; align-items: center; cursor: pointer; font-size: var(--fs-sm); color: var(--text-2); }
+.quick-more-row { display: grid; gap: var(--s-1); }
+.quick-more-row label { font-weight: 600; font-size: var(--fs-sm); }
+.quick-more-row .input { font-size: 16px; min-height: var(--tap); }
 .quick-chips .chip, .chips.small.quick-chips .chip { min-height: var(--tap); padding: 0 var(--s-4); font-size: .9375rem; font-weight: 500; cursor: pointer; border: 1px solid var(--sep-strong); border-radius: var(--r-pill); background: var(--surface); color: var(--text); font-variant-numeric: tabular-nums; }
 .quick-panel .use-row { max-width: none; }
 .quick-panel .use-row .input { flex: 1 1 110px; min-width: 0; font-size: 16px; min-height: var(--tap); }
