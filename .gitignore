@@ -28,3 +28,7 @@ mobile/ios/App/build/
 mobile/ios/DerivedData/
 *.jks
 *.keystore
+
+# narzędzia deweloperskie (scripts/dev): PID, logi serwerów, zrzuty
+.dev/
+zrzuty/
