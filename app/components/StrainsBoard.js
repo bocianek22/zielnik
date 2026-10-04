@@ -215,7 +215,7 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
     <div className="stack">
       {series.length > 0 && (
         <TodayPanel stock={stockU} dailyUse={{ g: dailyUse, ml: usage.perDayMl || 0 }} bought={boughtU} low={low} series={series} prescriptions={prescriptions} symptoms={symptoms}
-          quick={quick} onUsed={entrySaved} settings={(
+          quick={quick} onUsed={entrySaved} fresh={strains.length === 0} onAdd={() => setFormFor('new')} settings={(
             <details className="prefs">
               <summary>Szczegóły i ustawienia <Icon name="chevronDown" size={18} /></summary>
               <dl className="facts">
