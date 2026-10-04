@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
 import { requireUser, bad, safe, intId } from '@/lib/guard';
 import { parseCorrection } from '@/lib/corrections';
+import { METHODS, PERIODS, parseChoice } from '@/lib/usage-meta';
 
 // Korekta własnego wpisu zużycia (Historia): gramy i/lub dzień. Jedno zapytanie: blokada wpisu i stanu, zmiana stanu
 // o różnicę gramów (nie poniżej 0). stock_delta (ile faktycznie odjęto ze stanu) idzie za korektą, więc późniejsze
@@ -11,8 +12,13 @@ export const PATCH = safe(async (req, { params }) => {
   const { user, res } = await requireUser();
   if (res) return res;
   const id = intId((await params).id);
-  const c = parseCorrection(await req.json().catch(() => ({})), { maxGrams: 1000 });
+  const body = await req.json().catch(() => ({}));
+  // sposób i pora: undefined = bez zmiany, null = wyczyszczone (pora wraca do wyliczanej z godziny zapisu)
+  const method = parseChoice(body.method, METHODS), period = parseChoice(body.period, PERIODS);
+  if (method === false || period === false) return bad('Błędny sposób lub pora przyjęcia.');
+  const c = parseCorrection(body, { maxGrams: 1000, extra: method !== undefined || period !== undefined });
   if (c.error) return bad(c.error);
+  const setM = method !== undefined, setP = period !== undefined;
 
   const [row] = await sql()`WITH e AS (
       SELECT l.id, l.strain_id, l.grams, coalesce(l.stock_delta, l.grams) AS sd, coalesce(${c.grams}::numeric, l.grams) AS ng,
@@ -27,6 +33,8 @@ export const PATCH = safe(async (req, { params }) => {
       FROM e
     ), ul AS (
       UPDATE usage_log l SET grams = c.ng, stock_delta = c.sd + c.more,
+        method = CASE WHEN ${setM}::boolean THEN ${method ?? null}::text ELSE l.method END,
+        period = CASE WHEN ${setP}::boolean THEN ${period ?? null}::text ELSE l.period END,
         created_at = CASE WHEN ${c.day}::date IS NULL THEN l.created_at
                           ELSE LEAST((${c.day}::date + (l.created_at AT TIME ZONE 'Europe/Warsaw')::time) AT TIME ZONE 'Europe/Warsaw', now()) END
       FROM c WHERE l.id = c.id
