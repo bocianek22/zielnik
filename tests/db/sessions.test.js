@@ -214,6 +214,34 @@ test('stary token bez sid: działa, trafia na listę, można go wylogować pojed
   Object.assign(client, { ua: null, country: null });
 });
 
+test('stary token jako bieżący: „wyloguj inne” i zmiana hasła zostawiają to urządzenie (sid = identyfikator starej sesji)', { skip }, async () => {
+  await q`DELETE FROM rate_limits`;
+  // hasło po resecie admina w poprzednim teście ustawiamy wprost
+  const bcrypt = (await import('bcryptjs')).default;
+  await q`UPDATE users SET password_hash = ${await bcrypt.hash('haslo1234', 4)}, must_change_password = FALSE WHERE id = ${ids.franek}`;
+  const other = await login('franek', { ip: '10.0.0.12' });
+  const [{ sv }] = await q`SELECT session_version AS sv FROM users WHERE id = ${ids.franek}`;
+  const old = await legacyToken(ids.franek, sv, 600);
+  assert.equal((await who(old))?.id, ids.franek);
+  const [{ id: lid }] = await q`SELECT id FROM sessions WHERE user_id = ${ids.franek} AND length(id) = 32`;
+  use(old);
+  assert.equal((await req('account/sessions', 'DELETE')).status, 200);
+  const fresh = jar.get(COOKIE);
+  assert.equal(sidOf(fresh), lid);
+  assert.equal((await who(fresh))?.id, ids.franek);
+  assert.equal(await who(old), null);
+  assert.equal(await who(other), null);
+  assert.equal((await q`SELECT count(*)::int AS n FROM sessions WHERE id = ${lid} AND revoked_at IS NULL`)[0].n, 1);
+  // zmiana hasła z tego samego urządzenia
+  use(fresh);
+  const p = await req('auth/change-password', 'POST', { current: 'haslo1234', password: 'nowehaslo2' });
+  assert.equal(p.status, 200, JSON.stringify(p.json));
+  const after = jar.get(COOKIE);
+  assert.equal(sidOf(after), lid);
+  assert.equal((await who(after))?.id, ids.franek);
+  assert.equal(await who(fresh), null);
+});
+
 test('ostatnie użycie aktualizowane najwyżej co ~15 min', { skip }, async () => {
   const t = await login('darek', { ip: '10.0.0.8' });
   const sid = sidOf(t);
