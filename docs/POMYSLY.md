@@ -48,7 +48,7 @@ Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnieni
 | POM-22 | Większy tekst i tryb „duże cele” | 3 | S | – | – | nowy | UX-2 |
 | POM-23 | Wydajność ekranu głównego (dane „Dziś” bez pełnej listy) | 3 | M | T | – | nowy | PLA-5, MOB-9 |
 | POM-24 | Budżety Lighthouse w CI | 2 | S | – | – | nowy | PLA-16, MOB-15 |
-| POM-25 | Blokada PIN/biometrią także w PWA i automatyczne wylogowanie | 4 | M | P | – | nowy | KON-11 |
+| POM-25 | Blokada PIN/biometrią także w PWA i automatyczne wylogowanie | 4 | M | P | – | zrobiony (czeka na wydanie; PIN lokalny, WebAuthn jako szybkie odblokowanie, wylogowanie po bezczynności) | KON-11 |
 | POM-26 | Klucze dostępu (passkeys) | 3 | M | T | 🌐 | nowy | KON-9 |
 | POM-27 | Lista sesji i urządzeń | 3 | M | T | – | nowy | KON-4 |
 | POM-28 | Szyfrowanie notatek i dziennika objawów w bazie | 4 | L | T | – | nowy | PRA-8 |
@@ -245,6 +245,7 @@ Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnieni
 - Problem: sesja trwa 30 dni; na wspólnym komputerze lub telefonie bez APK dane zdrowotne są otwarte.
 - Propozycja: opcjonalna blokada WebAuthn (biometria platformy) po N minutach bezczynności, bez wylogowania; „wyloguj po 7 dniach bez użycia” jako ustawienie konta.
 - Jak zmierzyć: ręcznie (Android Chrome, iOS Safari); test wygaśnięcia sesji.
+- Stan: zrobione w przeglądarce/PWA (`lib/applock.js`, `app/components/WebLock.js`, sekcja „Blokada i bezpieczeństwo” w profilu). PIN 4-8 cyfr tylko jako skrót PBKDF2 w `localStorage`, opóźnienia od 3. błędu, wylogowanie po 10; blokada po 1/5/15 min poza kartą i przy starcie; odcisk/twarz (WebAuthn platformowy) tylko lokalnie, bez weryfikacji podpisu, więc to wygoda, nie dowód tożsamości; wylogowanie po bezczynności wyłączone/1 h/8 h/24 h (ustawienie urządzenia, nie konta). W APK zostaje blokada natywna.
 
 **POM-26 Klucze dostępu (passkeys)** (KON-9, 🌐)
 - Problem / propozycja: hasło to jedyny czynnik; passkeys wymagają stabilnej domeny (RP ID), dlatego po zakupie domeny. Najpierw jako drugi sposób logowania, potem zamiennik TOTP (KON-5).

@@ -92,6 +92,9 @@ Strony serwerowe (`app/**/page.js`) sprawdzają `getUser()` i `must_change_passw
 - **Wylogowanie:** usuwa token FCM urządzenia, więc po ponownym zalogowaniu w aplikacji natywnej przypomnienia trzeba włączyć ponownie (Profil). Przy błędzie sieci wylogowanie nie udaje sukcesu (ciasteczko HttpOnly usuwa tylko serwer).
 - **Zgodność wstecz:** stare sesje i tokeny działają bez zmian (format JWT i ciasteczka nietknięte). Bez migracji bazy.
 
+## Blokada w przeglądarce (POM-25)
+Ekran PIN zasłania treść (także przy ukryciu karty); chroni przed przypadkowym wglądem (wspólny komputer, odblokowany telefon), nie przed kimś z dostępem do narzędzi przeglądarki: skrót PIN-u leży w `localStorage`, a 4-8 cyfr da się złamać offline, więc realną barierą są opóźnienia i wylogowanie po 10 błędach, które działają tylko w interfejsie. WebAuthn to lokalne potwierdzenie obecności bez serwera (nie sprawdzamy podpisu). Zasłona w podglądzie przełącznika aplikacji (iOS) zależy od systemu i bywa niepełna. Wylogowanie po bezczynności jest po stronie klienta (wymaga otwartej karty lub kolejnego wejścia); serwerowe wygaszanie sesji to osobna sprawa (lista sesji). Testy: `tests/applock.test.js`.
+
 ## Do decyzji właściciela
 1. **`AUTH_SECRET` ≥ 32 znaki:** dziś minimum to 16. Wymuszenie w kodzie wyłączyłoby produkcję, jeśli obecny sekret jest krótszy. Zalecenie: sprawdzić w Vercel i w razie potrzeby wymienić; wymiana wyloguje wszystkich.
 2. **Prefiks `__Host-` dla ciasteczka sesji:** chroni przed nadpisaniem ciasteczka z subdomeny. Zmiana nazwy wyloguje wszystkich jednorazowo. Ma sens po przejściu na własną domenę.

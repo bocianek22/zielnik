@@ -6,6 +6,7 @@ import ProfileForm from './ProfileForm';
 import PushSettings from './PushSettings';
 import DiscreetSettings from './DiscreetSettings';
 import NativeLock from './NativeLock';
+import WebLockSettings from './WebLockSettings';
 import NativeVersion from './NativeVersion';
 import { ThemeChoice } from '../components/ThemeToggle';
 
@@ -25,6 +26,7 @@ export default async function Profil() {
           <ProfileForm me={{ id: user.id, username: user.username, isAdmin: user.is_admin }} initial={p}>
             <h2 className="section-label">Aplikacja na tym urządzeniu</h2>
             <NativeLock />
+            <WebLockSettings />
             <PushSettings />
             <DiscreetSettings />
             <section className="card" aria-labelledby="theme-h">

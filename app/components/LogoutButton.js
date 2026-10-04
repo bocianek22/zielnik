@@ -8,7 +8,7 @@ import { pendingText } from '@/lib/offline-queue';
 
 // Wylogowanie wyłącza też powiadomienia push na tym urządzeniu (przypomnienia nie powinny trafiać na urządzenie,
 // z którego korzysta już ktoś inny). Gdy coś pójdzie nie tak, i tak wylogowujemy.
-async function dropPush() {
+export async function dropPush() {
   try {
     const reg = await navigator.serviceWorker?.getRegistration();
     const sub = await reg?.pushManager?.getSubscription();
