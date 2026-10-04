@@ -89,6 +89,7 @@ Strony serwerowe (`app/**/page.js`) sprawdzają `getUser()` i `must_change_passw
 - **CSRF:** żądanie bez `Origin` i bez `Sec-Fetch-Site` przechodzi (stare klienty). Przeglądarki wysyłają `Origin` przy każdym POST/PUT/PATCH/DELETE. Zapisy offline (kolejka) muszą iść przez `fetch` z tej samej domeny, tak jak dziś.
 - **Zdjęcia:** pliki niezgodne z typem albo uszkodzone są teraz odrzucane (400). Przeglądarka zawsze wysyła JPEG z canvas, więc dotyczy to tylko klientów spoza aplikacji.
 - **Android:** `allowBackup=false` oznacza, że po przeniesieniu na nowy telefon trzeba się zalogować ponownie, a ustawienie blokady biometrycznej wraca do domyślnego. Wymaga zbudowania APK; tu sprawdzono tylko statycznie (`tests/android-manifest.test.js`).
+- **Wylogowanie:** usuwa token FCM urządzenia, więc po ponownym zalogowaniu w aplikacji natywnej przypomnienia trzeba włączyć ponownie (Profil). Przy błędzie sieci wylogowanie nie udaje sukcesu (ciasteczko HttpOnly usuwa tylko serwer).
 - **Zgodność wstecz:** stare sesje i tokeny działają bez zmian (format JWT i ciasteczka nietknięte). Bez migracji bazy.
 
 ## Do decyzji właściciela
@@ -104,7 +105,7 @@ Strony serwerowe (`app/**/page.js`) sprawdzają `getUser()` i `must_change_passw
 10. **`FileProvider` z `external-path "."`:** pochodzi z szablonu Capacitor i nie jest eksportowany. Można zawęzić do `cache-path`, jeśli nic poza drukiem go nie używa (sprawdzić przy następnym buildzie APK).
 
 ## Dla prac nad kolejką offline (pliki poza tym audytem)
-- Wpisy w IndexedDB trzeba wiązać z id użytkownika i czyścić przy wylogowaniu (`app/components/deviceData.js` → `clearDeviceData()`). Inaczej na wspólnym telefonie zużycie lub objawy osoby A wyślą się na konto osoby B.
+- Wpisy w IndexedDB trzeba wiązać z id użytkownika i czyścić przy wylogowaniu: miejsce na to to `clearDeviceData()` w `app/components/deviceData.js`, wołane z `LogoutButton.js` i `ProfileForm.js` (te pliki zmienił audyt, przy scalaniu uwaga na konflikty). Inaczej na wspólnym telefonie zużycie lub objawy osoby A wyślą się na konto osoby B.
 - `DELETE /api/symptoms`: `String(day)::date` bez walidacji. Błędna data daje 500 i wpis z treścią wejścia w `error_log`; potrzebna walidacja jak w PUT.
 - Odtwarzanie kolejki musi wysyłać żądania z tej samej domeny (`fetch` ze strony lub Service Workera). Inaczej odrzuci je kontrola Origin w `middleware.js`.
-- Odpowiedzi API mają teraz `Cache-Control: no-store`: kolejka nie powinna opierać się na cache HTTP.
+- `safe()` dodaje teraz `Cache-Control: no-store` do odpowiedzi wszystkich tras (także `usage`, `purchase`, `symptoms`), jeśli trasa nie ustawi własnego; kolejka nie powinna opierać się na cache HTTP.

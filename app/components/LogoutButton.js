@@ -27,7 +27,8 @@ export default function LogoutButton({ className = 'btn ghost small on-dark', ch
         const pushEndpoint = await dropPush();
         // aplikacja natywna: token FCM tego urządzenia też przestaje dostawać przypomnienia tego konta
         const fcmToken = storedFcm() || undefined;
-        await api('/api/auth/logout', 'POST', pushEndpoint || fcmToken ? { pushEndpoint, fcmToken } : undefined).catch(() => {});
+        // ciasteczko sesji (HttpOnly) usuwa tylko serwer: przy błędzie nie udajemy wylogowania
+        await api('/api/auth/logout', 'POST', pushEndpoint || fcmToken ? { pushEndpoint, fcmToken } : undefined);
         clearDeviceData();
         router.replace('/login');
         router.refresh();

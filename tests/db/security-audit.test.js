@@ -86,17 +86,18 @@ test('rejestracja: bez ważnego zaproszenia nie widać, czy nazwa jest zajęta',
 });
 
 test('logowanie: nieistniejące konto liczy bcrypt jak istniejące (czas nie zdradza kont)', { skip }, async () => {
-  const time = async (username) => {
+  const bcrypt = (await import('bcryptjs')).default;
+  const src = (await import('node:fs')).readFileSync(new URL('../../app/api/auth/login/route.js', import.meta.url), 'utf8');
+  const dummy = /DUMMY_HASH = '([^']+)'/.exec(src)?.[1];
+  assert.ok(dummy && bcrypt.getRounds(dummy) === 10, 'stały hash z kosztem 10, jak hasła użytkowników');
+  assert.match(src, /u\?\.password_hash \|\| DUMMY_HASH\)/, "bcrypt liczony także bez konta");
+  const login = async (username) => {
     jar.clear(); client.ip = `10.9.3.${Math.floor(Math.random() * 200)}`;
-    const t = performance.now();
-    const r = await call(null, 'auth/login', 'POST', { username, password: 'zle-haslo-123' });
-    return { ms: performance.now() - t, status: r.status, error: r.json.error };
+    return call(null, 'auth/login', 'POST', { username, password: 'zle-haslo-123' });
   };
-  await time('ola'); // rozgrzewka
-  const known = await time('ola'), unknown = await time('nie-ma-takiego-konta');
+  const known = await login('ola'), unknown = await login('nie-ma-takiego-konta');
   assert.equal(known.status, 401); assert.equal(unknown.status, 401);
-  assert.equal(known.error, unknown.error);
-  assert.ok(unknown.ms > known.ms * 0.4, `nieistniejące konto: ${unknown.ms.toFixed(0)} ms, istniejące: ${known.ms.toFixed(0)} ms`);
+  assert.equal(known.json.error, unknown.json.error);
 });
 
 test('zdjęcia: EXIF (GPS) usunięty przy zapisie zdjęcia odmiany, testu i awatara; fałszywy typ odrzucony', { skip }, async () => {
@@ -196,6 +197,23 @@ test('wylogowanie z tokenem FCM usuwa urządzenie z przypomnień tego konta', { 
   assert.equal((await q`SELECT count(*)::int AS n FROM push_subscriptions WHERE user_id = ${P}`)[0].n, 1);
   assert.equal((await call(P, 'auth/logout', 'POST', { fcmToken: FCM })).status, 200);
   assert.equal((await q`SELECT count(*)::int AS n FROM push_subscriptions WHERE user_id = ${P}`)[0].n, 0);
+});
+
+test('usunięcie konta przez admina kasuje zdjęcia testów z Blob', { skip }, async () => {
+  const blob = await import('./blob-shim.mjs');
+  process.env.BLOB_READ_WRITE_TOKEN = 'test-token';
+  process.env.PHOTOS_BLOB = '1';
+  try {
+    assert.equal((await register('do-usuniecia', 'AUDYT', '10.9.4.1')).status, 200);
+    const [{ id: U }] = await q`SELECT id FROM users WHERE username = 'do-usuniecia'`;
+    const sid = (await call(U, 'strains', 'POST', { name: 'Blob konta', producer: 'Aurora', type: 'haze' })).json.id;
+    assert.equal((await call(U, 'strains/[id]/tests', 'POST', { note: 'n', image: png('konto') }, { id: String(sid) })).status, 200);
+    const [{ blob_path: path }] = await q`SELECT blob_path FROM strain_tests WHERE user_id = ${U}`;
+    assert.ok(blob.store.has(path));
+    assert.equal((await call(ids.bocian, 'admin/users/[id]', 'DELETE', null, { id: String(U) })).status, 200);
+    assert.ok(!blob.store.has(path), 'obiekt usunięty z Blob');
+    assert.ok(blob.calls.del.some((d) => d.includes(path)));
+  } finally { delete process.env.BLOB_READ_WRITE_TOKEN; delete process.env.PHOTOS_BLOB; }
 });
 
 test('zadania cykliczne: bez CRON_SECRET zawsze 401, zły sekret 401', { skip }, async () => {
