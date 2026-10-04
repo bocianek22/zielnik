@@ -30,15 +30,8 @@ const setEntry = async (uid, id, body) => {
   assert.equal(r.status, 200, JSON.stringify(r.json));
   return r.json;
 };
-const use = async (uid, id, grams) => (await call(uid, 'strains/[id]/usage', 'POST', { grams, requestId: randomUUID() }, { id: String(id) })).json;
-const buy = async (uid, id, grams) => (await call(uid, 'strains/[id]/purchase', 'POST', { grams, requestId: randomUUID() }, { id: String(id) })).json;
 const fixUse = (uid, entryId, body) => call(uid, 'history/usage/[id]', 'PATCH', body, { id: String(entryId) });
-const delUse = (uid, entryId) => call(uid, 'history/usage/[id]', 'DELETE', null, { id: String(entryId) });
-const fixBuy = (uid, entryId, body) => call(uid, 'history/purchases/[id]', 'PATCH', body, { id: String(entryId) });
-const delBuy = (uid, entryId) => call(uid, 'history/purchases/[id]', 'DELETE', null, { id: String(entryId) });
 const stock = async (uid, id) => Number((await q`SELECT current_amount FROM user_strain WHERE strain_id = ${id} AND user_id = ${uid}`)[0].current_amount);
-const poolOf = async (uid, id) => Number((await q`SELECT p.remaining_to_buy FROM user_pool p JOIN strains s ON p.pool_key = pool_key(s.id, s.producer, s.thc, s.cbd, s.form)
-                                                  WHERE s.id = ${id} AND p.user_id = ${uid}`)[0]?.remaining_to_buy ?? 0);
 
 before(async () => {
   if (skip) return;

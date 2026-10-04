@@ -215,7 +215,7 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
     <div className="stack">
       {series.length > 0 && (
         <TodayPanel stock={stockU} dailyUse={{ g: dailyUse, ml: usage.perDayMl || 0 }} bought={boughtU} low={low} series={series} prescriptions={prescriptions} symptoms={symptoms}
-          quick={quick} onUsed={entrySaved} fresh={strains.length === 0} onAdd={() => setFormFor('new')} settings={(
+          quick={quick} onUsed={entrySaved} fresh={strains.length === 0} onAdd={() => window.dispatchEvent(new Event('zielnik:new-strain'))} settings={(
             <details className="prefs">
               <summary>Szczegóły i ustawienia <Icon name="chevronDown" size={18} /></summary>
               <dl className="facts">
@@ -315,7 +315,7 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
         <div className="card empty">
           <Icon name="list" size={32} />
           <h2>Zielnik jest jeszcze pusty</h2>
-          <p>Pierwszą odmianę dodasz przyciskiem u góry. Każdy użytkownik dostanie dla niej własne pola: ocenę, ilość, ilość do wykupienia i spostrzeżenia.</p>
+          <p>Pierwszą odmianę dodasz przyciskiem „Dodaj odmianę” w panelu „Dziś”. Każdy użytkownik dostanie dla niej własne pola: ocenę, ilość, ilość do wykupienia i spostrzeżenia.</p>
         </div>
       )}
       {strains.length > 0 && visible.length === 0 && <p className="muted empty-inline">Nic nie pasuje do filtrów.</p>}

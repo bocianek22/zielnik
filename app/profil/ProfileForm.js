@@ -102,8 +102,8 @@ export default function ProfileForm({ me, initial, children }) {
           </a>
         </div>
         <div className="row">
-          <div className="field"><label htmlFor="csv-od">Dziennik od</label><input id="csv-od" type="date" value={csvFrom} max={csvTo || undefined} onChange={(e) => setCsvFrom(e.target.value)} /></div>
-          <div className="field"><label htmlFor="csv-do">do</label><input id="csv-do" type="date" value={csvTo} min={csvFrom || undefined} onChange={(e) => setCsvTo(e.target.value)} /></div>
+          <div className="field"><label htmlFor="csv-od">Dziennik od</label><input id="csv-od" className="input" type="date" value={csvFrom} max={csvTo || undefined} onChange={(e) => setCsvFrom(e.target.value)} /></div>
+          <div className="field"><label htmlFor="csv-do">do</label><input id="csv-do" className="input" type="date" value={csvTo} min={csvFrom || undefined} onChange={(e) => setCsvTo(e.target.value)} /></div>
         </div>
         <p className="muted">Pusty zakres dat oznacza cały dziennik. Plik otwiera się w Excelu (separator „;”, przecinek dziesiętny).</p>
       </section>

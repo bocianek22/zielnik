@@ -97,3 +97,12 @@ test('konto bez wpisów: sam nagłówek', { skip }, async () => {
   const [u] = await q`INSERT INTO users (username, password_hash, must_change_password) VALUES ('celina', 'x', false) RETURNING id`;
   assert.equal(lines((await get(u.id)).text).length, 1);
 });
+
+test('CSV: nieistniejąca data i odwrócony zakres dają 400', { skip }, async () => {
+  for (const qs of ['od=2026-02-30', 'od=2026-05-10&do=2026-05-01']) {
+    jar.clear(); await createSession(ids.ania);
+    const mod = await import('../../app/api/account/export/csv/route.js');
+    const res = await mod.GET(new Request(`http://localhost/api/account/export/csv?${qs}`));
+    assert.equal(res.status, 400, qs);
+  }
+});

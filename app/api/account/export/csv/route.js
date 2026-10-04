@@ -16,7 +16,9 @@ export const GET = safe(async (req) => {
   const typ = p.get('typ');
   if (typ && !TYPES[typ]) return bad('Nieznany typ danych.');
   const from = p.get('od') || null, to = p.get('do') || null;
-  if ((from && !DAY.test(from)) || (to && !DAY.test(to))) return bad('Data musi mieć postać RRRR-MM-DD.');
+  const okDay = (v) => !v || (DAY.test(v) && !Number.isNaN(Date.parse(v)) && new Date(`${v}T12:00:00Z`).toISOString().startsWith(v));
+  if (!okDay(from) || !okDay(to)) return bad('Data musi mieć postać RRRR-MM-DD.');
+  if (from && to && from > to) return bad('Data „od” jest późniejsza niż „do”.');
   const want = (k) => !typ || typ === k;
   const q = sql();
   const me = user.id;
