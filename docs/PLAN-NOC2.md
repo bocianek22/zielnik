@@ -3,8 +3,8 @@
 Właściciel śpi i pozwolił pracować do wyczerpania limitu oraz wznawiać automatycznie. Zasady: `docs/AGENCI.md` (najwyżej 2 agentów, Sonnet do implementacji, Opus tylko do przeglądu przed wydaniem), `CLAUDE.md`. Koordynator scala PR sam po zielonym CI i sprawdza produkcję (Vercel: stan READY, błędy runtime, nagłówek CSP).
 
 ## Kolejka (w tej kolejności)
-1. [w toku] Wspólne narzędzia `scripts/dev/` (Sonnet).
-2. Wydanie 0.37.0 (2 agentów Sonnet, rozłączne pliki):
+1. [zrobione] Wspólne narzędzia `scripts/dev/` (Sonnet).
+2. [zrobione, PR] Wydanie 0.37.0 (2 agentów Sonnet, rozłączne pliki):
    - POM-03 pora i sposób przyjęcia przy „Zużyłem” (opcjonalne pola, g/ml, offline, raport i obserwacje mogą je pokazać opisowo).
    - POM-11 eksport CSV dziennika (objawy + zużycie + zakupy, jednostki, czas polski) + POM-20 puste stany prowadzące do pierwszego wpisu.
    - Przegląd całości (reviewer Opus) przed PR; poprawki blokujących.
