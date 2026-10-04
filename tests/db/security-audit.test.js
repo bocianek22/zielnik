@@ -197,3 +197,22 @@ test('wylogowanie z tokenem FCM usuwa urządzenie z przypomnień tego konta', { 
   assert.equal((await call(P, 'auth/logout', 'POST', { fcmToken: FCM })).status, 200);
   assert.equal((await q`SELECT count(*)::int AS n FROM push_subscriptions WHERE user_id = ${P}`)[0].n, 0);
 });
+
+test('zadania cykliczne: bez CRON_SECRET zawsze 401, zły sekret 401', { skip }, async () => {
+  const cron = async (route, auth) => {
+    const mod = await import(`../../app/api/cron/${route}/route.js`);
+    return (await mod.GET(new Request(`http://localhost/api/cron/${route}`, { headers: auth ? { authorization: auth } : {} }))).status;
+  };
+  const old = process.env.CRON_SECRET;
+  delete process.env.CRON_SECRET;
+  try {
+    for (const r of ['backup', 'catalog', 'reminders']) {
+      assert.equal(await cron(r), 401);
+      assert.equal(await cron(r, 'Bearer '), 401);
+      assert.equal(await cron(r, 'Bearer undefined'), 401);
+    }
+    process.env.CRON_SECRET = 'sekret-audytu';
+    assert.equal(await cron('backup', 'Bearer sekret-audyt'), 401);
+    assert.equal(await cron('backup', 'bearer sekret-audytu'), 401);
+  } finally { if (old === undefined) delete process.env.CRON_SECRET; else process.env.CRON_SECRET = old; }
+});
