@@ -61,7 +61,7 @@ export default async function Obserwacje({ searchParams }) {
               {data.mixed.days > 0 && <> · <b>{data.mixed.days}</b> {dayWord(data.mixed.days)} z kilkoma odmianami</>}
             </p>
 
-            {anyGroup ? <ObservationsBoard symptoms={data.symptoms} minDays={data.minDays} /> : (
+            {anyGroup ? <ObservationsBoard symptoms={data.symptoms} minDays={data.minDays} custom={data.custom} /> : (
               <p className="muted small">Wpisy objawów z tego okresu są sprzed pierwszego zapisu zużycia, więc nie ma ich z czym zestawić.</p>
             )}
 

@@ -82,3 +82,11 @@
 @media (max-width: 359px) { .obs-track { display: none; } }
 .obs-none { margin-top: 0; }
 .obs-rules ul { margin: 0; padding-left: 1.1em; display: grid; gap: var(--s-2); font-size: var(--fs-sm); color: var(--text-2); max-width: 68ch; }
+
+/* Własne objawy (POM-07) */
+.sym-custom { display: grid; gap: var(--s-3); }
+.sym-custom > summary { cursor: pointer; font-weight: 600; min-height: var(--tap); display: flex; align-items: center; gap: var(--s-1); }
+.sym-custom[open] > summary { margin-bottom: var(--s-1); }
+.sym-custom p { margin: 0; }
+.sym-custom-row { flex-wrap: wrap; }
+.sym-custom-row form { flex: 1 1 100%; }
