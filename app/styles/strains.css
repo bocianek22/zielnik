@@ -172,6 +172,7 @@
 .quick-msg { margin: 0; font-size: var(--fs-sm); color: var(--ok); font-weight: 600; }
 .quick-msg:empty { display: none; }
 .quick-msg.warn { color: var(--danger); }
+.quick-msg.queued, .pool-note.queued { color: var(--warn); font-weight: 600; }
 .pool-note.warn { color: var(--danger); }
 /* komunikat po zapisie z „Cofnij” (POM-02): pusty i bez przycisku znika, jak wcześniej sam komunikat */
 .save-note { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); }

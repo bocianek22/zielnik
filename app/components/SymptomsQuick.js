@@ -1,13 +1,16 @@
 'use client';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
-import { api } from '@/lib/api';
+import { saveOrQueue, hasQueued } from '@/lib/offline-client';
+import useQueueEvents from './useQueueEvents';
 import { SYMPTOMS, QUICK_STEPS } from '@/lib/symptoms';
 import Icon from './Icon';
 
 // Szybki wpis objawów w panelu „Dziś” (POM-04): cztery wymiary, pięć stopni, zapis po każdym dotknięciu.
 // PUT /api/symptoms nadpisuje cały wiersz dnia, więc zawsze wysyłamy wszystkie wymiary i dotychczasową notatkę.
 // Żądania idą po kolei, a każde wysyła najnowszy stan: szybkie dotknięcia nie nadpiszą się w złej kolejności.
+// Bez sieci wpis czeka w kolejce offline (POM-14; nowszy wpis dnia zastępuje czekający) i wysyła się po jej powrocie.
+const QUEUED = 'Czeka na wysłanie. Wyślę, gdy wróci sieć.';
 
 const pick = (r) => ({ pain: r?.pain ?? null, sleep: r?.sleep ?? null, anxiety: r?.anxiety ?? null, mood: r?.mood ?? null, note: r?.note ?? '' });
 const count = (v) => SYMPTOMS.filter((s) => v[s.key] != null).length;
@@ -41,7 +44,14 @@ export default function SymptomsQuick({ day, initial }) {
     queue.current = queue.current.then(async () => {
       if (id !== seq.current) return; // nowsze dotknięcie wyśle pełny, aktualny stan
       try {
-        const res = await api('/api/symptoms', 'PUT', { day, ...latest.current });
+        const out = await saveOrQueue({ kind: 'symptoms', url: '/api/symptoms', method: 'PUT', body: { day, ...latest.current }, meta: { day } });
+        if (out.queued) {
+          if (id !== seq.current) return;
+          setStatus({ text: QUEUED, queued: true });
+          if (completes) { focus.current = 'change'; setOpen(false); }
+          return;
+        }
+        const res = out.data;
         const saved = pick(res.rows.find((r) => r.day === day) ?? latest.current);
         confirmed.current = saved;
         if (id !== seq.current) return;
@@ -58,6 +68,20 @@ export default function SymptomsQuick({ day, initial }) {
     });
   }
 
+  // wynik kolejki offline dla wpisu z tego dnia
+  useQueueEvents((d) => {
+    if (d.item?.kind !== 'symptoms' || d.item.meta?.day !== day) return;
+    const newer = hasQueued((i) => i.kind === 'symptoms' && i.meta?.day === day);
+    if (d.type === 'sent') {
+      confirmed.current = pick(d.data?.rows?.find((r) => r.day === day) ?? d.item.body);
+      if (!newer) setStatus({ text: 'Wysłano wpis objawów.' });
+    } else if ((d.type === 'removed' || d.type === 'rejected') && !newer) {
+      latest.current = confirmed.current;
+      setV(confirmed.current);
+      setStatus(d.type === 'rejected' ? { text: `Nie zapisano: ${d.message}`, error: true } : { text: 'Usunięto wpis objawów z kolejki.' });
+    }
+  });
+
   const filled = count(v);
   const summary = SYMPTOMS.map((s) => `${s.short} ${v[s.key] ?? '–'}`).join(' · ');
 
@@ -71,7 +95,8 @@ export default function SymptomsQuick({ day, initial }) {
       {!open ? (
         <div className="tsym-done">
           <p className="tsym-sum">
-            <span className="tsym-ok">{filled === SYMPTOMS.length ? 'Zapisano dziś' : `Zapisano dziś ${filled} z ${SYMPTOMS.length}`}</span>
+            <span className="tsym-ok">{status?.queued ? (filled === SYMPTOMS.length ? 'Czeka na wysłanie' : `Czeka na wysłanie: ${filled} z ${SYMPTOMS.length}`)
+              : filled === SYMPTOMS.length ? 'Zapisano dziś' : `Zapisano dziś ${filled} z ${SYMPTOMS.length}`}</span>
             <span className="tsym-vals">{summary}</span>
           </p>
           <button type="button" ref={changeBtn} className="btn text small" onClick={() => { focus.current = 'first'; setOpen(true); setStatus(null); }}>Zmień</button>
@@ -105,7 +130,7 @@ export default function SymptomsQuick({ day, initial }) {
           )}
         </div>
       )}
-      <p className={`tsym-status${status?.error ? ' error' : !open ? ' sr-only' : ''}`} role="status">{status?.text}</p>
+      <p className={`tsym-status${status?.error ? ' error' : status?.queued ? ' queued' : !open ? ' sr-only' : ''}`} role="status">{status?.text}</p>
     </section>
   );
 }

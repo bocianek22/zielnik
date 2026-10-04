@@ -21,7 +21,7 @@ export const dec = (n) => String(n).replace('.', ',');
 // Edytowalne, osobiste pola zalogowanego użytkownika (autozapis po opuszczeniu pola)
 // hidePrice: aplikacja natywna (lib/client.js); cena zostaje w stanie formularza, więc zapis jej nie kasuje
 // form: postać odmiany; ilości i cena w jej jednostce (susz: g, olej i pen: ml)
-export function OwnEntry({ strainId, form = 'susz', entry, onSaved, mates, hidePrice = false }) {
+export function OwnEntry({ strainId, strainName = '', form = 'susz', entry, onSaved, mates, hidePrice = false }) {
   const unit = unitOf(form);
   const qv = quickValues(form);
   const inUnit = unit === 'ml' ? 'mililitrach' : 'gramach';
@@ -59,7 +59,14 @@ export function OwnEntry({ strainId, form = 'susz', entry, onSaved, mates, hideP
     if (g == null) return;
     if (!(g > 0)) { buyQs.show(`Podaj ilość w ${inUnit}, ${buyPlaceholder(form)}.`, true); return; }
     try {
-      const r = await buyQs.save('purchase', g);
+      const cur = parseNum(f.current) || 0, rem = parseNum(f.remaining) || 0;
+      const poolDelta = Math.min(g, Math.max(rem, 0));
+      const r = await buyQs.save('purchase', g, { name: strainName, unit, delta: g, poolDelta });
+      if (r.queued) {
+        applyStock({ current: cur + g, remaining: rem - poolDelta }, { bought: g });
+        setBuyG(''); buyQs.show(`Czeka na wysłanie: zakup ${dec(g)} ${unit}. Wyślę, gdy wróci sieć.`, false, { kind: 'purchase', queued: r.queued.id });
+        return;
+      }
       applyStock(r, { bought: r.bought ?? g });
       setBuyG(''); buyQs.show(`Zapisano zakup: ${dec(r.bought ?? g)} ${unit}`, false, r.id ? { kind: 'purchase', id: r.id } : null);
     } catch (e) { buyQs.show(e.message, true); }
@@ -70,7 +77,14 @@ export function OwnEntry({ strainId, form = 'susz', entry, onSaved, mates, hideP
     if (g == null) return;
     if (!(g > 0)) { useQs.show(`Podaj ilość w ${inUnit}, ${consumePlaceholder(form)}.`, true); return; }
     try {
-      const r = await useQs.save('usage', g);
+      const cur = parseNum(f.current) || 0;
+      const delta = Math.min(g, Math.max(cur, 0));
+      const r = await useQs.save('usage', g, { name: strainName, unit, delta, poolDelta: 0 });
+      if (r.queued) {
+        applyStock({ current: cur - delta }, { used: g });
+        setUse(''); useQs.show(`Czeka na wysłanie: zużycie ${dec(g)} ${unit}. Wyślę, gdy wróci sieć.`, false, { kind: 'usage', queued: r.queued.id });
+        return;
+      }
       applyStock(r, { used: r.used });
       setUse('');
       useQs.show(r.stockShort ? `Zapisano zużycie ${dec(r.used)} ${unit} (zapisany stan był mniejszy, ustawiono 0 ${unit})` : `Zapisano zużycie ${dec(r.used)} ${unit}, zostało ${dec(r.current)} ${unit}`,
@@ -266,7 +280,7 @@ export default function StrainCard({ strain, meId, hidePrice = false, mates, low
       )}
 
       <div className="entries">
-        {mine && <OwnEntry strainId={strain.id} form={strain.form} entry={mine} mates={mates} hidePrice={hidePrice} onSaved={(en) => onEntrySaved(strain.id, en)} />}
+        {mine && <OwnEntry strainId={strain.id} strainName={strain.name} form={strain.form} entry={mine} mates={mates} hidePrice={hidePrice} onSaved={(en) => onEntrySaved(strain.id, en)} />}
         {others.map((e) => <OtherEntry key={e.userId} e={e} />)}
       </div>
 

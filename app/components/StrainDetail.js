@@ -17,6 +17,9 @@ import { expiryInfo } from '@/lib/expiry';
 import { formLabel } from '@/lib/forms';
 import { formatDay } from '@/lib/date';
 import { unitOf } from '@/lib/units';
+import { revertOf } from '@/lib/offline-queue';
+import { hasQueued, wasOptimistic } from '@/lib/offline-client';
+import useQueueEvents from './useQueueEvents';
 
 const cap = (s) => (s ? s[0].toUpperCase() + s.slice(1) : s);
 const num = (n, d = 2) => Number(n).toLocaleString('pl-PL', { maximumFractionDigits: d });
@@ -83,7 +86,18 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, st
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [opts, setOpts] = useState(options);
-  const mine = strain.entries.find((e) => e.userId === me.id);
+  const serverMine = strain.entries.find((e) => e.userId === me.id);
+  // stan „Mój wpis” z szybkich zapisów (także czekających w kolejce offline) do czasu odświeżenia z serwera
+  const [local, setLocal] = useState(null);
+  const mine = serverMine && local?.base === serverMine ? { ...serverMine, ...local.patch } : serverMine;
+  const patchMine = (p) => setLocal((l) => ({ base: serverMine, patch: { ...(l?.base === serverMine ? l.patch : {}), ...p } }));
+  useQueueEvents((d) => {
+    if (!mine || d.item?.meta?.strainId !== strain.id || (d.item.kind !== 'usage' && d.item.kind !== 'purchase')) return;
+    if ((d.type === 'removed' || d.type === 'rejected') && wasOptimistic(d.item.id)) {
+      const r = revertOf(d.item);
+      patchMine({ current: Math.max(Number(mine.current) + r.dCur, 0), ...(r.dRem ? { remaining: Number(mine.remaining) + r.dRem } : {}) });
+    } else if (d.type === 'sent' && !hasQueued((i) => i.meta?.strainId === strain.id && i.kind !== 'symptoms')) router.refresh();
+  });
   const others = strain.entries.filter((e) => e.userId !== me.id && (e.rating != null || e.notes));
   // ta sama średnia co na karcie odmiany na liście: wszystkie widoczne oceny, z moją włącznie
   const rated = strain.entries.filter((e) => e.rating != null);
@@ -181,8 +195,13 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, st
 
       <section className="card dmine" aria-labelledby="dmine-h">
         <h2 id="dmine-h">Mój wpis</h2>
-        {mine && <OwnEntry strainId={strain.id} form={strain.form} entry={mine} mates={mates} hidePrice={me.hidePrices}
-          onSaved={(x) => { if (x && !('rating' in x)) router.refresh(); /* zakup lub zużycie: odśwież statystyki */ }} />}
+        {mine && <OwnEntry strainId={strain.id} strainName={strain.name} form={strain.form} entry={mine} mates={mates} hidePrice={me.hidePrices}
+          onSaved={(x) => {
+            if (!x || 'rating' in x) return;
+            // zakup lub zużycie: odśwież statystyki (bez sieci zostaje stan pokazany od razu, odświeżenie po wysłaniu kolejki)
+            patchMine({ current: x.current, ...(x.remaining !== undefined ? { remaining: x.remaining } : {}) });
+            if (navigator.onLine) router.refresh();
+          }} />}
       </section>
 
       <Effects strain={strain} meId={me.id} />
