@@ -31,3 +31,16 @@ Zasady dla koordynatora (główna sesja Claude Code) i dla agentów w `.claude/a
 ## 6. Wydania
 - Jedno wydanie = 1-3 zadania z jednego okna limitu. Jeden PR, jeden przegląd, jedno sprawdzenie produkcji.
 - Sprawdzenie produkcji po wdrożeniu: jedno zaplanowane wywołanie (`send_later`), bez czekania w pętli.
+
+## 7. Narzędzia (`scripts/dev/`)
+Wspólne skrypty, żeby nie pisać własnych. Wymagają lokalnego PostgreSQL (`service postgresql start`, użytkownik `z`/`z`). PID, logi i zrzuty trafiają do `.dev/` i `zrzuty/` (w `.gitignore`).
+```
+scripts/dev/build-local.sh                       # build z aliasem Neon -> pg (ZIELNIK_LOCAL_PG=1), next.config.mjs bez zmian
+scripts/dev/serve.sh 4400 devtools               # tworzy bazę, startuje next start w tle (PID: .dev/4400.pid, log: .dev/4400.log)
+node scripts/dev/seed.mjs devtools --port 4400   # ania, bartek, admin Bocian; susz i olej (ml), 90 dni zużycia, recepty, zdjęcie, znajomi
+node scripts/dev/shots.mjs --port 4400 --out zrzuty --pages /,/raport --widths 390 --themes light,dark [--discreet] [--login ania]
+scripts/dev/stop.sh 4400                         # zatrzymuje tylko PID z .dev/4400.pid i czyści rate_limits
+```
+- Konta: `<login>-haslo-1` (`ania`, `bartek`, `Bocian`). Seed można powtarzać na tej samej bazie.
+- Każdy agent używa własnego portu i własnej bazy (równolegle pracujące worktree nie mogą dzielić `.next/` ani bazy).
+- `shots.mjs` kończy się kodem 1, gdy są błędy konsoli/CSP lub odpowiedzi >= 400.

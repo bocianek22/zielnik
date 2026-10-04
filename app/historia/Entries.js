@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { formatDay, todayPL } from '@/lib/date';
+import { METHODS, PERIODS, methodLabel, periodLabel } from '@/lib/usage-meta';
 import { parseNum, decimalProps } from '@/app/components/num';
 
 const nf = (n, max = 2) => Number(n).toLocaleString('pl-PL', { maximumFractionDigits: max });
@@ -33,7 +34,7 @@ export default function Entries({ kind, rows }) {
     back.current = e?.currentTarget ?? null;
     setEdit({ row, confirm });
     setErr(''); setMsg(''); setOffer(null);
-    setF({ grams: dec(row.grams), day: row.day, costMode: 'price', cost: row.cost != null ? dec(row.cost / row.grams) : '' });
+    setF({ grams: dec(row.grams), day: row.day, method: row.method || '', period: row.period || '', costMode: 'price', cost: row.cost != null ? dec(row.cost / row.grams) : '' });
   }
   function close() { setEdit(null); setErr(''); back.current?.focus?.(); }
 
@@ -46,6 +47,10 @@ export default function Entries({ kind, rows }) {
     const body = {};
     if (g !== row.grams) body.grams = g;
     if (f.day && f.day !== row.day) body.date = f.day;
+    if (!purchase) {
+      if (f.method !== (row.method || '')) body.method = f.method || null;
+      if (f.period !== (row.period || '')) body.period = f.period || null;
+    }
     if (purchase && c != null) {
       const was = row.cost != null ? (f.costMode === 'price' ? Math.round((row.cost / row.grams) * 100) / 100 : row.cost) : null;
       // sama zmiana gramów: serwer przelicza koszt proporcjonalnie (bez zaokrąglonej ceny za gram z pola)
@@ -94,6 +99,8 @@ export default function Entries({ kind, rows }) {
       <button type="button" className="btn small ghost" aria-label={`Usuń: ${label(r)}`} onClick={(e) => open(r, true, e)}>Usuń</button>
     </span>
   );
+  // opis wpisu zużycia: sposób (jeśli podano) i pora; bez ocen
+  const how = (r) => [methodLabel(r.method), periodLabel(r.period || r.autoPeriod)].filter(Boolean).join(', ');
   const noPrice = <span className="badge warn-badge">bez ceny</span>;
   const id = `fix-${kind}`;
 
@@ -136,6 +143,24 @@ export default function Entries({ kind, rows }) {
                 <label htmlFor={`${id}-d`}>Data</label>
                 <input id={`${id}-d`} className="input" type="date" max={todayPL()} min="2000-01-01" value={f.day} onChange={(e) => setF((p) => ({ ...p, day: e.target.value }))} />
               </div>
+              {!purchase && (
+                <>
+                  <div className="field">
+                    <label htmlFor={`${id}-m`}>Sposób</label>
+                    <select id={`${id}-m`} className="input" value={f.method} onChange={(e) => setF((p) => ({ ...p, method: e.target.value }))}>
+                      <option value="">nie podano</option>
+                      {Object.entries(METHODS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                    </select>
+                  </div>
+                  <div className="field">
+                    <label htmlFor={`${id}-p`}>Pora</label>
+                    <select id={`${id}-p`} className="input" value={f.period} onChange={(e) => setF((p) => ({ ...p, period: e.target.value }))}>
+                      <option value="">z godziny zapisu ({periodLabel(edit.row.autoPeriod) || '–'})</option>
+                      {Object.entries(PERIODS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                    </select>
+                  </div>
+                </>
+              )}
               {purchase && (
                 <fieldset className="field hist-cost">
                   <legend>Koszt</legend>
@@ -163,16 +188,17 @@ export default function Entries({ kind, rows }) {
       <ul className="list hist-list">
         {rows.map((r) => (
           <li key={r.id} className={`list-row${r.id === edit?.row.id ? ' editing' : ''}`}>
-            <span className="lr-main"><span className="dn">{r.name}</span><span className="lr-sub">{formatDay(r.at)}</span>{actions(r)}</span>
+            <span className="lr-main"><span className="dn">{r.name}</span><span className="lr-sub">{formatDay(r.at)}{!purchase && how(r) && ` · ${how(r)}`}</span>{actions(r)}</span>
             <span className="lr-value">{nf(r.grams)} {uOf(r)}{purchase && (r.cost != null ? <small>{nf(r.cost)} zł</small> : <small>{noPrice}</small>)}</span>
           </li>
         ))}
       </ul>
       <div className="card hist-table"><div className="table-wrap"><table className="cmp hist-cmp">
-        <thead><tr><th>Data</th><th>Odmiana</th><th className="num">Ilość</th>{purchase && <th className="num">Koszt</th>}<th><span className="sr-only">Akcje</span></th></tr></thead>
+        <thead><tr><th>Data</th><th>Odmiana</th><th className="num">Ilość</th>{!purchase && <th>Sposób i pora</th>}{purchase && <th className="num">Koszt</th>}<th><span className="sr-only">Akcje</span></th></tr></thead>
         <tbody>{rows.map((r) => (
           <tr key={r.id} className={r.id === edit?.row.id ? 'editing' : undefined}>
             <td>{formatDay(r.at)}</td><td><span className="dn">{r.name}</span></td><td className="num">{nf(r.grams)} {uOf(r)}</td>
+            {!purchase && <td>{how(r)}</td>}
             {purchase && <td className="num">{r.cost != null ? `${nf(r.cost)} zł` : noPrice}</td>}
             <td className="hist-act-cell">{actions(r)}</td>
           </tr>

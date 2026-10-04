@@ -8,6 +8,17 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.37.0] - 2026-10
+### Dodano
+- Pora i sposób przyjęcia przy „Zużyłem” (POM-03): opcjonalne, zwinięte w panelu (pora domyślnie z godziny zapisu, sposób zapisywany tylko, gdy wybrany), korekta w Historii, sekcja „Pory dnia i sposób przyjęcia” w raporcie dla lekarza (liczba wpisów, bez wniosków), eksport.
+- Eksport dziennika do CSV (POM-11) w profilu: objawy, zużycie (ze sposobem i porą) i zakupy, jednostki g/ml, czas polski, zakres dat, gotowy do Excela (separator „;”, BOM), ochrona przed formułami; neutralna nazwa pliku w trybie dyskretnym.
+- Puste stany prowadzące do pierwszego wpisu (POM-20): panel „Dziś”, dziennik objawów, recepty, Historia, raport.
+- Wspólne narzędzia deweloperskie `scripts/dev/` (build z lokalnym PostgreSQL przez `ZIELNIK_LOCAL_PG=1`, serwer, dane testowe, zrzuty).
+### Zmieniono
+- Bez nagłówka `X-Powered-By`.
+### Uwaga przy wdrożeniu
+- Migracja addytywna: `usage_log.method`, `usage_log.period`, funkcja `usage_period`.
+
 ## [0.36.0] - 2026-10
 ### Dodano
 - Zapisy bez internetu (POM-14): „Zużyłem”, „Wykupiłem” i szybkie objawy trafiają do kolejki na urządzeniu (IndexedDB, powiązanej z kontem) i wysyłają się po powrocie sieci, bez duplikatów (`requestId`); licznik „N czeka” w nagłówku z panelem kolejki, „Cofnij” dla zapisów w kolejce; czas zapisu z telefonu (`at`, do 72 h wstecz).

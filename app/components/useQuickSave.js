@@ -38,10 +38,11 @@ export function useQuickSave(strainId) {
 
   // meta: { name, unit } do etykiety w panelu kolejki oraz { delta, poolDelta }: o ile interfejs od razu zmienił
   // stan i pulę (lista cofa to, gdy zapis zostanie usunięty z kolejki albo odrzucony)
-  async function save(kind, grams, meta = {}) {
-    const key = `${kind}:${grams}`;
+  // extra: dodatkowe pola treści (zużycie: method, period), też ponawiane z tym samym requestId
+  async function save(kind, grams, meta = {}, extra = {}) {
+    const key = `${kind}:${grams}:${JSON.stringify(extra)}`;
     if (rid.current.key !== key || Date.now() - rid.current.at > RETRY_MS) rid.current = { key, id: newRequestId(), at: Date.now() };
-    const r = await saveOrQueue({ kind, url: `/api/strains/${strainId}/${kind}`, body: { grams, requestId: rid.current.id }, meta: { ...meta, strainId, grams } });
+    const r = await saveOrQueue({ kind, url: `/api/strains/${strainId}/${kind}`, body: { grams, ...extra, requestId: rid.current.id }, meta: { ...meta, strainId, grams } });
     rid.current = { key: '', id: '', at: 0 };
     return r.queued ? { queued: r.queued } : r.data;
   }

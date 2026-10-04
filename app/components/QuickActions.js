@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { useQuickSave, SaveNote } from './useQuickSave';
+import { METHODS, PERIODS, defaultMethod } from '@/lib/usage-meta';
 import { unitOf, unitGen, quickValues, consumePlaceholder, buyPlaceholder } from '@/lib/units';
 
 // tytuł, szybkie wartości i przykład zależą od postaci (susz w g, olej i pen w ml)
@@ -26,6 +27,8 @@ export default function QuickActions({ strainId, name, form = 'susz', current, r
   const MODES = modes(form);
   const [mode, setMode] = useState(null); // null | 'use' | 'buy'
   const [val, setVal] = useState('');
+  const [method, setMethod] = useState(''); // POM-03: opcjonalne, zwinięte; '' = nie podano (w podsumowaniu podpowiedź z postaci)
+  const [period, setPeriod] = useState(''); // '' = z godziny zapisu
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   const input = useRef(null);
@@ -37,7 +40,7 @@ export default function QuickActions({ strainId, name, form = 'susz', current, r
 
   function open(m) {
     if (mode === m) return close();
-    setMode(m); setVal(''); setErr(''); qs.clear(); qs.renew(); // nowe otwarcie panelu = nowy zapis
+    setMode(m); setVal(''); setErr(''); setMethod(''); setPeriod(''); qs.clear(); qs.renew(); // nowe otwarcie panelu = nowy zapis
   }
   function close() {
     const m = mode;
@@ -57,7 +60,7 @@ export default function QuickActions({ strainId, name, form = 'susz', current, r
       const cur = Number(current) || 0, rem = Number(remaining) || 0;
       const delta = mode === 'use' ? Math.min(g, Math.max(cur, 0)) : g;
       const poolDelta = mode === 'use' ? 0 : Math.min(g, Math.max(rem, 0));
-      const r = await qs.save(kind, g, { name, unit, delta, poolDelta });
+      const r = await qs.save(kind, g, { name, unit, delta, poolDelta }, mode === 'use' ? { ...(method && { method }), ...(period && { period }) } : {});
       if (!mounted.current) return;
       if (r.queued) {
         const undoQ = { kind, queued: r.queued.id };
@@ -121,6 +124,22 @@ export default function QuickActions({ strainId, name, form = 'susz', current, r
             <button type="submit" className="btn small" disabled={busy}>{busy ? 'Zapisuję…' : m.save}</button>
             <button type="button" className="btn small ghost" onClick={close}>Anuluj</button>
           </div>
+          {mode === 'use' && (
+            <details className="quick-more">
+              <summary>Sposób i pora: {METHODS[method || defaultMethod(form)]}, {period ? PERIODS[period] : 'teraz'}</summary>
+              <div className="quick-more-row">
+                <label htmlFor={`${id}-m`}>Sposób</label>
+                <select id={`${id}-m`} className="input" value={method || defaultMethod(form)} onChange={(e) => setMethod(e.target.value)}>
+                  {Object.entries(METHODS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                </select>
+                <label htmlFor={`${id}-p`}>Pora</label>
+                <select id={`${id}-p`} className="input" value={period} onChange={(e) => setPeriod(e.target.value)}>
+                  <option value="">teraz (z godziny zapisu)</option>
+                  {Object.entries(PERIODS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                </select>
+              </div>
+            </details>
+          )}
           {err && <p id={`${id}-e`} className="field-err" role="alert">{err}</p>}
         </form>
       )}

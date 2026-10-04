@@ -11,11 +11,13 @@ import PrintButton from './PrintButton';
 import VisitPeriod from './VisitPeriod';
 import { formatDay, todayPL, addDaysIso } from '@/lib/date';
 import { doctorReport, MIN_SYMPTOM_DAYS } from '@/lib/report';
+import { METHODS, PERIODS, periodLabel } from '@/lib/usage-meta';
 
 export const dynamic = 'force-dynamic';
 
 const MAX_DAYS = 731; // dłuższy okres skracamy (tabela tygodniowa i wydruk przestają być czytelne)
 const validDate = (v) => /^\d{4}-\d{2}-\d{2}$/.test(v || '') && !Number.isNaN(Date.parse(v));
+const PERIOD_KEYS = Object.keys(PERIODS);
 const nf = (n, max = 1) => Number(n).toLocaleString('pl-PL', { maximumFractionDigits: max });
 const day = formatDay;
 const short = (iso) => `${iso.slice(8, 10)}.${iso.slice(5, 7)}`;
@@ -49,7 +51,7 @@ export default async function Raport({ searchParams }) {
   const visit = sp.okres === 'wizyta';
   const notesQs = withNotes ? '&notes=1' : '';
 
-  const { usage, weekly, purchases, feel: feelAll, sym, totals, rx, rxSum, strainSym } = await doctorReport(me.id, from, to);
+  const { usage, weekly, purchases, feel: feelAll, sym, totals, rx, rxSum, strainSym, whenUsed } = await doctorReport(me.id, from, to);
   // bez pustych wierszy: tylko odmiany z oceną, odczuciem albo (gdy dołączone) spostrzeżeniem
   const feel = feelAll.filter((f) => f.rating != null || EFFECTS.some(([k]) => f.effects?.[k] != null) || (withNotes && f.notes));
   const daysSpan = Math.round((Date.parse(to) - Date.parse(from)) / 864e5) + 1;
@@ -69,6 +71,7 @@ export default async function Raport({ searchParams }) {
   const qty = (g, ml) => units.filter((u) => (u === 'g' ? g : ml) > 0).map((u) => `${nf(u === 'g' ? g : ml, 2)} ${u}`).join(' i ') || 'brak';
   const symLine = (w) => (w.sym_days ? `${dni(w.sym_days)} z wpisem: ${SYMPTOMS.map((s) => `${s.short} ${av(w[s.key])}`).join(', ')}` : 'brak wpisów objawów');
   const anyWeekData = weekly.some((w) => w.use_days || w.sym_days || w.bought_g || w.bought_ml);
+  const noData = !anyWeekData && usage.length === 0 && purchases.length === 0 && rx.length === 0 && !sym.days;
 
   // recepty
   const rxState = (r) => (r.status === 'used' ? 'wykupiona w całości'
@@ -110,6 +113,14 @@ export default async function Raport({ searchParams }) {
           <p className="muted small">Na telefonie wybierz w oknie drukowania „Zapisz jako PDF”, a potem udostępnij plik. Na wydruku nazwy odmian są widoczne także w trybie dyskretnym.</p>
         </div>
 
+        {noData ? (
+          <div className="card empty no-print">
+            <Icon name="file" size={32} />
+            <h2>Brak zapisów w tym okresie</h2>
+            <p>Raport powstaje z zużycia, zakupów, recept i objawów. Zapisz pierwsze zużycie albo wybierz inny okres.</p>
+            <Link className="btn" href="/">Zapisz zużycie</Link>
+          </div>
+        ) : (
         <section className="card report-sheet">
           <h2>Zestawienie stosowania medycznej konopi</h2>
           <p className="report-meta">Pacjent: <b>{plan?.display_name || me.username}</b><br />Okres: <b>{day(from)}</b> do <b>{day(to)}</b> ({dni(daysSpan)})</p>
@@ -197,6 +208,15 @@ export default async function Raport({ searchParams }) {
             </>
           )}
 
+          {whenUsed.period.length > 0 && (
+            <>
+              <h3>Pory dnia i sposób przyjęcia</h3>
+              <p>Wpisy zużycia według pory: {PERIOD_KEYS.filter((k) => whenUsed.period.some((r) => r.key === k)).map((k) => `${periodLabel(k)} ${whenUsed.period.find((r) => r.key === k).n}`).join(', ')}.
+                {whenUsed.method.length > 0 && <> Sposób (tam, gdzie podano): {Object.keys(METHODS).filter((k) => whenUsed.method.some((r) => r.key === k)).map((k) => `${METHODS[k]} ${whenUsed.method.find((r) => r.key === k).n}`).join(', ')}.</>}</p>
+              <p className="muted small">Liczba wpisów zużycia, nie ilość. Pora pochodzi z wyboru pacjenta albo z godziny zapisu.</p>
+            </>
+          )}
+
           {strainSym.length > 0 && sym.days > 0 && (<><h3>Objawy w dniach z odmianą</h3>
             <ul className="list report-narrow">
               {strainSym.map((s, i) => (
@@ -230,6 +250,7 @@ export default async function Raport({ searchParams }) {
               <tbody>{feel.map((f, i) => (<tr key={i}><td><span className="dn">{f.name}</span></td><td>{f.rating != null ? nf(f.rating) : '–'}</td>{EFFECTS.map(([k]) => <td key={k}>{fx(f.effects, k) != null ? nf(fx(f.effects, k)) : '–'}</td>)}{withNotes && <td>{f.notes || '–'}</td>}</tr>))}</tbody></table></div>
             <p className="muted small">Ogólne oceny odmian wpisane przez pacjenta, niezwiązane z okresem raportu.</p></>)}
         </section>
+        )}
         <p className="muted small no-print"><Link href="/historia">Historia zakupów i zużycia</Link> · <Link href="/recepty">Recepty</Link> · <Link href="/dziennik">Dziennik objawów</Link></p>
       </main>
     </>

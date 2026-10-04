@@ -167,7 +167,7 @@ function StockBlock({ unit, stock, dailyUse, bought, today, named, ok, id }) {
 }
 
 // stock, dailyUse, bought: { g, ml }; low: próg „Kończy się” w gramach (tylko susz)
-export default function TodayPanel({ stock, dailyUse, bought, low, series, prescriptions, symptoms, quick, onUsed, settings }) {
+export default function TodayPanel({ stock, dailyUse, bought, low, series, prescriptions, symptoms, quick, onUsed, settings, fresh, onAdd }) {
   const today = series.at(-1).day;
   const hasMl = stock.ml > 0 || dailyUse.ml > 0;
   const hasG = !hasMl || stock.g > 0 || dailyUse.g > 0;
@@ -200,6 +200,14 @@ export default function TodayPanel({ stock, dailyUse, bought, low, series, presc
   return (
     <div className="today" ref={root}>
       {prescriptions.urgent && rx}
+      {fresh ? (
+        <section className="card empty" aria-labelledby="today-empty-h">
+          <Icon name="chart" size={32} />
+          <h2 id="today-empty-h">Tu zobaczysz zapas i prognozę</h2>
+          <p>Dodaj odmianę, którą masz, i jej stan. Potem przycisk „Zużyłem” policzy, na ile dni starczy zapasu.</p>
+          <button type="button" className="btn" onClick={onAdd}>Dodaj odmianę</button>
+        </section>
+      ) : (
       <section className={`card today-card${warn ? ' warn' : ''}`} aria-labelledby={`today-stock-h-${units[0]}`}>
         <div className={`today-stocks${units.length > 1 ? ' two' : ''}`}>
           {units.map((u) => (
@@ -223,6 +231,7 @@ export default function TodayPanel({ stock, dailyUse, bought, low, series, presc
 
         {settings}
       </section>
+      )}
 
       <SymptomsQuick day={today} initial={symptoms} />
 

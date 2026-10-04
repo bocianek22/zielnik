@@ -43,6 +43,7 @@ export default function Prescriptions() {
           <Icon name="clipboard" size={32} />
           <h2>Brak recept</h2>
           <p>Dodaj pierwszą receptę, a tu zobaczysz, ile zostało do wykupienia.</p>
+          <button type="button" className="btn" onClick={() => { const el = document.getElementById('rx-from'); el?.scrollIntoView({ block: 'center' }); el?.focus({ preventScroll: true }); }}>Dodaj receptę</button>
         </div>
       ) : (
         <>

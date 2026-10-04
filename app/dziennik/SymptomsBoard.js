@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api } from '@/lib/api';
 import { SYMPTOMS } from '@/lib/symptoms';
+import Icon from '../components/Icon';
 
 // [klucz, etykieta, opis skali, kolor] dla formularza; kreska i kształt punktu wykresu w lib/symptoms.js
 const FIELDS = SYMPTOMS.map((s) => [s.key, s.label, s.help, s.color]);
@@ -84,8 +85,9 @@ export default function SymptomsBoard() {
   const [day, setDay] = useState(todayIso());
   const [f, setF] = useState({ pain: '', sleep: '', anxiety: '', mood: '', note: '' });
   const [msg, setMsg] = useState(null);
+  const [loaded, setLoaded] = useState(false);
 
-  useEffect(() => { api('/api/symptoms').then(setData).catch((e) => setMsg({ text: e.message, error: true })); }, []);
+  useEffect(() => { api('/api/symptoms').then((d) => { setData(d); setLoaded(true); }).catch((e) => setMsg({ text: e.message, error: true })); }, []);
   const existing = useMemo(() => data.rows.find((r) => r.day === day), [data, day]);
   useEffect(() => {
     setF({ pain: existing?.pain ?? '', sleep: existing?.sleep ?? '', anxiety: existing?.anxiety ?? '', mood: existing?.mood ?? '', note: existing?.note ?? '' });
@@ -103,7 +105,7 @@ export default function SymptomsBoard() {
   return (
     <div className="stack">
       <div className="alert note">Dziennik służy Twojej obserwacji i rozmowie z lekarzem. Dane są prywatne, a średnie z wybranego okresu trafiają do raportu dla lekarza.</div>
-      <form className="card stack" onSubmit={save}>
+      <form id="sym-form" className="card stack" onSubmit={save}>
         <div className="sym-day">
           <div className="field"><label htmlFor="sd">Dzień</label>
             <input id="sd" className="input" type="date" max={todayIso()} value={day} onChange={(e) => setDay(e.target.value)} /></div>
@@ -136,6 +138,14 @@ export default function SymptomsBoard() {
         <div className="sym-actions"><button className="btn">Zapisz wpis</button>{existing && <button type="button" className="btn danger" onClick={remove}>Usuń wpis</button>}</div>
       </form>
       <h2 className="section-label">Ostatnie 30 dni</h2>
+      {loaded && data.rows.length === 0 && data.usage.length === 0 ? (
+        <section className="card empty">
+          <Icon name="pulse" size={32} />
+          <h2>Wykres pojawi się po pierwszym wpisie</h2>
+          <p>Zapisz, jak się dziś czujesz. Po kilku dniach zobaczysz tu przebieg bólu, snu, lęku i nastroju.</p>
+          <button type="button" className="btn" onClick={() => { const f = document.getElementById('sym-form'); f?.scrollIntoView({ block: 'start' }); f?.querySelector('input')?.focus({ preventScroll: true }); }}>Wpisz stan</button>
+        </section>
+      ) : (
       <section className="card">
         <Chart rows={data.rows} usage={data.usage} />
         <ul className="sym-legend" aria-label="Legenda wykresu">
@@ -143,6 +153,7 @@ export default function SymptomsBoard() {
           <li><i className="bar" aria-hidden="true" />Zużycie (słupki)</li>
         </ul>
       </section>
+      )}
     </div>
   );
 }
