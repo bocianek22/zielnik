@@ -60,6 +60,8 @@ export const GET = safe(async (req) => {
       settings: (await q`SELECT notify_prescription, notify_stock, stock_days, notify_hour, show_details, updated_at FROM push_prefs WHERE user_id = ${me}`)[0] ?? null,
       devices: await q`SELECT kind, created_at, last_ok_at FROM push_subscriptions WHERE user_id = ${me} ORDER BY created_at`,
     },
+    // zalogowane urządzenia bez identyfikatorów sesji (to dane techniczne, nie treść konta)
+    sessions: await q`SELECT device, native, country, created_at, last_used_at, expires_at, revoked_at FROM sessions WHERE user_id = ${me} ORDER BY created_at`,
   };
   if (withPhotos) data.avatar = (await q`SELECT avatar FROM users WHERE id = ${me}`)[0]?.avatar ?? null;
   return new Response(JSON.stringify(data, null, 1), {

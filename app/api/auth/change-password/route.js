@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { sql } from '@/lib/db';
-import { createSession, getUser, revokeSessions } from '@/lib/auth';
+import { getUser, revokeOtherSessions } from '@/lib/auth';
 import { hit } from '@/lib/ratelimit';
 
 export async function POST(req) {
@@ -26,10 +26,9 @@ export async function POST(req) {
     }
     const hash = await bcrypt.hash(String(password), 10);
     await sql()`UPDATE users SET password_hash = ${hash}, must_change_password = FALSE WHERE id = ${me.id}`;
-    // Wylogowanie innych urządzeń; to urządzenie dostaje nową sesję z aktualną wersją.
+    // Wylogowanie innych urządzeń; to urządzenie dostaje nowy token (ta sama sesja na liście) z aktualną wersją.
     // Ciasteczko „znane urządzenie” też dostaje nową wersję (inne przeglądarki tracą ten status).
-    await revokeSessions(me.id);
-    await createSession(me.id, { device: true });
+    await revokeOtherSessions(me.id);
     return NextResponse.json({ ok: true });
   } catch (e) {
     console.error(e);
