@@ -2,6 +2,11 @@ import { sql } from '@/lib/db';
 import { requireUser, safe } from '@/lib/guard';
 import { readPhoto } from '@/lib/photos';
 
+// Nazwa pliku z polskimi literami (ł, ś, ż...) w nagłówku: zwykłe `filename` musi być ASCII (inaczej Response rzuca
+// błąd i eksport kończy się 500), a pełną nazwę podajemy w `filename*` (RFC 6266).
+const attachmentName = (name) =>
+  `attachment; filename="${name.normalize('NFD').replace(/[^\x20-\x7e]/g, '').replace(/["\\]/g, '') || 'zielnik.json'}"; filename*=UTF-8''${encodeURIComponent(name)}`;
+
 // Zdjęcia z Blob wracają do eksportu jako base64 (jak z bazy); gdy obiektu nie da się odczytać, pole jest puste i jest photo_error
 async function inline(rows) {
   for (const r of rows) {
@@ -58,6 +63,6 @@ export const GET = safe(async (req) => {
   };
   if (withPhotos) data.avatar = (await q`SELECT avatar FROM users WHERE id = ${me}`)[0]?.avatar ?? null;
   return new Response(JSON.stringify(data, null, 1), {
-    headers: { 'Content-Type': 'application/json; charset=utf-8', 'Content-Disposition': `attachment; filename="zielnik-moje-dane-${user.username}.json"` },
+    headers: { 'Content-Type': 'application/json; charset=utf-8', 'Content-Disposition': attachmentName(`zielnik-moje-dane-${user.username}.json`), 'Cache-Control': 'no-store' },
   });
 });

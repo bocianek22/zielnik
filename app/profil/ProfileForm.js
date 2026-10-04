@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { fileToDataUrl } from '@/lib/image';
+import { clearDeviceData } from '../components/deviceData';
 import { VIS } from '@/lib/visibility';
 import Icon from '../components/Icon';
 
@@ -48,7 +49,7 @@ export default function ProfileForm({ me, initial, children }) {
 
   async function logoutAll() {
     if (!confirm('Wylogować ze wszystkich urządzeń, także z tego?')) return;
-    try { await api('/api/auth/logout', 'POST', { all: true }); router.replace('/login'); router.refresh(); }
+    try { await api('/api/auth/logout', 'POST', { all: true }); clearDeviceData(); router.replace('/login'); router.refresh(); }
     catch (err) { setMsg(err.message); }
   }
 

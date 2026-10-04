@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireUser, bad, safe } from '@/lib/guard';
+import { requireUser, bad, safe, intId } from '@/lib/guard';
 import { parseNumber } from '@/lib/strains';
 import { normUnit } from '@/lib/units';
 
@@ -38,6 +38,6 @@ export const DELETE = safe(async (req) => {
   const { user, res } = await requireUser();
   if (res) return res;
   const { id } = await req.json().catch(() => ({}));
-  await sql()`DELETE FROM prescriptions WHERE id = ${Number(id)} AND user_id = ${user.id}`;
+  await sql()`DELETE FROM prescriptions WHERE id = ${intId(id)} AND user_id = ${user.id}`;
   return NextResponse.json({ prescriptions: await list(user.id) });
 });

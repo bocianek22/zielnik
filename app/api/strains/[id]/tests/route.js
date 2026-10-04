@@ -4,6 +4,7 @@ import { requireUser, bad, safe, intId } from '@/lib/guard';
 import { listTests } from '@/lib/strains';
 import { VIS_VALUES } from '@/lib/visibility';
 import { putPhoto, deletePhotos } from '@/lib/photos';
+import { cleanImage } from '@/lib/image-meta';
 
 export const GET = safe(async (_req, { params }) => {
   const { user, res } = await requireUser();
@@ -24,7 +25,9 @@ export const POST = safe(async (req, { params }) => {
     const m = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/.exec(String(image));
     if (!m) return bad('Nieprawidłowy format zdjęcia (JPEG, PNG lub WebP).');
     if (m[2].length > 900_000) return bad('Zdjęcie jest za duże.');
-    [, mime, data] = m;
+    const img = cleanImage(m[1], m[2]); // bez EXIF (GPS) i innych metadanych
+    if (img.error) return bad(img.error);
+    ({ mime, b64: data } = img);
   }
   if (!text && !data) return bad('Dodaj opis lub zdjęcie testu.');
   const exists = await sql()`SELECT 1 FROM strains WHERE id = ${id}`;

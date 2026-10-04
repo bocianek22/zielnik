@@ -4,6 +4,7 @@
 import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import { pngBytes } from './images.mjs';
 
 const URL_ = process.env.TEST_DATABASE_URL;
 const local = URL_ && /@(localhost|127\.0\.0\.1)(:\d+)?\//.test(URL_);
@@ -12,7 +13,7 @@ const skip = !URL_ ? 'brak TEST_DATABASE_URL'
 
 let q, jar, pool, createSession, blob;
 const ids = {};
-const bytes = (s) => Buffer.from(s);
+const bytes = (s) => pngBytes(s); // poprawny PNG (trasy sprawdzają zawartość i czyszczą metadane)
 const img = (s) => `data:image/png;base64,${bytes(s).toString('base64')}`;
 
 // Wywołanie trasy jako zalogowany użytkownik; zwraca surową odpowiedź i (dla JSON) treść
@@ -199,7 +200,7 @@ test('bez BLOB_READ_WRITE_TOKEN zdjęcia dalej trafiają do bazy jako base64', {
     assert.equal((await call(A, 'strains/[id]/photo', 'PUT', { image: img('b64') }, p)).status, 200);
     const [row] = await q`SELECT blob_path, data FROM strain_photos WHERE strain_id = ${sid}`;
     assert.equal(row.blob_path, null);
-    assert.equal(Buffer.from(row.data, 'base64').toString(), 'b64');
+    assert.deepEqual(Buffer.from(row.data, 'base64'), bytes('b64'));
     const g = await call(B, 'strains/[id]/photo', 'GET', null, p);
     assert.deepEqual(Buffer.from(await g.res.arrayBuffer()), bytes('b64'));
 
@@ -207,7 +208,7 @@ test('bez BLOB_READ_WRITE_TOKEN zdjęcia dalej trafiają do bazy jako base64', {
     const tid = r.json.tests[0].id;
     const [t] = await q`SELECT blob_path, data FROM strain_tests WHERE id = ${tid}`;
     assert.equal(t.blob_path, null);
-    assert.equal(Buffer.from(t.data, 'base64').toString(), 'tb');
+    assert.deepEqual(Buffer.from(t.data, 'base64'), bytes('tb'));
     const gt = await call(B, 'tests/[tid]/photo', 'GET', null, { tid: String(tid) });
     assert.deepEqual(Buffer.from(await gt.res.arrayBuffer()), bytes('tb'));
     assert.equal((await call(A, 'strains/[id]/photo', 'DELETE', null, p)).status, 200);
@@ -272,7 +273,7 @@ test('z tokenem, ale bez PHOTOS_BLOB=1 nowe zdjęcia idą do bazy; odczyt blob_p
   } finally { process.env.PHOTOS_BLOB = '1'; }
   const [row] = await q`SELECT blob_path, data FROM strain_photos WHERE strain_id = ${sid}`;
   assert.equal(row.blob_path, null);
-  assert.equal(Buffer.from(row.data, 'base64').toString(), 'flaga');
+  assert.deepEqual(Buffer.from(row.data, 'base64'), bytes('flaga'));
   assert.equal(blob.calls.put.length, puts);
 
   // blob_path w bazie, ale brak tokenu: 404 (z logiem), nie 500

@@ -4,6 +4,7 @@ import { requireUser, bad, safe, intId } from '@/lib/guard';
 import { listTests } from '@/lib/strains';
 import { VIS_VALUES } from '@/lib/visibility';
 import { putPhoto, deletePhotos } from '@/lib/photos';
+import { cleanImage } from '@/lib/image-meta';
 
 // Edycja własnego testu: { note, visibility, image? (nowe zdjęcie), removePhoto? }
 export const PATCH = safe(async (req, { params }) => {
@@ -22,7 +23,9 @@ export const PATCH = safe(async (req, { params }) => {
     const m = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/.exec(String(b.image));
     if (!m) return bad('Nieprawidłowy format zdjęcia (JPEG, PNG lub WebP).');
     if (m[2].length > 900_000) return bad('Zdjęcie jest za duże.');
-    photo = m;
+    const img = cleanImage(m[1], m[2]); // bez EXIF (GPS) i innych metadanych
+    if (img.error) return bad(img.error);
+    photo = [null, img.mime, img.b64];
   }
   const willHavePhoto = photo ? true : b.removePhoto ? false : t.has;
   if (!text && !willHavePhoto) return bad('Test musi mieć opis lub zdjęcie.');

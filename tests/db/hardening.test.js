@@ -3,6 +3,7 @@
 // Uruchom: TEST_DATABASE_URL=postgres://... npm run test:db  (baza zostanie WYCZYSZCZONA).
 import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
+import { png } from './images.mjs';
 
 const URL_ = process.env.TEST_DATABASE_URL;
 const local = URL_ && /@(localhost|127\.0\.0\.1)(:\d+)?\//.test(URL_);
@@ -11,8 +12,8 @@ const skip = !URL_ ? 'brak TEST_DATABASE_URL'
 
 const COOKIE = 'zielnik_session';
 const DEVICE = 'zielnik_device';
-const IMG = 'data:image/png;base64,iVBORw0KGgo=';
-const IMG2 = 'data:image/png;base64,iVBORw0KGgoAAAA=';
+const IMG = png('1');
+const IMG2 = png('2');
 let q, jar, client, pool, auth;
 const ids = {};
 

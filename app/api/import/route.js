@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
 import { requireUser, bad, safe } from '@/lib/guard';
+import { hit } from '@/lib/ratelimit';
 import { parseCommon, parseNumber } from '@/lib/strains';
 
 const dec = (v) => String(v ?? '').trim().replace(',', '.');
@@ -11,6 +12,8 @@ export const POST = safe(async (req) => {
   if (res) return res;
   const { rows } = await req.json().catch(() => ({}));
   if (!Array.isArray(rows) || !rows.length) return bad('Brak wierszy do importu.');
+  // do 200 wierszy po kilka zapytań każdy: limit chroni bazę przed zalewem importów z jednego konta
+  if (!(await hit(`import:${user.id}`, 20, 3600))) return bad('Zbyt wiele importów. Spróbuj ponownie za godzinę.', 429);
   const q = sql();
   let added = 0, skipped = 0;
   const errors = [];

@@ -7,6 +7,9 @@ import { clear, clientIp, hit } from '@/lib/ratelimit';
 // Górna granica tylko przeciw bardzo długim danym (bcrypt i tak bierze 72 bajty). Nowe hasła mają limit 100 znaków,
 // tu zapas, żeby nie odciąć kont z dłuższym hasłem tymczasowym nadanym przed wprowadzeniem limitu.
 const MAX_PASSWORD = 1000;
+// Hash losowego hasła (koszt 10 jak przy rejestracji): dla nieistniejącej nazwy też liczymy bcrypt, żeby czas odpowiedzi
+// nie zdradzał, czy konto istnieje.
+const DUMMY_HASH = '$2b$10$Xw5HbgpnaKNHfq/bZZXOSulZX3I7RvtatdRTlg32VrB1R1wdneN22';
 
 export async function POST(req) {
   try {
@@ -29,7 +32,8 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Zbyt wiele prób logowania. Spróbuj ponownie za kilka minut.' }, { status: 429 });
     }
     const pwd = String(password);
-    const ok = u && pwd.length <= MAX_PASSWORD && (await bcrypt.compare(pwd, u.password_hash));
+    const match = await bcrypt.compare(pwd.slice(0, MAX_PASSWORD), u?.password_hash || DUMMY_HASH);
+    const ok = u && pwd.length <= MAX_PASSWORD && match;
     if (!ok) {
       return NextResponse.json({ error: 'Nieprawidłowa nazwa użytkownika lub hasło.' }, { status: 401 });
     }
