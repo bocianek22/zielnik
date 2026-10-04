@@ -88,3 +88,21 @@ test('skrypt startowy: zasłania tylko, gdy jest PIN, karta nieodblokowana i nie
   assert.equal(boot({ rec: REC, unlocked: true, seen: Date.now() - 6 * 60000 }), 'locked');
   assert.equal(boot({ rec: REC, unlocked: true, seen: Date.now() - 60000 }), undefined);
 });
+
+test('zalogowanie: odblokowuje kartę, zeruje bezczynność, PIN innej osoby przestaje obowiązywać', async () => {
+  const ls = store(), ss = store();
+  const old = { localStorage: globalThis.localStorage, sessionStorage: globalThis.sessionStorage };
+  Object.assign(globalThis, { localStorage: ls, sessionStorage: ss });
+  try {
+    L.saveLock(await L.makeRecord('4821', 5));
+    ls.setItem(L.ACTIVE_KEY, '1');
+    L.markFreshLogin('Ania');
+    assert.ok(L.loadLock(), 'pierwsze logowanie nie usuwa blokady');
+    assert.equal(ss.getItem(L.UNLOCKED_KEY), '1');
+    assert.ok(Number(ls.getItem(L.ACTIVE_KEY)) > 1);
+    L.markFreshLogin('ania');
+    assert.ok(L.loadLock(), 'ta sama osoba zachowuje PIN');
+    L.markFreshLogin('bartek');
+    assert.equal(L.loadLock(), null, 'inna osoba: PIN usunięty');
+  } finally { Object.assign(globalThis, old); }
+});

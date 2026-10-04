@@ -54,7 +54,7 @@ export default function WebLockSettings() {
       removeLock(); setRec(null); reset(); notify(); flash('Blokada wyłączona.');
     } else {
       const f = recordFail(); setPin('');
-      if (f.logout) { setErr('Zbyt wiele błędnych prób. Wylogowuję…'); await forceLogout(); removeLock(); }
+      if (f.logout) { setErr('Zbyt wiele błędnych prób. Wylogowuję…'); if (await forceLogout()) removeLock(); }
       else setErr(f.wait > 0 ? `Niepoprawny PIN. Spróbuj za ${Math.ceil(f.wait / 1000)} s.` : 'Niepoprawny PIN.');
     }
     setBusy(false);

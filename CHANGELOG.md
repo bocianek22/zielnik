@@ -8,6 +8,17 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.38.0] - 2026-10
+### Dodano
+- Lista sesji i urządzeń w profilu (POM-27): opis urządzenia (np. „Chrome, Android”), kraj, ostatnie użycie; wylogowanie pojedynczej sesji i „Wyloguj inne urządzenia”. Wylogowanie unieważnia sesję na serwerze, więc skopiowany token przestaje działać. Bez zapisu adresu IP i pełnego User-Agent.
+- Blokada PIN-em w przeglądarce i PWA (POM-25): PIN 4-8 cyfr zapisany tylko jako skrót PBKDF2 na urządzeniu, opcjonalnie odcisk palca/twarz (WebAuthn), blokada po 1/5/15 min nieobecności, zasłona przy przełączaniu aplikacji, opóźnienia po błędnych próbach i wylogowanie po 10 błędach.
+- Wylogowanie po bezczynności (opcja urządzenia: 1/8/24 h), także w aplikacji Android; przy niewysłanych zapisach offline czeka na sieć.
+### Zmieniono
+- Zmiana hasła wylogowuje pozostałe urządzenia, bieżące zostaje zalogowane.
+- PIN poprzedniej osoby przestaje obowiązywać, gdy na urządzeniu zaloguje się ktoś inny.
+### Uwaga przy wdrożeniu
+- Migracja addytywna: tabela `sessions`. Dotychczasowe sesje działają dalej (bez wylogowania). Tabela nie trafia do kopii: odtworzenie bazy z kopii wylogowuje wszystkich.
+
 ## [0.37.0] - 2026-10
 ### Dodano
 - Pora i sposób przyjęcia przy „Zużyłem” (POM-03): opcjonalne, zwinięte w panelu (pora domyślnie z godziny zapisu, sposób zapisywany tylko, gdy wybrany), korekta w Historii, sekcja „Pory dnia i sposób przyjęcia” w raporcie dla lekarza (liczba wpisów, bez wniosków), eksport.

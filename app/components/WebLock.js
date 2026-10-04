@@ -52,8 +52,8 @@ export default function WebLock() {
   // blokada: start, ukrycie i powrót do karty, zmiana ustawień
   useEffect(() => {
     if (isNative() || pub) {
+      // samo wejście na /login nie odblokowuje (ominięcie blokady przy ważnej sesji); odblokowuje markFreshLogin po zalogowaniu
       setCover(null); setLocked(false);
-      if (pub) unlocked(); // po zalogowaniu hasłem nie pytamy od razu o PIN
       return undefined;
     }
     const evaluate = () => {
@@ -72,16 +72,20 @@ export default function WebLock() {
       } else evaluate();
     };
     const onHide = () => { if (loadLock()) setCover('cover'); };
+    // powrót z bfcache (iOS Safari) nie zawsze daje visibilitychange: bez tego zostałaby sama zasłona
+    const onShow = (e) => { if (e.persisted) evaluate(); };
     evaluate();
     document.addEventListener('visibilitychange', onVis);
     window.addEventListener('pagehide', onHide);
+    window.addEventListener('pageshow', onShow);
     window.addEventListener(LOCK_EVENT, evaluate);
     return () => {
       document.removeEventListener('visibilitychange', onVis);
       window.removeEventListener('pagehide', onHide);
+      window.removeEventListener('pageshow', onShow);
       window.removeEventListener(LOCK_EVENT, evaluate);
     };
-  }, [pub, unlocked]);
+  }, [pub]);
 
   // wylogowanie po bezczynności
   useEffect(() => {
@@ -97,10 +101,13 @@ export default function WebLock() {
       const hours = loadIdleHours();
       let last = 0;
       try { last = Number(localStorage.getItem(ACTIVE_KEY)) || 0; } catch { /* jw. */ }
-      if (!last) { touch(); return; }
-      if (idleExpired(last, Date.now(), hours)) forceLogout({ keepData: true });
+      if (!last) { touch(); return false; }
+      if (!idleExpired(last, Date.now(), hours)) return false;
+      forceLogout({ keepData: true });
+      return true;
     };
-    check(); touch();
+    // przy wygaśnięciu nie odświeżamy zegara: wylogowanie czekające na sieć ma się powtórzyć przy następnym sprawdzeniu
+    if (!check()) touch();
     const evs = ['pointerdown', 'keydown', 'scroll', 'touchstart'];
     evs.forEach((e) => window.addEventListener(e, touch, { capture: true, passive: true }));
     const t = setInterval(check, 60000);
