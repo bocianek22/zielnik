@@ -51,7 +51,8 @@ export const PUT = safe(async (req) => {
 export const DELETE = safe(async (req) => {
   const { user, res } = await requireUser();
   if (res) return res;
-  const { day } = await req.json().catch(() => ({}));
-  await sql()`DELETE FROM symptom_log WHERE user_id = ${user.id} AND day = ${String(day)}::date`;
+  const day = String((await req.json().catch(() => ({}))).day ?? '');
+  if (!DATE.test(day) || Number.isNaN(Date.parse(day))) return bad('Nieprawidłowa data.');
+  await sql()`DELETE FROM symptom_log WHERE user_id = ${user.id} AND day = ${day}::date`;
   return NextResponse.json(await load(user.id));
 });

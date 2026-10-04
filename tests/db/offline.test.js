@@ -127,3 +127,8 @@ test('zapis z kolejki innego konta: 409 i nic nie zapisano', { skip }, async () 
   assert.equal((await use(B, s, 1, randomUUID())).status, 200);
   assert.equal(await stock(B, s), 3);
 });
+
+test('DELETE /api/symptoms: błędna data daje 400, a nie błąd serwera', { skip }, async () => {
+  const r = await call(ids.ania, 'symptoms', 'DELETE', { day: 'nie-data' });
+  assert.equal(r.status, 400);
+});
