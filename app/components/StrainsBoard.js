@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { api } from '@/lib/api';
 import useNativeRefresh from './native/useNativeRefresh';
 import { KINDS } from '@/lib/kinds';
@@ -9,7 +9,7 @@ import { TAG_LIST, strainTags } from '@/lib/effects';
 import StrainCard from './StrainCard';
 import StrainForm from './StrainForm';
 import Icon from './Icon';
-import TodayPanel from './TodayPanel';
+import { useHome } from './HomeStore';
 import SearchSuggest from './SearchSuggest';
 import { matches } from '@/lib/searchMatch';
 import { strainItems, producerItems, flavorItems } from '@/lib/searchItems';
@@ -23,26 +23,8 @@ const avgOf = (s) => {
   return r.length ? r.reduce((a, e) => a + Number(e.rating), 0) / r.length : null;
 };
 
-export default function StrainsBoard({ initialStrains, initialOptions, me, usage = { perDay: 0, perDayMl: 0, cost: 0 }, bought = { grams: 0, ml: 0, cost: 0 },
-  series: initialSeries = [], prescriptions = { items: [], total: 0, urgent: false }, recent: initialRecent = [], symptoms = null }) {
-  // wykup w tym miesiącu osobno w g (susz) i ml (olej, pen)
-  const [boughtU, setBoughtU] = useState({ g: bought.grams, ml: bought.ml || 0 });
-  const boughtG = boughtU.g;
-  const [series, setSeries] = useState(initialSeries);
-  const [recent, setRecent] = useState(initialRecent);
-  const [low, setLow] = useState(3);      // próg "Kończy się" (g), zapisywany w tej przeglądarce
-  const [limit, setLimit] = useState(0);  // miesięczny limit wykupu (g), zapisywany w tej przeglądarce
-  useEffect(() => {
-    try {
-      setLow(Number(localStorage.getItem('zielnik.low') ?? 3));
-      setLimit(Number(localStorage.getItem('zielnik.limit') ?? 0));
-    } catch {}
-  }, []);
-  const savePref = (key, set) => (e) => {
-    set(e.target.value === '' ? 0 : Number(e.target.value));
-    try { localStorage.setItem(key, e.target.value || '0'); } catch {}
-  };
-  const dailyUse = usage.perDay; // g/dzień (susz); ml/dzień: usage.perDayMl
+export default function StrainsBoard({ initialStrains, initialOptions, me }) {
+  const { low, entrySaved: homeSaved, subscribe, sync } = useHome();
   const [strains, setStrains] = useState(initialStrains);
   const [options, setOptions] = useState(initialOptions);
   const [query, setQuery] = useState('');
@@ -84,28 +66,27 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
   // przeciągnięcie w aplikacji natywnej: dociąga listę, nie zamykając otwartego formularza
   useNativeRefresh(async () => { const r = await api('/api/strains'); setStrains(r.strains); setOptions(r.options); });
 
-  // "Do wykupienia" jest wspólne dla puli, więc aktualizujemy je we wszystkich odmianach z tej samej puli
-  function entrySaved(strainId, rawEntry) {
-    const { bought: b, used, ...entry } = rawEntry;
-    // gramy i ml liczone osobno: jednostka z postaci zapisanej odmiany
-    const unit = unitOf(strains.find((s) => s.id === strainId)?.form);
-    if (b) setBoughtU((x) => ({ ...x, [unit]: x[unit] + b }));
-    // zapisane zużycie trafia do dzisiejszego słupka wykresu w panelu „Dziś”
-    // ujemne used: „Cofnij” zdejmuje cofnięte zużycie ze słupka (wpis był z ostatnich minut, więc z dzisiaj)
-    const sk = unit === 'ml' ? 'ml' : 'grams';
-    if (used) setSeries((list) => list.map((d, i) => (i === list.length - 1 ? { ...d, [sk]: Math.max((Number(d[sk]) || 0) + Number(used), 0) } : d)));
-    if (used > 0) setRecent((ids) => [strainId, ...ids.filter((x) => x !== strainId)]);
+  // zmiana wpisu w stanie listy; „Do wykupienia” jest wspólne dla puli, więc aktualizujemy je we wszystkich odmianach z tej samej puli
+  const applyEntry = useCallback((strainId, entry) => {
+    const { bought: _b, used: _u, ...en } = entry;
     setStrains((list) => {
       const key = list.find((s) => s.id === strainId)?.pool_key;
       return list.map((s) => ({
         ...s,
         entries: s.entries.map((e) => {
           if (e.userId !== me.id) return e;
-          if (s.id === strainId) return { ...e, ...entry };
-          return s.pool_key === key && entry.remaining !== undefined ? { ...e, remaining: entry.remaining } : e;
+          if (s.id === strainId) return { ...e, ...en };
+          return s.pool_key === key && en.remaining !== undefined ? { ...e, remaining: en.remaining } : e;
         }),
       }));
     });
+  }, [me.id]);
+  // zapisy z panelu „Dziś” (także te sprzed wczytania listy)
+  useEffect(() => subscribe(applyEntry), [subscribe, applyEntry]);
+  function entrySaved(strainId, rawEntry) {
+    const s = strains.find((x) => x.id === strainId);
+    applyEntry(strainId, rawEntry);
+    homeSaved(strainId, rawEntry, { name: s?.name, form: s?.form }, true);
   }
 
   // Kolejka offline (POM-14): zapis usunięty z kolejki albo odrzucony przez serwer cofa stan pokazany od razu
@@ -137,10 +118,12 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
   // sumy osobno dla g i ml (pula łączy tylko odmiany tej samej postaci, więc ma jedną jednostkę)
   const byUnit = (list, val) => list.reduce((a, s) => { a[unitOf(s.form)] += val(s); return a; }, { g: 0, ml: 0 });
   const remainingU = byUnit([...pools.values()].map((list) => list[0]), (s) => Number(mine(s).remaining) || 0);
-  const totalRemaining = remainingU.g;
-
   const stockU = byUnit(strains, (s) => Number(mine(s).current || 0));
-  const totalStock = stockU.g;
+  // panel „Dziś” dostaje sumy z pełnej listy (np. po edycji odmiany albo odświeżeniu)
+  useEffect(() => {
+    sync({ stock: stockU, remaining: remainingU, count: strains.length, current: Object.fromEntries(strains.map((s) => [s.id, Number(mine(s).current) || 0])) });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [strains]);
 
   const tastes = useMemo(() => [...new Set(strains.map((s) => s.taste).filter(Boolean))], [strains]);
 
@@ -196,52 +179,8 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
   const canDelete = (s) => me.isAdmin || s.created_by === me.id;
   const done = () => refresh().catch((e) => setError(e.message));
 
-  // liczby w interfejsie: polski przecinek dziesiętny, najwyżej 2 miejsca
-  const n2 = (x) => Number(Number(x).toFixed(2)).toLocaleString('pl-PL');
-  const daysLeft = dailyUse > 0 && totalStock > 0 ? Math.floor(totalStock / dailyUse) : null;
-
-  // szybkie „Zużyłem” w panelu: ostatnio używana odmiana, którą nadal masz
-  const quick = useMemo(() => {
-    for (const id of recent) {
-      const s = strains.find((x) => x.id === id);
-      const cur = s ? Number(mine(s).current) : 0;
-      if (cur > 0) return { id: s.id, name: s.name, form: s.form, current: cur };
-    }
-    return null;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [strains, recent, me.id]);
-
   return (
-    <div className="stack">
-      {series.length > 0 && (
-        <TodayPanel stock={stockU} dailyUse={{ g: dailyUse, ml: usage.perDayMl || 0 }} bought={boughtU} low={low} series={series} prescriptions={prescriptions} symptoms={symptoms}
-          quick={quick} onUsed={entrySaved} fresh={strains.length === 0} onAdd={() => window.dispatchEvent(new Event('zielnik:new-strain'))} settings={(
-            <details className="prefs">
-              <summary>Szczegóły i ustawienia <Icon name="chevronDown" size={18} /></summary>
-              <dl className="facts">
-                {daysLeft != null && <div><dt>Średnie zużycie{usage.perDayMl > 0 && ' suszu'}</dt><dd>{n2(dailyUse)} g/dzień</dd></div>}
-                {usage.perDayMl > 0 && <div><dt>Średnie zużycie oleju i pena</dt><dd>{n2(usage.perDayMl)} ml/dzień</dd></div>}
-                {bought.cost > 0 && <div><dt>Koszt wykupu w tym miesiącu</dt><dd>ok. {n2(bought.cost)} zł</dd></div>}
-                {limit > 0 && <div><dt>Limit miesięczny (susz)</dt><dd>{n2(limit)} g, zostało {n2(Math.max(limit - boughtG, 0))} g</dd></div>}
-                {usage.cost > 0 && <div><dt>Koszt zużycia (30 dni)</dt><dd>{n2(usage.cost)} zł</dd></div>}
-                {totalRemaining > 0 && <div><dt>Do wykupienia łącznie{remainingU.ml > 0 && ', susz'}</dt><dd>{n2(totalRemaining)} g</dd></div>}
-                {remainingU.ml > 0 && <div><dt>Do wykupienia łącznie, olej i pen</dt><dd>{n2(remainingU.ml)} ml</dd></div>}
-              </dl>
-              {daysLeft == null && <p className="muted small">Zapisuj zużycie w karcie odmiany („Zużyłem”), a policzę średnie tempo i prognozę, na ile dni starczy zapasu.</p>}
-              {(totalRemaining > 0 || remainingU.ml > 0) && <p className="muted small">Odmiany z jednej puli „do wykupienia” liczone są raz.</p>}
-              <h3 className="prefs-title">Na tym urządzeniu</h3>
-              <div className="row">
-                <div className="field"><label htmlFor="pref-low">Próg „Kończy się” dla suszu (g)</label>
-                  <input id="pref-low" className="input" type="number" min="0" step="0.5" inputMode="decimal" value={low || ''} onChange={savePref('zielnik.low', setLow)} /></div>
-                <div className="field"><label htmlFor="pref-limit">Miesięczny limit wykupu suszu (g)</label>
-                  <input id="pref-limit" className="input" type="number" min="0" step="1" inputMode="numeric" value={limit || ''} onChange={savePref('zielnik.limit', setLimit)} /></div>
-              </div>
-            </details>
-          )} />
-      )}
-
-      <h2 className="home-section">Odmiany</h2>
-
+    <>
       <div className="toolbar">
         <SearchSuggest value={query} onChange={setQuery} groups={suggestGroups} onPick={pickSuggestion} historyKey="zielnik.odmiany.ostatnie"
           onEnter={() => document.activeElement?.blur?.()}
@@ -327,6 +266,6 @@ export default function StrainsBoard({ initialStrains, initialOptions, me, usage
         <StrainCard key={s.id} strain={s} meId={me.id} hidePrice={me.hidePrices} mates={matesOf(s)} low={low} cmpOn={cmp.includes(s.id)} onCmp={() => setCmp((c) => (c.includes(s.id) ? c.filter((x) => x !== s.id) : [...c, s.id].slice(-3)))} onEdit={() => setFormFor(s.id)} onEntrySaved={entrySaved} />
       )))}
       {visible.length > visibleLimit && <button className="btn ghost block" onClick={() => setVisibleLimit((l) => l + 30)}>Pokaż więcej ({visible.length - visibleLimit})</button>}
-    </div>
+    </>
   );
 }
