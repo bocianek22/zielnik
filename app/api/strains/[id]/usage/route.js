@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
 import { requireUser, bad, safe, intId } from '@/lib/guard';
-import { requestId } from '@/lib/ids';
+import { requestId, clientAt, otherAccount, OTHER_ACCOUNT_MSG } from '@/lib/ids';
 import { parseNumber } from '@/lib/strains';
 
 // Zapis zużycia: odejmuje gramy od Twojego aktualnego stanu i dopisuje wpis do dziennika.
@@ -15,6 +15,9 @@ export const POST = safe(async (req, { params }) => {
   if (g == null || Number.isNaN(g)) return bad('Podaj ilość (g lub ml, 0,01–1000).');
   const rid = requestId(body.requestId);
   if (rid === undefined) return bad('Błędny identyfikator zapisu.');
+  if (otherAccount(body, user)) return bad(OTHER_ACCOUNT_MSG, 409);
+  // zapis z kolejki offline niesie czas zapisu na telefonie (najwyżej 72 h wstecz), inaczej liczy się czas serwera
+  const at = clientAt(body.at)?.toISOString() ?? null;
 
   const q = sql();
   const exists = await q`SELECT 1 FROM strains WHERE id = ${id}`;
@@ -26,8 +29,9 @@ export const POST = safe(async (req, { params }) => {
   const [row] = await q`WITH old AS (
       SELECT current_amount FROM user_strain WHERE strain_id = ${id}::int AND user_id = ${user.id}::int FOR UPDATE
     ), ins AS (
-      INSERT INTO usage_log (user_id, strain_id, grams, request_id, stock_delta)
-      SELECT ${user.id}::int, ${id}::int, ${g}::numeric, ${rid}::text, LEAST(${g}::numeric, GREATEST(old.current_amount, 0)) FROM old
+      INSERT INTO usage_log (user_id, strain_id, grams, request_id, stock_delta, created_at)
+      SELECT ${user.id}::int, ${id}::int, ${g}::numeric, ${rid}::text, LEAST(${g}::numeric, GREATEST(old.current_amount, 0)),
+             COALESCE(${at}::timestamptz, now()) FROM old
       ON CONFLICT (user_id, request_id) DO NOTHING
       RETURNING id, grams, stock_delta
     ), upd AS (

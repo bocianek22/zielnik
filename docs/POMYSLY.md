@@ -18,7 +18,7 @@ Reguła wyboru: brak zależności od decyzji właściciela (🌐 ⚖️ 💳 �
 | 4 | **POM-09 Raport dla lekarza 2.0**: tydzień po tygodniu, objawy przy odmianach, aktualne recepty | M | Raport to jedyny wynik aplikacji, który trafia poza pacjenta. Dziś objawy to średnia z okresu (lekarz nie zobaczy zmiany), a recepty w ogóle nie występują. Wszystko liczy się z istniejących tabel. |
 | 5 | **POM-21 Dostępność wykresów i formularzy** (wykres objawów, suwaki, kolory) | S/M | Wykres objawów odróżnia cztery linie tylko kolorem i nie ma listy dla czytnika ekranu (wykres w panelu „Dziś” ją ma). UX-2 jest na liście kontrolnej 1.0.0; ta część jest tania i zamyka największe luki na ekranach zdrowotnych. |
 
-Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnienie o objawach (⏱ 🔑), POM-14 zapisy offline (po POM-02).
+Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnienie o objawach (⏱ 🔑).
 
 ## Tabela pomysłów
 
@@ -37,7 +37,7 @@ Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnieni
 | POM-11 | Eksport CSV dziennika (objawy + zużycie) | 3 | S | P | – | nowy | – |
 | POM-12 | Skróty aplikacji w APK i głęboki link „Zużyłem” | 3 | S | P | – | zrobiony (APK 0.3.0: skróty „Zapisz”, „Samopoczucie”, „Raport”; `/?zuzylem=1`, `/#objawy`) | MOB-14 (APK) |
 | POM-13 | Widżet Androida „Zapas i Zużyłem” | 4 | L | P | – | nowy | MOB-16 |
-| POM-14 | Zapisy offline z kolejką | 4 | M/L | P, T | POM-02 | nowy | MOB-8 |
+| POM-14 | Zapisy offline z kolejką | 4 | M/L | P, T | POM-02 | zrobiony (czeka na wydanie; kolejka w IndexedDB dla „Zużyłem”, „Wykupiłem” i objawów) | MOB-8 |
 | POM-15 | Przypomnienie o wizycie i kontroli recepty | 4 | S | P | 🔑 | nowy | PAC-16 |
 | POM-16 | Recepta: podział na pozycje i powiązanie zakupów | 3 | M | T | – | nowy | PAC-4 |
 | POM-17 | Wyszukiwanie bez polskich znaków i w moich notatkach | 3 | S/M | P | – | nowy | – |
@@ -185,6 +185,7 @@ Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnieni
 - Propozycja: kolejka w IndexedDB tylko dla zapisów „Zużyłem”, „Wykupiłem” i objawów (z `requestId` z POM-02, `taken_at` z POM-03), wysyłana po odzyskaniu sieci; licznik „1 zapis czeka na sieć”. Nie przechowujemy offline odczytów danych (świadoma decyzja). Kolejka czyszczona przy wylogowaniu; w trybie dyskretnym bez nazw w komunikacie.
 - Ryzyko: P (dane zdrowotne na urządzeniu do czasu wysłania), T (konflikty stanu).
 - Jak zmierzyć: test ręczny w trybie samolotowym; `error_log` bez duplikatów.
+- Stan: zrobione. Logika kolejki w `lib/offline-queue.js` (testy `tests/offline-queue.test.js`), przeglądarka w `lib/offline-client.js` (IndexedDB, limit czasu 10 s, Web Locks między kartami), licznik i panel w nagłówku (`OfflineQueue.js`). Do kolejki trafia zapis przy `navigator.onLine === false`, błędzie sieci albo przekroczonym czasie, a także gdy coś już czeka (kolejność). Wysyłka: start strony, `online`, powrót do karty, ponowienia 5 s → 5 min przy 5xx/408/429; 401/403 czeka na zalogowanie (nic nie kasuje); inne 4xx (w tym 409 „inne konto”) odrzuca z komunikatem i cofa stan. Serwer: opcjonalne `at` (czas z telefonu, najwyżej 72 h wstecz) dla zużycia i wykupu oraz `userId` → 409 przy zmianie konta (`tests/db/offline.test.js`). Kolejka czyszczona przy wylogowaniu (z pytaniem, gdy coś czeka), usunięciu konta i przy starcie innego konta. Service worker bez zmian (Background Sync nie działa w Safari/Firefoksie, a w APK SW jest wyrejestrowany).
 
 ### Wyszukiwanie i nawigacja
 

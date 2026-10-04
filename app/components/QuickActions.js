@@ -53,8 +53,24 @@ export default function QuickActions({ strainId, name, form = 'susz', current, r
     setBusy(true); setErr('');
     try {
       const kind = MODES[mode].path;
-      const r = await qs.save(kind, g);
+      // o ile od razu zmieni się stan i pula, gdy zapis trafi do kolejki offline (lista cofnie to przy usunięciu z kolejki)
+      const cur = Number(current) || 0, rem = Number(remaining) || 0;
+      const delta = mode === 'use' ? Math.min(g, Math.max(cur, 0)) : g;
+      const poolDelta = mode === 'use' ? 0 : Math.min(g, Math.max(rem, 0));
+      const r = await qs.save(kind, g, { name, unit, delta, poolDelta });
       if (!mounted.current) return;
+      if (r.queued) {
+        const undoQ = { kind, queued: r.queued.id };
+        if (mode === 'use') {
+          onSaved({ current: cur - delta, used: g });
+          qs.show(`Czeka na wysłanie: −${pl(g)} ${unit}, zostanie ${pl(cur - delta)} ${unit}. Wyślę, gdy wróci sieć.`, false, undoQ);
+        } else {
+          onSaved({ current: cur + g, remaining: rem - poolDelta, bought: g });
+          qs.show(`Czeka na wysłanie: +${pl(g)} ${unit}, będzie ${pl(cur + g)} ${unit}. Wyślę, gdy wróci sieć.`, false, undoQ);
+        }
+        setMode(null); setVal('');
+        return;
+      }
       const undo = r.id ? { kind, id: r.id } : null;
       if (mode === 'use') {
         onSaved({ current: r.current, used: r.used });

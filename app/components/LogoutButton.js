@@ -1,6 +1,8 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
+import { clearQueue, flushQueue, queueState } from '@/lib/offline-client';
+import { pendingText } from '@/lib/offline-queue';
 
 // Wylogowanie wyłącza też powiadomienia push na tym urządzeniu (przypomnienia nie powinny trafiać na urządzenie,
 // z którego korzysta już ktoś inny). Gdy coś pójdzie nie tak, i tak wylogowujemy.
@@ -22,6 +24,13 @@ export default function LogoutButton({ className = 'btn ghost small on-dark', ch
       type="button"
       className={className}
       onClick={async () => {
+        // kolejka offline (dane zdrowotne) nie zostaje na urządzeniu po wylogowaniu: najpierw próba wysłania
+        if (queueState().pending > 0) {
+          await flushQueue().catch(() => {});
+          const n = queueState().pending;
+          if (n > 0 && !window.confirm(`${pendingText(n)}. Wylogowanie usunie ${n === 1 ? 'go' : 'je'} z tego urządzenia. Wylogować?`)) return;
+        }
+        await clearQueue();
         const pushEndpoint = await dropPush();
         await api('/api/auth/logout', 'POST', pushEndpoint ? { pushEndpoint } : undefined);
         router.replace('/login');
