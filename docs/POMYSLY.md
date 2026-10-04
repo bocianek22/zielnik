@@ -1,61 +1,68 @@
 # Pomysły na rozwój Zielnika
 
-Lista prowadzona przez agenta „innowacje” (`.claude/agents/innowacje.md`). Stan na wersję **0.32.0** (panel „Dziś”, szczegóły odmiany z wykresami, push FCM, tryb dyskretny, recepty, dziennik objawów, raport dla lekarza, znajomi i grupy). Pierwsza runda: 2026-10-03, bez implementacji.
+Lista prowadzona przez agenta „innowacje” (`.claude/agents/innowacje.md`). Stan na wersję **0.38.0** (0.33: Cofnij, szybki wpis objawów, czas polski; 0.34: podpowiedzi wyszukiwania i ml; 0.35: Moje obserwacje i raport 2.0; 0.36: zapisy offline, skróty APK; 0.37: sposób i pora, CSV, puste stany; 0.38: sesje i blokada PIN w PWA). W toku w 0.39.0: POM-07 i POM-23 (ich wierszy nie zmieniamy do wydania). Pierwsza runda: 2026-10-03, odświeżenie: 2026-10-04, bez implementacji.
 
 Oznaczenia: **wartość** dla pacjenta 1-5 · **koszt** S (godziny) / M (dzień-dwa) / L (tydzień i więcej) · **ryzyko**: P prywatność / danych zdrowotnych, Pr prawo, T techniczne · **zależności**: 🌐 domena, ⚖️ prawnik, 💳 płatności, 📧 e-mail, 🔑 klucze w Vercel (VAPID/FCM), ⏱ cron co godzinę (`PUSH_CRON_HOURLY=1`, plan Vercel Pro, PLA-3). Identyfikatory `POM-xx` są nowe; przy pokrywaniu się z `ROADMAP.md` podano powiązany punkt i zawężenie.
 
 Zasady oceny: odrzucamy wszystko, co jest poradą medyczną, sugeruje zwiększanie dawek, reklamuje produkty lecznicze lub apteki, albo ujawnia dane zdrowotne poza właściciela. „Jak zmierzyć” korzysta tylko z tego, co projekt ma: zbiorcze liczniki SQL w panelu admina (`StatsAdmin`, bez danych zdrowotnych konkretnych osób), `error_log`, Lighthouse (cele MOB: LCP < 2,5 s, INP < 200 ms, CLS < 0,1), testy w `tests/` i ręczna próba na telefonie. Nie dodajemy analityki zachowań.
 
-## Rekomendacje na kolejne wydania (top 5)
+## Rekomendacje na kolejne wydania (0.40.0-0.41.0)
 
-Reguła wyboru: brak zależności od decyzji właściciela (🌐 ⚖️ 💳 📧 ani kluczy), koszt S lub M, rozwija to, co weszło w 0.30-0.32. Kolejność = sugerowana kolejność wydań.
+Reguła wyboru: brak zależności od decyzji właściciela (🌐 ⚖️ 💳 📧 ani kluczy), koszt S lub M, domyka luki z przeglądów 0.35-0.38 i poprawia jakość zapisów, zanim dojdą kolejne funkcje. Kolejność = sugerowana kolejność wydań. Poprzednia pula (POM-01, 02, 04, 06, 09, część 21) jest zrobiona.
 
 | # | Pomysł | Koszt | Uzasadnienie |
 |---|---|---|---|
-| 1 | **POM-01 Dzień w czasie polskim w całym kliencie** (+ POM-02 „Cofnij” i idempotencja zapisów) | S + S/M | To błąd, nie funkcja: między 0:00 a ok. 2:00 czasu polskiego „Dziś” w dzienniku objawów to wczoraj, a pole daty nie pozwala wybrać prawdziwego dnia. Idempotencja jest otwarta w HANDOFF (przegląd 0.30.0) i jest warunkiem kolejki offline (POM-14). Małe, testowalne, bez ryzyka. |
-| 2 | **POM-04 Szybki wpis objawów w panelu „Dziś”** | M | Dziennik objawów jest dziś osobnym ekranem z czterema suwakami. Bez regularnych wpisów korelacje (POM-06) i raport nie mają danych. Wpis jednym dotknięciem z ekranu, który i tak otwiera się co dzień, to największa dźwignia jakości danych. |
-| 3 | **POM-06 „Moje obserwacje”: objawy a odmiany (opisowo)** (zrobione: `/obserwacje`) | M | Najczęstsze pytanie pacjenta: „po której odmianie lepiej śpię”. Dane już są (`usage_log`, `symptom_log`). Liczymy wyłącznie opisowe średnie z własnych danych, z liczbą dni i przesunięciem snu o jeden dzień, bez porad i bez linii trendu dawka-objaw. Zawęża PAC-7 (L) do bezpiecznej wersji M. |
-| 4 | **POM-09 Raport dla lekarza 2.0**: tydzień po tygodniu, objawy przy odmianach, aktualne recepty | M | Raport to jedyny wynik aplikacji, który trafia poza pacjenta. Dziś objawy to średnia z okresu (lekarz nie zobaczy zmiany), a recepty w ogóle nie występują. Wszystko liczy się z istniejących tabel. |
-| 5 | **POM-21 Dostępność wykresów i formularzy** (wykres objawów, suwaki, kolory) | S/M | Wykres objawów odróżnia cztery linie tylko kolorem i nie ma listy dla czytnika ekranu (wykres w panelu „Dziś” ją ma). UX-2 jest na liście kontrolnej 1.0.0; ta część jest tania i zamyka największe luki na ekranach zdrowotnych. |
+| 1 | **0.40.0 „Twarde podstawy”: POM-24 Lighthouse w CI + POM-34 trasy auth bez `safe()`/`requireUser()` + POM-33 „Zmień PIN”** | S + S + S | Trzy małe luki z przeglądów w jednym wydaniu. Lighthouse w CI zmierzy efekt POM-23 (lżejszy ekran główny) zamiast zgadywać. `change-password` to jedyna trasa chroniona sesją bez `requireUser()` i bez `safe()`. „Zmień PIN” dziś wymaga wyłączenia blokady i ustawienia od nowa, co zniechęca do jej używania. |
+| 2 | **POM-38 „Dzień bez zużycia” jednym dotknięciem** | S/M | „Moje obserwacje” liczą „dni bez zużycia” od pierwszego zapisu, czyli brak wpisu uznają za brak użycia. Kto zapomni o wpisie, zawyża grupę porównawczą. Znacznik „dziś bez zużycia” rozdziela „nie wpisano” od „nie użyto”, poprawiając wiarygodność POM-06 i raportu. Bez nagradzania i bez serii. |
+| 3 | **POM-37 Karta „Co zostało na recepcie”** (apteka, wizyta) | S/M | Pacjent w aptece pyta: ile jeszcze mogę wykupić i której odmiany. Dane są (recepty, pula „do wykupienia”, zapas), ale rozproszone po trzech ekranach. Jeden zwarty widok, bez cen i bez nazw aptek (POM-R4). |
+| 4 | **0.41.0: POM-35 lekki indeks odmian i paginacja listy** (po POM-23) | M | Pełne `listStrains` ładują jeszcze `/wheel`, `/rankings` i `GET /api/strains`; przy kilkuset odmianach rośnie czas i transfer. Do podpowiedzi i wyborów wystarczy `strainIndex()` (id, nazwa, producent). Zamyka część PLA-5 po stronie serwera. |
+| 5 | **0.41.0: POM-18 + POM-21/22 reszta**: „W dniach z tą odmianą” w szczegółach i porównaniu, suwaki i duże cele | S + S/M | Dokończenie POM-06 tam, gdzie pacjent wybiera odmianę, oraz zamknięcie UX-2 przed 1.0.0 (drżenie rąk, osoby starsze, TalkBack). |
 
-Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnienie o objawach (⏱ 🔑).
+Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnienie o objawach (⏱ 🔑), POM-15 przypomnienie o wizycie (🔑), POM-36 „Do omówienia z lekarzem”.
 
 ## Tabela pomysłów
 
 | ID | Pomysł | Wartość | Koszt | Ryzyko | Zależności | Status | ROADMAP |
 |---|---|---|---|---|---|---|---|
-| POM-01 | Dzień w czasie polskim w kliencie | 4 | S | T | – | nowy (błąd) | DT-5 |
-| POM-02 | „Cofnij” po zapisie i idempotencja szybkich akcji | 4 | S/M | T | – | nowy | HANDOFF 6.6 |
-| POM-03 | Pora i sposób przyjęcia przy „Zużyłem” | 3 | M | P | – | zrobiony (czeka na wydanie; sposób i pora, bez „kiedy” - dzień poprawia Historia) | – |
-| POM-04 | Szybki wpis objawów w panelu „Dziś” | 5 | M | P | – | nowy | PAC-14 |
+| POM-01 | Dzień w czasie polskim w kliencie | 4 | S | T | – | zrobiony (0.33.0: dziennik, recepty, raport) | DT-5 |
+| POM-02 | „Cofnij” po zapisie i idempotencja szybkich akcji | 4 | S/M | T | – | zrobiony (0.33.0: `requestId`, Cofnij 8 s / 10 min na serwerze) | HANDOFF 6.6 |
+| POM-03 | Pora i sposób przyjęcia przy „Zużyłem” | 3 | M | P | – | zrobiony (0.37.0; bez „kiedy” - dzień poprawia Historia) | – |
+| POM-04 | Szybki wpis objawów w panelu „Dziś” | 5 | M | P | – | zrobiony (0.33.0) | PAC-14 |
 | POM-05 | Wieczorne przypomnienie o wpisie objawów | 4 | S | P | ⏱ 🔑 | nowy | PAC-9 |
-| POM-06 | Moje obserwacje: objawy a odmiany | 5 | M | P, Pr | – | zrobiony (ekran `/obserwacje`; sekcja w szczegółach odmiany zostaje do POM-18) | PAC-7 (zawężenie) |
+| POM-06 | Moje obserwacje: objawy a odmiany | 5 | M | P, Pr | – | zrobiony (0.35.0, ekran `/obserwacje`; sekcja w szczegółach odmiany zostaje do POM-18) | PAC-7 (zawężenie) |
 | POM-07 | Własne objawy i skale (np. VAS, nudności, apetyt) | 4 | M | P | – | nowy | PAC-14, PAC-6 |
 | POM-08 | Nawyki bez presji: seria wpisów objawów | 3 | S | Pr | – | nowy | – |
-| POM-09 | Raport dla lekarza 2.0 | 5 | M | P | – | zrobiony (czeka na wydanie) | MON-4 (przedsionek) |
+| POM-09 | Raport dla lekarza 2.0 | 5 | M | P | – | zrobiony (0.35.0) | MON-4 (przedsionek) |
 | POM-10 | Bezpieczne udostępnienie raportu lekarzowi linkiem | 4 | M | P, Pr | ⚖️ | nowy | MON-4 |
-| POM-11 | Eksport CSV dziennika (objawy + zużycie) | 3 | S | P | – | gotowe (do wydania) | – |
-| POM-12 | Skróty aplikacji w APK i głęboki link „Zużyłem” | 3 | S | P | – | zrobiony (APK 0.3.0: skróty „Zapisz”, „Samopoczucie”, „Raport”; `/?zuzylem=1`, `/#objawy`) | MOB-14 (APK) |
+| POM-11 | Eksport CSV dziennika (objawy + zużycie) | 3 | S | P | – | zrobiony (0.37.0) | – |
+| POM-12 | Skróty aplikacji w APK i głęboki link „Zużyłem” | 3 | S | P | – | zrobiony (0.36.0, APK 0.3.0) | MOB-14 (APK) |
 | POM-13 | Widżet Androida „Zapas i Zużyłem” | 4 | L | P | – | nowy | MOB-16 |
-| POM-14 | Zapisy offline z kolejką | 4 | M/L | P, T | POM-02 | zrobiony (czeka na wydanie; kolejka w IndexedDB dla „Zużyłem”, „Wykupiłem” i objawów) | MOB-8 |
+| POM-14 | Zapisy offline z kolejką | 4 | M/L | P, T | POM-02 | zrobiony (0.36.0) | MOB-8 |
 | POM-15 | Przypomnienie o wizycie i kontroli recepty | 4 | S | P | 🔑 | nowy | PAC-16 |
 | POM-16 | Recepta: podział na pozycje i powiązanie zakupów | 3 | M | T | – | nowy | PAC-4 |
-| POM-17 | Wyszukiwanie bez polskich znaków i w moich notatkach | 3 | S/M | P | – | nowy | – |
+| POM-17 | Wyszukiwanie bez polskich znaków i w moich notatkach | 3 | S/M | P | – | częściowo (0.34.0: bez polskich znaków i podpowiedzi; brak grupy „Moje notatki”) | – |
 | POM-18 | Porównanie z moimi statystykami i objawami | 3 | S | P | POM-06 | nowy | – |
 | POM-19 | Kreator pierwszego uruchomienia | 4 | M | – | – | nowy | UX-6 |
-| POM-20 | Puste stany prowadzące do pierwszego wpisu | 3 | S | – | – | częściowo (bez Historii i raportu) | UX-5 |
-| POM-21 | Dostępność wykresów i formularzy | 4 | S/M | – | – | nowy | UX-2 |
+| POM-20 | Puste stany prowadzące do pierwszego wpisu | 3 | S | – | – | zrobiony (0.37.0: Dziś, dziennik, recepty, Historia, raport) | UX-5 |
+| POM-21 | Dostępność wykresów i formularzy | 4 | S/M | – | – | częściowo (0.33.0: wykres objawów kreska + kształt + tabela dla czytnika; zostają suwaki, kolory, axe) | UX-2 |
 | POM-22 | Większy tekst i tryb „duże cele” | 3 | S | – | – | nowy | UX-2 |
 | POM-23 | Wydajność ekranu głównego (dane „Dziś” bez pełnej listy) | 3 | M | T | – | nowy | PLA-5, MOB-9 |
-| POM-24 | Budżety Lighthouse w CI | 2 | S | – | – | nowy | PLA-16, MOB-15 |
-| POM-25 | Blokada PIN/biometrią także w PWA i automatyczne wylogowanie | 4 | M | P | – | zrobiony (czeka na wydanie; PIN lokalny, WebAuthn jako szybkie odblokowanie, wylogowanie po bezczynności) | KON-11 |
+| POM-24 | Budżety Lighthouse w CI | 3 | S | – | – | nowy (rekomendacja 0.40.0; zmierzy POM-23) | PLA-16, MOB-15 |
+| POM-25 | Blokada PIN/biometrią także w PWA i automatyczne wylogowanie | 4 | M | P | – | zrobiony (0.38.0; zmiana PIN: POM-33) | KON-11 |
 | POM-26 | Klucze dostępu (passkeys) | 3 | M | T | 🌐 | nowy | KON-9 |
-| POM-27 | Lista sesji i urządzeń | 3 | M | T | – | zrobiony (czeka na wydanie) | KON-4 |
+| POM-27 | Lista sesji i urządzeń | 3 | M | T | – | zrobiony (0.38.0) | KON-4 |
 | POM-28 | Szyfrowanie notatek i dziennika objawów w bazie | 4 | L | T | – | nowy | PRA-8 |
 | POM-29 | Tryb opiekuna (wgląd tylko do odczytu) | 3 | L | P, Pr | ⚖️ | nowy | PAC-15 |
 | POM-30 | Grupy: wspólne pytania i odpowiedzi bez ocen produktów | 2 | M | Pr | ⚖️ | nowy | SPO-8 |
 | POM-31 | Alert powrotu odmiany do katalogu | 3 | M | Pr | ⚖️ | nowy | KAT-7 |
 | POM-32 | Zgłoszenie „ta partia działała inaczej” | 3 | M | – | – | nowy | PAC-1, PAC-2 |
+| POM-33 | „Zmień PIN” w blokadzie bez jej wyłączania | 3 | S | P | – | nowy | KON-11 |
+| POM-34 | Trasy auth w trybie `safe()` / `requireUser()` (`change-password`) | 2 | S | T | – | nowy (z przeglądu) | – |
+| POM-35 | Lekki indeks odmian i paginacja listy po stronie serwera | 3 | M | T | POM-23 | nowy | PLA-5 |
+| POM-36 | „Do omówienia z lekarzem”: lista pytań przy raporcie | 3 | S | P | – | nowy | MON-4 |
+| POM-37 | Karta „Co zostało na recepcie” (apteka, wizyta) | 4 | S/M | P | – | nowy | PAC-4 |
+| POM-38 | „Dzień bez zużycia” i nadrabianie wpisów | 4 | S/M | P | – | nowy | PAC-7 |
+| POM-39 | Inne leki w raporcie dla lekarza (opcjonalna lista) | 3 | M | P, Pr | ⚖️ | nowy | PAC-5 |
 | POM-R1 | Seria dni z użyciem / odznaki za zużycie | – | – | Pr | – | **odrzucony** | – |
 | POM-R2 | Podpowiedź dawki („spróbuj 0,3 g”) | – | – | Pr | – | **odrzucony** | – |
 | POM-R3 | „Inni z bólem wybierają X” (wnioski z danych społeczności) | – | – | P, Pr | – | **odrzucony** | MON-7 |
@@ -281,6 +288,53 @@ Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnieni
 - Problem: ta sama nazwa może mieć różne partie; pacjent nie ma gdzie zapisać, że nowa paczka różni się od poprzedniej.
 - Propozycja: przy „Wykupiłem” opcjonalny numer serii; w szczegółach odmiany notatka per seria i (po POM-06) objawy per seria. Prywatne.
 - Jak zmierzyć: liczba zakupów z numerem serii (zbiorczo).
+
+### Luki z przeglądów 0.35-0.38 i nowe potrzeby (runda 2026-10-04)
+
+**POM-33 „Zmień PIN” w blokadzie** (KON-11)
+- Ekran / element: profil, „Blokada i bezpieczeństwo” (`app/profil/WebLockSettings.js`, `lib/applock.js`).
+- Problem: PIN można tylko włączyć i wyłączyć. Żeby zmienić cyfry, trzeba wyłączyć blokadę (przy okazji przepada zgoda na odcisk/twarz) i zaczynać od nowa; wielu użytkowników zostaje przy PIN-ie, który widział ktoś obok.
+- Propozycja: przycisk „Zmień PIN”: stary PIN (z istniejącymi opóźnieniami po błędach), nowy dwa razy, nowy skrót PBKDF2 z nową solą; ustawienia (czas blokady, odcisk) zostają. Po 10 błędach starego PIN-u to samo wylogowanie co przy odblokowaniu.
+- Jak zmierzyć: test w `tests/applock.test.js` (stary PIN odrzucony po zmianie, licznik błędów wspólny z odblokowaniem); ręcznie na telefonie.
+
+**POM-34 Trasy auth w trybie `safe()` / `requireUser()`** (dług)
+- Ekran / element: `app/api/auth/change-password/route.js`; trasy bez `safe()`: `login`, `register`, `client-error`, `version`.
+- Problem: reguła z `CLAUDE.md` (`safe()` + `requireUser()`) nie jest spełniona w trasie zmiany hasła: własny `try`, ręczne `getUser()`, własna odpowiedź 401. Trasy publiczne mogą zostać bez `requireUser()`, ale powinny mieć `safe()` albo jawny wyjątek na liście.
+- Propozycja: przepisać `change-password` na `safe()` + `requireUser()` bez zmiany zachowania (limit prób, `revokeOtherSessions`, komunikaty); do `scripts/check.js` dodać kontrolę „każdy `route.js` używa `safe(` albo jest na liście wyjątków publicznych”.
+- Jak zmierzyć: `npm run check` zawodzi dla nowej trasy bez `safe`; istniejące testy zmiany hasła w `tests/db/` przechodzą bez zmian.
+
+**POM-35 Lekki indeks odmian i paginacja listy** (PLA-5, po POM-23)
+- Ekran / element: `lib/strains.js` (`listStrains`), `/wheel`, `/rankings`, `GET /api/strains`, podpowiedzi i wybór odmiany w formularzach.
+- Problem: pełna lista z wpisami użytkownika jest ładowana tam, gdzie potrzebna jest nazwa, producent i identyfikator. Przy kilkuset odmianach rośnie czas zapytania, transfer i zużycie pamięci WebView. `strainIndex()` już istnieje (szczegóły odmiany), ale nie jest używany szerzej.
+- Propozycja: `strainIndex()` (z `ids` i filtrem) jako źródło podpowiedzi i wyborów; lista na `/` stronicowana kursorem (`created_at, id`), „Pokaż więcej” zamiast pełnego ładowania; filtr i wyszukiwarka po stronie serwera przy dużej liście. Widoczność dalej przez `can_see`.
+- Ryzyko: T (regresje filtrów i sortowania po stronie klienta).
+- Jak zmierzyć: Lighthouse (POM-24) na koncie z 300 odmianami, czas odpowiedzi `/` w logach Vercel; test w `tests/db/strains-index.test.js` (kursor, brak odmian niewidocznych).
+
+**POM-36 „Do omówienia z lekarzem”** (MON-4)
+- Ekran / element: raport (`app/raport/page.js`), blok na górze.
+- Problem: przed wizytą pacjent pamięta pytania (zmiana postaci, skutki uboczne, przedłużenie recepty) i zapisuje je w notatkach telefonu poza aplikacją.
+- Propozycja: do 10 krótkich punktów zapisanych w koncie (nowa tabela, `user_id`, tekst do 200 znaków), drukowanych w raporcie pod zestawieniem; punkt można odhaczyć po wizycie. Dane własne: `can_see`, eksport konta, kopia.
+- Jak zmierzyć: test w `tests/db/report.test.js` (cudzy punkt nie pojawia się, limit 10); wydruk dalej na 2 stronach A4.
+
+**POM-37 Karta „Co zostało na recepcie”** (PAC-4)
+- Ekran / element: Recepty lub kafelek w panelu „Dziś” (`app/recepty/Prescriptions.js`, `lib/strain-stats.js`).
+- Problem: odpowiedź na „ile jeszcze mogę wykupić i której odmiany” wymaga zajrzenia do Recept, puli „do wykupienia” i zapasu. W aptece liczy się szybkość, a widok recept to długa lista z historią.
+- Propozycja: zwarta karta: aktywne recepty (ważne do, pozostało g/ml osobno), pula „do wykupienia” po odmianach (zasady jak dziś), przycisk „Wykupiłem”; tryb dyskretny rozmywa nazwy. Bez cen, bez linków do aptek i bez porównań (POM-R4).
+- Jak zmierzyć: ręcznie na 390 px (cały widok bez przewijania przy 3 receptach); test funkcji składającej dane przy nakładających się receptach (POM-16).
+
+**POM-38 „Dzień bez zużycia” i nadrabianie wpisów** (PAC-7)
+- Ekran / element: panel „Dziś” (obok „Zużyłem”), Historia, `lib/observations.js`.
+- Problem: „Moje obserwacje” i raport traktują dzień bez wpisu jako dzień bez użycia (grupa „Dni bez zużycia” od pierwszego zapisu). Zapomniany wpis zawyża tę grupę i zniekształca porównanie, a pacjent nie może powiedzieć „tego dnia na pewno nic nie użyłem” ani „nie pamiętam”.
+- Propozycja: przycisk „Dziś bez zużycia” (znacznik dnia, bez gramów); w Historii podpowiedź „brak wpisów w 3 ostatnich dniach: dodaj albo oznacz jako bez zużycia”. W obserwacjach grupa „bez zużycia” liczy dni potwierdzone, reszta to „bez wpisów”. Bez serii, odznak i przypomnień zachęcających do zużycia (POM-R1); komunikaty neutralne.
+- Ryzyko: P (nowa tabela `day_marks`: `can_see`, eksport, kopia, usuwanie konta), Pr (nie sugerować, że „bez zużycia” jest celem).
+- Jak zmierzyć: test w `tests/db/observations.test.js` (dzień potwierdzony vs brak wpisu, północ w czasie polskim); zbiorczo: odsetek dni z wpisem lub znacznikiem w ostatnich 14 dniach aktywnych kont.
+
+**POM-39 Inne leki w raporcie dla lekarza** (PAC-5, ⚖️)
+- Ekran / element: profil lub raport, opcjonalna sekcja „Moje inne leki”.
+- Problem: lekarz pyta o inne leki i interakcje; pacjent wymienia je z pamięci, a w Wiedzy jest artykuł o interakcjach bez miejsca na własną listę.
+- Propozycja: lista nazw (tekst wolny do 100 znaków), drukowana w raporcie tylko po zaznaczeniu „dołącz”. Aplikacja niczego nie ocenia i nie ostrzega o interakcjach (to porada medyczna).
+- Ryzyko: P (dane zdrowotne), Pr (granica porady medycznej, przegląd przy PRA-3).
+- Jak zmierzyć: test w `tests/db/report.test.js` (tylko własna lista, domyślnie niedołączana); przegląd tekstów.
 
 ## Odrzucone
 
