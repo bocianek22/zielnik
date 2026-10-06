@@ -207,3 +207,17 @@ test('wymaga zalogowania', { skip }, async () => {
   assert.equal((await call(null, 'symptoms/custom', 'POST', { name: 'X' })).status, 401);
   assert.equal((await call(null, 'symptoms/custom/[id]', 'DELETE', null, { id: '1' })).status, 401);
 });
+
+test('raport: dzień tylko z własnym objawem nie liczy się jako dzień z wpisem wbudowanych; powtórzony id w custom nie daje 500', { skip }, async () => {
+  const B = ids.bartek;
+  const [d] = (await call(B, 'symptoms/custom', 'GET')).json.custom;
+  const r = await call(B, 'symptoms', 'PUT', { day: yesterday, custom: { [d.id]: 7, [`0${d.id}`]: 8 } });
+  assert.equal(r.status, 200);
+  const [v] = await q`SELECT value FROM symptom_values WHERE custom_id = ${d.id} AND day = ${yesterday}::date`;
+  assert.equal(v.value, 8);
+  const rep = await report.doctorReport(B, yesterday, yesterday);
+  assert.equal(rep.sym.days, 0);
+  assert.equal(rep.customSym.find((x) => x.id === d.id).days, 1);
+  assert.equal((await call(B, 'symptoms', 'PUT', { day: yesterday, pain: 3, custom: { [d.id]: 8 } })).status, 200);
+  assert.equal((await report.doctorReport(B, yesterday, yesterday)).sym.days, 1);
+});

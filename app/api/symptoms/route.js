@@ -48,28 +48,32 @@ export const PUT = safe(async (req) => {
   // { custom: { <id>: 0-10 | null } } - wartości własnych objawów tego dnia (null/'' kasuje); bez pola `custom` zostają bez zmian
   let cv = null;
   if (b.custom && typeof b.custom === 'object' && !Array.isArray(b.custom)) {
-    cv = [];
+    const byId = new Map(); // "1" i "01" to ten sam objaw: jeden wiersz na id (inaczej ON CONFLICT trafia dwa razy)
     for (const [k, raw] of Object.entries(b.custom).slice(0, CUSTOM_MAX * 4)) {
       const id = intId(k);
       const n = parseNumber(raw, 0, 10);
       if (!id || Number.isNaN(n)) return bad('Wartości muszą być z zakresu 0–10.');
-      cv.push({ id, v: n == null ? null : Math.round(n) });
+      byId.set(id, n == null ? null : Math.round(n));
     }
+    cv = [...byId].map(([id, v]) => ({ id, v }));
   }
   const q = sql();
+  const ops = [];
   if (cv?.length) {
     // jedno polecenie: cudze i nieistniejące identyfikatory odpadają na złączeniu z symptom_custom
-    await q`WITH inp AS (SELECT x.id, x.v FROM jsonb_to_recordset(${JSON.stringify(cv)}::jsonb) AS x(id int, v int)
+    ops.push(q`WITH inp AS (SELECT x.id, x.v FROM jsonb_to_recordset(${JSON.stringify(cv)}::jsonb) AS x(id int, v int)
                          JOIN symptom_custom c ON c.id = x.id AND c.user_id = ${user.id}::int),
       del AS (DELETE FROM symptom_values sv USING inp WHERE sv.custom_id = inp.id AND sv.day = ${day}::date AND inp.v IS NULL)
       INSERT INTO symptom_values (custom_id, user_id, day, value)
       SELECT id, ${user.id}::int, ${day}::date, v FROM inp WHERE v IS NOT NULL
-      ON CONFLICT (custom_id, day) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`;
+      ON CONFLICT (custom_id, day) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`);
   }
-  await q`INSERT INTO symptom_log (user_id, day, pain, sleep, anxiety, mood, note)
+  // obie tabele w jednej transakcji: bez zapisu częściowego
+  ops.push(q`INSERT INTO symptom_log (user_id, day, pain, sleep, anxiety, mood, note)
               VALUES (${user.id}, ${day}::date, ${v.pain}, ${v.sleep}, ${v.anxiety}, ${v.mood}, ${String(b.note ?? '').trim().slice(0, 500)})
               ON CONFLICT (user_id, day) DO UPDATE SET pain = EXCLUDED.pain, sleep = EXCLUDED.sleep, anxiety = EXCLUDED.anxiety,
-                mood = EXCLUDED.mood, note = EXCLUDED.note, updated_at = now()`;
+                mood = EXCLUDED.mood, note = EXCLUDED.note, updated_at = now()`);
+  await q.transaction(ops);
   return NextResponse.json(await load(user.id));
 });
 
@@ -79,7 +83,9 @@ export const DELETE = safe(async (req) => {
   const day = String((await req.json().catch(() => ({}))).day ?? '');
   if (!DATE.test(day) || Number.isNaN(Date.parse(day))) return bad('Nieprawidłowa data.');
   const q = sql();
-  await q`DELETE FROM symptom_values WHERE user_id = ${user.id}::int AND day = ${day}::date`;
-  await q`DELETE FROM symptom_log WHERE user_id = ${user.id} AND day = ${day}::date`;
+  await q.transaction([
+    q`DELETE FROM symptom_values WHERE user_id = ${user.id}::int AND day = ${day}::date`,
+    q`DELETE FROM symptom_log WHERE user_id = ${user.id} AND day = ${day}::date`,
+  ]);
   return NextResponse.json(await load(user.id));
 });

@@ -33,7 +33,8 @@ export default function SymptomsQuick({ day, initial }) {
   const items = useMemo(() => [...SYMPTOMS, ...defs.map(customMeta)], [defs]);
   const count = (v) => items.filter((s) => v[s.key] != null).length;
   const [v, setV] = useState(() => pick(initial, defs));
-  const [open, setOpen] = useState(() => count(pick(initial, defs)) < items.length);
+  // zwinięte po komplecie wbudowanych: niewypełnione własne objawy nie rozwijają panelu przy każdym wejściu
+  const [open, setOpen] = useState(() => SYMPTOMS.some((s) => pick(initial, defs)[s.key] == null));
   const [status, setStatus] = useState(null); // { text, error }
   const latest = useRef(v);       // stan do wysłania
   const confirmed = useRef(v);    // ostatni stan potwierdzony przez serwer
