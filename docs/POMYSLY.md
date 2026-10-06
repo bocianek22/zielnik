@@ -41,7 +41,7 @@ Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnieni
 | POM-15 | Przypomnienie o wizycie i kontroli recepty | 4 | S | P | 🔑 | nowy | PAC-16 |
 | POM-16 | Recepta: podział na pozycje i powiązanie zakupów | 3 | M | T | – | nowy | PAC-4 |
 | POM-17 | Wyszukiwanie bez polskich znaków i w moich notatkach | 3 | S/M | P | – | częściowo (0.34.0: bez polskich znaków i podpowiedzi; brak grupy „Moje notatki”) | – |
-| POM-18 | Porównanie z moimi statystykami i objawami | 3 | S | P | POM-06 | nowy | – |
+| POM-18 | Porównanie z moimi statystykami i objawami | 3 | S | P | POM-06 | częściowo (0.44.0: statystyki; objawy przy odmianie dalej) | – |
 | POM-19 | Kreator pierwszego uruchomienia | 4 | M | – | – | nowy | UX-6 |
 | POM-20 | Puste stany prowadzące do pierwszego wpisu | 3 | S | – | – | zrobiony (0.37.0: Dziś, dziennik, recepty, Historia, raport) | UX-5 |
 | POM-21 | Dostępność wykresów i formularzy | 4 | S/M | – | – | częściowo (0.33.0: wykres objawów kreska + kształt + tabela dla czytnika; zostają suwaki, kolory, axe) | UX-2 |
