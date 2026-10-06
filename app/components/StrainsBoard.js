@@ -24,7 +24,7 @@ const avgOf = (s) => {
 };
 
 export default function StrainsBoard({ initialStrains, initialOptions, me }) {
-  const { low, entrySaved: homeSaved, subscribe, sync } = useHome();
+  const { low, entrySaved: homeSaved, subscribe, sync, takeNewRequest } = useHome();
   const [strains, setStrains] = useState(initialStrains);
   const [options, setOptions] = useState(initialOptions);
   const [query, setQuery] = useState('');
@@ -168,6 +168,7 @@ export default function StrainsBoard({ initialStrains, initialOptions, me }) {
     const open = () => { setFormFor('new'); window.scrollTo({ top: 0, behavior: 'smooth' }); };
     window.addEventListener('zielnik:new-strain', open);
     const params = new URLSearchParams(window.location.search);
+    if (takeNewRequest?.()) open();
     if (params.get('new') === '1') { open(); window.history.replaceState(null, '', '/'); }
     // filtr z podpowiedzi strony /szukaj (producent, terpen, smak)
     else if (params.get('q')) { setQuery(params.get('q').slice(0, 60)); window.history.replaceState(null, '', '/'); }

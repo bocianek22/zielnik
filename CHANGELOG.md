@@ -8,6 +8,20 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.39.0] - 2026-10
+### Dodano
+- Własne objawy i skale (POM-07): do 3 własnych objawów na konto (nazwa, kierunek „wyżej = lepiej/gorzej”, skala 0-10) w dzienniku i szybkim wpisie w panelu „Dziś” (także offline), na wykresie, w „Moich obserwacjach” i w raporcie dla lekarza (opisowo). Prywatne, w eksporcie JSON i CSV (nowa ostatnia kolumna „Własne objawy”) i w kopii; nazwy rozmyte w trybie dyskretnym.
+### Zmieniono
+- Lżejszy ekran główny (POM-23): panel „Dziś” z jednego lekkiego zapytania pokazuje się od razu, lista odmian dochodzi w tle (strumieniowanie).
+- Szybki wpis objawów zwija się po komplecie wbudowanych objawów.
+### Naprawiono
+- Raport: „dni z wpisem” liczy tylko dni z wbudowanym objawem lub notatką.
+- Zapis objawów dnia i jego usunięcie w jednej transakcji; powtórzony identyfikator własnego objawu nie powoduje błędu serwera.
+- Zapis z panelu „Dziś” odrzucony lub usunięty z kolejki offline przed wczytaniem listy cofa się poprawnie; „Dodaj odmianę” przed wczytaniem listy otwiera formularz po jej wczytaniu.
+- Skrypt startowy blokady PIN pomija te same strony publiczne co ekran blokady.
+### Uwaga przy wdrożeniu
+- Migracja addytywna: tabele `symptom_custom`, `symptom_values`.
+
 ## [0.38.0] - 2026-10
 ### Dodano
 - Lista sesji i urządzeń w profilu (POM-27): opis urządzenia (np. „Chrome, Android”), kraj, ostatnie użycie; wylogowanie pojedynczej sesji i „Wyloguj inne urządzenia”. Wylogowanie unieważnia sesję na serwerze, więc skopiowany token przestaje działać. Bez zapisu adresu IP i pełnego User-Agent.

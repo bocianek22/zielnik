@@ -1,5 +1,8 @@
 'use client';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { revertOf } from '@/lib/offline-queue';
+import { hasQueued, wasOptimistic } from '@/lib/offline-client';
+import useQueueEvents from './useQueueEvents';
 
 // Wspólny stan ekranu głównego: panel „Dziś” (renderowany od razu, z lekkich danych) i lista odmian (strumieniowana
 // w Suspense, wczytuje się później). Panel nie czeka na listę; zapisy z jednej strony widzi druga.
@@ -61,6 +64,41 @@ export default function HomeStore({ children, bought, series: initialSeries, sum
     }
   }, []);
 
+  // Kolejka offline, zanim lista się wczyta (potem obsługuje ją lista i przekazuje tu przez entrySaved): lista przyjdzie
+  // ze stanem serwera, więc odrzucony/usunięty zapis wypada z odtwarzanych wpisów, a panel cofa tylko swoje sumy;
+  // wysłany dopisuje stan z serwera, żeby lista nie pokazała stanu sprzed wysłania.
+  const recentRef = useRef(recent);
+  useEffect(() => { recentRef.current = recent; }, [recent]);
+  useQueueEvents((d) => {
+    if (listeners.current.size) return;
+    const sid = d.item?.meta?.strainId;
+    if (!sid || (d.item.kind !== 'usage' && d.item.kind !== 'purchase')) return;
+    if ((d.type === 'removed' || d.type === 'rejected') && wasOptimistic(d.item.id)) {
+      log.current = log.current.filter(([id]) => id !== sid);
+      const r = revertOf(d.item);
+      const unit = d.item.meta.unit === 'ml' ? 'ml' : 'g';
+      if (r.bought) setBoughtU((x) => ({ ...x, [unit]: Math.max(x[unit] + r.bought, 0) }));
+      const sk = unit === 'ml' ? 'ml' : 'grams';
+      if (r.used) setSeries((list) => list.map((x, i) => (i === list.length - 1 ? { ...x, [sk]: Math.max((Number(x[sk]) || 0) + r.used, 0) } : x)));
+      if (r.dCur) setStock((x) => ({ ...x, [unit]: Math.max(x[unit] + r.dCur, 0) }));
+      if (r.dRem) setRemaining((x) => ({ ...x, [unit]: Math.max(x[unit] + r.dRem, 0) }));
+      setRecent((list) => list.map((x) => (x.id === sid ? { ...x, current: Math.max(Number(x.current) + r.dCur, 0) } : x)));
+    } else if (d.type === 'sent' && d.data && !hasQueued((i) => i.meta?.strainId === sid && i.kind !== 'symptoms')) {
+      const en = { current: d.data.current, ...(d.data.remaining !== undefined ? { remaining: d.data.remaining } : {}) };
+      log.current.push([sid, en]);
+      setRecent((list) => list.map((x) => (x.id === sid ? { ...x, current: Number(en.current) } : x)));
+    }
+  });
+
+  // „Dodaj odmianę” z panelu, zanim lista się wczytała: lista otworzy formularz po zamontowaniu
+  const wantNew = useRef(false);
+  useEffect(() => {
+    const on = () => { if (!listeners.current.size) wantNew.current = true; };
+    window.addEventListener('zielnik:new-strain', on);
+    return () => window.removeEventListener('zielnik:new-strain', on);
+  }, []);
+  const takeNewRequest = useCallback(() => { const w = wantNew.current; wantNew.current = false; return w; }, []);
+
   // lista po wczytaniu i po każdej zmianie przekazuje sumy policzone z pełnych danych (np. po edycji odmiany)
   const sync = useCallback((s) => {
     setStock(s.stock); setRemaining(s.remaining); setCount(s.count);
@@ -68,7 +106,7 @@ export default function HomeStore({ children, bought, series: initialSeries, sum
   }, []);
 
   const value = useMemo(() => ({
-    boughtU, series, recent, stock, remaining, count, low, limit, setLimit, savePref, setLow, entrySaved, subscribe, sync,
-  }), [boughtU, series, recent, stock, remaining, count, low, limit, entrySaved, subscribe, sync]);
+    boughtU, series, recent, stock, remaining, count, low, limit, setLimit, savePref, setLow, entrySaved, subscribe, sync, takeNewRequest,
+  }), [boughtU, series, recent, stock, remaining, count, low, limit, entrySaved, subscribe, sync, takeNewRequest]);
   return <Ctx.Provider value={value}><div className="stack">{children}</div></Ctx.Provider>;
 }
