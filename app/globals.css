@@ -46,6 +46,9 @@
   --chart-2: #3f6f9a;
   --chart-3: #7e6798;
   --chart-4: #2f7d4a;
+  --chart-5: #8a6410;
+  --chart-6: #1f7a80;
+  --chart-7: #9a4a74;
   /* cienie: tylko dla warstw nad treścią (arkusz, menu, przycisk +) */
   --shadow-1: 0 1px 2px rgba(20, 30, 22, .06);
   --shadow-2: 0 8px 28px rgba(20, 30, 22, .16);
@@ -129,6 +132,9 @@
   --chart-2: #86b6e3;
   --chart-3: #bfa8de;
   --chart-4: #86c597;
+  --chart-5: #dcb36a;
+  --chart-6: #6fc3c9;
+  --chart-7: #d99dc0;
   --shadow-1: 0 1px 2px rgba(0, 0, 0, .3);
   --shadow-2: 0 10px 32px rgba(0, 0, 0, .5);
   --scrim: rgba(0, 0, 0, .55);
@@ -175,6 +181,9 @@
     --chart-2: #86b6e3;
     --chart-3: #bfa8de;
     --chart-4: #86c597;
+    --chart-5: #dcb36a;
+    --chart-6: #6fc3c9;
+    --chart-7: #d99dc0;
     --shadow-1: 0 1px 2px rgba(0, 0, 0, .3);
     --shadow-2: 0 10px 32px rgba(0, 0, 0, .5);
     --scrim: rgba(0, 0, 0, .55);

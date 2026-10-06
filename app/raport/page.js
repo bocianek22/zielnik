@@ -51,7 +51,7 @@ export default async function Raport({ searchParams }) {
   const visit = sp.okres === 'wizyta';
   const notesQs = withNotes ? '&notes=1' : '';
 
-  const { usage, weekly, purchases, feel: feelAll, sym, totals, rx, rxSum, strainSym, whenUsed } = await doctorReport(me.id, from, to);
+  const { usage, weekly, purchases, feel: feelAll, sym, customSym, totals, rx, rxSum, strainSym, whenUsed } = await doctorReport(me.id, from, to);
   // bez pustych wierszy: tylko odmiany z oceną, odczuciem albo (gdy dołączone) spostrzeżeniem
   const feel = feelAll.filter((f) => f.rating != null || EFFECTS.some(([k]) => f.effects?.[k] != null) || (withNotes && f.notes));
   const daysSpan = Math.round((Date.parse(to) - Date.parse(from)) / 864e5) + 1;
@@ -71,7 +71,7 @@ export default async function Raport({ searchParams }) {
   const qty = (g, ml) => units.filter((u) => (u === 'g' ? g : ml) > 0).map((u) => `${nf(u === 'g' ? g : ml, 2)} ${u}`).join(' i ') || 'brak';
   const symLine = (w) => (w.sym_days ? `${dni(w.sym_days)} z wpisem: ${SYMPTOMS.map((s) => `${s.short} ${av(w[s.key])}`).join(', ')}` : 'brak wpisów objawów');
   const anyWeekData = weekly.some((w) => w.use_days || w.sym_days || w.bought_g || w.bought_ml);
-  const noData = !anyWeekData && usage.length === 0 && purchases.length === 0 && rx.length === 0 && !sym.days;
+  const noData = !anyWeekData && usage.length === 0 && purchases.length === 0 && rx.length === 0 && !sym.days && !customSym.some((c) => c.days);
 
   // recepty
   const rxState = (r) => (r.status === 'used' ? 'wykupiona w całości'
@@ -168,6 +168,9 @@ export default async function Raport({ searchParams }) {
           )}
           <p className="muted small">Tygodnie od poniedziałku, pierwszy i ostatni mogą być niepełne. Ból i lęk: wyższa wartość oznacza gorzej. Sen i nastrój: wyższa wartość oznacza lepiej.
             {sym.days > 0 && ` Cały okres (${dniGen(sym.days)} z wpisem): ${SYMPTOMS.map((s) => `${s.short} ${av(sym[s.key])}`).join(', ')}.`}</p>
+          {customSym.some((c) => c.days > 0) && (
+            <p className="muted small">Własne objawy pacjenta (skala 0–10, kierunek ustawiony przez pacjenta): {customSym.filter((c) => c.days > 0).map((c) => `${c.name} (wyżej = ${c.higher_better ? 'lepiej' : 'gorzej'}): średnio ${av(c.avg)} z ${dniGen(c.days)}`).join('; ')}.</p>
+          )}
 
           <h3>Recepty w okresie</h3>
           {rx.length === 0 ? <p className="muted">Brak zapisanych recept ważnych w tym okresie.</p> : (

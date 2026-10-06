@@ -26,7 +26,7 @@ test('clearDeviceData nie rzuca bez localStorage (zablokowane dane witryny)', ()
 });
 
 test('każdy klucz z listy nadal istnieje w kodzie, który go zapisuje (zmiana nazwy = test czerwony)', () => {
-  const src = ['app/szukaj/SearchBox.js', 'app/components/StrainsBoard.js', 'app/raport/VisitPeriod.js', 'app/components/native/bridge.js',
+  const src = ['app/szukaj/SearchBox.js', 'app/components/StrainsBoard.js', 'app/components/HomeStore.js', 'app/raport/VisitPeriod.js', 'app/components/native/bridge.js',
     'app/components/NativeShell.js', 'app/components/RegisterSW.js'].map((p) => fs.readFileSync(new URL(`../${p}`, import.meta.url), 'utf8')).join('\n');
   for (const k of PRIVATE_KEYS) assert.ok(src.includes(`'${k}'`) || src.includes(`"${k}"`), k);
 });

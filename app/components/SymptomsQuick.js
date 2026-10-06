@@ -1,9 +1,9 @@
 'use client';
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { saveOrQueue, hasQueued } from '@/lib/offline-client';
 import useQueueEvents from './useQueueEvents';
-import { SYMPTOMS, QUICK_STEPS } from '@/lib/symptoms';
+import { SYMPTOMS, QUICK_STEPS, customMeta } from '@/lib/symptoms';
 import Icon from './Icon';
 
 // Szybki wpis objawów w panelu „Dziś” (POM-04): cztery wymiary, pięć stopni, zapis po każdym dotknięciu.
@@ -12,12 +12,29 @@ import Icon from './Icon';
 // Bez sieci wpis czeka w kolejce offline (POM-14; nowszy wpis dnia zastępuje czekający) i wysyła się po jej powrocie.
 const QUEUED = 'Czeka na wysłanie. Wyślę, gdy wróci sieć.';
 
-const pick = (r) => ({ pain: r?.pain ?? null, sleep: r?.sleep ?? null, anxiety: r?.anxiety ?? null, mood: r?.mood ?? null, note: r?.note ?? '' });
-const count = (v) => SYMPTOMS.filter((s) => v[s.key] != null).length;
+// Własne objawy (POM-07) są w stanie jako `c<id>`, a do serwera idą w osobnym polu `custom` ({ id: wartość | null }).
+// Wartości bierzemy z wiersza dnia (`custom: { id: wartość }`), z odpowiedzi serwera (`customValues`) albo z treści zapisu.
+const pick = (r, defs = []) => ({
+  pain: r?.pain ?? null, sleep: r?.sleep ?? null, anxiety: r?.anxiety ?? null, mood: r?.mood ?? null, note: r?.note ?? '',
+  ...Object.fromEntries(defs.map((d) => [`c${d.id}`, r?.custom?.[d.id] ?? null])),
+});
+const fromServer = (res, day, defs, fallback) => {
+  const row = res.rows.find((r) => r.day === day);
+  const custom = Object.fromEntries((res.customValues ?? []).filter((x) => x.day === day).map((x) => [x.id, x.value]));
+  return row || Object.keys(custom).length ? pick({ ...row, custom }, defs) : fallback;
+};
+const toBody = (day, v, defs) => ({
+  day, pain: v.pain, sleep: v.sleep, anxiety: v.anxiety, mood: v.mood, note: v.note,
+  ...(defs.length ? { custom: Object.fromEntries(defs.map((d) => [d.id, v[`c${d.id}`]])) } : {}),
+});
 
 export default function SymptomsQuick({ day, initial }) {
-  const [v, setV] = useState(() => pick(initial));
-  const [open, setOpen] = useState(() => count(pick(initial)) < SYMPTOMS.length);
+  const defs = useMemo(() => initial?.defs ?? [], [initial]);
+  const items = useMemo(() => [...SYMPTOMS, ...defs.map(customMeta)], [defs]);
+  const count = (v) => items.filter((s) => v[s.key] != null).length;
+  const [v, setV] = useState(() => pick(initial, defs));
+  // zwinięte po komplecie wbudowanych: niewypełnione własne objawy nie rozwijają panelu przy każdym wejściu
+  const [open, setOpen] = useState(() => SYMPTOMS.some((s) => pick(initial, defs)[s.key] == null));
   const [status, setStatus] = useState(null); // { text, error }
   const latest = useRef(v);       // stan do wysłania
   const confirmed = useRef(v);    // ostatni stan potwierdzony przez serwer
@@ -40,11 +57,11 @@ export default function SymptomsQuick({ day, initial }) {
     setV(next);
     setStatus({ text: 'Zapisywanie…' });
     const id = ++seq.current;
-    const completes = before < SYMPTOMS.length && count(next) === SYMPTOMS.length;
+    const completes = before < items.length && count(next) === items.length;
     queue.current = queue.current.then(async () => {
       if (id !== seq.current) return; // nowsze dotknięcie wyśle pełny, aktualny stan
       try {
-        const out = await saveOrQueue({ kind: 'symptoms', url: '/api/symptoms', method: 'PUT', body: { day, ...latest.current }, meta: { day } });
+        const out = await saveOrQueue({ kind: 'symptoms', url: '/api/symptoms', method: 'PUT', body: toBody(day, latest.current, defs), meta: { day } });
         if (out.queued) {
           if (id !== seq.current) return;
           setStatus({ text: QUEUED, queued: true });
@@ -52,7 +69,7 @@ export default function SymptomsQuick({ day, initial }) {
           return;
         }
         const res = out.data;
-        const saved = pick(res.rows.find((r) => r.day === day) ?? latest.current);
+        const saved = fromServer(res, day, defs, latest.current);
         confirmed.current = saved;
         if (id !== seq.current) return;
         latest.current = saved;
@@ -73,7 +90,7 @@ export default function SymptomsQuick({ day, initial }) {
     if (d.item?.kind !== 'symptoms' || d.item.meta?.day !== day) return;
     const newer = hasQueued((i) => i.kind === 'symptoms' && i.meta?.day === day);
     if (d.type === 'sent') {
-      confirmed.current = pick(d.data?.rows?.find((r) => r.day === day) ?? d.item.body);
+      confirmed.current = d.data?.rows ? fromServer(d.data, day, defs, pick(d.item.body, defs)) : pick({ ...d.item.body, custom: d.item.body?.custom }, defs);
       if (!newer) setStatus({ text: 'Wysłano wpis objawów.' });
     } else if ((d.type === 'removed' || d.type === 'rejected') && !newer) {
       latest.current = confirmed.current;
@@ -83,7 +100,7 @@ export default function SymptomsQuick({ day, initial }) {
   });
 
   const filled = count(v);
-  const summary = SYMPTOMS.map((s) => `${s.short} ${v[s.key] ?? '–'}`).join(' · ');
+  
 
   return (
     <section className="card tsym" id="objawy" aria-labelledby="tsym-h">
@@ -95,21 +112,21 @@ export default function SymptomsQuick({ day, initial }) {
       {!open ? (
         <div className="tsym-done">
           <p className="tsym-sum">
-            <span className="tsym-ok">{status?.queued ? (filled === SYMPTOMS.length ? 'Czeka na wysłanie' : `Czeka na wysłanie: ${filled} z ${SYMPTOMS.length}`)
-              : filled === SYMPTOMS.length ? 'Zapisano dziś' : `Zapisano dziś ${filled} z ${SYMPTOMS.length}`}</span>
-            <span className="tsym-vals">{summary}</span>
+            <span className="tsym-ok">{status?.queued ? (filled === items.length ? 'Czeka na wysłanie' : `Czeka na wysłanie: ${filled} z ${items.length}`)
+              : filled === items.length ? 'Zapisano dziś' : `Zapisano dziś ${filled} z ${items.length}`}</span>
+            <span className="tsym-vals">{items.map((s, i) => <span key={s.key}>{i > 0 && ' · '}<span className={s.custom ? 'dn' : undefined}>{s.short}</span> {v[s.key] ?? '–'}</span>)}</span>
           </p>
           <button type="button" ref={changeBtn} className="btn text small" onClick={() => { focus.current = 'first'; setOpen(true); setStatus(null); }}>Zmień</button>
         </div>
       ) : (
         <div className="tsym-form">
           {filled === 0 && <p className="tsym-hint">Jedno dotknięcie zapisuje wpis z dziś. Pełna skala i notatka są w dzienniku.</p>}
-          {SYMPTOMS.map((s, si) => {
+          {items.map((s, si) => {
             const cur = v[s.key];
             return (
               <div key={s.key} className="tsym-row" role="group" aria-labelledby={`tsym-${s.key}`}>
                 <div className="tsym-head">
-                  <span id={`tsym-${s.key}`} className="tsym-label">{s.label}</span>
+                  <span id={`tsym-${s.key}`} className={`tsym-label${s.custom ? ' dn' : ''}`}>{s.label}</span>
                   <span className={`tsym-val${cur == null ? ' unset' : ''}`}>{cur == null ? 'nie wpisano' : <><b>{cur}</b> z 10</>}</span>
                 </div>
                 <div className="tsym-btns">

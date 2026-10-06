@@ -1,11 +1,9 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import { api } from '@/lib/api';
-import { SYMPTOMS } from '@/lib/symptoms';
+import { SYMPTOMS, customMeta, CUSTOM_MAX, CUSTOM_NAME_MAX } from '@/lib/symptoms';
 import Icon from '../components/Icon';
 
-// [klucz, etykieta, opis skali, kolor] dla formularza; kreska i kształt punktu wykresu w lib/symptoms.js
-const FIELDS = SYMPTOMS.map((s) => [s.key, s.label, s.help, s.color]);
 // Dzień w czasie polskim, a nie UTC (po północy toISOString dawało wczoraj). Do zamiany na todayPL z lib/date.js.
 const dayPL = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Warsaw', year: 'numeric', month: '2-digit', day: '2-digit' });
 const todayIso = () => dayPL.format(new Date());
@@ -20,6 +18,9 @@ function Marker({ shape, x, y, color, r = 3.5 }) {
   const common = { fill: color, stroke: 'var(--surface)', strokeWidth: 1 };
   if (shape === 'square') return <rect x={x - r * 0.85} y={y - r * 0.85} width={r * 1.7} height={r * 1.7} {...common} />;
   if (shape === 'triangle') return <path d={`M${x},${y - r * 1.1}L${x + r},${y + r * 0.75}L${x - r},${y + r * 0.75}Z`} {...common} />;
+  if (shape === 'cross') return <path d={`M${x - r},${y}H${x + r}M${x},${y - r}V${y + r}`} fill="none" stroke={color} strokeWidth="2.4" strokeLinecap="round" />;
+  if (shape === 'ring') return <circle cx={x} cy={y} r={r * 0.9} fill="var(--surface)" stroke={color} strokeWidth="2" />;
+  if (shape === 'down') return <path d={`M${x},${y + r * 1.1}L${x + r},${y - r * 0.75}L${x - r},${y - r * 0.75}Z`} {...common} />;
   if (shape === 'diamond') return <path d={`M${x},${y - r * 1.2}L${x + r * 1.05},${y}L${x},${y + r * 1.2}L${x - r * 1.05},${y}Z`} {...common} />;
   return <circle cx={x} cy={y} r={r} {...common} />;
 }
@@ -34,7 +35,7 @@ function Swatch({ s }) {
   );
 }
 
-function Chart({ rows, usage }) {
+function Chart({ rows, usage, all }) {
   const days = 30, W = 360, H = 200, L = 24, B = 24, T = 8, R = 8;
   const end = todayIso(), byDay = Object.fromEntries(rows.map((r) => [r.day, r])), use = Object.fromEntries(usage.map((u) => [u.day, u.grams]));
   const useMl = Object.fromEntries(usage.map((u) => [u.day, u.ml || 0])); // olej i pen: tylko w tabeli, słupki pokazują gramy suszu
@@ -42,7 +43,7 @@ function Chart({ rows, usage }) {
   const x = (i) => L + (i * (W - L - R)) / (days - 1);
   const y = (v) => T + (H - T - B) * (1 - v / 10);
   const maxU = Math.max(1, ...Object.values(use));
-  const summary = SYMPTOMS.map(({ key: k, label }) => {
+  const summary = all.map(({ key: k, label }) => {
     const vals = xs.map((d) => byDay[d]?.[k]).filter((v) => v != null);
     return vals.length ? `${label}: średnio ${nf(vals.reduce((a, v) => a + v, 0) / vals.length)} z ${vals.length} wpisów` : `${label}: brak wpisów`;
   }).join('. ');
@@ -52,7 +53,7 @@ function Chart({ rows, usage }) {
       <svg viewBox={`0 0 ${W} ${H}`} className="sym-chart" role="img" aria-label={`Wykres objawów z ostatnich 30 dni, skala 0–10. ${summary}. Wartości z każdego dnia są w tabeli pod wykresem.`}>
         {[0, 5, 10].map((v) => <g key={v}><line className="grid" x1={L} x2={W - R} y1={y(v)} y2={y(v)} /><text x={L - 6} y={y(v) + 4} textAnchor="end">{v}</text></g>)}
         {xs.map((d, i) => { if (!use[d]) return null; const h = ((use[d] / maxU) * (H - T - B)) * 0.5; return <rect key={d} className="use" x={x(i) - 2} y={y(0) - h} width="4" height={h} />; })}
-        {SYMPTOMS.map(({ key: k, color, dash, marker }) => {
+        {all.map(({ key: k, color, dash, marker }) => {
           const pts = xs.map((d, i) => (byDay[d]?.[k] != null ? [x(i), y(byDay[d][k])] : null));
           const segs = []; let cur = [];
           pts.forEach((p) => { if (p) cur.push(p.join(',')); else if (cur.length) { segs.push(cur); cur = []; } });
@@ -66,12 +67,12 @@ function Chart({ rows, usage }) {
       {/* tabela w opakowaniu: sama tabela z .sr-only nie zwęża się do 1 px i poszerza stronę */}
       <div className="sr-only"><table>
         <caption>Wpisy objawów i zużycie z ostatnich 30 dni, od najnowszego</caption>
-        <thead><tr><th scope="col">Dzień</th>{SYMPTOMS.map((s) => <th key={s.key} scope="col">{s.label} (0–10)</th>)}<th scope="col">Zużycie</th></tr></thead>
+        <thead><tr><th scope="col">Dzień</th>{all.map((s) => <th key={s.key} scope="col">{s.label} (0–10)</th>)}<th scope="col">Zużycie</th></tr></thead>
         <tbody>
-          {listed.length === 0 && <tr><td colSpan={SYMPTOMS.length + 2}>Brak wpisów w ostatnich 30 dniach.</td></tr>}
+          {listed.length === 0 && <tr><td colSpan={all.length + 2}>Brak wpisów w ostatnich 30 dniach.</td></tr>}
           {listed.map((d) => (
             <tr key={d}><th scope="row">{d === end ? 'dziś' : longDay(d)}</th>
-              {SYMPTOMS.map((s) => <td key={s.key}>{byDay[d]?.[s.key] ?? 'nie wpisano'}</td>)}
+              {all.map((s) => <td key={s.key}>{byDay[d]?.[s.key] ?? 'nie wpisano'}</td>)}
               <td>{[use[d] > 0 && `${nf(use[d])} g`, useMl[d] > 0 && `${nf(useMl[d])} ml`].filter(Boolean).join(', ') || 'brak'}</td></tr>
           ))}
         </tbody>
@@ -80,22 +81,102 @@ function Chart({ rows, usage }) {
   );
 }
 
+// Zarządzanie własnymi objawami (do 3): dodanie, zmiana nazwy i kierunku skali, usunięcie razem z wpisami
+function CustomManager({ defs, onChange }) {
+  const [name, setName] = useState('');
+  const [better, setBetter] = useState(false);
+  const [edit, setEdit] = useState(null); // { id, name, better }
+  const [err, setErr] = useState(null);
+  const [busy, setBusy] = useState(false);
+  async function run(fn, done) {
+    setErr(null); setBusy(true);
+    try { await fn(); await onChange(done); return true; } catch (e) { setErr(e.message); return false; } finally { setBusy(false); }
+  }
+  const add = async (e) => {
+    e.preventDefault();
+    if (await run(() => api('/api/symptoms/custom', 'POST', { name, higherBetter: better }), 'Dodano własny objaw.')) { setName(''); setBetter(false); }
+  };
+  const save = async (e) => {
+    e.preventDefault();
+    if (await run(() => api(`/api/symptoms/custom/${edit.id}`, 'PATCH', { name: edit.name, higherBetter: edit.better }), 'Zapisano zmiany.')) setEdit(null);
+  };
+  const remove = (d) => {
+    if (!confirm(`Usunąć własny objaw „${d.name}” razem ze wszystkimi jego wpisami? Tego nie można cofnąć.`)) return;
+    run(() => api(`/api/symptoms/custom/${d.id}`, 'DELETE'), 'Usunięto własny objaw i jego wpisy.');
+  };
+  const dirOptions = (id) => (
+    <select id={id} className="input" value={String(edit ? edit.better : better)} onChange={(e) => (edit ? setEdit({ ...edit, better: e.target.value === 'true' }) : setBetter(e.target.value === 'true'))}>
+      <option value="false">Wyżej = gorzej (np. nudności, spastyczność)</option>
+      <option value="true">Wyżej = lepiej (np. apetyt, energia)</option>
+    </select>
+  );
+  return (
+    <details className="card sym-custom" open={defs.length > 0 || undefined}>
+      <summary>Własne objawy<span className="muted small"> · {defs.length} z {CUSTOM_MAX}</span></summary>
+      <p className="muted small">Dodaj do {CUSTOM_MAX} własnych objawów w skali 0–10. Pojawią się w formularzu, na wykresie, w obserwacjach i w raporcie dla lekarza. Są prywatne.</p>
+      {defs.length > 0 && (
+        <ul className="list" aria-label="Własne objawy">
+          {defs.map((d) => (
+            <li key={d.id} className="list-row sym-custom-row">
+              {edit?.id === d.id ? (
+                <form className="stack" onSubmit={save}>
+                  <div className="field"><label htmlFor={`ce-n-${d.id}`}>Nazwa</label>
+                    <input id={`ce-n-${d.id}`} className="input" maxLength={CUSTOM_NAME_MAX} required value={edit.name} onChange={(e) => setEdit({ ...edit, name: e.target.value })} /></div>
+                  <div className="field"><label htmlFor={`ce-d-${d.id}`}>Kierunek skali</label>{dirOptions(`ce-d-${d.id}`)}</div>
+                  <div className="sym-actions"><button className="btn" disabled={busy}>Zapisz</button><button type="button" className="btn text" onClick={() => setEdit(null)}>Anuluj</button></div>
+                </form>
+              ) : (
+                <>
+                  <span className="lr-main"><span className="dn">{d.name}</span><span className="lr-sub">wyżej = {d.higherBetter ? 'lepiej' : 'gorzej'}</span></span>
+                  <button type="button" className="btn text small" disabled={busy} onClick={() => { setErr(null); setEdit({ id: d.id, name: d.name, better: d.higherBetter }); }} aria-label={`Zmień: ${d.name}`}>Zmień</button>
+                  <button type="button" className="btn text small danger" disabled={busy} onClick={() => remove(d)} aria-label={`Usuń: ${d.name}`}>Usuń</button>
+                </>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+      {defs.length < CUSTOM_MAX && !edit && (
+        <form className="stack" onSubmit={add}>
+          <div className="field"><label htmlFor="cn-name">Nazwa nowego objawu</label>
+            <input id="cn-name" className="input" maxLength={CUSTOM_NAME_MAX} required value={name} onChange={(e) => setName(e.target.value)} placeholder="np. Nudności" /></div>
+          <div className="field"><label htmlFor="cn-dir">Kierunek skali</label>{dirOptions('cn-dir')}</div>
+          <div className="sym-actions"><button className="btn" disabled={busy || !name.trim()}>Dodaj objaw</button></div>
+        </form>
+      )}
+      {defs.length >= CUSTOM_MAX && <p className="muted small">Masz komplet. Usuń jeden objaw, aby dodać inny.</p>}
+      {err && <div className="alert error" role="alert">{err}</div>}
+    </details>
+  );
+}
+
 export default function SymptomsBoard() {
-  const [data, setData] = useState({ rows: [], usage: [] });
+  const [data, setData] = useState({ rows: [], usage: [], custom: [], customValues: [] });
   const [day, setDay] = useState(todayIso());
   const [f, setF] = useState({ pain: '', sleep: '', anxiety: '', mood: '', note: '' });
   const [msg, setMsg] = useState(null);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => { api('/api/symptoms').then((d) => { setData(d); setLoaded(true); }).catch((e) => setMsg({ text: e.message, error: true })); }, []);
-  const existing = useMemo(() => data.rows.find((r) => r.day === day), [data, day]);
+  // własne objawy (POM-07) traktujemy jak wbudowane: klucz c<id>, wartości dołączone do wierszy dni
+  const defs = useMemo(() => data.custom ?? [], [data]);
+  const all = useMemo(() => [...SYMPTOMS, ...defs.map(customMeta)], [defs]);
+  const merged = useMemo(() => {
+    const m = new Map(data.rows.map((r) => [r.day, { ...r }]));
+    for (const v of data.customValues ?? []) { const r = m.get(v.day) ?? { day: v.day }; r[`c${v.id}`] = v.value; m.set(v.day, r); }
+    return [...m.values()];
+  }, [data]);
+  const existing = useMemo(() => merged.find((r) => r.day === day), [merged, day]);
   useEffect(() => {
-    setF({ pain: existing?.pain ?? '', sleep: existing?.sleep ?? '', anxiety: existing?.anxiety ?? '', mood: existing?.mood ?? '', note: existing?.note ?? '' });
-  }, [existing, day]);
+    setF({ pain: existing?.pain ?? '', sleep: existing?.sleep ?? '', anxiety: existing?.anxiety ?? '', mood: existing?.mood ?? '', note: existing?.note ?? '',
+      ...Object.fromEntries(all.filter((x) => x.custom).map((x) => [x.key, existing?.[x.key] ?? ''])) });
+  }, [existing, day, all]);
+  const reload = () => api('/api/symptoms').then(setData);
 
   async function save(e) {
     e.preventDefault();
-    try { setData(await api('/api/symptoms', 'PUT', { day, ...f })); setMsg({ text: 'Zapisano.' }); } catch (err) { setMsg({ text: err.message, error: true }); }
+    const custom = Object.fromEntries(defs.map((d) => [d.id, f[`c${d.id}`] ?? '']));
+    try { setData(await api('/api/symptoms', 'PUT', { day, ...f, ...(defs.length ? { custom } : {}) })); setMsg({ text: 'Zapisano.' }); } catch (err) { setMsg({ text: err.message, error: true }); }
   }
   async function remove() {
     if (!confirm('Usunąć wpis z tego dnia?')) return;
@@ -115,12 +196,12 @@ export default function SymptomsBoard() {
           </div>
         </div>
         {existing && <p className="muted small sym-exists">Wpis z tego dnia już istnieje, zapis go nadpisze.</p>}
-        {FIELDS.map(([k, label, help]) => {
+        {all.map(({ key: k, label, help, custom }) => {
           const empty = f[k] === '';
           return (
             <div key={k} className={`sym-slider${empty ? ' unset' : ''}`}>
               <div className="sym-head">
-                <label htmlFor={`sy-${k}`}>{label}</label>
+                <label htmlFor={`sy-${k}`} className={custom ? 'dn' : undefined}>{label}</label>
                 <span className={`sym-val${empty ? ' unset' : ''}`} aria-hidden="true">{empty ? 'Nie wpisano' : f[k]}</span>
                 {!empty && <button type="button" className="btn text small" onClick={() => setF({ ...f, [k]: '' })} aria-label={`Wyczyść: ${label}`}>Wyczyść</button>}
               </div>
@@ -137,8 +218,9 @@ export default function SymptomsBoard() {
         {msg && <div className={`alert ${msg.error ? 'error' : 'ok'}`} role={msg.error ? 'alert' : 'status'}>{msg.text}</div>}
         <div className="sym-actions"><button className="btn">Zapisz wpis</button>{existing && <button type="button" className="btn danger" onClick={remove}>Usuń wpis</button>}</div>
       </form>
+      <CustomManager defs={defs} onChange={async (text) => { try { await reload(); setMsg(text ? { text } : null); } catch (e) { setMsg({ text: e.message, error: true }); } }} />
       <h2 className="section-label">Ostatnie 30 dni</h2>
-      {loaded && data.rows.length === 0 && data.usage.length === 0 ? (
+      {loaded && merged.length === 0 && data.usage.length === 0 ? (
         <section className="card empty">
           <Icon name="pulse" size={32} />
           <h2>Wykres pojawi się po pierwszym wpisie</h2>
@@ -147,9 +229,9 @@ export default function SymptomsBoard() {
         </section>
       ) : (
       <section className="card">
-        <Chart rows={data.rows} usage={data.usage} />
+        <Chart rows={merged} usage={data.usage} all={all} />
         <ul className="sym-legend" aria-label="Legenda wykresu">
-          {SYMPTOMS.map((s) => <li key={s.key}><Swatch s={s} />{s.label}</li>)}
+          {all.map((s) => <li key={s.key}><Swatch s={s} /><span className={s.custom ? 'dn' : undefined}>{s.label}</span></li>)}
           <li><i className="bar" aria-hidden="true" />Zużycie (słupki)</li>
         </ul>
       </section>

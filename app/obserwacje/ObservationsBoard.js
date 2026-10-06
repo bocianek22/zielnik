@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { SYMPTOMS } from '@/lib/symptoms';
+import { SYMPTOMS, customMeta } from '@/lib/symptoms';
 import { fmtNum } from '@/lib/units';
 
 const dayWord = (n) => (n === 1 ? 'dzień' : 'dni');
@@ -28,24 +28,25 @@ function Row({ title, sub, cell, minDays, dn, label }) {
   );
 }
 
-export default function ObservationsBoard({ symptoms, minDays }) {
+export default function ObservationsBoard({ symptoms, minDays, custom = [] }) {
+  const all = [...SYMPTOMS, ...custom.map(customMeta)]; // własne objawy (POM-07) jak wbudowane
   // pierwszy objaw z wpisami (kolejność jak w dzienniku)
-  const [key, setKey] = useState(() => (SYMPTOMS.find((x) => symptoms[x.key].days > 0) || SYMPTOMS[0]).key);
-  const s = SYMPTOMS.find((x) => x.key === key);
+  const [key, setKey] = useState(() => (all.find((x) => symptoms[x.key].days > 0) || all[0]).key);
+  const s = all.find((x) => x.key === key);
   const d = symptoms[key];
   const empty = d.days === 0;
   return (
     <>
       <div className="seg obs-sym" role="group" aria-label="Objaw">
-        {SYMPTOMS.map((x) => (
-          <button key={x.key} type="button" className={x.key === key ? 'on' : ''} aria-pressed={x.key === key} onClick={() => setKey(x.key)}>{SHORT[x.key]}</button>
+        {all.map((x) => (
+          <button key={x.key} type="button" className={x.key === key ? 'on' : ''} aria-pressed={x.key === key} onClick={() => setKey(x.key)}>{x.custom ? <span className="dn">{x.label}</span> : SHORT[x.key] ?? x.label}</button>
         ))}
       </div>
       <h2 className="section-label obs-head">
-        {s.label}<span>średnia 0–10 · 0 = {s.low}, 10 = {s.high}</span>
+        {s.custom ? <span className="dn">{s.label}</span> : s.label}<span>średnia 0–10 · 0 = {s.low}, 10 = {s.high}</span>
       </h2>
       {empty ? (
-        <p className="muted small obs-none">Brak wpisów „{s.label.toLowerCase()}” w tym okresie (od pierwszego zapisu zużycia).</p>
+        <p className="muted small obs-none">Brak wpisów „{s.custom ? <span className="dn">{s.short}</span> : s.label.toLowerCase()}” w tym okresie (od pierwszego zapisu zużycia).</p>
       ) : (
         <ul className="list obs-list" aria-label={`${s.label}: średnie według dni`}>
           {d.strains.map((g) => <Row key={g.id} title={g.name} cell={g} minDays={minDays} dn label={s.label}
