@@ -9,7 +9,7 @@ const n2 = (x) => Number(Number(x).toFixed(2)).toLocaleString('pl-PL');
 
 // Panel „Dziś” z lekkich danych serwera i wspólnego stanu (HomeStore); nie czeka na listę odmian.
 export default function TodayBoard({ usage = { perDay: 0, perDayMl: 0, cost: 0 }, bought = { grams: 0, ml: 0, cost: 0 },
-  prescriptions = { items: [], total: 0, urgent: false }, symptoms = null }) {
+  prescriptions = { items: [], total: 0, urgent: false }, symptoms = null, noUse = false }) {
   const { boughtU, series, recent, stock: stockU, remaining: remainingU, count, low, limit, savePref, setLow, setLimit, entrySaved } = useHome();
   const dailyUse = usage.perDay; // g/dzień (susz); ml/dzień: usage.perDayMl
   const boughtG = boughtU.g;
@@ -25,7 +25,7 @@ export default function TodayBoard({ usage = { perDay: 0, perDayMl: 0, cost: 0 }
 
   if (series.length === 0) return null;
   return (
-      <TodayPanel stock={stockU} dailyUse={{ g: dailyUse, ml: usage.perDayMl || 0 }} bought={boughtU} low={low} series={series} prescriptions={prescriptions} symptoms={symptoms}
+      <TodayPanel stock={stockU} dailyUse={{ g: dailyUse, ml: usage.perDayMl || 0 }} bought={boughtU} low={low} series={series} prescriptions={prescriptions} symptoms={symptoms} noUse={noUse}
         quick={quick} onUsed={onUsed} fresh={count === 0} onAdd={() => window.dispatchEvent(new Event('zielnik:new-strain'))} settings={(
           <details className="prefs">
             <summary>Szczegóły i ustawienia <Icon name="chevronDown" size={18} /></summary>

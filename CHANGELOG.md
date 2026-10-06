@@ -8,6 +8,14 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.41.0] - 2026-10
+### Dodano
+- „Dziś bez zużycia” w panelu „Dziś” (POM-38): znacznik dnia bez gramów (z „Cofnij”), widoczny tylko, gdy dziś nie zapisano zużycia; zapis „Zużyłem” zdejmuje znacznik. Neutralnie, bez serii i liczników.
+- „Moje obserwacje”: kto oznacza dni bez zużycia, ma w grupie „Dni bez zużycia” tylko dni potwierdzone (zapomniany wpis nie zawyża tej grupy); bez oznaczeń działa jak dotąd.
+- Dni bez zużycia w eksporcie JSON (`noUseDays`) i CSV (wiersz „Bez zużycia”) oraz w kopii.
+### Uwaga przy wdrożeniu
+- Migracja addytywna: tabela `no_use_days`.
+
 ## [0.40.0] - 2026-10
 ### Dodano
 - „Zmień PIN” w blokadzie przeglądarki bez jej wyłączania (POM-33); obecny PIN liczy się do limitu prób, odcisk palca/twarz zostaje.

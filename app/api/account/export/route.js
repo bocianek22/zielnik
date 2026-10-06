@@ -56,6 +56,7 @@ export const GET = safe(async (req) => {
     customSymptoms: await q`SELECT name, higher_better AS "higherBetter", created_at AS "createdAt" FROM symptom_custom WHERE user_id = ${me} ORDER BY slot`,
     customSymptomValues: await q`SELECT to_char(v.day, 'YYYY-MM-DD') AS day, c.name AS symptom, v.value FROM symptom_values v
       JOIN symptom_custom c ON c.id = v.custom_id WHERE v.user_id = ${me} ORDER BY v.day, c.slot`,
+    noUseDays: (await q`SELECT to_char(day, 'YYYY-MM-DD') AS day FROM no_use_days WHERE user_id = ${me} ORDER BY day`).map((r) => r.day),
     blocked: await q`SELECT u.username FROM blocks b JOIN users u ON u.id = b.blocked WHERE b.blocker = ${me}`,
     // adresów subskrypcji (endpointy i klucze urządzeń) nie eksportujemy: to dane techniczne przeglądarki,
     // działają jak hasło do wysyłania powiadomień na urządzenie i nie mówią nic o użytkowniku; podajemy tylko ich liczbę i daty
