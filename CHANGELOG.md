@@ -8,6 +8,13 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.40.0] - 2026-10
+### Dodano
+- „Zmień PIN” w blokadzie przeglądarki bez jej wyłączania (POM-33); obecny PIN liczy się do limitu prób, odcisk palca/twarz zostaje.
+### Zmieniono
+- Logowanie, rejestracja i zmiana hasła przez wspólną obsługę błędów `safe()` (JSON, `no-store`, dziennik błędów); komunikat błędu logowania nie podpowiada konfiguracji serwera (POM-34).
+- `npm run check` wymaga `safe()` w każdej trasie API (wyjątek tylko z komentarzem `// bez safe(): powód`).
+
 ## [0.39.0] - 2026-10
 ### Dodano
 - Własne objawy i skale (POM-07): do 3 własnych objawów na konto (nazwa, kierunek „wyżej = lepiej/gorzej”, skala 0-10) w dzienniku i szybkim wpisie w panelu „Dziś” (także offline), na wykresie, w „Moich obserwacjach” i w raporcie dla lekarza (opisowo). Prywatne, w eksporcie JSON i CSV (nowa ostatnia kolumna „Własne objawy”) i w kopii; nazwy rozmyte w trybie dyskretnym.
