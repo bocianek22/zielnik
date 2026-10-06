@@ -42,6 +42,11 @@ export const GET = safe(async (req) => {
           AND (${to}::date IS NULL OR (l.created_at AT TIME ZONE 'Europe/Warsaw')::date <= ${to}::date)`) {
       rows.push({ k: `${r.d} ${r.t}`, cells: [TYPES.zuzycie, r.d, r.t, csvText(r.name), csvNum(r.grams), r.unit, methodLabel(r.method) ?? '', periodLabel(r.period) ?? ''] });
     }
+    // dni oznaczone jako bez zużycia (POM-38): osobny typ wiersza, bez ilości
+    for (const r of await q`SELECT to_char(day, 'YYYY-MM-DD') AS d FROM no_use_days
+        WHERE user_id = ${me}::int AND (${from}::date IS NULL OR day >= ${from}::date) AND (${to}::date IS NULL OR day <= ${to}::date)`) {
+      rows.push({ k: `${r.d} 00:00`, cells: ['Bez zużycia', r.d] });
+    }
   }
   if (want('zakupy')) {
     for (const r of await q`SELECT to_char(created_at AT TIME ZONE 'Europe/Warsaw', 'YYYY-MM-DD') AS d, to_char(created_at AT TIME ZONE 'Europe/Warsaw', 'HH24:MI') AS t,

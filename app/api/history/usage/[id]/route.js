@@ -43,6 +43,9 @@ export const PATCH = safe(async (req, { params }) => {
       UPDATE user_strain us SET current_amount = us.current_amount - c.more, updated_at = now()
       FROM c WHERE us.strain_id = c.strain_id AND us.user_id = ${user.id}::int AND c.more <> 0
       RETURNING us.current_amount
+    ), nu AS (
+      -- wpis przeniesiony na dzień oznaczony jako bez zużycia zdejmuje ten znacznik (POM-38)
+      DELETE FROM no_use_days n USING ul WHERE n.user_id = ${user.id}::int AND n.day = ul.day::date AND ul.grams > 0
     )
     SELECT c.grams::float8 AS old_grams, c.day AS old_day, ul.grams::float8 AS grams, ul.day,
            coalesce((SELECT current_amount FROM su), (SELECT current_amount FROM st0), 0)::float8 AS current

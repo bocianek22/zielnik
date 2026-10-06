@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import QuickActions from './QuickActions';
+import NoUseToday from './NoUseToday';
 import Icon from './Icon';
 import SymptomsQuick from './SymptomsQuick';
 import { unitOf } from '@/lib/units';
@@ -167,7 +168,7 @@ function StockBlock({ unit, stock, dailyUse, bought, today, named, ok, id }) {
 }
 
 // stock, dailyUse, bought: { g, ml }; low: próg „Kończy się” w gramach (tylko susz)
-export default function TodayPanel({ stock, dailyUse, bought, low, series, prescriptions, symptoms, quick, onUsed, settings, fresh, onAdd }) {
+export default function TodayPanel({ stock, dailyUse, bought, low, series, prescriptions, symptoms, noUse = false, quick, onUsed, settings, fresh, onAdd }) {
   const today = series.at(-1).day;
   const hasMl = stock.ml > 0 || dailyUse.ml > 0;
   const hasG = !hasMl || stock.g > 0 || dailyUse.g > 0;
@@ -177,6 +178,10 @@ export default function TodayPanel({ stock, dailyUse, bought, low, series, presc
     return stock[u] > 0 && ((u === 'g' && low > 0 && stock[u] <= low) || (d != null && d < 7));
   };
   const warn = units.some(warnOf);
+  // POM-38: znacznik „dziś bez zużycia”; dzisiejsze zużycie (serwer zdejmuje wtedy znacznik) zeruje go także tutaj
+  const usedToday = Number(series.at(-1).grams) > 0 || Number(series.at(-1).ml) > 0;
+  const [noUseOn, setNoUseOn] = useState(noUse);
+  useEffect(() => { if (usedToday) setNoUseOn(false); }, [usedToday]);
 
   // Skróty aplikacji (POM-12): /?zuzylem=1 otwiera „Zużyłem” ostatnio używanej odmiany, /#objawy przewija do objawów.
   // Panel otwieramy dotknięciem przycisku z QuickActions (bez zmiany jego API); bez odmiany z zapasem panelu nie ma
@@ -228,6 +233,9 @@ export default function TodayPanel({ stock, dailyUse, bought, low, series, presc
               remaining={0} onSaved={(en) => onUsed(quick.id, en)} />
           </div>
         )}
+
+        {/* POM-38: tylko gdy dziś nie zapisano zużycia (zapis „Zużyłem” zdejmuje znacznik na serwerze) */}
+        {!usedToday && <NoUseToday day={today} on={noUseOn} setOn={setNoUseOn} />}
 
         {settings}
       </section>

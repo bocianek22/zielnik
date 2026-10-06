@@ -42,6 +42,10 @@ export const POST = safe(async (req, { params }) => {
       UPDATE user_strain us SET current_amount = us.current_amount - ins.stock_delta, updated_at = now()
       FROM ins WHERE us.strain_id = ${id}::int AND us.user_id = ${user.id}::int
       RETURNING us.current_amount
+    ), nu AS (
+      -- zapisane zużycie zdejmuje znacznik „dzień bez zużycia” z tego dnia (POM-38), w tym samym poleceniu
+      DELETE FROM no_use_days WHERE user_id = ${user.id}::int AND EXISTS (SELECT 1 FROM ins)
+        AND day = (COALESCE(${at}::timestamptz, now()) AT TIME ZONE 'Europe/Warsaw')::date
     )
     SELECT ins.id, ins.grams::float8 AS used, upd.current_amount::float8 AS current, ins.stock_delta < ins.grams AS short
     FROM ins, upd`;
