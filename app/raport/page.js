@@ -9,6 +9,9 @@ import Header from '../components/Header';
 import Icon from '../components/Icon';
 import PrintButton from './PrintButton';
 import VisitPeriod from './VisitPeriod';
+import DoctorNotes from './DoctorNotes';
+import ReportNotes from './ReportNotes';
+import { listNotes } from '@/lib/doctor-notes';
 import { formatDay, todayPL, addDaysIso } from '@/lib/date';
 import { doctorReport, MIN_SYMPTOM_DAYS } from '@/lib/report';
 import { METHODS, PERIODS, periodLabel } from '@/lib/usage-meta';
@@ -51,7 +54,10 @@ export default async function Raport({ searchParams }) {
   const visit = sp.okres === 'wizyta';
   const notesQs = withNotes ? '&notes=1' : '';
 
-  const { usage, weekly, purchases, feel: feelAll, sym, customSym, totals, rx, rxSum, strainSym, whenUsed } = await doctorReport(me.id, from, to);
+  const [{ usage, weekly, purchases, feel: feelAll, sym, customSym, totals, rx, rxSum, strainSym, whenUsed }, notes] = await Promise.all([
+    doctorReport(me.id, from, to), listNotes(me.id),
+  ]);
+  const openNotes = notes.filter((n) => !n.done);
   // bez pustych wierszy: tylko odmiany z oceną, odczuciem albo (gdy dołączone) spostrzeżeniem
   const feel = feelAll.filter((f) => f.rating != null || EFFECTS.some(([k]) => f.effects?.[k] != null) || (withNotes && f.notes));
   const daysSpan = Math.round((Date.parse(to) - Date.parse(from)) / 864e5) + 1;
@@ -113,6 +119,8 @@ export default async function Raport({ searchParams }) {
           <p className="muted small">Na telefonie wybierz w oknie drukowania „Zapisz jako PDF”, a potem udostępnij plik. Na wydruku nazwy odmian są widoczne także w trybie dyskretnym.</p>
         </div>
 
+        <DoctorNotes initial={notes} />
+
         {noData ? (
           <div className="card empty no-print">
             <Icon name="file" size={32} />
@@ -125,6 +133,8 @@ export default async function Raport({ searchParams }) {
           <h2>Zestawienie stosowania medycznej konopi</h2>
           <p className="report-meta">Pacjent: <b>{plan?.display_name || me.username}</b><br />Okres: <b>{day(from)}</b> do <b>{day(to)}</b> ({dni(daysSpan)})</p>
           <p className="muted small">Zestawienie powstało {day(today)} z zapisów prowadzonych przez pacjenta w aplikacji Zielnik. Nie jest dokumentacją medyczną ani oceną skuteczności leczenia.</p>
+
+          <ReportNotes initial={openNotes} />
 
           <h3>Podsumowanie</h3>
           <div className="summary">
