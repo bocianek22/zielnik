@@ -18,7 +18,8 @@ export default function WebLockSettings() {
   const [rec, setRec] = useState(null);
   const [idle, setIdle] = useState(0);
   const [wa, setWa] = useState(false);
-  const [mode, setMode] = useState(null); // null | 'set' | 'off'
+  const [mode, setMode] = useState(null); // null | 'set' | 'off' | 'change'
+  const [cur, setCur] = useState('');
   const [pin, setPin] = useState('');
   const [pin2, setPin2] = useState('');
   const [msg, setMsg] = useState('');
@@ -31,7 +32,7 @@ export default function WebLockSettings() {
   }, []);
   if (!ready) return null;
 
-  const reset = () => { setMode(null); setPin(''); setPin2(''); setErr(''); };
+  const reset = () => { setMode(null); setCur(''); setPin(''); setPin2(''); setErr(''); };
   const flash = (m) => { setMsg(m); setErr(''); };
 
   async function enable(e) {
@@ -77,6 +78,24 @@ export default function WebLockSettings() {
     }
   }
 
+  // zmiana PIN-u bez wyłączania blokady: stary PIN liczy się do limitu prób jak przy wyłączaniu
+  async function change(e) {
+    e.preventDefault();
+    if (failState().wait > 0) return setErr('Zbyt wiele prób. Spróbuj za chwilę.');
+    if (!validPin(pin)) return setErr('Nowy PIN ma mieć od 4 do 8 cyfr.');
+    if (pin !== pin2) return setErr('Nowe PIN-y nie są takie same.');
+    setBusy(true);
+    if (await verifyPin(cur, rec)) {
+      const r = { ...(await makeRecord(pin, rec.mins)), ...(rec.cred ? { cred: rec.cred } : {}) };
+      saveLock(r); clearFails(); setRec(r); reset(); notify(); flash('PIN zmieniony.');
+    } else {
+      const f = recordFail(); setCur('');
+      if (f.logout) { setErr('Zbyt wiele błędnych prób. Wylogowuję…'); if (await forceLogout()) removeLock(); }
+      else setErr(f.wait > 0 ? `Niepoprawny obecny PIN. Spróbuj za ${Math.ceil(f.wait / 1000)} s.` : 'Niepoprawny obecny PIN.');
+    }
+    setBusy(false);
+  }
+
   function changeIdle(e) {
     const h = Number(e.target.value);
     saveIdleHours(h); setIdle(h); notify();
@@ -116,8 +135,21 @@ export default function WebLockSettings() {
             </form>
           )}
 
+          {mode === 'change' && rec && (
+            <form onSubmit={change}>
+              <div className="field"><label htmlFor="wl-cur">Obecny PIN</label>
+                <input id="wl-cur" className="input" type="password" inputMode="numeric" autoComplete="off" maxLength={8} value={cur} onChange={(e) => setCur(e.target.value.replace(/\D/g, ''))} /></div>
+              <div className="field"><label htmlFor="wl-new">Nowy PIN (4-8 cyfr)</label>
+                <input id="wl-new" className="input" type="password" inputMode="numeric" autoComplete="new-password" maxLength={8} value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))} /></div>
+              <div className="field"><label htmlFor="wl-new2">Powtórz nowy PIN</label>
+                <input id="wl-new2" className="input" type="password" inputMode="numeric" autoComplete="new-password" maxLength={8} value={pin2} onChange={(e) => setPin2(e.target.value.replace(/\D/g, ''))} /></div>
+              <div className="field-row"><button className="btn" disabled={busy || cur.length < 4}>Zmień PIN</button><button type="button" className="btn ghost" onClick={reset}>Anuluj</button></div>
+            </form>
+          )}
+
           {rec && !mode && (
             <>
+              <button type="button" className="btn ghost small" onClick={() => { setMsg(''); setErr(''); setMode('change'); }}>Zmień PIN</button>
               <div className="field"><label htmlFor="wl-mins">Zablokuj po powrocie do karty po</label>
                 <select id="wl-mins" className="input" value={rec.mins} onChange={setMins}>
                   {MINUTES.map((m) => <option key={m} value={m}>{m === 1 ? '1 minucie' : `${m} minutach`}</option>)}

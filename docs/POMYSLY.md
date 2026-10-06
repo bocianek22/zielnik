@@ -56,8 +56,8 @@ Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnieni
 | POM-30 | Grupy: wspólne pytania i odpowiedzi bez ocen produktów | 2 | M | Pr | ⚖️ | nowy | SPO-8 |
 | POM-31 | Alert powrotu odmiany do katalogu | 3 | M | Pr | ⚖️ | nowy | KAT-7 |
 | POM-32 | Zgłoszenie „ta partia działała inaczej” | 3 | M | – | – | nowy | PAC-1, PAC-2 |
-| POM-33 | „Zmień PIN” w blokadzie bez jej wyłączania | 3 | S | P | – | nowy | KON-11 |
-| POM-34 | Trasy auth w trybie `safe()` / `requireUser()` (`change-password`) | 2 | S | T | – | nowy (z przeglądu) | – |
+| POM-33 | „Zmień PIN” w blokadzie bez jej wyłączania | 3 | S | P | – | zrobiony (0.40.0) | KON-11 |
+| POM-34 | Trasy auth w trybie `safe()` / `requireUser()` (`change-password`) | 2 | S | T | – | zrobiony (0.40.0) | – |
 | POM-35 | Lekki indeks odmian i paginacja listy po stronie serwera | 3 | M | T | POM-23 | nowy | PLA-5 |
 | POM-36 | „Do omówienia z lekarzem”: lista pytań przy raporcie | 3 | S | P | – | nowy | MON-4 |
 | POM-37 | Karta „Co zostało na recepcie” (apteka, wizyta) | 4 | S/M | P | – | nowy | PAC-4 |
