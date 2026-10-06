@@ -6,7 +6,9 @@ import { DAY_RE, markNoUse, unmarkNoUse } from '@/lib/no-use';
 const dayOf = async (req) => {
   const b = await req.json().catch(() => ({}));
   const day = b.day == null ? new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Warsaw' }) : String(b.day);
-  return DAY_RE.test(day) && !Number.isNaN(Date.parse(day)) ? day : null;
+  // ścisła data: 2026-02-30 albo rok 0000 (Date je przesuwa) to 400, a nie błąd bazy
+  return DAY_RE.test(day) && day >= '2000-01-01' && !Number.isNaN(Date.parse(day))
+    && new Date(`${day}T00:00Z`).toISOString().slice(0, 10) === day ? day : null;
 };
 
 export const POST = safe(async (req) => {

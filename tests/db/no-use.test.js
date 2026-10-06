@@ -62,7 +62,7 @@ test('oznaczanie: dziś i wstecz do 30 dni; przyszłość, za stare, zła data i
   assert.equal((await call(A, 'usage/none', 'POST', { day: today })).status, 200); // powtórka bez błędu
   assert.equal((await call(A, 'usage/none', 'POST', { day: d.fut })).status, 400);
   assert.equal((await call(A, 'usage/none', 'POST', { day: d.old })).status, 400);
-  assert.equal((await call(A, 'usage/none', 'POST', { day: '2026-13-45' })).status, 400);
+  for (const day of ['2026-13-45', '2026-02-30', '0000-01-01']) assert.equal((await call(A, 'usage/none', 'POST', { day })).status, 400);
   await q`INSERT INTO usage_log (user_id, strain_id, grams, created_at) VALUES (${A}, ${S}, 0.2, ${d.d1}::date + interval '12 hours')`;
   assert.equal((await call(A, 'usage/none', 'POST', { day: d.d1 })).status, 409);
   const rows = await q`SELECT to_char(day, 'YYYY-MM-DD') AS day FROM no_use_days WHERE user_id = ${A}`;
@@ -78,6 +78,11 @@ test('zapis „Zużyłem” zdejmuje znacznik z tego dnia; cofnięcie znacznika 
   assert.equal((await q`SELECT 1 FROM no_use_days WHERE user_id = ${A} AND day = ${d.d2}::date`).length, 1);
   assert.equal((await call(A, 'usage/none', 'DELETE', { day: d.d2 })).status, 200);
   assert.equal((await q`SELECT 1 FROM no_use_days WHERE user_id = ${A} AND day = ${d.d2}::date`).length, 0);
+  // edycja w Historii przenosząca zużycie na dzień oznaczony zdejmuje znacznik
+  assert.equal((await call(A, 'usage/none', 'POST', { day: d.d2 })).status, 200);
+  const [{ id: lid }] = await q`SELECT id FROM usage_log WHERE user_id = ${A} AND (created_at AT TIME ZONE 'Europe/Warsaw')::date = ${d.d1}::date`;
+  assert.equal((await call(A, 'history/usage/[id]', 'PATCH', { date: d.d2 }, { id: String(lid) })).status, 200);
+  assert.equal((await q`SELECT 1 FROM no_use_days WHERE user_id = ${A} AND day = ${d.d2}::date`).length, 0);
 });
 
 test('obserwacje: bez oznaczeń „bez zużycia” to każdy dzień bez wpisu; po pierwszym oznaczeniu tylko dni potwierdzone', { skip }, async () => {
@@ -87,11 +92,11 @@ test('obserwacje: bez oznaczeń „bez zużycia” to każdy dzień bez wpisu; p
   await q`INSERT INTO usage_log (user_id, strain_id, grams, created_at) VALUES (${B}, ${S}, 0.2, ${d.d3}::date + interval '12 hours')`;
   for (const day of [d.d3, d.d2, d.d1, today]) await q`INSERT INTO symptom_log (user_id, day, pain) VALUES (${B}, ${day}::date, 5)`;
   let o = await observations(B, 30);
-  assert.equal(o.confirmedNoUse, false);
+  assert.equal(o.confirmedNoUse, null);
   assert.equal(o.symptoms.pain.none.days, 3);
   assert.equal((await call(B, 'usage/none', 'POST', { day: d.d2 })).status, 200);
   o = await observations(B, 30);
-  assert.equal(o.confirmedNoUse, true);
+  assert.equal(o.confirmedNoUse, d.d2);
   assert.equal(o.symptoms.pain.none.days, 1);
   assert.equal(o.symptoms.pain.strains[0].days, 1);
 });

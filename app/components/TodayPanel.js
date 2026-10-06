@@ -178,6 +178,10 @@ export default function TodayPanel({ stock, dailyUse, bought, low, series, presc
     return stock[u] > 0 && ((u === 'g' && low > 0 && stock[u] <= low) || (d != null && d < 7));
   };
   const warn = units.some(warnOf);
+  // POM-38: znacznik „dziś bez zużycia”; dzisiejsze zużycie (serwer zdejmuje wtedy znacznik) zeruje go także tutaj
+  const usedToday = Number(series.at(-1).grams) > 0 || Number(series.at(-1).ml) > 0;
+  const [noUseOn, setNoUseOn] = useState(noUse);
+  useEffect(() => { if (usedToday) setNoUseOn(false); }, [usedToday]);
 
   // Skróty aplikacji (POM-12): /?zuzylem=1 otwiera „Zużyłem” ostatnio używanej odmiany, /#objawy przewija do objawów.
   // Panel otwieramy dotknięciem przycisku z QuickActions (bez zmiany jego API); bez odmiany z zapasem panelu nie ma
@@ -231,7 +235,7 @@ export default function TodayPanel({ stock, dailyUse, bought, low, series, presc
         )}
 
         {/* POM-38: tylko gdy dziś nie zapisano zużycia (zapis „Zużyłem” zdejmuje znacznik na serwerze) */}
-        {Number(series.at(-1).grams) === 0 && !(Number(series.at(-1).ml) > 0) && <NoUseToday day={today} initial={noUse} />}
+        {!usedToday && <NoUseToday day={today} on={noUseOn} setOn={setNoUseOn} />}
 
         {settings}
       </section>

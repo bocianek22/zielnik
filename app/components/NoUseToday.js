@@ -4,8 +4,8 @@ import { api } from '@/lib/api';
 
 // POM-38: „Dziś bez zużycia” jednym dotknięciem. Neutralnie: bez serii, liczników i zachęt; znacznik tylko odróżnia
 // „nie użyłem” od „nie wpisałem” w „Moich obserwacjach”.
-export default function NoUseToday({ day, initial = false }) {
-  const [on, setOn] = useState(initial);
+// Stan trzyma panel „Dziś” (zapis zużycia zeruje go bez przeładowania strony).
+export default function NoUseToday({ day, on, setOn }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   async function toggle() {

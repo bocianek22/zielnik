@@ -95,7 +95,7 @@ export default async function Obserwacje({ searchParams }) {
             <li>Jakość snu dotyczy ostatniej nocy, więc porównujemy ją z zużyciem z poprzedniego dnia. Pozostałe objawy z tym samym dniem.</li>
             <li>Średnią pokazujemy od {data.minDays} dni w grupie. Przy mniejszej liczbie widać tylko liczbę dni.</li>
             <li>{data.confirmedNoUse
-              ? 'Dni bez zużycia to dni oznaczone przyciskiem „Dziś bez zużycia”. Dni bez wpisu i bez oznaczenia pomijamy.'
+              ? `Od ${data.confirmedNoUse.split('-').reverse().join('.')} dni bez zużycia to tylko dni oznaczone przyciskiem „Dziś bez zużycia” (dni bez wpisu i bez oznaczenia pomijamy); wcześniej każdy dzień bez wpisu.`
               : 'Dni bez zużycia liczymy od pierwszego zapisu zużycia (każdy dzień bez wpisu). Oznaczaj dni przyciskiem „Dziś bez zużycia” w panelu „Dziś”, a zapomniany wpis nie trafi do tej grupy.'} Dni liczymy w czasie polskim.</li>
             <li>Zestawienie widzisz tylko Ty. Nie trafia do profilu, grup ani do znajomych.</li>
           </ul>

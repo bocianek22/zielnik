@@ -42,15 +42,14 @@ export const POST = safe(async (req, { params }) => {
       UPDATE user_strain us SET current_amount = us.current_amount - ins.stock_delta, updated_at = now()
       FROM ins WHERE us.strain_id = ${id}::int AND us.user_id = ${user.id}::int
       RETURNING us.current_amount
+    ), nu AS (
+      -- zapisane zużycie zdejmuje znacznik „dzień bez zużycia” z tego dnia (POM-38), w tym samym poleceniu
+      DELETE FROM no_use_days WHERE user_id = ${user.id}::int AND EXISTS (SELECT 1 FROM ins)
+        AND day = (COALESCE(${at}::timestamptz, now()) AT TIME ZONE 'Europe/Warsaw')::date
     )
     SELECT ins.id, ins.grams::float8 AS used, upd.current_amount::float8 AS current, ins.stock_delta < ins.grams AS short
     FROM ins, upd`;
-  if (row) {
-    // zapisane zużycie zdejmuje znacznik „dzień bez zużycia” z tego dnia (POM-38)
-    await q`DELETE FROM no_use_days WHERE user_id = ${user.id}::int
-            AND day = (COALESCE(${at}::timestamptz, now()) AT TIME ZONE 'Europe/Warsaw')::date`;
-    return NextResponse.json({ id: row.id, current: row.current, used: row.used, stockShort: row.short });
-  }
+  if (row) return NextResponse.json({ id: row.id, current: row.current, used: row.used, stockShort: row.short });
 
   // powtórzony requestId (osobne zapytanie: wpis zapisany równolegle nie jest widoczny w migawce zapytania wyżej)
   const [dup] = rid ? await q`SELECT l.id, l.grams::float8 AS used, l.stock_delta < l.grams AS short, us.current_amount::float8 AS current
