@@ -23,3 +23,4 @@ Okna limitu odnawiały się co ok. 5 h (ostatnio 22:50 UTC). Zaplanowane wznowie
 - 0.38.0 scalone (PR #10) 10:16 UTC: POM-25 + POM-27 + poprawki z przeglądu. Start 0.39.0: POM-07 (backend-db) i POM-23 (frontend-mobile).
 - 0.39.0: POM-07 + POM-23 + innowacje (POMYSLY.md) scalone, przegląd i poprawki 6.10 (agenci Sonnet: limit tygodniowy do 7.10 01:00 UTC, poprawki robione przez koordynatora).
 - 0.39.0 scalone (PR #11) 6.10 00:21 UTC.
+- 0.40.0 scalone (PR #12) 6.10 00:29 UTC: POM-33, POM-34 (koordynator sam).
