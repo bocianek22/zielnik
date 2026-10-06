@@ -8,6 +8,10 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.44.0] - 2026-10
+### Dodano
+- Porównanie odmian (POM-18, część): moje statystyki przy każdej odmianie: „Zużyłem razem”, „Średnio dziennie (12 tyg.)”, „Ostatnie użycie” (tylko moje zużycie).
+
 ## [0.43.0] - 2026-10
 ### Dodano
 - „Do omówienia z lekarzem” w raporcie (POM-36): do 10 krótkich punktów przed wizytą (do 200 znaków), nieomówione drukowane w raporcie pod nagłówkiem; po wizycie odhaczane jako omówione albo usuwane. Prywatne, w eksporcie JSON (`doctorNotes`) i w kopii.

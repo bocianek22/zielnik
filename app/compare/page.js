@@ -6,6 +6,8 @@ import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
 import { isNativeApp } from '@/lib/client';
 import { listStrains } from '@/lib/strains';
+import { strainStats } from '@/lib/strain-stats';
+import { formatDay } from '@/lib/date';
 import Header from '../components/Header';
 import Icon from '../components/Icon';
 
@@ -26,6 +28,11 @@ export default async function Compare({ searchParams }) {
   const all = ids.length ? await listStrains(user.id, { ids }) : [];
   const rows = ids.map((id) => all.find((s) => s.id === id)).filter(Boolean);
   const mine = (s) => s.entries.find((e) => e.userId === user.id);
+  // POM-18: moje statystyki odmiany (tylko moje zużycie, jak na stronie odmiany)
+  const stats = Object.fromEntries(await Promise.all(rows.map(async (s) => [s.id, await strainStats(user.id, s.id)])));
+  // krótko (3 kolumny na 320 px), pełna data w podpowiedzi
+  const ago = (st) => (st.lastUse == null ? '–' : (
+    <span title={formatDay(st.lastUse)}>{st.lastDaysAgo === 0 ? 'dziś' : st.lastDaysAgo === 1 ? 'wczoraj' : `${st.lastDaysAgo} dni temu`}</span>));
   // liczby z polskim przecinkiem, brak wartości jako kreska
   const v = (x, unit = '') => (x == null || x === '' ? '–' : `${Number.isNaN(Number(x)) ? x : pl(x)}${unit}`);
   const cap = (x) => (x ? <span className="cap">{x}</span> : '–');
@@ -45,6 +52,9 @@ export default async function Compare({ searchParams }) {
     ['Terpeny', (s) => (s.terpenes?.length ? <span className="dn">{s.terpenes.join(', ')}</span> : '–')],
     ['Mam teraz', (s) => v(mine(s)?.current, ` ${unitOf(s.form)}`)],
     ['Do wykupienia (pula)', (s) => v(mine(s)?.remaining, ` ${unitOf(s.form)}`)],
+    ['Zużyłem razem', (s) => (stats[s.id].uses ? `${pl(stats[s.id].used)} ${unitOf(s.form)}` : '–')],
+    ['Średnio dziennie (12 tyg.)', (s) => v(stats[s.id].perDay, ` ${unitOf(s.form)}`)],
+    ['Ostatnie użycie', (s) => ago(stats[s.id])],
   ];
 
   return (
