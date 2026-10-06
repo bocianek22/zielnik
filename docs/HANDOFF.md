@@ -52,8 +52,9 @@ Tryb awaryjny (rozmowa bez dostępu do repozytorium):
 - Wybór bramki płatności i platformy wpłat (`DONATE_URL`), decyzja o `PREMIUM_ENFORCED`.
 - Źródło danych do katalogu (`CATALOG_FEED_URL`), plan Vercel Pro przy działalności komercyjnej.
 
-## 6. Następne kroki (aktualne dla wersji 0.41.0)
+## 6. Następne kroki (aktualne dla wersji 0.42.0)
 Pełna lista z uzasadnieniem: `docs/PRZEGLAD-2026-10.md`; aplikacje natywne: `docs/APLIKACJE-NATYWNE.md`; system projektowy: `docs/DESIGN.md`. Praca z podziałem na subagentów (`.claude/agents/`): koordynator scala gałęzie, uruchamia kontrole, zleca przegląd (reviewer) i prowadzi CHANGELOG/wersję. Przebieg pracy nocnej: `docs/PLAN-NOC.md`.
+1. **Ręcznie na telefonie (0.42.0):** Recepty → karta „W aptece”: pozostało na receptach, „Wykupiłem” przy puli (lista recept poniżej odświeża się), tryb dyskretny, ciemny motyw.
 1. **Ręcznie na telefonie (0.41.0):** panel „Dziś” bez zapisu zużycia dziś: „Dziś bez zużycia”, „Cofnij”, po „Zużyłem” przycisk znika; „Moje obserwacje” po pierwszym oznaczeniu (opis grupy „Dni bez zużycia”); CSV z wierszem „Bez zużycia”.
 1. **Ręcznie na telefonie (0.40.0):** profil → „Blokada i bezpieczeństwo” → „Zmień PIN” (zły obecny PIN, zmiana, odblokowanie nowym PIN-em, odcisk palca nadal działa); logowanie i rejestracja bez zmian w działaniu.
 1. **Ręcznie na telefonie (0.39.0):** dziennik → „Własne objawy”: dodanie (do 3), zmiana nazwy i kierunku, usunięcie; wpis w panelu „Dziś” (także offline) i w dzienniku, wykres, „Moje obserwacje”, raport (opisowo), CSV w Excelu (nowa ostatnia kolumna), tryb dyskretny; ekran główny na wolnej sieci: panel „Dziś” przed listą, bez skoków układu, „Zużyłem” w panelu zaraz po otwarciu. Następne wydanie według `docs/POMYSLY.md` (rekomendacje 0.40.0: Lighthouse w CI, `safe()` w change-password, „Zmień PIN”).

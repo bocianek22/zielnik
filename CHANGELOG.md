@@ -8,6 +8,10 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.42.0] - 2026-10
+### Dodano
+- Karta „W aptece” na stronie Recepty (POM-37): ile zostało na ważnych receptach (g i ml osobno) i co jest „do wykupienia” w pulach odmian (jedna pozycja na pulę, z nazwami pozostałych odmian puli) z przyciskiem „Wykupiłem”. Bez cen i aptek; nazwy rozmyte w trybie dyskretnym. Wykup od razu odświeża receptę.
+
 ## [0.41.0] - 2026-10
 ### Dodano
 - „Dziś bez zużycia” w panelu „Dziś” (POM-38): znacznik dnia bez gramów (z „Cofnij”), widoczny tylko, gdy dziś nie zapisano zużycia; zapis „Zużyłem” zdejmuje znacznik. Neutralnie, bez serii i liczników.

@@ -19,6 +19,12 @@ export default function Prescriptions() {
   const [open, setOpen] = useState(false);
   useEffect(() => { api('/api/prescriptions').then((r) => setList(r.prescriptions)).catch((e) => setMsg(e.message)); }, []);
   useNativeRefresh(() => api('/api/prescriptions').then((r) => setList(r.prescriptions)));
+  // „Wykupiłem” w karcie „W aptece” zmienia wykup w okresie ważności recept
+  useEffect(() => {
+    const on = () => api('/api/prescriptions').then((r) => setList(r.prescriptions)).catch(() => {});
+    window.addEventListener('zielnik:purchase', on);
+    return () => window.removeEventListener('zielnik:purchase', on);
+  }, []);
 
   async function add(e) {
     e.preventDefault();

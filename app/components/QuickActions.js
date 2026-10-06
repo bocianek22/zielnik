@@ -21,8 +21,8 @@ export const parseGrams = (s) => {
 
 // Szybkie akcje na wierzchu karty: „Zużyłem” i „Wykupiłem” z małym panelem na ilość w jednostce odmiany (bez rozwijania karty).
 // idPrefix: inny przedrostek identyfikatorów, gdy ta sama odmiana ma akcje także w panelu „Dziś” (unikalne id w DOM);
-// buy={false}: tylko „Zużyłem”.
-export default function QuickActions({ strainId, name, form = 'susz', current, remaining, onSaved, idPrefix = 'q', buy = true }) {
+// buy={false}: tylko „Zużyłem”; use={false}: tylko „Wykupiłem” (karta „W aptece”).
+export default function QuickActions({ strainId, name, form = 'susz', current, remaining, onSaved, idPrefix = 'q', buy = true, use = true }) {
   const unit = unitOf(form);
   const MODES = modes(form);
   const [mode, setMode] = useState(null); // null | 'use' | 'buy'
@@ -96,7 +96,7 @@ export default function QuickActions({ strainId, name, form = 'susz', current, r
   }
 
   const m = mode && MODES[mode];
-  const showUse = Number(current) > 0;
+  const showUse = use && Number(current) > 0;
   const id = `${idPrefix}${strainId}`;
   return (
     <div className="quick" onKeyDown={(e) => { if (e.key === 'Escape' && mode) { e.stopPropagation(); close(); } }}>

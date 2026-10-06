@@ -10,3 +10,12 @@
 .person { display: flex; justify-content: space-between; align-items: center; gap: var(--s-3); flex-wrap: wrap; padding: var(--s-3) 0; border-top: 1px solid var(--sep); }
 .person a { text-decoration: none; color: inherit; font-weight: 600; }
 
+
+/* POM-37: karta „W aptece” na stronie Recepty */
+.pharmacy h2 { margin-bottom: var(--s-2); }
+.pharmacy-rx { list-style: none; margin: 0 0 var(--s-3); padding: 0; display: grid; gap: var(--s-1); }
+.pharmacy-pools { list-style: none; margin: 0; padding: 0; }
+.pharmacy-pool { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-2) var(--s-3); padding: var(--s-3) 0; border-top: 1px solid var(--sep); }
+.pp-name { display: grid; gap: 2px; min-width: 0; }
+.pharmacy-pool .quick { flex: 0 1 auto; min-width: 0; max-width: 100%; }
+.pharmacy-pool .quick-stock { display: none; }
