@@ -25,3 +25,4 @@ Okna limitu odnawiały się co ok. 5 h (ostatnio 22:50 UTC). Zaplanowane wznowie
 - 0.39.0 scalone (PR #11) 6.10 00:21 UTC.
 - 0.40.0 scalone (PR #12) 6.10 00:29 UTC: POM-33, POM-34 (koordynator sam).
 - 0.41.0 scalone (PR #13) 6.10 00:48 UTC: POM-38 (koordynator sam, przegląd Opus).
+- 0.42.0 scalone (PR #14) 6.10 00:57 UTC: POM-37 (koordynator sam).

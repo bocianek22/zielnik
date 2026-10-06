@@ -8,6 +8,12 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.43.0] - 2026-10
+### Dodano
+- „Do omówienia z lekarzem” w raporcie (POM-36): do 10 krótkich punktów przed wizytą (do 200 znaków), nieomówione drukowane w raporcie pod nagłówkiem; po wizycie odhaczane jako omówione albo usuwane. Prywatne, w eksporcie JSON (`doctorNotes`) i w kopii.
+### Uwaga przy wdrożeniu
+- Migracja addytywna: tabela `doctor_notes`.
+
 ## [0.42.0] - 2026-10
 ### Dodano
 - Karta „W aptece” na stronie Recepty (POM-37): ile zostało na ważnych receptach (g i ml osobno) i co jest „do wykupienia” w pulach odmian (jedna pozycja na pulę, z nazwami pozostałych odmian puli) z przyciskiem „Wykupiłem”. Bez cen i aptek; nazwy rozmyte w trybie dyskretnym. Wykup od razu odświeża receptę.

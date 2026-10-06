@@ -59,7 +59,7 @@ Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnieni
 | POM-33 | „Zmień PIN” w blokadzie bez jej wyłączania | 3 | S | P | – | zrobiony (0.40.0) | KON-11 |
 | POM-34 | Trasy auth w trybie `safe()` / `requireUser()` (`change-password`) | 2 | S | T | – | zrobiony (0.40.0) | – |
 | POM-35 | Lekki indeks odmian i paginacja listy po stronie serwera | 3 | M | T | POM-23 | nowy | PLA-5 |
-| POM-36 | „Do omówienia z lekarzem”: lista pytań przy raporcie | 3 | S | P | – | nowy | MON-4 |
+| POM-36 | „Do omówienia z lekarzem”: lista pytań przy raporcie | 3 | S | P | – | zrobiony (0.43.0) | MON-4 |
 | POM-37 | Karta „Co zostało na recepcie” (apteka, wizyta) | 4 | S/M | P | – | zrobiony (0.42.0) | PAC-4 |
 | POM-38 | „Dzień bez zużycia” i nadrabianie wpisów | 4 | S/M | P | – | zrobiony (0.41.0) | PAC-7 |
 | POM-39 | Inne leki w raporcie dla lekarza (opcjonalna lista) | 3 | M | P, Pr | ⚖️ | nowy | PAC-5 |
