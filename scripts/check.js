@@ -47,6 +47,8 @@ for (const file of files) {
   }
   if (/[\\/]route\.js$/.test(file)) {
     for (const n of exportsOf(src).named) if (!ROUTE_OK.has(n)) problems.push(`${rel}: niedozwolony eksport trasy API '${n}'`);
+    // każda trasa przez safe() (JSON przy błędzie, no-store, dziennik błędów); wyjątek tylko jawny, z uzasadnieniem
+    if (!src.includes('safe(') && !/\/\/ bez safe\(\): \S/.test(src)) problems.push(`${rel}: trasa API bez safe() (albo komentarza „// bez safe(): powód”)`);
   }
 }
 // wersja z package.json musi mieć wpis w CHANGELOG.md

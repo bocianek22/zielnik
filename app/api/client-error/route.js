@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+// bez safe(): własna obsługa błędu: błąd zapisu zgłoszenia nie może trafić znów do logErrors
 import { clientIp, hit } from '@/lib/ratelimit';
 import { logError } from '@/lib/errorlog';
 

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+// bez safe(): bez bazy i bez danych użytkownika, nic tu nie rzuca
 import { VERSION } from '@/lib/version';
 
 // Publiczna informacja diagnostyczna: wersja aplikacji i skrót commita wdrożenia
