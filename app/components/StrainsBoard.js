@@ -18,6 +18,19 @@ import { revertOf } from '@/lib/offline-queue';
 import { hasQueued, wasOptimistic } from '@/lib/offline-client';
 import useQueueEvents from './useQueueEvents';
 
+// lista na ekranie głównym działa na pełnych danych, więc odświeżenie dociąga kolejne strony (`next`), aż zabraknie kursora
+async function fetchAll() {
+  let all = [], options, cursor = '';
+  for (let i = 0; i < 50; i++) {
+    const r = await api(`/api/strains${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''}`);
+    all = all.concat(r.strains);
+    options ||= r.options;
+    if (!r.next) break;
+    cursor = r.next;
+  }
+  return { strains: all, options };
+}
+
 const avgOf = (s) => {
   const r = s.entries.filter((e) => e.rating != null);
   return r.length ? r.reduce((a, e) => a + Number(e.rating), 0) / r.length : null;
@@ -57,14 +70,14 @@ export default function StrainsBoard({ initialStrains, initialOptions, me }) {
   };
 
   async function refresh() {
-    const r = await api('/api/strains');
+    const r = await fetchAll();
     setStrains(r.strains);
     setOptions(r.options);
     setFormFor(null);
   }
 
   // przeciągnięcie w aplikacji natywnej: dociąga listę, nie zamykając otwartego formularza
-  useNativeRefresh(async () => { const r = await api('/api/strains'); setStrains(r.strains); setOptions(r.options); });
+  useNativeRefresh(async () => { const r = await fetchAll(); setStrains(r.strains); setOptions(r.options); });
 
   // zmiana wpisu w stanie listy; „Do wykupienia” jest wspólne dla puli, więc aktualizujemy je we wszystkich odmianach z tej samej puli
   const applyEntry = useCallback((strainId, entry) => {

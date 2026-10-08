@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
-import { listStrains } from '@/lib/strains';
-import { strainTags } from '@/lib/effects';
+import { rankingRows } from '@/lib/strains';
 import Header from '../components/Header';
 import dynamicImport from 'next/dynamic';
 const Rankings = dynamicImport(() => import('./Rankings'), { loading: () => <p className="muted">Wczytuję rankingi…</p> });
@@ -14,10 +13,8 @@ export default async function RankingsPage() {
   if (user.must_change_password) redirect('/change-password');
 
   // do rankingów wystarczą oceny: odmiana + (użytkownik, ocena, data oceny)
-  const strains = (await listStrains(user.id)).map((s) => ({
-    id: s.id, name: s.name, producer: s.producer, type: s.type, kind: s.kind, form: s.form || 'susz', thc: s.thc, tags: strainTags(s),
-    ratings: s.entries.filter((e) => e.rating != null).map((e) => ({ userId: e.userId, rating: e.rating, at: e.ratedAt })),
-  }));
+  // (bez notatek, opisów i zdjęć; jedna strona do PAGE_MAX najnowszych odmian)
+  const { strains, next } = await rankingRows(user.id);
 
   return (
     <>
@@ -25,6 +22,7 @@ export default async function RankingsPage() {
       <main className="page">
         <h1>Rankingi</h1>
         <Rankings strains={strains} meId={user.id} />
+        {next && <p className="muted">Ranking obejmuje najnowsze odmiany ({strains.length}).</p>}
       </main>
     </>
   );

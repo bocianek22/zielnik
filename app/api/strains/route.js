@@ -1,13 +1,19 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
 import { requireUser, bad, safe } from '@/lib/guard';
-import { listStrains, listOptions, parseCommon } from '@/lib/strains';
+import { listStrainsPage, strainIndexPage, listOptions, parseCommon, parsePaging, invalidateStrains } from '@/lib/strains';
 
-export const GET = safe(async () => {
+// ?limit=&cursor= (strona listy, domyślnie i najwyżej PAGE_MAX; `next` to kursor kolejnej strony albo null),
+// ?view=index (lekka lista: id, nazwa, producent, postać, jednostka, smak i moje „mam”, do podpowiedzi i wyborów)
+export const GET = safe(async (req) => {
   const { user, res } = await requireUser();
   if (res) return res;
-  const [strains, options] = await Promise.all([listStrains(user.id), listOptions()]);
-  return NextResponse.json({ strains, options });
+  const params = new URL(req.url).searchParams;
+  const { error, limit, after } = parsePaging(params);
+  if (error) return bad(error);
+  if (params.get('view') === 'index') return NextResponse.json(await strainIndexPage(user.id, { limit, after }));
+  const [{ strains, next }, options] = await Promise.all([listStrainsPage(user.id, { limit, after }), listOptions()]);
+  return NextResponse.json({ strains, options, next });
 });
 
 export const POST = safe(async (req) => {
@@ -22,5 +28,6 @@ export const POST = safe(async (req) => {
               ${JSON.stringify(f.terpenes)}::jsonb, ${f.description}, ${f.price}, ${f.batch}, ${f.expires}::date, ${f.form}, ${JSON.stringify(f.sources)}::jsonb, ${f.descriptionAuto}, ${user.id})
       RETURNING id)
     INSERT INTO user_strain (strain_id, user_id) SELECT id, ${user.id}::int FROM s RETURNING strain_id AS id`;
+  invalidateStrains();
   return NextResponse.json({ id: row.id });
 });
