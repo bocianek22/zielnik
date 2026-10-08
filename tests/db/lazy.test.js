@@ -172,7 +172,7 @@ test('bez wiersza można ocenić, zapisać odczucia, zużyć, wykupić, ustawić
   assert.deepEqual(await rows(`strain_id = ${mate} AND user_id = ${E}`), []);
   assert.equal(Number((await strainOf(E, mate)).entries.find((e) => e.userId === E).remaining), 5);
   const r5 = await call(E, 'strains/[id]/purchase', 'POST', { grams: 2 }, p(mate));
-  assert.deepEqual({ ...r5.json, id: undefined }, { current: 2, remaining: 3, bought: 2, id: undefined });
+  assert.deepEqual({ ...r5.json, id: undefined }, { current: 2, remaining: 3, bought: 2, prescriptionId: null, id: undefined });
 
   const r6 = await call(E, 'strains/[id]/tests', 'POST', { note: 'pomiar', visibility: 'all' }, p(tested));
   assert.equal(r6.status, 200, JSON.stringify(r6.json));

@@ -44,7 +44,7 @@ export const GET = safe(async (req) => {
              WHEN pool_key ~ '^strain:[0-9]+$' THEN strain_unit(substr(pool_key, 8)::int) ELSE 'g' END AS unit
       FROM user_pool WHERE user_id = ${me}`,
     usage: await q`SELECT s.name AS strain, l.grams::float8 AS grams, form_unit(s.form) AS unit, l.method, usage_period(l.period, l.created_at) AS period, l.created_at FROM usage_log l JOIN strains s ON s.id = l.strain_id WHERE l.user_id = ${me} ORDER BY l.created_at`,
-    purchases: await q`SELECT strain_name AS strain, grams::float8 AS grams, strain_unit(strain_id) AS unit, cost::float8 AS cost, created_at FROM purchases WHERE user_id = ${me} ORDER BY created_at`,
+    purchases: await q`SELECT strain_name AS strain, grams::float8 AS grams, strain_unit(strain_id) AS unit, cost::float8 AS cost, prescription_id AS "prescriptionId", created_at FROM purchases WHERE user_id = ${me} ORDER BY created_at`,
     tests: withPhotos
       ? await inline(await q`SELECT s.name AS strain, t.note, t.visibility, t.created_at, t.mime, t.data AS photo_base64, t.blob_path FROM strain_tests t JOIN strains s ON s.id = t.strain_id WHERE t.user_id = ${me} ORDER BY t.created_at`)
       : await q`SELECT s.name AS strain, t.note, t.visibility, t.created_at, (t.data IS NOT NULL) AS has_photo FROM strain_tests t JOIN strains s ON s.id = t.strain_id WHERE t.user_id = ${me} ORDER BY t.created_at`,
@@ -54,7 +54,7 @@ export const GET = safe(async (req) => {
       FROM strain_proposals p JOIN strains s ON s.id = p.strain_id WHERE p.user_id = ${me} ORDER BY p.created_at`,
     friends: await q`SELECT u.username, f.status FROM friendships f JOIN users u ON u.id = CASE WHEN f.requester = ${me} THEN f.addressee ELSE f.requester END WHERE f.requester = ${me} OR f.addressee = ${me}`,
     groups: await q`SELECT g.name, gm.role, gm.status FROM group_members gm JOIN groups g ON g.id = gm.group_id WHERE gm.user_id = ${me}`,
-    prescriptions: await q`SELECT issued_on, valid_until, grams::float8 AS grams, unit, note FROM prescriptions WHERE user_id = ${me} ORDER BY issued_on`,
+    prescriptions: await q`SELECT id, issued_on, valid_until, grams::float8 AS grams, unit, note FROM prescriptions WHERE user_id = ${me} ORDER BY issued_on`,
     symptoms: await q`SELECT to_char(day, 'YYYY-MM-DD') AS day, pain, sleep, anxiety, mood, note FROM symptom_log WHERE user_id = ${me} ORDER BY day`,
     customSymptoms: await q`SELECT name, higher_better AS "higherBetter", created_at AS "createdAt" FROM symptom_custom WHERE user_id = ${me} ORDER BY slot`,
     customSymptomValues: await q`SELECT to_char(v.day, 'YYYY-MM-DD') AS day, c.name AS symptom, v.value FROM symptom_values v
