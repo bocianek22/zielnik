@@ -67,11 +67,11 @@ test('szyfrowanie: wszystkie jawne niepuste wiersze, małe porcje, pusty zostaje
   assert.equal(r.failed, 0);
   assert.equal(await plain(), 0);
   assert.equal((await q`SELECT note FROM symptom_log WHERE day = '2026-09-02' AND user_id = ${ids.ania}`)[0].note, '');
-  // odczyt przez moduł zgadza się z AAD (id wiersza dla testu, user_id dla reszty)
+  // odczyt przez moduł zgadza się z AAD (id wiersza dla testu, konto i klucz wiersza dla reszty)
   const [t] = await q`SELECT note FROM strain_tests WHERE id = ${testId}`;
   assert.equal(dc.decryptField('strain_tests', 'note', testId, t.note), 'test ania');
   const [s] = await q`SELECT note FROM symptom_log WHERE user_id = ${ids.bartek} AND day = '2026-09-01'`;
-  assert.equal(dc.decryptField('symptom_log', 'note', ids.bartek, s.note), `objaw ${ids.bartek}`);
+  assert.equal(dc.decryptField('symptom_log', 'note', `${ids.bartek}|2026-09-01`, s.note), `objaw ${ids.bartek}`);
   const again = await run(sql, {});
   assert.equal(again.changed, 0);
   assert.equal(again.skipped, 7);
@@ -87,7 +87,8 @@ test('rotacja: wiersze ze starym kid dostają nowy; --table ogranicza zakres', {
   assert.equal(rest.changed, 5);
   assert.equal((await q`SELECT count(*)::int AS n FROM user_strain WHERE notes LIKE 'zenc1:k1:%'`)[0].n, 0);
   assert.equal((await run(sql, {})).changed, 0);
-  assert.equal(dc.decryptField('prescriptions', 'note', ids.ania, (await q`SELECT note FROM prescriptions WHERE user_id = ${ids.ania}`)[0].note), `recepta ${ids.ania}`);
+  const [rx] = await q`SELECT id, user_id, note FROM prescriptions WHERE user_id = ${ids.ania}`;
+  assert.equal(dc.decryptField('prescriptions', 'note', dc.rowScope('prescriptions', rx), rx.note), `recepta ${ids.ania}`);
 });
 
 test('równoległa edycja w trakcie przebiegu nie jest nadpisana (UPDATE z warunkiem na starą wartość)', { skip }, async () => {
@@ -111,7 +112,7 @@ test('równoległa edycja w trakcie przebiegu nie jest nadpisana (UPDATE z warun
   // kolejny przebieg dokończy
   const next = await run(sql, { table: 'user_strain' });
   assert.equal(next.raced, 0);
-  assert.equal(dc.decryptField('user_strain', 'notes', ids.ania, (await q`SELECT notes FROM user_strain WHERE user_id = ${ids.ania}`)[0].notes), 'edycja w trakcie');
+  assert.equal(dc.decryptField('user_strain', 'notes', `${ids.ania}|${strain}`, (await q`SELECT notes FROM user_strain WHERE user_id = ${ids.ania}`)[0].notes), 'edycja w trakcie');
 });
 
 test('--decrypt przywraca jawny tekst, jest idempotentny; błąd wiersza nie przerywa i nie psuje danych', { skip }, async () => {

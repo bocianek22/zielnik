@@ -5,7 +5,7 @@ import { listTests } from '@/lib/strains';
 import { VIS_VALUES } from '@/lib/visibility';
 import { putPhoto, deletePhotos } from '@/lib/photos';
 import { cleanImage } from '@/lib/image-meta';
-import { encryptField, decryptField } from '@/lib/data-crypto';
+import { planNote, LOCKED_NOTE, NOTE_UNAVAILABLE_REJECT_MSG } from '@/lib/data-crypto';
 
 export const GET = safe(async (_req, { params }) => {
   const { user, res } = await requireUser();
@@ -31,15 +31,18 @@ export const POST = safe(async (req, { params }) => {
     ({ mime, b64: data } = img);
   }
   if (!text && !data) return bad('Dodaj opis lub zdjęcie testu.');
+  if (text === LOCKED_NOTE) return bad('Dodaj opis lub zdjęcie testu.'); // znacznik nieczytelnej notatki nie jest treścią
   const exists = await sql()`SELECT 1 FROM strains WHERE id = ${id}`;
   if (!exists.length) return bad('Nie znaleziono odmiany.', 404);
   // z tokenem Blob zdjęcie leży w Blob (w bazie data = '' i blob_path), bez tokenu jako base64
+  // zły format klucza: nowego opisu nie da się zapisać, odrzucamy zanim wgramy zdjęcie
+  if (planNote('strain_tests', 'note', '0', text).unavailable) return bad(NOTE_UNAVAILABLE_REJECT_MSG, 422);
   const path = data ? await putPhoto(mime, data) : null;
   try {
     // AAD szyfrogramu zawiera id wiersza, więc id pobieramy z sekwencji przed INSERT (Neon HTTP nie ma interaktywnej transakcji)
     const [{ tid }] = await sql()`SELECT nextval(pg_get_serial_sequence('strain_tests', 'id'))::int AS tid`;
     await sql()`INSERT INTO strain_tests (id, strain_id, user_id, note, mime, data, visibility, blob_path)
-                VALUES (${tid}, ${id}, ${user.id}, ${encryptField('strain_tests', 'note', tid, text)}, ${mime}, ${path ? '' : data}, COALESCE(${vis}::text, 'me'), ${path}::text)`;
+                VALUES (${tid}, ${id}, ${user.id}, ${planNote('strain_tests', 'note', String(tid), text).value}, ${mime}, ${path ? '' : data}, COALESCE(${vis}::text, 'me'), ${path}::text)`;
   } catch (e) { await deletePhotos(path); throw e; }
   return NextResponse.json({ tests: await listTests(id, user.id) });
 });

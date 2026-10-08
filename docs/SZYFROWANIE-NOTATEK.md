@@ -23,7 +23,10 @@
 ## Format
 - Szyfrogram: `zenc1:<kid>:<base64(iv12 ‖ tag16 ‖ ct)>`. Pusty tekst zostaje `''`, więc warunki `note <> ''` działają bez zmian.
 - Klucze: `DATA_ENCRYPTION_KEY="k2:<b64-32B>,k1:<b64-32B>"`. Pierwszy szyfruje, pozostałe tylko odszyfrowują (rotacja). Klucz jest osobny od `BACKUP_ENCRYPTION_KEY`.
-- AAD: `zielnik|<tabela>.<kolumna>|<user_id>`; dla `strain_tests` zamiast `user_id` jest `id` wiersza (`user_id` może przejść w SET NULL).
+- AAD: `zielnik|<tabela>.<kolumna>|<zakres>`, gdzie zakres to konto i niezmienny klucz wiersza: `symptom_log` `user_id|day`, `user_strain` `user_id|strain_id`, `prescriptions` `user_id|id`, `strain_tests` samo `id` (`user_id` może przejść w SET NULL). Szyfrogramu nie da się więc przenieść do innego wiersza, także tego samego konta.
+- **Jawny tekst z prefiksem:** zapis bez klucza poprzedza notatkę zaczynającą się od `zenc1:` lub `zplain:` prefiksem `zplain:` (zdejmowany przy odczycie), żeby nie wyglądała jak szyfrogram. Stare jawne wiersze zaczynające się od `zenc1:` są nierozróżnialne (nie ma takich na produkcji).
+- **Nieczytelny szyfrogram (brak klucza, usunięty kid, zły AAD):** do edytującego klienta wraca `''` i flaga (`noteLocked` / `notesLocked`), nigdy znacznik; eksport, raport i profil pokazują znacznik. Zapis nie nadpisuje takiej kolumny, gdy wejście jest puste albo jest znacznikiem (`planNote`); nowy niepusty tekst ją zastępuje.
+- **Zły format klucza:** zapis wpisu (objawy, wpis odmiany, edycja testu) zapisuje resztę i zostawia notatkę bez zmian, odpowiedź 200 z `noteError` (kolejka offline nie utyka na 5xx). Nowy test, recepta z notatką: 422; import pomija wiersz z notatką.
 - **Szyfrowanie w miejscu z prefiksem.**
   - Odczyt: tekst bez prefiksu wraca jak jest; brak klucza albo błąd daje „[notatka zaszyfrowana, brak klucza]” i wpis w dzienniku błędów bez treści.
   - Limity długości sprawdzamy w JS na jawnym tekście.

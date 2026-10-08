@@ -3,7 +3,7 @@ import { sql } from '@/lib/db';
 import { requireUser, bad, safe, intId } from '@/lib/guard';
 import { parseNumber } from '@/lib/strains';
 import { normUnit } from '@/lib/units';
-import { encryptField, decryptField } from '@/lib/data-crypto';
+import { planNote, decryptField, rowScope, LOCKED_NOTE, NOTE_UNAVAILABLE_REJECT_MSG } from '@/lib/data-crypto';
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const list = async (me) => (await sql()`
@@ -11,7 +11,7 @@ const list = async (me) => (await sql()`
          p.grams::float8 AS grams, p.unit, p.note,
          rx_bought(p.user_id, p.id, p.unit, p.issued_on, p.valid_until, NULL)::float8 AS bought,
          rx_bought_est(p.user_id, p.id, p.unit, p.issued_on, p.valid_until, NULL)::float8 AS estimated
-  FROM prescriptions p WHERE p.user_id = ${me}::int ORDER BY p.issued_on DESC, p.id DESC`).map((r) => ({ ...r, note: decryptField('prescriptions', 'note', me, r.note) }));
+  FROM prescriptions p WHERE p.user_id = ${me}::int ORDER BY p.issued_on DESC, p.id DESC`).map((r) => ({ ...r, note: decryptField('prescriptions', 'note', rowScope('prescriptions', { user_id: me, id: r.id }), r.note) }));
 
 export const GET = safe(async () => {
   const { user, res } = await requireUser();
@@ -30,8 +30,14 @@ export const POST = safe(async (req) => {
   if (!DATE.test(issued) || Number.isNaN(Date.parse(issued))) return bad('Podaj datę wystawienia.');
   if (valid && (!DATE.test(valid) || Number.isNaN(Date.parse(valid)) || valid < issued)) return bad('Data ważności musi być późniejsza niż wystawienia.');
   if (grams == null || Number.isNaN(grams)) return bad('Podaj przepisaną ilość (g lub ml).');
-  await sql()`INSERT INTO prescriptions (user_id, issued_on, valid_until, grams, unit, note)
-              VALUES (${user.id}, ${issued}::date, ${valid}::date, ${grams}, ${normUnit(b.unit)}, ${encryptField('prescriptions', 'note', user.id, String(b.note ?? '').trim().slice(0, 120))})`;
+  let note = String(b.note ?? '').trim().slice(0, 120);
+  if (note === LOCKED_NOTE) note = ''; // znacznik nieczytelnej notatki nie jest treścią
+  // AAD szyfrogramu zawiera id wiersza, więc id pobieramy z sekwencji przed INSERT (Neon HTTP nie ma interaktywnej transakcji)
+  const [{ rid }] = await sql()`SELECT nextval(pg_get_serial_sequence('prescriptions', 'id'))::int AS rid`;
+  const plan = planNote('prescriptions', 'note', rowScope('prescriptions', { user_id: user.id, id: rid }), note);
+  if (plan.unavailable) return bad(NOTE_UNAVAILABLE_REJECT_MSG, 422);
+  await sql()`INSERT INTO prescriptions (id, user_id, issued_on, valid_until, grams, unit, note)
+              VALUES (${rid}, ${user.id}, ${issued}::date, ${valid}::date, ${grams}, ${normUnit(b.unit)}, ${plan.value})`;
   return NextResponse.json({ prescriptions: await list(user.id) });
 });
 

@@ -91,7 +91,8 @@ for (const [ago, sid, name, g, cost] of [[80, lemon, 'Lemon Skunk', 10, 450], [5
 
 // recepty w g i ml
 for (const [from, to, amount, unit, note] of [[40, -10, 30, 'g', 'dr Nowak'], [20, -8, 30, 'ml', 'olej, dr Nowak'], [100, 70, 20, 'g', 'poprzednia']]) {
-  await q("DELETE FROM prescriptions WHERE user_id = $1 AND note = $2", [ania.id, note]);
+  // notatka bywa szyfrowana, więc recepty rozpoznajemy po jawnych polach
+  await q("DELETE FROM prescriptions WHERE user_id = $1 AND issued_on = $2::date AND valid_until = $3::date AND grams = $4 AND unit = $5", [ania.id, day(from), day(to), amount, unit]);
   must(await ania.c('/api/prescriptions', 'POST', { issuedOn: day(from), validUntil: day(to), grams: amount, unit, note }), `recepta ${note}`);
 }
 

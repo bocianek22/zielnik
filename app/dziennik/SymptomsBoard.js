@@ -176,7 +176,7 @@ export default function SymptomsBoard() {
   async function save(e) {
     e.preventDefault();
     const custom = Object.fromEntries(defs.map((d) => [d.id, f[`c${d.id}`] ?? '']));
-    try { setData(await api('/api/symptoms', 'PUT', { day, ...f, ...(defs.length ? { custom } : {}) })); setMsg({ text: 'Zapisano.' }); } catch (err) { setMsg({ text: err.message, error: true }); }
+    try { const d = await api('/api/symptoms', 'PUT', { day, ...f, ...(defs.length ? { custom } : {}) }); setData(d); setMsg(d.noteError ? { text: `Zapisano wartości. ${d.noteError}`, error: true } : { text: 'Zapisano.' }); } catch (err) { setMsg({ text: err.message, error: true }); }
   }
   async function remove() {
     if (!confirm('Usunąć wpis z tego dnia?')) return;
@@ -214,7 +214,8 @@ export default function SymptomsBoard() {
           );
         })}
         <div className="field"><label htmlFor="sy-note">Notatka (opcjonalnie)</label>
-          <input id="sy-note" className="input" maxLength={500} value={f.note} onChange={(e) => setF({ ...f, note: e.target.value })} /></div>
+          <input id="sy-note" className="input" maxLength={500} value={f.note} onChange={(e) => setF({ ...f, note: e.target.value })} />
+          {existing?.noteLocked && !f.note && <small>Zapisana notatka jest zaszyfrowana i chwilowo nieczytelna (brak klucza na serwerze). Zostanie zachowana; wpisany tu nowy tekst ją zastąpi.</small>}</div>
         {msg && <div className={`alert ${msg.error ? 'error' : 'ok'}`} role={msg.error ? 'alert' : 'status'}>{msg.text}</div>}
         <div className="sym-actions"><button className="btn">Zapisz wpis</button>{existing && <button type="button" className="btn danger" onClick={remove}>Usuń wpis</button>}</div>
       </form>

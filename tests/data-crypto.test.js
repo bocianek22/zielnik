@@ -2,7 +2,7 @@
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { randomBytes } from 'node:crypto';
-import { LOCKED_NOTE, decryptField, decryptStrict, encryptField, isEncrypted, keyStatus, kidOf, parseKeys } from '../lib/data-crypto.js';
+import { LOCKED_NOTE, decryptField, decryptStrict, encryptField, isEncrypted, keyStatus, kidOf, parseKeys, planNote, readNote, rowScope } from '../lib/data-crypto.js';
 
 const b64 = () => randomBytes(32).toString('base64');
 const K1 = `k1:${b64()}`, K2 = `k2:${b64()}`;
@@ -77,4 +77,41 @@ test('parseKeys i keyStatus: tylko kid, bez wartości kluczy', () => {
   assert.deepEqual(parseKeys(`${K2}, ${K1}`).map((k) => k.kid), ['k2', 'k1']);
   process.env.DATA_ENCRYPTION_KEY = `${K2},${K1}`;
   assert.deepEqual(keyStatus(), { state: 'ok', kids: ['k2', 'k1'], primary: 'k2' });
+});
+
+test('zplain: jawny tekst zaczynający się od zenc1:/zplain: bez klucza dostaje prefiks, odczyt go zdejmuje', () => {
+  delete process.env.DATA_ENCRYPTION_KEY;
+  for (const t of ['zenc1:k1:abc', 'zplain:x', 'zwykły']) {
+    const stored = encryptField('symptom_log', 'note', 'o', t);
+    assert.equal(isEncrypted(stored), false);
+    assert.equal(decryptField('symptom_log', 'note', 'o', stored), t);
+    assert.deepEqual(readNote('symptom_log', 'note', 'o', stored), { text: t, locked: false });
+  }
+  assert.equal(encryptField('symptom_log', 'note', 'o', 'zenc1:k1:abc'), 'zplain:zenc1:k1:abc');
+});
+
+test('zakres AAD: klucz wiersza razem z kontem, szyfrogram z innego wiersza tego samego konta jest nieczytelny', () => {
+  process.env.DATA_ENCRYPTION_KEY = K1;
+  assert.equal(rowScope('symptom_log', { user_id: 1, day: '2026-10-08T00:00:00Z' }), '1|2026-10-08');
+  assert.equal(rowScope('user_strain', { user_id: 1, strain_id: 5 }), '1|5');
+  assert.equal(rowScope('prescriptions', { user_id: 1, id: 9 }), '1|9');
+  assert.equal(rowScope('strain_tests', { id: 3, user_id: null }), '3');
+  const enc = encryptField('user_strain', 'notes', rowScope('user_strain', { user_id: 1, strain_id: 5 }), 'a');
+  assert.equal(readNote('user_strain', 'notes', rowScope('user_strain', { user_id: 1, strain_id: 6 }), enc).locked, true);
+});
+
+test('planNote: znacznik i pusty tekst nie nadpisują nieczytelnego szyfrogramu; zły format klucza = unavailable', () => {
+  process.env.DATA_ENCRYPTION_KEY = K1;
+  const enc = encryptField('symptom_log', 'note', 's', 'sekret');
+  assert.deepEqual(planNote('symptom_log', 'note', 's', 'nowa', enc).keep, false);
+  assert.equal(planNote('symptom_log', 'note', 's', '', enc).keep, false, 'czytelną notatkę da się skasować');
+  delete process.env.DATA_ENCRYPTION_KEY; // klucz zniknął: szyfrogram nieczytelny
+  assert.deepEqual(planNote('symptom_log', 'note', 's', '', enc), { value: enc, keep: true, unavailable: false });
+  assert.deepEqual(planNote('symptom_log', 'note', 's', LOCKED_NOTE, enc), { value: enc, keep: true, unavailable: false });
+  assert.deepEqual(planNote('symptom_log', 'note', 's', LOCKED_NOTE, null), { value: '', keep: true, unavailable: false });
+  assert.equal(planNote('symptom_log', 'note', 's', 'nowa', enc).keep, false, 'nowy tekst zastępuje (zapis jawny bez klucza)');
+  process.env.DATA_ENCRYPTION_KEY = 'zly-format';
+  assert.deepEqual(planNote('symptom_log', 'note', 's', 'nowa', enc), { value: enc, keep: true, unavailable: true });
+  assert.equal(planNote('symptom_log', 'note', 's', '', enc).keep, true);
+  assert.deepEqual(planNote('symptom_log', 'note', 's', '', ''), { value: '', keep: false, unavailable: false });
 });

@@ -1,7 +1,7 @@
 import { sql } from '@/lib/db';
 import { requireUser, safe } from '@/lib/guard';
 import { readPhoto } from '@/lib/photos';
-import { decryptField, openRows } from '@/lib/data-crypto';
+import { openRows, rowScope } from '@/lib/data-crypto';
 
 // Nazwa pliku z polskimi literami (ł, ś, ż...) w nagłówku: zwykłe `filename` musi być ASCII (inaczej Response rzuca
 // błąd i eksport kończy się 500), a pełną nazwę podajemy w `filename*` (RFC 6266).
@@ -37,10 +37,10 @@ export const GET = safe(async (req) => {
     strainPhotosAdded: withPhotos
       ? await inline(await q`SELECT s.name AS strain, s.producer, p.updated_at, p.mime, p.data AS photo_base64, p.blob_path FROM strain_photos p JOIN strains s ON s.id = p.strain_id WHERE p.uploaded_by = ${me} ORDER BY s.name`)
       : await q`SELECT s.name AS strain, s.producer, p.updated_at FROM strain_photos p JOIN strains s ON s.id = p.strain_id WHERE p.uploaded_by = ${me} ORDER BY s.name`,
-    entries: openRows(await q`SELECT s.name AS strain, s.producer, us.rating::float8 AS rating, us.rated_at, us.current_amount::float8 AS current_g, form_unit(s.form) AS unit,
+    entries: openRows(await q`SELECT us.strain_id, s.name AS strain, s.producer, us.rating::float8 AS rating, us.rated_at, us.current_amount::float8 AS current_g, form_unit(s.form) AS unit,
         us.notes, us.effects, us.visibility, us.price_per_g::float8 AS price_per_g FROM user_strain us JOIN strains s ON s.id = us.strain_id
       WHERE us.user_id = ${me} AND (us.rating IS NOT NULL OR us.notes <> '' OR us.current_amount > 0 OR us.effects <> '{}'::jsonb)
-      ORDER BY s.name`, 'user_strain', 'notes', me),
+      ORDER BY s.name`, 'user_strain', 'notes', (r) => rowScope('user_strain', { user_id: me, strain_id: r.strain_id })).map(({ strain_id: _s, ...e }) => e),
     // ilości (pola *_g, grams) są w jednostce odmiany: `unit` = 'g' (susz) albo 'ml' (olej, pen)
     remainingToBuy: await q`SELECT pool_key, remaining_to_buy::float8 AS grams,
         CASE WHEN pool_key LIKE '%|olej' OR pool_key LIKE '%|pen' THEN 'ml'
@@ -51,7 +51,7 @@ export const GET = safe(async (req) => {
     tests: openRows(withPhotos
       ? await inline(await q`SELECT t.id, s.name AS strain, t.note, t.visibility, t.created_at, t.mime, t.data AS photo_base64, t.blob_path FROM strain_tests t JOIN strains s ON s.id = t.strain_id WHERE t.user_id = ${me} ORDER BY t.created_at`)
       : await q`SELECT t.id, s.name AS strain, t.note, t.visibility, t.created_at, (t.data IS NOT NULL) AS has_photo FROM strain_tests t JOIN strains s ON s.id = t.strain_id WHERE t.user_id = ${me} ORDER BY t.created_at`,
-      'strain_tests', 'note', (r) => r.id).map(({ id: _id, ...t }) => t),
+      'strain_tests', 'note', (r) => rowScope('strain_tests', r)).map(({ id: _id, ...t }) => t),
     strainEdits: await q`SELECT s.name AS strain, e.at, e.changes FROM strain_edits e JOIN strains s ON s.id = e.strain_id WHERE e.user_id = ${me} ORDER BY e.at`,
     // propozycje zmian odmian (KAT-1): własne, ze statusem i powodem odrzucenia
     strainProposals: await q`SELECT s.name AS strain, p.status, p.changes, p.reject_reason AS "rejectReason", p.created_at AS "createdAt", p.decided_at AS "decidedAt"
@@ -60,8 +60,8 @@ export const GET = safe(async (req) => {
     feedback: await q`SELECT kind, body, status, meta, created_at AS "createdAt" FROM beta_feedback WHERE user_id = ${me} ORDER BY created_at`,
     friends: await q`SELECT u.username, f.status FROM friendships f JOIN users u ON u.id = CASE WHEN f.requester = ${me} THEN f.addressee ELSE f.requester END WHERE f.requester = ${me} OR f.addressee = ${me}`,
     groups: await q`SELECT g.name, gm.role, gm.status FROM group_members gm JOIN groups g ON g.id = gm.group_id WHERE gm.user_id = ${me}`,
-    prescriptions: openRows(await q`SELECT id, issued_on, valid_until, grams::float8 AS grams, unit, note FROM prescriptions WHERE user_id = ${me} ORDER BY issued_on`, 'prescriptions', 'note', me),
-    symptoms: openRows(await q`SELECT to_char(day, 'YYYY-MM-DD') AS day, pain, sleep, anxiety, mood, note FROM symptom_log WHERE user_id = ${me} ORDER BY day`, 'symptom_log', 'note', me),
+    prescriptions: openRows(await q`SELECT id, issued_on, valid_until, grams::float8 AS grams, unit, note FROM prescriptions WHERE user_id = ${me} ORDER BY issued_on`, 'prescriptions', 'note', (r) => rowScope('prescriptions', { user_id: me, id: r.id })),
+    symptoms: openRows(await q`SELECT to_char(day, 'YYYY-MM-DD') AS day, pain, sleep, anxiety, mood, note FROM symptom_log WHERE user_id = ${me} ORDER BY day`, 'symptom_log', 'note', (r) => rowScope('symptom_log', { user_id: me, day: r.day })),
     customSymptoms: await q`SELECT name, higher_better AS "higherBetter", created_at AS "createdAt" FROM symptom_custom WHERE user_id = ${me} ORDER BY slot`,
     customSymptomValues: await q`SELECT to_char(v.day, 'YYYY-MM-DD') AS day, c.name AS symptom, v.value FROM symptom_values v
       JOIN symptom_custom c ON c.id = v.custom_id WHERE v.user_id = ${me} ORDER BY v.day, c.slot`,

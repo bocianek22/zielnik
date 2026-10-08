@@ -59,14 +59,14 @@ export async function restoreBackup(pool, data) {
 }
 
 // POM-28: czy każdy szyfrogram notatki w odtworzonej bazie daje się odszyfrować kluczem z DATA_ENCRYPTION_KEY
-// (AAD zawiera user_id albo id wiersza, więc to sprawdza też, że identyfikatory przeszły odtworzenie bez zmian).
+// (AAD zawiera konto i klucz wiersza, więc to sprawdza też, że identyfikatory przeszły odtworzenie bez zmian).
 export async function verifyNotes(pool) {
   const { COLUMNS, decryptStrict } = await import('../../lib/data-crypto.js');
   const out = { checked: 0, failed: 0 };
-  for (const { table, col, owner } of COLUMNS) {
-    for (const r of (await pool.query(`SELECT ${owner} AS owner, ${col} AS val FROM "${table}" WHERE ${col} LIKE 'zenc1:%'`)).rows) {
+  for (const { table, col, scopeSql } of COLUMNS) {
+    for (const r of (await pool.query(`SELECT ${scopeSql} AS scope, ${col} AS val FROM "${table}" WHERE ${col} LIKE 'zenc1:%'`)).rows) {
       out.checked++;
-      try { decryptStrict(table, col, r.owner, r.val); } catch { out.failed++; }
+      try { decryptStrict(table, col, r.scope, r.val); } catch { out.failed++; }
     }
   }
   return out;

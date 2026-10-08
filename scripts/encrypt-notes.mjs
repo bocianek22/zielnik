@@ -7,7 +7,7 @@
 // zostaje do następnego przebiegu). updated_at nie jest zmieniane. Skrypt niczego nie loguje poza liczbami (bez treści notatek).
 // Kolejność włączania: ustaw klucz w Vercel i wdróż, dopiero potem uruchom skrypt. Wycofanie: --decrypt przed wdrożeniem starego kodu.
 import { pathToFileURL } from 'node:url';
-import { COLUMNS, decryptStrict, encryptField, isEncrypted, kidOf, keyStatus } from '../lib/data-crypto.js';
+import { COLUMNS, decryptStrict, encryptField, isEncrypted, kidOf, keyStatus, plainIn, plainOut } from '../lib/data-crypto.js';
 
 // typy kolumn klucza głównego (kursor) i kolumna właściciela w AAD
 const PK_TYPES = { user_id: 'int', day: 'date', strain_id: 'int', id: 'int' };
@@ -20,7 +20,7 @@ export async function run(sql, { dry = false, batch = 200, table = null, decrypt
   if (!targets.length) throw new Error(`Nieznana tabela: ${table}. Dozwolone: ${COLUMNS.map((c) => c.table).join(', ')}.`);
   const total = { scanned: 0, changed: 0, skipped: 0, raced: 0, failed: 0, byTable: {} };
 
-  for (const { table: t, col, pk, owner } of targets) {
+  for (const { table: t, col, pk, scopeSql } of targets) {
     const stat = { scanned: 0, changed: 0, skipped: 0, raced: 0, failed: 0 };
     let cursor = null;
     const pkList = pk.join(', ');
@@ -34,7 +34,7 @@ export async function run(sql, { dry = false, batch = 200, table = null, decrypt
       }
       params.push(batch);
       const rows = await sql.query(
-        `SELECT ${pkSel}, ${owner}::text AS owner, ${col} AS val FROM ${t} WHERE ${where} ORDER BY ${pkList} LIMIT $${params.length}::int`, params);
+        `SELECT ${pkSel}, ${scopeSql} AS scope, ${col} AS val FROM ${t} WHERE ${where} ORDER BY ${pkList} LIMIT $${params.length}::int`, params);
       if (!rows.length) break;
       for (const r of rows) {
         stat.scanned++;
@@ -43,11 +43,11 @@ export async function run(sql, { dry = false, batch = 200, table = null, decrypt
           let next;
           if (decrypt) {
             if (!isEncrypted(r.val)) { stat.skipped++; continue; }
-            next = decryptStrict(t, col, r.owner, r.val);
+            next = plainIn(decryptStrict(t, col, r.scope, r.val)); // jawny tekst zaczynający się od zenc1:/zplain: dostaje prefiks zplain:
           } else if (!isEncrypted(r.val)) {
-            next = encryptField(t, col, r.owner, r.val);
+            next = encryptField(t, col, r.scope, plainOut(r.val));
           } else if (kidOf(r.val) !== ks.primary) {
-            next = encryptField(t, col, r.owner, decryptStrict(t, col, r.owner, r.val)); // rotacja
+            next = encryptField(t, col, r.scope, decryptStrict(t, col, r.scope, r.val)); // rotacja
           } else { stat.skipped++; continue; }
           if (next === r.val) { stat.skipped++; continue; }
           if (dry) { stat.changed++; continue; }

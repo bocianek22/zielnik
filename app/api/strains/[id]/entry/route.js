@@ -3,7 +3,8 @@ import { sql } from '@/lib/db';
 import { requireUser, bad, safe, intId } from '@/lib/guard';
 import { parseNumber } from '@/lib/strains';
 import { VIS_VALUES } from '@/lib/visibility';
-import { encryptField, decryptField } from '@/lib/data-crypto';
+import { openEditable, rowScope, NOTE_UNAVAILABLE_MSG } from '@/lib/data-crypto';
+import { planNoteDb } from '@/lib/notes';
 
 // Zapis osobistych pól zalogowanego użytkownika: ocena, obecna ilość, do wykupienia, spostrzeżenia
 export const PUT = safe(async (req, { params }) => {
@@ -28,18 +29,21 @@ export const PUT = safe(async (req, { params }) => {
   const exists = await sql()`SELECT 1 FROM strains WHERE id = ${id}`;
   if (!exists.length) return bad('Nie znaleziono odmiany.', 404);
 
+  // notatka: nieczytelny szyfrogram i znacznik od klienta nie nadpisują zapisanej wartości (planNote)
+  const scope = rowScope('user_strain', { user_id: user.id, strain_id: id });
+  const plan = await planNoteDb('user_strain', 'notes', { strain_id: id, user_id: user.id }, scope, notes);
   // rated_at zmienia się tylko, gdy zmieniła się sama ocena (na tym opierają się rankingi tygodniowe i miesięczne)
   const [e] = await sql()`
     INSERT INTO user_strain (strain_id, user_id, rating, rated_at, current_amount, notes, visibility, price_per_g)
     VALUES (${id}, ${user.id}, ${rating}::numeric, CASE WHEN ${rating}::numeric IS NULL THEN NULL ELSE now() END,
-            COALESCE(${current}::numeric, 0), ${encryptField('user_strain', 'notes', user.id, notes)}, COALESCE(${vis}::text, 'me'), ${price})
+            COALESCE(${current}::numeric, 0), ${plan.value}, COALESCE(${vis}::text, 'me'), ${price})
     ON CONFLICT (strain_id, user_id) DO UPDATE SET
       rated_at = CASE WHEN EXCLUDED.rating IS NULL THEN NULL
                       WHEN user_strain.rating IS DISTINCT FROM EXCLUDED.rating THEN now()
                       ELSE user_strain.rated_at END,
       rating = EXCLUDED.rating,
       current_amount = COALESCE(${current}::numeric, user_strain.current_amount),
-      notes = EXCLUDED.notes,
+      notes = CASE WHEN ${plan.keep}::boolean THEN user_strain.notes ELSE EXCLUDED.notes END,
       visibility = COALESCE(${vis}::text, user_strain.visibility),
       price_per_g = EXCLUDED.price_per_g,
       updated_at = now()
@@ -55,8 +59,9 @@ export const PUT = safe(async (req, { params }) => {
   const missingCost = price > 0
     ? (await sql()`SELECT count(*)::int AS n FROM purchases WHERE user_id = ${user.id}::int AND strain_id = ${id}::int AND cost IS NULL`)[0].n
     : 0;
-  const { current: cur, ...rest } = { ...e, notes: decryptField('user_strain', 'notes', user.id, e.notes) };
+  const { current: cur, ...rest } = openEditable('user_strain', 'notes', scope, e, 'notes');
   // niewysłanych ilości nie odsyłamy, żeby spóźniona odpowiedź nie cofnęła w UI stanu po szybkiej akcji
   return NextResponse.json({ entry: { ...rest, ...(hasCurrent && { current: cur }), ...(hasRemaining && { remaining }),
-    ratedAt: e.ratedAt ? new Date(e.ratedAt).toISOString() : null }, missingCost });
+    ratedAt: e.ratedAt ? new Date(e.ratedAt).toISOString() : null }, missingCost,
+    ...(plan.unavailable && { noteError: NOTE_UNAVAILABLE_MSG }) });
 });

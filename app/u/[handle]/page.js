@@ -3,7 +3,7 @@ import { notFound, redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
 import { sql } from '@/lib/db';
 import { visLabel } from '@/lib/visibility';
-import { decryptField } from '@/lib/data-crypto';
+import { decryptField, rowScope } from '@/lib/data-crypto';
 import Header from '../../components/Header';
 import FriendButton from './FriendButton';
 import Lightbox from '../../components/Lightbox';
@@ -38,11 +38,11 @@ export default async function ProfilePage({ params }) {
     opinions = (await q`SELECT s.id, s.name, s.producer, us.rating::float8 AS rating, us.notes, us.visibility
       FROM user_strain us JOIN strains s ON s.id = us.strain_id
       WHERE us.user_id = ${o.id} AND can_see(${me.id}::int, us.user_id, us.visibility) AND (us.rating IS NOT NULL OR us.notes <> '')
-      ORDER BY us.updated_at DESC LIMIT 50`).map((r) => ({ ...r, notes: decryptField('user_strain', 'notes', o.id, r.notes) }));
+      ORDER BY us.updated_at DESC LIMIT 50`).map((r) => ({ ...r, notes: decryptField('user_strain', 'notes', rowScope('user_strain', { user_id: o.id, strain_id: r.id }), r.notes) }));
     tests = (await q`SELECT t.id, t.note, (t.data IS NOT NULL) AS has_photo, t.visibility, floor(extract(epoch FROM COALESCE(t.updated_at, t.created_at)))::int AS pv, s.id AS strain_id, s.name,
         to_char(t.created_at AT TIME ZONE 'Europe/Warsaw', 'YYYY-MM-DD') AS at
       FROM strain_tests t JOIN strains s ON s.id = t.strain_id
-      WHERE t.user_id = ${o.id} AND can_see(${me.id}::int, t.user_id, t.visibility) ORDER BY t.created_at DESC LIMIT 30`).map((r) => ({ ...r, note: decryptField('strain_tests', 'note', r.id, r.note) }));
+      WHERE t.user_id = ${o.id} AND can_see(${me.id}::int, t.user_id, t.visibility) ORDER BY t.created_at DESC LIMIT 30`).map((r) => ({ ...r, note: decryptField('strain_tests', 'note', rowScope('strain_tests', r), r.note) }));
   }
 
   const name = o.display_name || o.username;

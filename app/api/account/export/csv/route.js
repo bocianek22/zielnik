@@ -3,7 +3,7 @@ import { bad, requireUser, safe } from '@/lib/guard';
 import { buildDiaryCsv, csvNum, csvText } from '@/lib/csv-export';
 import { methodLabel, periodLabel } from '@/lib/usage-meta';
 import { DISCREET_COOKIE } from '@/lib/discreet';
-import { decryptField } from '@/lib/data-crypto';
+import { decryptField, rowScope } from '@/lib/data-crypto';
 
 const TYPES = { objawy: 'Objawy', zuzycie: 'Zużycie', zakupy: 'Zakupy' };
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
@@ -32,7 +32,7 @@ export const GET = safe(async (req) => {
       SELECT to_char(COALESCE(l.day, cv.day), 'YYYY-MM-DD') AS d, l.pain, l.sleep, l.anxiety, l.mood, COALESCE(l.note, '') AS note, cv.txt AS custom
       FROM l FULL JOIN cv ON cv.day = l.day
       WHERE (${from}::date IS NULL OR COALESCE(l.day, cv.day) >= ${from}::date) AND (${to}::date IS NULL OR COALESCE(l.day, cv.day) <= ${to}::date)`) {
-      rows.push({ k: `${r.d} 99:99`, cells: [TYPES.objawy, r.d, '', '', '', '', '', '', '', r.pain, r.sleep, r.anxiety, r.mood, csvText(decryptField('symptom_log', 'note', me, r.note)), csvText(r.custom)] });
+      rows.push({ k: `${r.d} 99:99`, cells: [TYPES.objawy, r.d, '', '', '', '', '', '', '', r.pain, r.sleep, r.anxiety, r.mood, csvText(decryptField('symptom_log', 'note', rowScope('symptom_log', { user_id: me, day: r.d }), r.note)), csvText(r.custom)] });
     }
   }
   if (want('zuzycie')) {

@@ -31,6 +31,7 @@ function TestForm({ test, onSubmit, onCancel, busy, error }) {
       <div className="field">
         <label htmlFor={`${id}-note`}>Opis testu (sposób użycia, odczucia, wrażenia)</label>
         <textarea id={`${id}-note`} className="input" rows={3} maxLength={1500} value={note} onChange={(e) => setNote(e.target.value)} />
+        {test?.noteLocked && !note && <small>Zapisana notatka jest zaszyfrowana i chwilowo nieczytelna (brak klucza na serwerze). Zostanie zachowana; wpisany tu nowy tekst ją zastąpi.</small>}
       </div>
       <div className="field">
         <label htmlFor={`${id}-vis`}>Kto widzi ten test</label>
