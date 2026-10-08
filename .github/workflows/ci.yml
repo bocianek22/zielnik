@@ -73,7 +73,12 @@ jobs:
       - name: Testy E2E (390 px)
         run: npm run test:e2e
       - name: Budżety Lighthouse (tests/perf/budgets.json)
-        run: E2E_SKIP_BUILD=1 npm run test:perf
+        # do pierwszych pomiarów na runnerze GitHuba tylko ostrzeżenie (progi skalibrowane lokalnie)
+        continue-on-error: true
+        # lighthouse tylko w CI (nie w devDependencies: Vercel instalowałby go przy każdym wdrożeniu)
+        run: |
+          npm i --no-save lighthouse@12.8.2 chrome-launcher@1.2.2
+          E2E_SKIP_BUILD=1 npm run test:perf
       - name: Zrzuty z nieudanych testów
         if: failure()
         uses: actions/upload-artifact@v4

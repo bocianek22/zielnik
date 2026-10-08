@@ -3,7 +3,7 @@
 // Mediana z kilku przebiegów porównywana z progami z budgets.json; kod wyjścia 1 po przekroczeniu. --update wypisuje
 // pomiary jako propozycję progów (pomiar x zapas) bez porównywania. Wyniki JSON trafiają do zrzuty/lighthouse/.
 // Metryki: LCP, CLS, TBT (w trybie nawigacji INP nie jest mierzony; TBT jest jego laboratoryjnym odpowiednikiem), rozmiar JS
-// (przesłane bajty skryptów) i liczba żądań. lighthouse + chrome-launcher z devDependencies (poza repo: LIGHTHOUSE_DIR=katalog z node_modules).
+// (przesłane bajty skryptów) i liczba żądań. lighthouse + chrome-launcher: `npm i --no-save lighthouse@12.8.2 chrome-launcher@1.2.2` (tak robi CI) albo LIGHTHOUSE_DIR=katalog z node_modules.
 import { pathToFileURL } from 'node:url';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';

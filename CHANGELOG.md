@@ -8,6 +8,17 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.45.0] - 2026-10
+### Dodano
+- Testy E2E na stałe (`tests/e2e/`, `npm run test:e2e`): 10 scenariuszy na 390 px (logowanie, „Zużyłem”/„Wykupiłem” z „Cofnij”, objawy z własnymi, „Dziś bez zużycia”, „W aptece”, „Do omówienia”, blokada PIN i „Zmień PIN”, tryb dyskretny, wylogowanie), każdy pada przy błędzie konsoli, CSP albo odpowiedzi ≥ 400; nowy job w CI.
+- Budżety Lighthouse (POM-24, `npm run test:perf`, `tests/perf/budgets.json`) dla `/login` i `/`.
+- Lekki indeks odmian (POM-35, PLA-5): `strainIndex`, stronicowanie kursorem `GET /api/strains?limit=&cursor=` (pole `next`) i `?view=index`; koło i rankingi z lżejszych zapytań; pamięć podręczna tylko wspólnego katalogu (60 s, unieważniana przy każdej zmianie odmian), nigdy danych użytkownika.
+### Zmieniono
+- Ikona karty przeglądarki (koniec 404 `/favicon.ico`); w trybie dyskretnym neutralny „notatnik”.
+- Rankingi biorą najwyżej 500 najnowszych odmian (z informacją, gdy jest ich więcej).
+### Uwaga przy wdrożeniu
+- Migracja addytywna: indeksy `strains_created_idx`, `user_strain_stock_idx`, funkcja `strain_cursor`.
+
 ## [0.44.0] - 2026-10
 ### Dodano
 - Porównanie odmian (POM-18, część): moje statystyki przy każdej odmianie: „Zużyłem razem”, „Średnio dziennie (12 tyg.)”, „Ostatnie użycie” (tylko moje zużycie).

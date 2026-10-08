@@ -158,7 +158,7 @@ test('parsePaging odrzuca błędny limit i kursor, ogranicza limit do PAGE_MAX',
   assert.equal(P({}).limit, S.PAGE_MAX);
   assert.equal(P({ limit: '100000' }).limit, S.PAGE_MAX);
   for (const bad of ['0', '-1', 'abc', '1.5']) assert.ok(P({ limit: bad }).error, bad);
-  for (const bad of ['x', '5', "2026-01-01T00:00:00.000000Z_1'; DROP TABLE strains;--", '2026-13-45T00:00:00.000000Z_1']) assert.ok(P({ cursor: bad }).error, bad);
+  for (const bad of ['x', '5', "2026-01-01T00:00:00.000000Z_1'; DROP TABLE strains;--", '2026-13-45T00:00:00.000000Z_1', '2026-02-30T00:00:00.000000Z_1', '2026-01-01T00:00:00.000000Z_9999999999', '2026-01-01T00:00:00.000000Z_0']) assert.ok(P({ cursor: bad }).error, bad);
 });
 
 test('GET /api/strains: limit/cursor, domyślnie wszystko do PAGE_MAX, view=index, błędy i brak sesji', { skip }, async () => {

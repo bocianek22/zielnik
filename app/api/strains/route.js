@@ -1,18 +1,21 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
 import { requireUser, bad, safe } from '@/lib/guard';
-import { listStrainsPage, strainIndexPage, listOptions, parseCommon, parsePaging, invalidateStrains } from '@/lib/strains';
+import { listStrains, listStrainsPage, strainIndexPage, listOptions, parseCommon, parsePaging, invalidateStrains } from '@/lib/strains';
 
-// ?limit=&cursor= (strona listy, domyślnie i najwyżej PAGE_MAX; `next` to kursor kolejnej strony albo null),
+// bez parametrów: cała lista (zgodność ze starszymi klientami); ?limit=&cursor= (strona listy, najwyżej PAGE_MAX; `next` to kursor kolejnej strony albo null),
 // ?view=index (lekka lista: id, nazwa, producent, postać, jednostka, smak i moje „mam”, do podpowiedzi i wyborów)
 export const GET = safe(async (req) => {
   const { user, res } = await requireUser();
   if (res) return res;
   const params = new URL(req.url).searchParams;
-  const { error, limit, after } = parsePaging(params);
+  const { error, limit, after, paged } = parsePaging(params);
   if (error) return bad(error);
   if (params.get('view') === 'index') return NextResponse.json(await strainIndexPage(user.id, { limit, after }));
-  const [{ strains, next }, options] = await Promise.all([listStrainsPage(user.id, { limit, after }), listOptions()]);
+  const [{ strains, next }, options] = await Promise.all([
+    paged ? listStrainsPage(user.id, { limit, after }) : listStrains(user.id).then((s) => ({ strains: s.map(({ cur: _c, ...x }) => x), next: null })),
+    listOptions(),
+  ]);
   return NextResponse.json({ strains, options, next });
 });
 
