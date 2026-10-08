@@ -80,7 +80,11 @@ test('nie-twórca nie zapisuje bezpośrednio: powstaje propozycja z różnicą p
   assert.deepEqual(Object.keys(p.changes), ['thc']);
   assert.deepEqual(p.changes.thc, [20, 25]);
   // brak zmian = błąd, nie propozycja
-  assert.equal((await patch(B, s, { name: 'Cudza', thc: 20, taste: 'cytrus' })).status, 400);
+  // bez zmian pól: 200 bez propozycji (formularz może wtedy wgrać samo zdjęcie)
+  const same = await patch(B, s, { name: 'Cudza', thc: 20, taste: 'cytrus' });
+  assert.equal(same.status, 200);
+  assert.equal(same.json.unchanged, true);
+  assert.equal(same.json.proposal, undefined);
   // ponowna propozycja tej samej osoby zastępuje poprzednią
   assert.equal((await patch(B, s, { name: 'Cudza', thc: 26, taste: 'cytrus' })).status, 202);
   const all = await q`SELECT changes FROM strain_proposals WHERE strain_id = ${s}`;

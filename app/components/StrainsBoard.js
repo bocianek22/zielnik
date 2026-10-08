@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, cloneElement } from 'react';
 import { api } from '@/lib/api';
 import useNativeRefresh from './native/useNativeRefresh';
 import { KINDS } from '@/lib/kinds';
@@ -24,6 +24,7 @@ import useFocusTrap from './useFocusTrap';
 function FormSheet({ children }) {
   const ref = useRef(null);
   const [sheet, setSheet] = useState(false);
+  const [sent, setSent] = useState(false); // „Propozycja wysłana” to zwykła karta w liście, nie arkusz: bez pułapki fokusu
   useEffect(() => {
     const mq = matchMedia('(max-width: 760px)');
     const sync = () => setSheet(mq.matches);
@@ -31,8 +32,8 @@ function FormSheet({ children }) {
     mq.addEventListener('change', sync);
     return () => mq.removeEventListener('change', sync);
   }, []);
-  useFocusTrap(ref, sheet);
-  return <div ref={ref} style={{ display: 'contents' }}>{children}</div>;
+  useFocusTrap(ref, sheet && !sent);
+  return <div ref={ref} style={{ display: 'contents' }}>{cloneElement(children, { onSent: () => setSent(true) })}</div>;
 }
 
 // lista na ekranie głównym działa na pełnych danych, więc odświeżenie dociąga kolejne strony (`next`), aż zabraknie kursora

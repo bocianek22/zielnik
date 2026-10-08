@@ -3,6 +3,9 @@ import { useEffect, useRef } from 'react';
 
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type=hidden]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])';
 
+// stos aktywnych pułapek: Tab i Escape obsługuje tylko ostatnio otwarta (np. blokada PIN nad formularzem)
+const stack = [];
+
 function focusables(root) {
   return [...root.querySelectorAll(FOCUSABLE)].filter((el) => !el.closest('[hidden], [inert]') && el.getClientRects().length > 0);
 }
@@ -21,7 +24,10 @@ export default function useFocusTrap(ref, active, onClose) {
       if (first) first.focus();
       else { root.tabIndex = -1; root.focus(); }
     }
+    const me = {};
+    stack.push(me);
     const onKey = (e) => {
+      if (stack[stack.length - 1] !== me) return;
       if (e.key === 'Escape' && closeRef.current) { e.preventDefault(); closeRef.current(); return; }
       if (e.key !== 'Tab') return;
       const list = focusables(root);
@@ -36,6 +42,7 @@ export default function useFocusTrap(ref, active, onClose) {
     document.addEventListener('keydown', onKey);
     return () => {
       document.removeEventListener('keydown', onKey);
+      stack.splice(stack.indexOf(me), 1);
       if (prev instanceof HTMLElement && prev.isConnected) prev.focus();
     };
   }, [ref, active]);

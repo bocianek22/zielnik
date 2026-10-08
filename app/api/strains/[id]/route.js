@@ -25,7 +25,8 @@ export const PATCH = safe(async (req, { params }) => {
   if (!(await hit(`proposal:${user.id}`, 30, 3600))) return bad('Zbyt wiele propozycji w krótkim czasie. Spróbuj ponownie za godzinę.', 429);
   const p = await createProposal(id, user.id, f);
   if (p.error === 'limit') return bad(`Masz już ${MAX_PENDING} propozycji czekających na decyzję. Poczekaj na odpowiedź albo wycofaj którąś.`, 409);
-  if (p.error === 'nochange') return bad('Nie zmieniono żadnego pola.');
+  // bez zmian pól (np. tylko nowe zdjęcie): nic do akceptacji, formularz wgra samo zdjęcie
+  if (p.error === 'nochange') return NextResponse.json({ ok: true, unchanged: true });
   return NextResponse.json({ ok: true, proposal: true, id: p.id }, { status: 202 });
 });
 

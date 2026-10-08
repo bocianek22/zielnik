@@ -13,7 +13,7 @@ import { unitOf, suggestForm } from '@/lib/units';
 // Formularz pól wspólnych: producent, odmiana, rodzaj, typ, THC/CBD, terpeny, opis, smak, zdjęcie
 // hidePrice: aplikacja natywna (lib/client.js); pole ceny znika, ale wartość zostaje w stanie, więc zapis jej nie kasuje
 // proposing: edycja cudzej odmiany (KAT-1), zmiana trafia do akceptacji admina jako propozycja
-export default function StrainForm({ strain, options, tastes, canDelete, proposing = false, hidePrice = false, onOptionsChange, onDone, onDeleted, onCancel }) {
+export default function StrainForm({ strain, options, tastes, canDelete, proposing = false, hidePrice = false, onOptionsChange, onDone, onDeleted, onCancel, onSent }) {
   const [f, setF] = useState({
     producer: strain?.producer ?? '',
     name: strain?.name ?? '',
@@ -91,10 +91,12 @@ export default function StrainForm({ strain, options, tastes, canDelete, proposi
     setError(''); setBusy(true);
     try {
       let id = strain?.id;
+      let proposed = false;
       const body = { ...f, thc: parseNum(f.thc) ?? '', cbd: parseNum(f.cbd) ?? '', finalRating: parseNum(f.finalRating) ?? '', price: parseNum(f.price) ?? '', sources, descriptionAuto: auto };
       if (strain) {
         const r = await api(`/api/strains/${id}`, 'PATCH', body);
-        if (r.proposal) { setSent(true); setBusy(false); return; }
+        // propozycja: zdjęcie i tak idzie osobno (uprawnienia sprawdza trasa zdjęcia), potem ekran „Propozycja wysłana”
+        proposed = !!r.proposal;
       } else id = (await api('/api/strains', 'POST', body)).id;
       try {
         if (photo.data) await api(`/api/strains/${id}/photo`, 'PUT', { image: photo.data });
@@ -102,10 +104,11 @@ export default function StrainForm({ strain, options, tastes, canDelete, proposi
       } catch (err) {
         // Dane odmiany są już zapisane; zdjęcie mogło zostać odrzucone (np. brak uprawnień do podmiany).
         setPhoto({ data: null, remove: false });
-        setError(`Zmiany zapisano, ale zdjęcia nie: ${err.message}`);
+        setError(proposed ? `Propozycję wysłano, ale zdjęcia nie zapisano: ${err.message}` : `Zmiany zapisano, ale zdjęcia nie: ${err.message}`);
         setBusy(false);
         return;
       }
+      if (proposed) { setSent(true); setBusy(false); onSent?.(); return; }
       await onDone();
     } catch (err) { setError(err.message); setBusy(false); }
   }
