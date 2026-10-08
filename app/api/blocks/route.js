@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireUser, bad, safe, intId } from '@/lib/guard';
+import { requireUser, bad, safe, intId, jsonBody } from '@/lib/guard';
 
 // { action: 'block' | 'unblock', userId } - blokada usuwa też znajomość
 export const POST = safe(async (req) => {
   const { user, res } = await requireUser();
   if (res) return res;
-  const { action, userId } = await req.json().catch(() => ({}));
+  const { action, userId } = await jsonBody(req);
   const other = intId(userId);
   if (!other || other === user.id) return bad('Nieprawidłowy użytkownik.');
   const q = sql();

@@ -4,8 +4,8 @@ import { api } from '@/lib/api';
 
 const REASONS = [['spam', 'Spam'], ['ad', 'Reklama lub sprzedaż'], ['abuse', 'Nękanie lub wyzwiska'], ['privacy', 'Naruszenie prywatności'], ['other', 'Inne']];
 
-// Zgłoszenie profilu (type="user") lub testu (type="test")
-export default function ReportButton({ type, userId, refId }) {
+// Zgłoszenie profilu (type="user"), testu ("test"), odmiany ("strain") lub jej wspólnego zdjęcia ("photo"; refId = id odmiany)
+export default function ReportButton({ type, userId, refId, label = 'Zgłoś' }) {
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState('spam');
   const [note, setNote] = useState('');
@@ -19,7 +19,7 @@ export default function ReportButton({ type, userId, refId }) {
   return (
     <span className="report">
       {msg ? <small className="muted" role="status">{msg}</small> : !open ? (
-        <button type="button" className="btn text" onClick={() => setOpen(true)}>Zgłoś</button>
+        <button type="button" className="btn text" onClick={() => setOpen(true)}>{label}</button>
       ) : (
         <form className="report-form" onSubmit={send}>
           <div className="field"><label htmlFor={`rr-${type}-${refId || userId}`}>Powód zgłoszenia</label>

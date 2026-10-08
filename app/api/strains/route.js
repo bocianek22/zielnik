@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireUser, bad, safe } from '@/lib/guard';
+import { hit } from '@/lib/ratelimit';
+import { requireUser, bad, safe, jsonBody } from '@/lib/guard';
 import { listStrains, listStrainsPage, strainIndexPage, listOptions, parseCommon, parsePaging, invalidateStrains } from '@/lib/strains';
 
 // bez parametrów: cała lista (zgodność ze starszymi klientami); ?limit=&cursor= (strona listy, najwyżej PAGE_MAX; `next` to kursor kolejnej strony albo null),
@@ -22,8 +23,10 @@ export const GET = safe(async (req) => {
 export const POST = safe(async (req) => {
   const { user, res } = await requireUser();
   if (res) return res;
-  const { error, fields: f } = await parseCommon(await req.json().catch(() => ({})));
+  const { error, fields: f } = await parseCommon(await jsonBody(req));
   if (error) return bad(error);
+  // wspólny katalog: limit nowych odmian na konto (spam i zaśmiecanie katalogu)
+  if (!(await hit(`strain-new:${user.id}`, 20, 3600))) return bad('Zbyt wiele nowych odmian. Spróbuj ponownie za godzinę.', 429);
   // wpis osobisty tylko dla twórcy (w tym samym zapytaniu); inni dostają swój wiersz przy pierwszym zapisie (MOB-10)
   const [row] = await sql()`WITH s AS (
       INSERT INTO strains (producer, name, type, final_rating, taste, thc, cbd, kind, terpenes, description, price_per_g, batch, expires_on, form, sources, description_auto, created_by)

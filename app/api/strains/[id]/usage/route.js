@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireUser, bad, safe, intId } from '@/lib/guard';
+import { requireUser, bad, safe, intId, jsonBody } from '@/lib/guard';
 import { requestId, clientAt, otherAccount, OTHER_ACCOUNT_MSG } from '@/lib/ids';
 import { parseNumber } from '@/lib/strains';
 import { METHODS, PERIODS, parseChoice } from '@/lib/usage-meta';
@@ -11,7 +11,7 @@ export const POST = safe(async (req, { params }) => {
   const { user, res } = await requireUser();
   if (res) return res;
   const id = intId((await params).id);
-  const body = await req.json().catch(() => ({}));
+  const body = await jsonBody(req);
   const g = parseNumber(body.grams, 0.01, 1000);
   if (g == null || Number.isNaN(g)) return bad('Podaj ilość (g lub ml, 0,01–1000).');
   const rid = requestId(body.requestId);
@@ -65,7 +65,7 @@ export const DELETE = safe(async (req, { params }) => {
   const { user, res } = await requireUser();
   if (res) return res;
   const id = intId((await params).id);
-  const entryId = intId((await req.json().catch(() => ({}))).id);
+  const entryId = intId((await jsonBody(req)).id);
   if (!entryId) return bad('Błędny identyfikator wpisu.');
   const [row] = await sql()`WITH d AS (
       DELETE FROM usage_log WHERE id = ${entryId}::int AND user_id = ${user.id}::int AND strain_id = ${id}::int

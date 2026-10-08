@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { safe } from '@/lib/guard';
+import { safe, jsonBody } from '@/lib/guard';
 import bcrypt from 'bcryptjs';
 import { ensureDb, sql } from '@/lib/db';
 import { headers } from 'next/headers';
@@ -17,10 +17,14 @@ const MAX_PASSWORD = 1000;
 const DUMMY_HASH = '$2b$10$Xw5HbgpnaKNHfq/bZZXOSulZX3I7RvtatdRTlg32VrB1R1wdneN22';
 
 export const POST = safe(async (req) => {
-  const { username = '', password = '' } = await req.json();
   await ensureDb();
-  const uname = String(username).trim().toLowerCase().slice(0, 64);
   const ip = await clientIp();
+  // Limit na IP jeszcze przed czytaniem treści: zalew zepsutych żądań też go zużywa. Zły JSON to 400 (jsonBody), nie 500.
+  if (!(await hit(`login-ip:${ip}`, 30, 900))) {
+    return NextResponse.json({ error: 'Zbyt wiele prób logowania. Spróbuj ponownie za kilka minut.' }, { status: 429 });
+  }
+  const { username = '', password = '' } = await jsonBody(req);
+  const uname = String(username).trim().toLowerCase().slice(0, 64);
   const rows = await sql()`SELECT id, password_hash, must_change_password, session_version, is_admin
                            FROM users WHERE lower(username) = lower(${String(username).trim()})`;
   const u = rows[0];
@@ -31,7 +35,7 @@ export const POST = safe(async (req) => {
   // zużywają też tego limitu. Hasło jest sprawdzane zawsze.
   const dev = await knownDevice();
   const known = !!(dev && u && dev.uid === u.id && dev.sv === u.session_version);
-  if (!(await hit(`login-ip:${ip}`, 30, 900)) || !(await hit(`login-pair:${ip}|${uname}`, 8, 900))
+  if (!(await hit(`login-pair:${ip}|${uname}`, 8, 900))
       || (!known && !(await hit(`login-user:${uname}`, 50, 3600)))) {
     return NextResponse.json({ error: 'Zbyt wiele prób logowania. Spróbuj ponownie za kilka minut.' }, { status: 429 });
   }

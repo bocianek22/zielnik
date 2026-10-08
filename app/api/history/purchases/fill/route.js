@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireUser, bad, safe, intId } from '@/lib/guard';
+import { requireUser, bad, safe, intId, jsonBody } from '@/lib/guard';
 import { parseNumber } from '@/lib/strains';
 import { MAX_COST } from '@/lib/corrections';
 
@@ -8,7 +8,7 @@ import { MAX_COST } from '@/lib/corrections';
 export const POST = safe(async (req) => {
   const { user, res } = await requireUser();
   if (res) return res;
-  const b = await req.json().catch(() => ({}));
+  const b = await jsonBody(req);
   const strainId = intId(b.strainId);
   const price = parseNumber(b.pricePerG, 0.01, 10000);
   if (!strainId) return bad('Nie znaleziono odmiany.', 404);

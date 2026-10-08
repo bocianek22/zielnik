@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireAdmin, safe } from '@/lib/guard';
+import { requireAdmin, safe, jsonBody } from '@/lib/guard';
 import { randomPassword } from '@/lib/auth';
 import { logAudit } from '@/lib/audit';
 
@@ -17,7 +17,7 @@ export const GET = safe(async () => {
 export const POST = safe(async (req) => {
   const { user, res } = await requireAdmin();
   if (res) return res;
-  const b = await req.json().catch(() => ({}));
+  const b = await jsonBody(req);
   const maxUses = Math.min(100, Math.max(1, Number(b.maxUses) || 1));
   const days = Math.min(90, Math.max(0, Number(b.days) || 0));
   const code = randomPassword(10).toUpperCase();
@@ -31,7 +31,7 @@ export const POST = safe(async (req) => {
 export const DELETE = safe(async (req) => {
   const { user, res } = await requireAdmin();
   if (res) return res;
-  const { code } = await req.json().catch(() => ({}));
+  const { code } = await jsonBody(req);
   await logAudit(user.username, 'usunął zaproszenie', String(code ?? ''));
   await sql()`DELETE FROM invites WHERE code = ${String(code ?? '')}`;
   return NextResponse.json({ invites: await list() });

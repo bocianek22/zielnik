@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireUser, bad, safe, intId } from '@/lib/guard';
+import { hit } from '@/lib/ratelimit';
+import { requireUser, bad, safe, intId, jsonBody } from '@/lib/guard';
 
 const list = (me) => sql()`
   SELECT u.id, u.username, u.display_name, f.status, (f.requester = ${me}::int) AS outgoing
@@ -17,13 +18,14 @@ export const GET = safe(async () => {
 export const POST = safe(async (req) => {
   const { user, res } = await requireUser();
   if (res) return res;
-  const { action, userId } = await req.json().catch(() => ({}));
+  const { action, userId } = await jsonBody(req);
   const other = intId(userId);
   if (!other || other === user.id) return bad('Nieprawidłowy użytkownik.');
   const exists = await sql()`SELECT 1 FROM users WHERE id = ${other}`;
   if (!exists.length) return bad('Nie znaleziono użytkownika.', 404);
 
   if (action === 'request') {
+    if (!(await hit(`friend-req:${user.id}`, 30, 3600))) return bad('Zbyt wiele zaproszeń. Spróbuj ponownie później.', 429);
     const blk = await sql()`SELECT 1 FROM blocks WHERE (blocker = ${user.id} AND blocked = ${other}) OR (blocker = ${other} AND blocked = ${user.id})`;
     if (blk.length) return bad('Nie można wysłać zaproszenia temu użytkownikowi.', 403);
     const cur = await sql()`SELECT requester, status FROM friendships

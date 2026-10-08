@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { requireAdmin, bad, safe, intId } from '@/lib/guard';
+import { requireAdmin, bad, safe, intId, jsonBody } from '@/lib/guard';
 import { logAudit } from '@/lib/audit';
 import { listPending, accept, reject, REASON_MAX } from '@/lib/proposals';
 
@@ -13,7 +13,7 @@ export const GET = safe(async () => {
 export const POST = safe(async (req) => {
   const { user, res } = await requireAdmin();
   if (res) return res;
-  const b = await req.json().catch(() => ({}));
+  const b = await jsonBody(req);
   const id = intId(b.id);
   if (!id) return bad('Nieprawidłowa propozycja.', 400);
   let r;

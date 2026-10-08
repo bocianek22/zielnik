@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { sql } from '@/lib/db';
-import { bad, requireUser, safe } from '@/lib/guard';
+import { bad, requireUser, safe, jsonBody } from '@/lib/guard';
 import { MAIL_DISABLED_MSG, mailEnabled } from '@/lib/mail';
 import { normalizeEmail, sendVerification } from '@/lib/account-email';
 import { hit } from '@/lib/ratelimit';
@@ -21,7 +21,7 @@ export const PUT = safe(async (req) => {
   const { user, res } = await requireUser();
   if (res) return res;
   if (!mailEnabled()) return NextResponse.json({ error: MAIL_DISABLED_MSG, disabled: true }, { status: 503 });
-  const { email, consent, password } = await req.json().catch(() => ({}));
+  const { email, consent, password } = await jsonBody(req);
   const addr = normalizeEmail(email);
   if (!addr) return bad('Podaj poprawny adres e-mail.');
   if (consent !== true) return bad('Zaznacz zgodę na zapisanie adresu e-mail.');

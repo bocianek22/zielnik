@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { bad, safe } from '@/lib/guard';
+import { bad, safe, jsonBody } from '@/lib/guard';
 import { clientIp, hit } from '@/lib/ratelimit';
 import { MAIL_DISABLED_MSG, digest, mailEnabled } from '@/lib/mail';
 import { RESET_SENT_MSG, padResponse, requestReset } from '@/lib/account-email';
@@ -10,7 +10,7 @@ import { RESET_SENT_MSG, padResponse, requestReset } from '@/lib/account-email';
 export const POST = safe(async (req) => {
   const start = Date.now();
   if (!mailEnabled()) return NextResponse.json({ error: MAIL_DISABLED_MSG, disabled: true }, { status: 503 });
-  const { login = '' } = await req.json().catch(() => ({}));
+  const { login = '' } = await jsonBody(req);
   const ident = String(login ?? '').trim().toLowerCase();
   if (!ident || ident.length > 254) return bad('Podaj nazwę użytkownika lub adres e-mail.');
   const ip = await clientIp();

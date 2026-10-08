@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { safe } from '@/lib/guard';
+import { safe, jsonBody } from '@/lib/guard';
 import bcrypt from 'bcryptjs';
 import { ensureDb, sql } from '@/lib/db';
 import { createSession, USERNAME_RE } from '@/lib/auth';
@@ -11,7 +11,7 @@ const BAD_INVITE = 'Nieprawidłowy, wygasły lub wykorzystany kod zaproszenia.';
 
 // Rejestracja z kodem zaproszenia
 export const POST = safe(async (req) => {
-  const b = await req.json().catch(() => ({}));
+  const b = await jsonBody(req);
   const username = String(b.username ?? '').trim();
   const password = String(b.password ?? '');
   const code = String(b.invite ?? '').trim().toUpperCase();

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { ensureDb, sql } from '@/lib/db';
-import { requireAdmin, bad, safe } from '@/lib/guard';
+import { requireAdmin, bad, safe, jsonBody } from '@/lib/guard';
 import { hit } from '@/lib/ratelimit';
 import { logError } from '@/lib/errorlog';
 import { logAudit } from '@/lib/audit';
@@ -24,7 +24,7 @@ export const POST = safe(async (req) => {
   if (res) return res;
   if (!process.env.ANTHROPIC_API_KEY) return bad('Odczyt zdjęć nie jest skonfigurowany: ustaw ANTHROPIC_API_KEY w zmiennych Vercel.', 503);
   if (Number(req.headers.get('content-length') || 0) > MAX_TOTAL_BYTES * 1.4) return bad('Zdjęcia są razem za duże. Wyślij mniej naraz.', 413);
-  const { images: list } = await req.json().catch(() => ({}));
+  const { images: list } = await jsonBody(req);
   const { images, error } = validateImages(list);
   if (error) return bad(error);
   if (!(await hit(`pharmacy-photo:${user.id}`, 40, 86400))) return bad('Dzienny limit odczytów zdjęć został wykorzystany. Spróbuj jutro.', 429);

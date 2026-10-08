@@ -2,7 +2,7 @@
 
 Legenda: **P0** krytyczne przed publicznym startem · **P1** ważne · **P2** wartościowe · **P3** pomysł.
 Rozmiar: **S** (godziny) · **M** (dzień lub dwa) · **L** (tydzień i więcej). Zależność: 🌐 domena · ⚖️ prawnik · 💳 firma i płatności · 📧 usługa e-mail.
-Bieżąca wersja: **0.46.0** (zamknięta beta, rejestracja z zaproszeniem).
+Bieżąca wersja: **0.50.0** (zamknięta beta, rejestracja z zaproszeniem). Stan przed 1.0: `docs/PRZEGLAD-1.0.md`.
 
 ## Kamienie milowe
 | Wersja | Cel | Zawartość |
@@ -144,9 +144,10 @@ Cele wydajności: LCP < 2,5 s, INP < 200 ms, CLS < 0,1 na średnim telefonie i s
 **Platforma:** PLA-12 flagi funkcji per użytkownik · PLA-13 webhooki i integracje (np. kalendarz) · PLA-14 środowisko stagingowe z osobną bazą · PLA-15 automatyczne kopie poza infrastrukturą aplikacji · PLA-16 Lighthouse i budżety wydajności w CI.
 
 ## Lista kontrolna publicznego startu (1.0.0)
-- [ ] KON-1, KON-3 (przynajmniej Google), PRA-1, PRA-2, PRA-3
-- [ ] PLA-1, PLA-2, PLA-3, PLA-7
-- [ ] KAT-1, KAT-4
-- [ ] MON-1 lub świadoma decyzja o starcie bez płatności
-- [ ] Przegląd bezpieczeństwa (PLA-8) i dostępności (UX-2)
-- [ ] Otwarcie rejestracji lub utrzymanie zaproszeń
+Stan wg `docs/PRZEGLAD-1.0.md` (0.50.0).
+- [ ] KON-1 (kod gotowy; konto Resend i domena: właściciel), KON-3 (Google: brak, wymaga domeny i OAuth), PRA-1, PRA-2, PRA-3 (wersje robocze; prawnik)
+- [ ] PLA-1 ✅ zrobione · PLA-2 (kod gotowy; zewnętrzny monitor: właściciel) · PLA-3 (Vercel Pro: właściciel) · PLA-7 ✅ zrobione (zostają: klucz szyfrowania, zdjęcia w kopii)
+- [x] KAT-1 ✅ · [ ] KAT-4 (prawnik i przegląd merytoryczny)
+- [ ] MON-1 lub świadoma decyzja o starcie bez płatności (decyzja właściciela)
+- [ ] Przegląd bezpieczeństwa (PLA-8: częściowo, zrobione punkty 1, 2, 6 przeglądu; zostaje Next 16) i dostępności (UX-2: częściowo, axe w CI; zostają ręczne testy z czytnikiem ekranu)
+- [ ] Otwarcie rejestracji lub utrzymanie zaproszeń (dziś zaproszenia; otwarta rejestracja niezrobiona)

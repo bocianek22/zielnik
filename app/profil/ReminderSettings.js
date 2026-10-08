@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { api } from '@/lib/api';
+import { HOURLY_NEEDED, symptomsSwitchDisabled } from '@/lib/reminder-ui';
 
 const HOURS = [19, 20, 21, 22];
 const FULL_DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -47,6 +48,7 @@ export default function ReminderSettings() {
     if (v !== (prefs.nextVisit || null)) save({ nextVisit: v });
   }
 
+  const noEvening = symptomsSwitchDisabled(cfg, prefs);
   return (
     <section className="card stack" aria-labelledby="remind-h">
       <h2 id="remind-h">Przypomnienia</h2>
@@ -56,14 +58,14 @@ export default function ReminderSettings() {
       {prefs ? (
         <fieldset className="push-prefs" aria-label="Przypomnienia o wpisie i wizycie">
           <label className="switch-row"><span>Wieczorem, jeśli dziś nie ma wpisu objawów</span>
-            <input type="checkbox" className="switch" role="switch" checked={prefs.notifySymptoms} onChange={(e) => save({ notifySymptoms: e.target.checked })} /></label>
+            <input type="checkbox" className="switch" role="switch" checked={prefs.notifySymptoms} disabled={noEvening} aria-describedby={noEvening ? 'remind-hourly-note' : undefined} onChange={(e) => save({ notifySymptoms: e.target.checked })} /></label>
           <div className="push-row">
             <label htmlFor="remind-hour">Godzina (czas polski)</label>
             <select id="remind-hour" className="input" value={prefs.symptomsHour} disabled={!prefs.notifySymptoms} onChange={(e) => save({ symptomsHour: Number(e.target.value) })}>
               {HOURS.map((h) => <option key={h} value={h}>{h}:00</option>)}
             </select>
           </div>
-          {cfg && !cfg.hourly && <p className="muted small">Przypomnienie wieczorne wymaga, by serwer sprawdzał przypomnienia co godzinę. Na razie robi to raz dziennie rano, więc ten wybór zacznie działać po zmianie harmonogramu.</p>}
+          {cfg && !cfg.hourly && <p id="remind-hourly-note" className="muted small">{HOURLY_NEEDED}</p>}
           <label className="switch-row"><span>Przed wizytą (dzień wcześniej i w dniu)</span>
             <input type="checkbox" className="switch" role="switch" checked={prefs.notifyVisit} onChange={(e) => save({ notifyVisit: e.target.checked })} /></label>
           <div className="push-row">

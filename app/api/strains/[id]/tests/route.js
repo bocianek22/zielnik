@@ -1,11 +1,14 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireUser, bad, safe, intId } from '@/lib/guard';
+import { hit } from '@/lib/ratelimit';
+import { requireUser, bad, safe, intId, jsonBody } from '@/lib/guard';
 import { listTests } from '@/lib/strains';
 import { VIS_VALUES } from '@/lib/visibility';
 import { putPhoto, deletePhotos } from '@/lib/photos';
 import { cleanImage } from '@/lib/image-meta';
 import { planNote, LOCKED_NOTE, NOTE_UNAVAILABLE_REJECT_MSG } from '@/lib/data-crypto';
+
+const MAX_TESTS_PER_STRAIN = 50;
 
 export const GET = safe(async (_req, { params }) => {
   const { user, res } = await requireUser();
@@ -18,7 +21,7 @@ export const POST = safe(async (req, { params }) => {
   const { user, res } = await requireUser();
   if (res) return res;
   const id = intId((await params).id);
-  const { note, image, visibility } = await req.json().catch(() => ({}));
+  const { note, image, visibility } = await jsonBody(req);
   const vis = VIS_VALUES.includes(visibility) ? visibility : null;
   const text = String(note ?? '').trim().slice(0, 1500);
   let mime = null, data = null;
@@ -34,6 +37,10 @@ export const POST = safe(async (req, { params }) => {
   if (text === LOCKED_NOTE) return bad('Dodaj opis lub zdjęcie testu.'); // znacznik nieczytelnej notatki nie jest treścią
   const exists = await sql()`SELECT 1 FROM strains WHERE id = ${id}`;
   if (!exists.length) return bad('Nie znaleziono odmiany.', 404);
+  // testy są widoczne dla innych: limit na godzinę oraz łączna liczba testów jednego konta przy jednej odmianie
+  if (!(await hit(`test-new:${user.id}`, 30, 3600))) return bad('Zbyt wiele nowych testów. Spróbuj ponownie później.', 429);
+  const [{ n }] = await sql()`SELECT count(*)::int AS n FROM strain_tests WHERE strain_id = ${id} AND user_id = ${user.id}`;
+  if (n >= MAX_TESTS_PER_STRAIN) return bad(`Możesz dodać najwyżej ${MAX_TESTS_PER_STRAIN} testów do jednej odmiany. Usuń starsze albo edytuj istniejące.`, 429);
   // z tokenem Blob zdjęcie leży w Blob (w bazie data = '' i blob_path), bez tokenu jako base64
   // zły format klucza: nowego opisu nie da się zapisać, odrzucamy zanim wgramy zdjęcie
   if (planNote('strain_tests', 'note', '0', text).unavailable) return bad(NOTE_UNAVAILABLE_REJECT_MSG, 422);

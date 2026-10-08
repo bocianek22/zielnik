@@ -132,7 +132,7 @@ test('trasy admina: wymuszona zmiana hasła, zwykły użytkownik i brak sesji s�
     ['admin/stats', 'GET'], ['admin/audit', 'GET'], ['admin/errors', 'GET'], ['admin/errors', 'DELETE'],
     ['admin/backups', 'GET'], ['admin/backups', 'POST'], ['admin/plan', 'GET'], ['admin/plan', 'POST', { userId: ids.ewa, plan: 'premium' }],
     ['admin/invites', 'GET'], ['admin/invites', 'POST', {}], ['admin/invites', 'DELETE', { code: 'TEST' }],
-    ['admin/reports', 'GET'], ['admin/reports', 'POST', { id: 1 }], ['backup', 'GET'],
+    ['admin/reports', 'GET'], ['admin/reports', 'POST', { id: 1 }], ['backup', 'POST', { password: 'x' }],
   ];
   const check = async (status, label) => {
     for (const [route, method, body, params] of routes) {
@@ -149,7 +149,7 @@ test('trasy admina: wymuszona zmiana hasła, zwykły użytkownik i brak sesji s�
   await check(403, 'zwykły użytkownik');
   assert.equal((await req('admin/users', 'GET')).json.error, 'Brak uprawnień.');
   assert.equal((await req('admin/stats', 'GET')).json.error, 'Tylko admin.');
-  assert.equal((await req('backup', 'GET')).json.error, 'Tylko admin może pobrać kopię zapasową.');
+  assert.equal((await req('backup', 'POST', { password: 'x' })).json.error, 'Tylko admin może pobrać kopię zapasową.');
   jar.clear();
   await check(401, 'brak sesji');
   // nic się nie zmieniło

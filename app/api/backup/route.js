@@ -1,12 +1,24 @@
+import bcrypt from 'bcryptjs';
 import { sql } from '@/lib/db';
-import { requireAdmin, bad, safe } from '@/lib/guard';
+import { requireAdmin, bad, safe, jsonBody } from '@/lib/guard';
 import { buildBackup } from '@/lib/backup';
+import { clear, hit } from '@/lib/ratelimit';
 
-// Pobranie kopii zapasowej (tylko admin): bez parametru: świeży zrzut, ?id=N: zapisana migawka
-export const GET = safe(async (req) => {
-  const { res } = await requireAdmin('Tylko admin może pobrać kopię zapasową.');
+// Dawny adres GET (link w panelu) nie wydaje już kopii: przejęta sesja admina nie może pobrać zrzutu bez hasła.
+export const GET = safe(async () => bad('Pobieranie kopii wymaga ponownego podania hasła. Odśwież panel admina i użyj przycisku w panelu.', 405));
+
+// Pobranie kopii zapasowej (tylko admin, po ponownym podaniu hasła): { password } = świeży zrzut, { password, id } = zapisana migawka.
+// Limit prób jak przy usuwaniu konta: przejęta sesja nie może zgadywać hasła admina.
+export const POST = safe(async (req) => {
+  const { user, res } = await requireAdmin('Tylko admin może pobrać kopię zapasową.');
   if (res) return res;
-  const id = Number(new URL(req.url).searchParams.get('id'));
+  const b = await jsonBody(req);
+  const pwd = String(b.password ?? '');
+  if (!(await hit(`backup-dl:${user.id}`, 5, 900))) return bad('Zbyt wiele prób. Spróbuj ponownie za kilka minut.', 429);
+  const [u] = await sql()`SELECT password_hash FROM users WHERE id = ${user.id}`;
+  if (!pwd || !u || pwd.length > 1000 || !(await bcrypt.compare(pwd, u.password_hash))) return bad('Nieprawidłowe hasło.', 403);
+  await clear(`backup-dl:${user.id}`);
+  const id = Number(b.id);
   let body, day = new Date().toISOString().slice(0, 10);
   if (id) {
     const [b] = await sql()`SELECT data, blob_path, to_char(created_at, 'YYYY-MM-DD') AS day FROM backups WHERE id = ${id}`;

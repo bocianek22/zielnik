@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireUser, bad, safe, intId } from '@/lib/guard';
+import { hit } from '@/lib/ratelimit';
+import { requireUser, bad, safe, intId, jsonBody } from '@/lib/guard';
 import { parseNumber } from '@/lib/strains';
 import { normUnit } from '@/lib/units';
 import { planNote, decryptField, rowScope, LOCKED_NOTE, NOTE_UNAVAILABLE_REJECT_MSG } from '@/lib/data-crypto';
@@ -23,7 +24,8 @@ export const GET = safe(async () => {
 export const POST = safe(async (req) => {
   const { user, res } = await requireUser();
   if (res) return res;
-  const b = await req.json().catch(() => ({}));
+  const b = await jsonBody(req);
+  if (!(await hit(`rx-new:${user.id}`, 30, 3600))) return bad('Zbyt wiele nowych recept. Spróbuj ponownie później.', 429);
   const issued = String(b.issuedOn ?? '');
   const valid = String(b.validUntil ?? '') || null;
   const grams = parseNumber(b.grams, 0.1, 100000);
@@ -44,7 +46,7 @@ export const POST = safe(async (req) => {
 export const DELETE = safe(async (req) => {
   const { user, res } = await requireUser();
   if (res) return res;
-  const { id } = await req.json().catch(() => ({}));
+  const { id } = await jsonBody(req);
   await sql()`DELETE FROM prescriptions WHERE id = ${intId(id)} AND user_id = ${user.id}`;
   return NextResponse.json({ prescriptions: await list(user.id) });
 });

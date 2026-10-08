@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
 import { requireUser, safe } from '@/lib/guard';
 
-// Wyszukiwarka użytkowników po nazwie użytkownika lub nazwie wyświetlanej
+// Wyszukiwarka użytkowników po nazwie użytkownika lub nazwie wyświetlanej. Konta z profilem „tylko ja” (profile_visibility = 'me')
+// nie są wyszukiwalne, chyba że szukający jest ich zaakceptowanym znajomym; zablokowani w obie strony też są pomijani.
 export const GET = safe(async (req) => {
   const { user, res } = await requireUser();
   if (res) return res;
@@ -13,7 +14,9 @@ export const GET = safe(async (req) => {
     SELECT u.id, u.username, u.display_name,
       (SELECT f.status FROM friendships f WHERE (f.requester = ${user.id}::int AND f.addressee = u.id) OR (f.requester = u.id AND f.addressee = ${user.id}::int)) AS status,
       (SELECT f.requester = ${user.id}::int FROM friendships f WHERE (f.requester = ${user.id}::int AND f.addressee = u.id) OR (f.requester = u.id AND f.addressee = ${user.id}::int)) AS outgoing
-    FROM users u WHERE u.id <> ${user.id}::int AND NOT EXISTS (SELECT 1 FROM blocks b WHERE (b.blocker = ${user.id}::int AND b.blocked = u.id) OR (b.blocker = u.id AND b.blocked = ${user.id}::int)) AND (lower(u.username) LIKE ${like} OR lower(u.display_name) LIKE ${like})
+    FROM users u WHERE u.id <> ${user.id}::int AND NOT EXISTS (SELECT 1 FROM blocks b WHERE (b.blocker = ${user.id}::int AND b.blocked = u.id) OR (b.blocker = u.id AND b.blocked = ${user.id}::int))
+      AND (u.profile_visibility <> 'me' OR EXISTS (SELECT 1 FROM friendships f WHERE f.status = 'accepted' AND ((f.requester = ${user.id}::int AND f.addressee = u.id) OR (f.requester = u.id AND f.addressee = ${user.id}::int))))
+      AND (lower(u.username) LIKE ${like} OR lower(u.display_name) LIKE ${like})
     ORDER BY lower(u.username) LIMIT 10`;
   return NextResponse.json({ users });
 });

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { requireAdmin, requireUser, bad, safe } from '@/lib/guard';
+import { requireAdmin, requireUser, bad, safe, jsonBody } from '@/lib/guard';
 import { syncCatalog, listCatalog } from '@/lib/catalog';
 
 // Lekka lista aktywnych pozycji katalogu, do podpowiadania nazw przy dodawaniu odmiany
@@ -15,7 +15,7 @@ export const GET = safe(async () => {
 export const POST = safe(async (req) => {
   const { res } = await requireAdmin('Tylko admin może wczytać katalog.');
   if (res) return res;
-  const { rows, mode } = await req.json().catch(() => ({}));
+  const { rows, mode } = await jsonBody(req);
   if (!Array.isArray(rows) || !rows.length) return bad('Brak wierszy do wczytania.');
   if (mode === 'zdjecie') return NextResponse.json(await syncCatalog(rows, 'zdjęcie z apteki', { merge: true }));
   return NextResponse.json(await syncCatalog(rows, 'import ręczny'));

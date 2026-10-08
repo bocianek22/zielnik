@@ -34,3 +34,4 @@ Kolejność może się przesunąć, gdy właściciel poda klucze (fala 3) albo z
 - 8.10: fala 2 wydana jako 0.46.0 (PR #18, KAT-1 propozycje, UX-2 dostępność, naprawione podpowiedzi z internetu). Fala 3 (KON-1, PLA-2, POM-05/15) gotowa jako 0.47.0 po przeglądzie Opus i poprawkach; działa po podaniu kluczy przez właściciela.
 - 8.10: 0.47.0 wydane (PR #19). Fala 4: POM-16 i POM-19/20 gotowe jako 0.48.0 po przeglądzie Opus; POM-13 zaprojektowany (`docs/WIDZET-ANDROID.md`, wariant bez nowego API), wdrożenie jako następne.
 - 8.10: przygotowanie do bety wydane (0.49.0, 0.49.1; `docs/BETA.md`). Fala 5: POM-28 szyfrowanie notatek gotowe jako 0.50.0 (projekt Opus, przegląd Opus, poprawki), włączenie za kluczem przez właściciela. Zostaje przegląd 1.0.
+- 8.10: przegląd 1.0 (`docs/PRZEGLAD-1.0.md`), poprawki po stronie kodu wydane jako 0.51.0. Plan fal 1-5 zrealizowany po stronie Claude; zostają decyzje i zadania właściciela.
