@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
 import { requireUser, bad, safe } from '@/lib/guard';
 import { hit } from '@/lib/ratelimit';
-import { parseCommon, parseNumber } from '@/lib/strains';
+import { parseCommon, parseNumber, invalidateStrains } from '@/lib/strains';
 
 const dec = (v) => String(v ?? '').trim().replace(',', '.');
 
@@ -48,5 +48,6 @@ export const POST = safe(async (req) => {
     }
     added++;
   }
+  if (added) invalidateStrains();
   return NextResponse.json({ added, skipped, errors: errors.slice(0, 10), truncated: rows.length > 200 });
 });

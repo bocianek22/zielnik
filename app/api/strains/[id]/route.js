@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
 import { requireUser, bad, safe, intId } from '@/lib/guard';
-import { parseCommon, updateStrain } from '@/lib/strains';
+import { parseCommon, updateStrain, invalidateStrains } from '@/lib/strains';
 import { deletePhotos } from '@/lib/photos';
 
 // Edycja pól wspólnych (dostępna dla każdego zalogowanego)
@@ -31,6 +31,7 @@ export const DELETE = safe(async (_req, { params }) => {
                              UNION ALL SELECT blob_path FROM strain_tests WHERE strain_id = ${id} AND blob_path IS NOT NULL`).map((r) => r.blob_path);
   if (user.is_admin) {
     await sql()`DELETE FROM strains WHERE id = ${id}`;
+    invalidateStrains();
     await deletePhotos(blobs);
     return NextResponse.json({ ok: true });
   }
@@ -45,6 +46,7 @@ export const DELETE = safe(async (_req, { params }) => {
       EXISTS (SELECT 1 FROM strain_tests WHERE strain_id = ${id} AND user_id IS DISTINCT FROM ${user.id})
     ) RETURNING id`;
   if (!del.length) return bad('Tej odmiany używają już inne osoby (oceny, zakupy, zużycie lub testy). Usunąć ją może tylko admin.', 409);
+  invalidateStrains();
   await deletePhotos(blobs);
   return NextResponse.json({ ok: true });
 });
