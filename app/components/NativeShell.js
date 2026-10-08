@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
-import { LOCK_EVENT, NO_SECURITY, authenticate, fcmToken, hasFcm, isNative, listen, lockEnabled, plugin, pushPermission, saveFcm, setLockEnabled, storedFcm } from './native/bridge';
+import { usePathname } from 'next/navigation';
+import { LOCK_EVENT, NO_SECURITY, authenticate, fcmToken, hasFcm, isNative, listen, lockEnabled, plugin, pushPermission, saveFcm, setLockEnabled, storedFcm, widgetClear } from './native/bridge';
 import { installHaptics, installKeyboard, isPageLink, transition } from './native/behaviors';
 import PullRefresh from './native/PullRefresh';
 import useFocusTrap from './useFocusTrap';
@@ -28,6 +29,9 @@ export default function NativeShell() {
   const authing = useRef(false);
   const authEnd = useRef(0);
   const bgAt = useRef(0);
+  const path = usePathname();
+  // Na /login nikt nie jest zalogowany: widżet nie pokazuje liczby poprzedniego konta (POM-13)
+  useEffect(() => { if (path === '/login') widgetClear(); }, [path]);
 
   async function unlock() {
     if (authing.current) return;

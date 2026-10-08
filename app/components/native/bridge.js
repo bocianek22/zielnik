@@ -31,6 +31,7 @@ export async function lockEnabled() {
 
 export async function setLockEnabled(on) {
   await plugin('Preferences').set({ key: LOCK_KEY, value: on ? 'on' : 'off' });
+  widgetLocked(on); // widżet: przy włączonej blokadzie bez liczby
   window.dispatchEvent(new CustomEvent(LOCK_EVENT, { detail: on }));
 }
 
@@ -131,4 +132,27 @@ export async function appInfo() {
   const A = plugin('App');
   if (!A?.getInfo) return null;
   try { const i = await A.getInfo(); return { version: i.version, build: i.build }; } catch { return null; }
+}
+
+// --- widżet ekranu głównego Androida „Zapas i Zużyłem” (POM-13, docs/WIDZET-ANDROID.md; wtyczka ZielnikWidget) ---
+// Bez wtyczki (przeglądarka, iOS, starsze APK) wszystkie trzy funkcje nic nie robią i nie rzucają błędu.
+// Do telefonu trafia tylko data końca zapasu i informacja o blokadzie; widżet sam odlicza dni.
+const widgetCall = (method, arg) => {
+  try { plugin('ZielnikWidget')?.[method]?.(arg)?.catch?.(() => {}); } catch {}
+};
+
+// payload: { until: 'RRRR-MM-DD' | null } z widgetPayload (lib/widget.js)
+export async function widgetSet(payload) {
+  if (!plugin('ZielnikWidget')) return;
+  widgetCall('set', { until: payload?.until ?? null, locked: await lockEnabled() });
+}
+
+// Sama zmiana blokady (ustawiona w profilu): data zostaje taka, jaka była
+export function widgetLocked(locked) {
+  widgetCall('set', { locked: Boolean(locked) });
+}
+
+// Wylogowanie, zmiana konta, usunięcie konta: widżet nie może zostać z liczbą poprzedniego konta
+export function widgetClear() {
+  widgetCall('clear');
 }

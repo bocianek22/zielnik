@@ -1,7 +1,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
-import { storedFcm } from './native/bridge';
+import { storedFcm, widgetClear } from './native/bridge';
 import { clearDeviceData } from './deviceData';
 import { clearQueue, flushQueue, queueState } from '@/lib/offline-client';
 import { pendingText } from '@/lib/offline-queue';
@@ -39,6 +39,7 @@ export default function LogoutButton({ className = 'btn ghost small on-dark', ch
         // ciasteczko sesji (HttpOnly) usuwa tylko serwer: przy błędzie nie udajemy wylogowania
         await api('/api/auth/logout', 'POST', pushEndpoint || fcmToken ? { pushEndpoint, fcmToken } : undefined);
         clearDeviceData();
+        widgetClear();
         router.replace('/login');
         router.refresh();
       }}

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Widżet „Zapas i Zużyłem” (POM-13): 2x1, tylko ekran główny, odświeżenie co 3 h (dane i tak zapisuje strona) -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/widget_description"
+    android:initialLayout="@layout/widget_stock"
+    android:minWidth="110dp"
+    android:minHeight="40dp"
+    android:targetCellWidth="2"
+    android:targetCellHeight="1"
+    android:updatePeriodMillis="10800000"
+    android:resizeMode="horizontal"
+    android:widgetCategory="home_screen" />

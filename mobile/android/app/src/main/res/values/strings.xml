@@ -11,4 +11,13 @@
     <string name="shortcut_symptoms_long">Samopoczucie dziś</string>
     <string name="shortcut_report_short">Raport</string>
     <string name="shortcut_report_long">Raport</string>
+    <!-- widżet ekranu głównego (POM-13): neutralne napisy, bez nazwy aplikacji i słów o roślinie -->
+    <string name="widget_label">Zapas</string>
+    <string name="widget_add">Zapisz</string>
+    <string name="widget_open">Otwórz</string>
+    <string name="widget_description">Zapas i szybki zapis</string>
+    <string name="widget_days_one">Starczy na %d dzień</string>
+    <string name="widget_days_many">Starczy na %d dni</string>
+    <string name="widget_check">Sprawdź zapas</string>
+    <string name="widget_none">–</string>
 </resources>

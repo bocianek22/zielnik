@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- widżet ekranu głównego (POM-13): ciemny motyw -->
+    <color name="widget_bg">#1B241E</color>
+    <color name="widget_text">#EAF2EC</color>
+    <color name="widget_text_dim">#A7B8AC</color>
+    <color name="widget_button_bg">#7FB58F</color>
+    <color name="widget_button_text">#10231A</color>
+</resources>

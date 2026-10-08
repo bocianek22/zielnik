@@ -1,8 +1,10 @@
 'use client';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import Icon from './Icon';
 import TodayPanel from './TodayPanel';
 import { useHome } from './HomeStore';
+import { daysLeft as daysOf, widgetPayload } from '@/lib/widget';
+import { widgetSet } from './native/bridge';
 
 // liczby w interfejsie: polski przecinek dziesiętny, najwyżej 2 miejsca
 const n2 = (x) => Number(Number(x).toFixed(2)).toLocaleString('pl-PL');
@@ -15,7 +17,13 @@ export default function TodayBoard({ usage = { perDay: 0, perDayMl: 0, cost: 0 }
   const boughtG = boughtU.g;
   const totalRemaining = remainingU.g;
   const totalStock = stockU.g;
-  const daysLeft = dailyUse > 0 && totalStock > 0 ? Math.floor(totalStock / dailyUse) : null;
+  const daysLeft = daysOf(totalStock, dailyUse);
+  // Widżet Androida (POM-13): data końca zapasu przy wczytaniu i po każdej zmianie zapasu (także po „Zużyłem”)
+  const today = series.at(-1)?.day;
+  const perMl = usage.perDayMl || 0;
+  useEffect(() => {
+    if (today) widgetSet(widgetPayload({ stock: { g: stockU.g, ml: stockU.ml }, dailyUse: { g: dailyUse, ml: perMl }, today }));
+  }, [stockU.g, stockU.ml, dailyUse, perMl, today]);
   // szybkie „Zużyłem” w panelu: ostatnio używana odmiana, którą nadal masz
   const quick = useMemo(() => {
     const q = recent.find((x) => Number(x.current) > 0);
