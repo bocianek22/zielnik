@@ -58,7 +58,8 @@ test('kreator: nowe konto, axe w obu motywach, 320 px, pominięcie, nie wraca po
       assert.ok(box.height >= 43.5, `cel dotykowy ${Math.round(box.height)} px: ${await b.evaluate((e) => e.outerHTML.slice(0, 80))}`);
     }
     await shot(page, 'kreator-jasny-krok1');
-    await page.emulateMedia({ colorScheme: 'dark' });
+    // przełączenie motywu na żywej stronie: bez przejść CSS, inaczej axe mierzy kontrast w połowie animacji tła
+    await page.emulateMedia({ colorScheme: 'dark', reducedMotion: 'reduce' });
     await page.evaluate(() => { document.documentElement.dataset.theme = 'dark'; });
     assert.deepEqual(await serious(page), [], 'axe, motyw ciemny');
     await shot(page, 'kreator-ciemny-krok1');

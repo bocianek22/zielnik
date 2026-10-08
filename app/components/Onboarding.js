@@ -1,6 +1,5 @@
 'use client';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { FORMS } from '@/lib/forms';
 import { unitOf } from '@/lib/units';
@@ -159,7 +158,6 @@ function RemindersStep({ onNext }) {
 }
 
 export default function Onboarding() {
-  const router = useRouter();
   const [step, setStep] = useState(0); // 0..2 kroki, 3 podsumowanie
   const [done, setDone] = useState({ strain: null, rx: null });
   const [saved, setSaved] = useState(null); // 'strain' | 'rx': krok zapisany, czeka na „Dalej”
@@ -179,7 +177,8 @@ export default function Onboarding() {
   async function close() {
     if (busy) return;
     setBusy(true); setErr('');
-    try { await api('/api/onboarding', 'POST'); router.refresh(); }
+    // pełne przeładowanie zamiast router.refresh(): odświeżenie RSC bywało gubione i kreator zostawał na ekranie
+    try { await api('/api/onboarding', 'POST'); window.location.replace('/'); }
     catch (e) { setErr(e.message); setBusy(false); }
   }
 
