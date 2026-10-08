@@ -8,12 +8,15 @@ import { VERSION } from '@/lib/version';
 // i bez treści błędów. Przy niezgodnym schemacie ensureDb() robi tę samą migrację, co pierwsze żądanie po wdrożeniu,
 // więc monitoring nie zgłasza fałszywego alarmu po każdym wdrożeniu ze zmianą bazy.
 export const dynamic = 'force-dynamic';
+let lastFail = 0;
 const json = (o, status = 200) => NextResponse.json(o, { status, headers: { 'Cache-Control': 'no-store' } });
 
 export const GET = safe(async () => {
   let db = false, schema = 'niezgodny';
   try {
-    await ensureDb();
+    // po nieudanej migracji kolejna próba najwyżej raz na minutę: publiczne odpytywanie nie może dociążać bazy w awarii
+    if (Date.now() - lastFail < 60_000) throw new Error('migracja niedawno nieudana');
+    try { await ensureDb(); } catch (e) { lastFail = Date.now(); throw e; }
     const [r] = await sql()`SELECT value FROM schema_meta WHERE key = 'schema'`;
     db = true;
     if (r?.value === SCHEMA_HASH) schema = 'zgodny';

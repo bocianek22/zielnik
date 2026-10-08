@@ -142,9 +142,14 @@ const widgetCall = (method, arg) => {
 };
 
 // payload: { until: 'RRRR-MM-DD' | null } z widgetPayload (lib/widget.js)
+let widgetGen = 0; // każde wyczyszczenie unieważnia zapisy rozpoczęte przed nim (await lockEnabled)
+
 export async function widgetSet(payload) {
   if (!plugin('ZielnikWidget')) return;
-  widgetCall('set', { until: payload?.until ?? null, locked: await lockEnabled() });
+  const gen = widgetGen;
+  const locked = await lockEnabled();
+  if (gen !== widgetGen) return;
+  widgetCall('set', { until: payload?.until ?? null, locked });
 }
 
 // Sama zmiana blokady (ustawiona w profilu): data zostaje taka, jaka była
@@ -154,5 +159,6 @@ export function widgetLocked(locked) {
 
 // Wylogowanie, zmiana konta, usunięcie konta: widżet nie może zostać z liczbą poprzedniego konta
 export function widgetClear() {
+  widgetGen++;
   widgetCall('clear');
 }

@@ -18,7 +18,13 @@ export default function WhatsNew() {
       const seen = localStorage.getItem(SEEN_VERSION_KEY);
       if (!seen) { localStorage.setItem(SEEN_VERSION_KEY, VERSION); return; }
       const fresh = newerThan(seen, VERSION).slice(0, 3);
-      if (fresh.length) setList(fresh);
+      if (fresh.length) {
+        // pod ekranem blokady okno czeka: dwie pułapki fokusu naraz myliłyby czytnik ekranu
+        const locked = () => !!document.querySelector('.web-lock, .native-lock');
+        if (!locked()) { setList(fresh); return; }
+        const t = setInterval(() => { if (!locked()) { clearInterval(t); setList(fresh); } }, 1000);
+        return () => clearInterval(t);
+      }
       else if (seen !== VERSION) localStorage.setItem(SEEN_VERSION_KEY, VERSION);
     } catch { /* zablokowane dane witryny: bez listy */ }
   }, []);

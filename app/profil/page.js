@@ -49,7 +49,7 @@ export default async function Profil() {
             <div className="list inset">
               <Link className="list-row" href="/pomoc#co-nowego"><Icon name="info" /><span className="lr-main">Co nowego</span></Link>
               <Link className="list-row" href="/pomoc"><Icon name="book" /><span className="lr-main">Pomoc i instalacja</span></Link>
-              <Link className="list-row" href="/uwagi"><Icon name="edit" /><span className="lr-main">Zgłoś uwagę</span></Link>
+              <Link className="list-row" href="/uwagi?ekran=%2Fprofil"><Icon name="edit" /><span className="lr-main">Zgłoś uwagę</span></Link>
             </div>
           </section>
           <NativeVersion />

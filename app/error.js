@@ -1,8 +1,10 @@
 'use client';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Icon from './components/Icon';
 
 export default function ErrorPage({ error, reset }) {
+  const [here, setHere] = useState('');
+  useEffect(() => { setHere(location.pathname.replace(/^\/u\/[^/]+/, '/u/:handle').replace(/\/\d+(?=\/|$)/g, '/:id')); }, []);
   useEffect(() => {
     fetch('/api/client-error', { method: 'POST', headers: { 'Content-Type': 'application/json' }, keepalive: true,
       body: JSON.stringify({ digest: error?.digest, message: error?.message, path: location.pathname }) }).catch(() => {});
@@ -17,7 +19,7 @@ export default function ErrorPage({ error, reset }) {
         <div className="system-actions">
           <button className="btn" onClick={reset}>Spróbuj ponownie</button>
           <a className="btn text" href="/">Wróć do odmian</a>
-          <a className="btn text" href="/uwagi">Zgłoś uwagę</a>
+          <a className="btn text" href={here ? `/uwagi?ekran=${encodeURIComponent(here)}` : '/uwagi'}>Zgłoś uwagę</a>
         </div>
       </div>
     </main>

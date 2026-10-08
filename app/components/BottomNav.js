@@ -12,6 +12,9 @@ import { navItems, SHEET_GROUPS } from './navItems';
 import { VERSION } from '@/lib/version';
 
 // Dolny pasek nawigacji dla telefonów (widoczny tylko poniżej 760 px) z arkuszem "Więcej"
+// Ekran do zgłoszenia bez identyfikatorów i nazw kont: adres trafia do historii przeglądarki i logów żądań
+const screenOf = (p) => p.replace(/^\/u\/[^/]+/, '/u/:handle').replace(/\/\d+(?=\/|$)/g, '/:id');
+
 export default function BottomNav({ isAdmin }) {
   const path = usePathname() || '';
   const router = useRouter();
@@ -57,7 +60,7 @@ export default function BottomNav({ isAdmin }) {
                 <h2 className="section-label">{title}</h2>
                 <div className="list">
                   {items.map((i) => (
-                    <Link key={i.href} href={i.href === '/uwagi' && path ? `/uwagi?ekran=${encodeURIComponent(path)}` : i.href} className="list-row" aria-current={isActive(path, i.href) ? 'page' : undefined}>
+                    <Link key={i.href} href={i.href === '/uwagi' && path ? `/uwagi?ekran=${encodeURIComponent(screenOf(path))}` : i.href} className="list-row" aria-current={isActive(path, i.href) ? 'page' : undefined}>
                       <Icon name={i.icon} /><span className="lr-main">{i.label}</span>
                       {i.badge && <NavBadge kind={i.badge} />}
                       <Icon name="chevronRight" size={18} className="lr-chev" />

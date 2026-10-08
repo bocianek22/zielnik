@@ -72,7 +72,7 @@ export default async function Pomoc() {
         <section id="zgloszenia" className="read-article">
           <h2>Jak zgłaszać uwagi</h2>
           <p>Wybierz „Zgłoś uwagę” w zakładce „Więcej” (albo na ekranie błędu), wskaż rodzaj i opisz własnymi słowami, co się stało lub co by pomogło. Do zgłoszenia dołączamy tylko numer wersji, nazwę ekranu bez numerów, rodzaj urządzenia (aplikacja, PWA lub przeglądarka) i motyw. Nie wpisuj danych zdrowotnych ani osobowych. Status swoich zgłoszeń zobaczysz na tej samej stronie.</p>
-          <p><Link className="btn" href="/uwagi">Zgłoś uwagę</Link></p>
+          <p><Link className="btn" href="/uwagi?ekran=%2Fpomoc">Zgłoś uwagę</Link></p>
           {group && <p><a className="btn ghost" href={group} target="_blank" rel="noopener noreferrer">Grupa testerów<Icon name="share" size={18} /></a></p>}
         </section>
 

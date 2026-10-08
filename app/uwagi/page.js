@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
 import { sql } from '@/lib/db';
 import { betaGroupUrl } from '@/lib/beta';
+import { alertPath } from '@/lib/alerts';
 import Header from '../components/Header';
 import FeedbackForm from './FeedbackForm';
 
@@ -20,7 +21,7 @@ export default async function Uwagi({ searchParams }) {
       <Header user={user} />
       <main className="page settings">
         <h1>Zgłoś uwagę</h1>
-        <FeedbackForm initial={items} screen={typeof ekran === 'string' ? ekran.slice(0, 200) : null} groupUrl={betaGroupUrl()} />
+        <FeedbackForm initial={items} screen={typeof ekran === 'string' ? alertPath(ekran.slice(0, 200)) : null} groupUrl={betaGroupUrl()} />
       </main>
     </>
   );
