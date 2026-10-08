@@ -47,7 +47,7 @@ export default function LoginForm({ forgot = false }) {
           <p className="auth-lead">Dziennik odmian medycznej konopi.</p>
           <div className="field">
             <label htmlFor="u">Nazwa użytkownika</label>
-            <input id="u" className="input" value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" autoFocus required />
+            <input id="u" className="input" value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} autoFocus required />
           </div>
           <div className="field">
             <label htmlFor="p">Hasło</label>

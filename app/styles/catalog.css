@@ -43,7 +43,7 @@
 /* Podpowiedzi wyszukiwania (SearchSuggest): lista pod polem, nad treścią i przyciskiem „+” */
 .suggest { scroll-margin-top: var(--s-2); }
 .suggest-pop { position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 47; overflow-y: auto; overscroll-behavior: contain;
-  max-height: min(60vh, 440px); padding: var(--s-1) 0; background: var(--surface); border: 1px solid var(--sep); border-radius: var(--r-lg); box-shadow: var(--shadow-2); }
+  max-height: min(60vh, 440px); max-height: min(60dvh, 440px); padding: var(--s-1) 0; background: var(--surface); border: 1px solid var(--sep); border-radius: var(--r-lg); box-shadow: var(--shadow-2); }
 .suggest-pop[hidden] { display: none; }
 .suggest-head { padding: var(--s-2) var(--s-4) var(--s-1); font-size: var(--fs-xs); font-weight: 600; color: var(--text-2); letter-spacing: .02em; }
 [role="group"] + [role="group"] .suggest-head { margin-top: var(--s-1); border-top: 1px solid var(--sep); padding-top: var(--s-3); }

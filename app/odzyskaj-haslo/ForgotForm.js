@@ -31,7 +31,7 @@ export default function ForgotForm() {
         <>
           <div className="field">
             <label htmlFor="f-login">Nazwa użytkownika lub e-mail</label>
-            <input id="f-login" className="input" value={login} onChange={(e) => setLogin(e.target.value)} autoComplete="username" maxLength={254} autoFocus required />
+            <input id="f-login" className="input" value={login} onChange={(e) => setLogin(e.target.value)} autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} maxLength={254} autoFocus required />
           </div>
           {error && <div className="alert error" role="alert">{error}</div>}
           <button type="submit" className="btn" disabled={busy}>{busy ? 'Wysyłanie…' : 'Wyślij link'}</button>

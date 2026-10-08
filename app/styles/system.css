@@ -2,7 +2,7 @@
    components/Skeleton.js, compare/page.js). Komponenty bazowe (.empty, .btn, .list) są w globals.css. */
 
 /* ===== Błąd i 404 ===== */
-.system-state { display: grid; justify-items: center; align-content: center; gap: var(--s-2); min-height: 60vh; padding: var(--s-10) var(--s-2); }
+.system-state { display: grid; justify-items: center; align-content: center; gap: var(--s-2); min-height: 60vh; min-height: 60dvh; padding: var(--s-10) var(--s-2); }
 .system-state h1 { font-size: var(--fs-2xl); margin: 0; }
 .system-state p { margin: 0; max-width: 36ch; }
 .system-state .system-code { margin-top: var(--s-2); color: var(--text-3); }
