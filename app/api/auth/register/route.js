@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 import { ensureDb, sql } from '@/lib/db';
 import { createSession, USERNAME_RE } from '@/lib/auth';
 import { clientIp, hit } from '@/lib/ratelimit';
-import { LEGAL_VERSION } from '@/lib/legal';
+import { legalVersion } from '@/lib/legal';
 
 const err = (msg, status = 400) => NextResponse.json({ error: msg }, { status });
 const BAD_INVITE = 'Nieprawidłowy, wygasły lub wykorzystany kod zaproszenia.';
@@ -38,8 +38,14 @@ export const POST = safe(async (req) => {
   const hash = await bcrypt.hash(password, 10);
   let u;
   try {
-    [u] = await q`INSERT INTO users (username, password_hash, is_admin, must_change_password, consent_at, consent_version)
-                        VALUES (${username}, ${hash}, FALSE, FALSE, now(), ${LEGAL_VERSION}) RETURNING id`;
+    // konto i dowód zgody w jednej instrukcji (bez konta bez wpisu w consent_log)
+    const version = legalVersion();
+    [u] = await q`WITH u AS (
+                    INSERT INTO users (username, password_hash, is_admin, must_change_password, consent_at, consent_version)
+                    VALUES (${username}, ${hash}, FALSE, FALSE, now(), ${version}) RETURNING id
+                  ), l AS (
+                    INSERT INTO consent_log (user_id, version, terms, health) SELECT id, ${version}, TRUE, TRUE FROM u
+                  ) SELECT id FROM u`;
   } catch (e) {
     await q`UPDATE invites SET uses = GREATEST(uses - 1, 0) WHERE code = ${code}`; // zwrot użycia kodu
     throw e;

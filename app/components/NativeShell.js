@@ -60,6 +60,8 @@ export default function NativeShell() {
 
     // Wstecz: historia strony, a na pierwszej stronie zejście do tła (jak w innych aplikacjach)
     offs.push(listen('App', 'backButton', ({ canGoBack }) => {
+      // pod ekranem blokady Wstecz nie nawiguje (nie pozwala obejść blokady ani zejść z niej do poprzedniej strony)
+      if (document.querySelector('.native-lock, .web-lock')) return;
       if (canGoBack) { transition(true); window.history.back(); }
       else plugin('App').minimizeApp().catch(() => plugin('App').exitApp());
     }));

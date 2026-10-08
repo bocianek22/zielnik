@@ -30,6 +30,8 @@ export const GET = safe(async (req) => {
   const data = {
     exportedAt: new Date().toISOString(),
     profile,
+    // historia zgód (dowód z art. 7 ust. 1 RODO); profile.consentAt/consent_at/consentVersion to ta sama, najnowsza zgoda
+    consentLog: await q`SELECT version, terms, health, at FROM consent_log WHERE user_id = ${me} ORDER BY at, id`,
     strainsCreated: await q`SELECT id, name, producer FROM strains WHERE created_by = ${me}`,
     strainPhotosAdded: withPhotos
       ? await inline(await q`SELECT s.name AS strain, s.producer, p.updated_at, p.mime, p.data AS photo_base64, p.blob_path FROM strain_photos p JOIN strains s ON s.id = p.strain_id WHERE p.uploaded_by = ${me} ORDER BY s.name`)

@@ -42,6 +42,7 @@ export default function ReadinessAdmin() {
         </dl>
         <ul className="list admin-log">
           <li className="list-row"><div className="lr-main">Ostatnia kopia zapasowa<span className="lr-sub">{r.lastBackup ? `${fmt(r.lastBackup.at)} · ${r.lastBackup.kind} · ${r.lastBackup.blob ? 'Blob' : 'baza'}` : 'brak kopii'}</span></div></li>
+          <li className="list-row"><div className="lr-main">Wpisy widoczne dla wszystkich: {r.visibilityAll.userStrain} ocen i notatek, {r.visibilityAll.strainTests} testów<span className="lr-sub">Nowe wpisy są domyślnie prywatne, ale starsze (sprzed zmiany) mogły zostać z widocznością „wszyscy”. Aplikacja niczego nie zmienia sama; każdy użytkownik ustawia widoczność swoich wpisów. Jeśli teksty mówią „prywatne”, a tu jest wiele wpisów, rozważ komunikat do testerów.</span></div></li>
           {CRONS.map(([k, l]) => <li key={k} className="list-row"><div className="lr-main">Ostatni przebieg: {l}<span className="lr-sub">{fmt(r.crons[k])}</span></div></li>)}
         </ul>
       </section>

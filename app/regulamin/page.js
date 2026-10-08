@@ -1,7 +1,12 @@
+import { cookies } from 'next/headers';
 import LegalDoc from '../components/LegalDoc';
 import { legalContact } from '@/lib/legal';
 
-export const metadata = { title: 'Regulamin bety | Zielnik' };
+// Tryb dyskretny (ciasteczko): tytuł karty bez nazwy aplikacji
+export async function generateMetadata() {
+  const discreet = (await cookies()).get('zielnik_discreet')?.value === '1';
+  return { title: discreet ? 'Regulamin' : 'Regulamin bety | Zielnik' };
+}
 export const dynamic = 'force-dynamic'; // kontakt z zmiennych środowiska, czytany przy żądaniu
 
 export default function Regulamin() {
@@ -13,12 +18,12 @@ export default function Regulamin() {
     ]],
     ['charakter', 'Do czego służy aplikacja', [
       'Zielnik to prywatny dziennik pacjentów stosujących medyczną konopię: służy do zapisywania własnych stanów, ocen, zużycia i spostrzeżeń oraz, za Twoją zgodą, do dzielenia się nimi z wybranymi osobami.',
-      'Aplikacja nie jest wyrobem medycznym i nie zastępuje lekarza, farmaceuty ani porady medycznej. Nie stawia diagnoz i nie zaleca dawkowania. Informacje o odmianach (także podpowiedzi z internetu) mają charakter pomocniczy i mogą być błędne: o leczeniu decyduje Ty z lekarzem.',
+      'Aplikacja nie jest wyrobem medycznym i nie zastępuje lekarza, farmaceuty ani porady medycznej. Nie stawia diagnoz i nie zaleca dawkowania. Informacje o odmianach (także podpowiedzi z internetu) mają charakter pomocniczy i mogą być błędne: o leczeniu decydujesz Ty razem z lekarzem.',
       'Aplikacja nie służy do obrotu ani do reklamy. Zakazane jest oferowanie sprzedaży, wymiany lub przekazywania produktów oraz zachęcanie do ich używania, także w opiniach, notatkach, nazwach grup i profilu.',
     ]],
     ['konto', 'Konto', [
       'Konto może założyć wyłącznie osoba pełnoletnia, która ma kod zaproszenia. Konto jest osobiste: nie udostępniaj go innym osobom ani nie przekazuj hasła. Odpowiadasz za bezpieczeństwo hasła; jeśli podejrzewasz, że ktoś je zna, zmień je i wyloguj inne urządzenia w profilu.',
-      'Przy rejestracji akceptujesz regulamin i politykę prywatności oraz osobno wyrażasz wyraźną zgodę na przetwarzanie danych o zdrowiu. Po zmianie dokumentów poprosimy Cię o ponowną akceptację: bez niej nie skorzystasz z aplikacji, ale możesz pobrać swoje dane lub usunąć konto.',
+      'Konto administratora aplikacji nie usuwa się z profilu: w sprawach jego usunięcia lub cofnięcia zgody skontaktuj się z administratorem (dane w sekcji „Kontakt”). Przy rejestracji akceptujesz regulamin i politykę prywatności oraz osobno wyrażasz wyraźną zgodę na przetwarzanie danych o zdrowiu. Po zmianie dokumentów poprosimy Cię o ponowną akceptację: bez niej nie skorzystasz z aplikacji, ale możesz pobrać swoje dane lub usunąć konto.',
     ]],
     ['tresci', 'Treści wspólne: katalog i propozycje', [
       'Katalog odmian i opisy odmian są wspólne dla wszystkich użytkowników. Gdy proponujesz zmianę lub dodajesz odmianę albo zdjęcie, zasady są następujące:',
@@ -32,7 +37,7 @@ export default function Regulamin() {
     ]],
     ['zakonczenie', 'Zakończenie bety i zmiany', [
       'Możemy zakończyć betę, zawiesić funkcje lub zmienić regulamin. O zmianie dokumentów dowiesz się z ekranu akceptacji. Przy zakończeniu bety damy Ci możliwość pobrania danych, o ile to technicznie możliwe.',
-      'Możesz w każdej chwili przestać korzystać z aplikacji i usunąć konto w zakładce Mój profil. Usunięcie konta usuwa Twoje dane, zgodnie z polityką prywatności.',
+      'Możesz w każdej chwili przestać korzystać z aplikacji i usunąć konto w zakładce Mój profil. Usunięcie konta usuwa Twoje dane, zgodnie z polityką prywatności. Wyjątek: odmiany i zdjęcia odmian dodane przez Ciebie do wspólnego katalogu nie są usuwane z kontem, tylko zostają w katalogu anonimowo (bez powiązania z Twoim kontem). Prywatne wpisy (oceny, notatki, testy, zużycie, zakupy) są usuwane.',
     ]],
     ['kontakt', 'Kontakt', [
       `Organizator bety: ${c.name}. Kontakt: ${c.email}.`,

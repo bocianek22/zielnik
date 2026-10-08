@@ -34,3 +34,4 @@
 .consent-box .btn { width: 100%; }
 .consent-alt { display: grid; gap: var(--s-2); margin-top: var(--s-4); padding-top: var(--s-4); border-top: 1px solid var(--sep); color: var(--text-2); }
 .consent-alt .btn { text-align: center; }
+.consent-gate[hidden] { display: none; } /* pod ekranem blokady zgoda czeka (ConsentGate) */

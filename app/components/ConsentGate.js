@@ -6,9 +6,12 @@ import { clearQueue } from '@/lib/offline-client';
 import { widgetClear } from './native/bridge';
 import useFocusTrap from './useFocusTrap';
 
-// Ekran ponownej akceptacji: pokazuje go Header, gdy wersja zgody konta (users.consent_version) różni się od LEGAL_VERSION
+// Ekran ponownej akceptacji: pokazuje go Header, gdy wersja zgody konta (users.consent_version) różni się od legalVersion() (lib/legal.js)
 // (także NULL: konta sprzed wersjonowania). Blokuje korzystanie z aplikacji do akceptacji; alternatywą jest pobranie danych
 // albo usunięcie konta. To blokada interfejsu (zgoda jest wymagana, ale dane własne i tak można pobrać), nie ochrona API.
+// błąd sieci z fetch ma angielski komunikat przeglądarki; błędy serwera (Error z api()) mają już polski tekst
+const netErr = (x) => (x instanceof TypeError ? 'Brak połączenia. Spróbuj ponownie.' : x.message);
+
 export default function ConsentGate({ version, admin }) {
   const router = useRouter();
   const box = useRef(null);
@@ -18,19 +21,32 @@ export default function ConsentGate({ version, admin }) {
   const [pw, setPw] = useState('');
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
-  useFocusTrap(box, true);
-
-  // reszta strony pod ekranem jest nieaktywna dla klawiatury i czytnika ekranu
+  // Ekran blokady (PIN / biometria) ma pierwszeństwo: pod nim zgoda czeka (ukryta, bez pułapki fokusu), jak „Co nowego”
+  const [wait, setWait] = useState(false);
+  useFocusTrap(box, !wait);
   useEffect(() => {
+    const locked = () => !!document.querySelector('.web-lock, .native-lock') || document.documentElement.hasAttribute('data-applock');
+    const tick = () => setWait(locked());
+    tick();
+    const t = setInterval(tick, 500);
+    return () => clearInterval(t);
+  }, []);
+
+  // reszta strony pod ekranem jest nieaktywna dla klawiatury i czytnika ekranu. Tylko treść aplikacji (header/main/nav/footer):
+  // ekran blokady jest rodzeństwem w body i musi zostać aktywny, inaczej PIN przestaje działać po powrocie do karty.
+  useEffect(() => {
+    if (wait) return undefined;
     const root = box.current;
     const marked = [];
+    const content = 'header, main, nav, footer';
     for (let el = root; el && el !== document.body; el = el.parentElement) {
       for (const sib of el.parentElement.children) {
-        if (sib !== el && !sib.hasAttribute('inert') && sib.tagName !== 'SCRIPT') { sib.setAttribute('inert', ''); marked.push(sib); }
+        if (sib === el || sib.hasAttribute('inert') || sib.matches('script, style, .web-lock, .native-lock, .consent-gate')) continue;
+        if (sib.matches(content) || sib.querySelector(content)) { sib.setAttribute('inert', ''); marked.push(sib); }
       }
     }
     return () => marked.forEach((n) => n.removeAttribute('inert'));
-  }, []);
+  }, [wait]);
 
   async function accept(e) {
     e.preventDefault();
@@ -39,17 +55,17 @@ export default function ConsentGate({ version, admin }) {
       // pełne przeładowanie zamiast router.refresh(): pewniej odświeża wszystkie strony i pamięć podręczną routera
       location.reload();
     }
-    catch (x) { setErr(x.message); setBusy(false); }
+    catch (x) { setErr(netErr(x)); setBusy(false); }
   }
   async function remove() {
     if (!confirm('Trwale usunąć konto i wszystkie Twoje dane? Tego nie da się cofnąć.')) return;
     setErr(''); setBusy(true);
     try { await api('/api/account', 'DELETE', { password: pw }); await clearQueue(); widgetClear(); router.replace('/login'); router.refresh(); }
-    catch (x) { setErr(x.message); setBusy(false); }
+    catch (x) { setErr(netErr(x)); setBusy(false); }
   }
 
   return (
-    <div className="consent-gate" ref={box} role="dialog" aria-modal="true" aria-labelledby="consent-h">
+    <div className="consent-gate" ref={box} hidden={wait} role="dialog" aria-modal="true" aria-labelledby="consent-h">
       <form className="consent-box" onSubmit={accept}>
         <h2 id="consent-h">Zanim przejdziesz dalej</h2>
         <p>Zaktualizowaliśmy regulamin i politykę prywatności. Przeczytaj je i potwierdź, żeby korzystać z aplikacji.</p>

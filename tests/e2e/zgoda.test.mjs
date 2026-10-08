@@ -52,7 +52,7 @@ test('rejestracja: dwie osobne zgody, serwer odrzuca brak zgody zdrowotnej, zapi
     await Promise.all([page.waitForURL((u) => u.pathname === '/profil', { timeout: 15000 }), click(page.getByRole('button', { name: 'Załóż konto' }))]);
     await page.waitForLoadState('load');
     const row = await dbVersion('zgoda1');
-    assert.match(row.consent_version, /^\d{4}-\d{2}-beta\d+$/);
+    assert.match(row.consent_version, /^\d{4}-\d{2}-beta\d+\.[0-9a-f]{8}$/);
     assert.ok(row.consent_at);
     assert.equal(await page.locator('.consent-gate').count(), 0, 'świeże konto nie widzi ekranu akceptacji');
     assert.deepEqual(problems.left(), []);
@@ -92,7 +92,7 @@ test('konto ze starą wersją widzi ekran akceptacji, po akceptacji panel', { sk
       await page.locator('.consent-gate').waitFor({ state: 'detached', timeout: 15000 });
       assert.equal(await page.locator('[inert]').count(), 0, 'inert zdjęty po akceptacji');
       await page.getByRole('link', { name: 'Zielnik' }).first().waitFor();
-      assert.match((await dbVersion(name)).consent_version, /^\d{4}-\d{2}-beta\d+$/);
+      assert.match((await dbVersion(name)).consent_version, /^\d{4}-\d{2}-beta\d+\.[0-9a-f]{8}$/);
       // po przeładowaniu ekran nie wraca
       await go(page, '/profil');
       assert.equal(await page.locator('.consent-gate').count(), 0);

@@ -11,11 +11,14 @@ import TopNav from './TopNav';
 import WhatsNew from './WhatsNew';
 import { navItems } from './navItems';
 import { VERSION } from '@/lib/version';
-import { LEGAL_VERSION } from '@/lib/legal';
+import { legalContactReady, legalVersion } from '@/lib/legal';
 import ConsentGate from './ConsentGate';
 
 export default function Header({ user }) {
   const admin = !!user.is_admin;
+  // zgoda tylko do kompletnych dokumentów (jest kontakt administratora); wersja zależy od treści kontaktu
+  const legal = legalVersion();
+  const askConsent = legalContactReady() && !user.must_change_password && user.consent_version !== legal;
   // pozycje bez funkcji JS: do komponentu klienckiego trafiają tylko proste dane
   const plain = (list) => list.map(({ href, label, badge }) => ({ href, label, badge }));
   return (
@@ -45,7 +48,7 @@ export default function Header({ user }) {
     </header>
     <BottomNav isAdmin={admin} />
     <WhatsNew />
-    {!user.must_change_password && user.consent_version !== LEGAL_VERSION && <ConsentGate version={LEGAL_VERSION} admin={admin} />}
+    {askConsent && <ConsentGate version={legal} admin={admin} />}
     </>
   );
 }

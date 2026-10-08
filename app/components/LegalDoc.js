@@ -1,4 +1,5 @@
 import Icon from './Icon';
+import BackLink from './BackLink';
 import { LEGAL_DATE, LEGAL_DRAFT_NOTE, LEGAL_VERSION } from '@/lib/legal';
 
 // Wspólny układ dokumentów prawnych (/regulamin, /prywatnosc): adnotacja o wersji roboczej, wersja i data, spis treści.
@@ -7,6 +8,7 @@ import { LEGAL_DATE, LEGAL_DRAFT_NOTE, LEGAL_VERSION } from '@/lib/legal';
 export default function LegalDoc({ title, sections, other }) {
   return (
     <main className="page read read-narrow" id="top">
+      <BackLink />
       <h1>{title}</h1>
       <div className="alert note read-note" role="note">
         <Icon name="info" size={20} />
