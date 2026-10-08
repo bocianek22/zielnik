@@ -216,7 +216,41 @@ scenario('Profil: blokada PIN (włącz, nowa karta blokuje, odblokuj, zmień PIN
   await page.waitForFunction(() => !document.querySelector('.lock-setup input[role=switch]')?.checked && !document.querySelector('#wl-off'));
 }, withSession);
 
-scenario('tryb dyskretny: nazwy rozmyte, tytuł "Notatnik"', async (page) => {
+scenario('Profil: przypomnienia (wyłączone domyślnie, informacja o braku kluczy, godzina i data wizyty zapisują się)', async (page) => {
+  await go(page, '/profil');
+  const sec = page.locator('section[aria-labelledby=remind-h]');
+  await sec.getByRole('switch').first().waitFor();
+  await sec.getByText(/nie są jeszcze włączone na serwerze/).waitFor(); // serwer testowy nie ma kluczy push
+  const [sym, visit] = [sec.getByRole('switch').nth(0), sec.getByRole('switch').nth(1)];
+  assert.equal(await sym.isChecked(), false);
+  assert.equal(await visit.isChecked(), false);
+  assert.equal(await sec.locator('#remind-hour').isDisabled(), true);
+  assert.equal(await sec.locator('#remind-visit').isDisabled(), true);
+
+  await sym.click();
+  await sec.getByText('Zapisano.').waitFor();
+  await sec.locator('#remind-hour').selectOption('22');
+  await visit.click();
+  const date = new Date(Date.now() + 3 * 864e5).toISOString().slice(0, 10);
+  await sec.locator('#remind-visit').fill(date);
+  await page.waitForFunction((d) => document.querySelector('#remind-visit').value === d, date);
+
+  // po odświeżeniu ustawienia są zapamiętane na koncie
+  await page.reload({ waitUntil: 'load' });
+  await hydrated(page);
+  await sec.getByRole('switch').first().waitFor();
+  await page.waitForFunction((d) => document.querySelector('#remind-visit')?.value === d && document.querySelector('#remind-hour')?.value === '22', date);
+  assert.equal(await sec.getByRole('switch').nth(0).isChecked(), true);
+
+  // sprzątanie: wyłączenie i usunięcie daty
+  await sec.locator('#remind-visit').fill('');
+  await sec.getByRole('switch').nth(1).click();
+  await sec.getByRole('switch').nth(0).click();
+  await page.waitForFunction(() => !document.querySelector('section[aria-labelledby=remind-h] input[role=switch]')?.checked);
+  await sec.locator('#remind-hour').selectOption('21');
+}, withSession);
+
+scenario('tryb dyskretny: nazwy rozmyte, tytuł "Notatnik"',async (page) => {
   await go(page, '/profil');
   await page.getByRole('switch', { name: 'Tryb dyskretny' }).check();
   await page.waitForFunction(() => document.title === 'Notatnik' || document.documentElement.hasAttribute('data-discreet'));
