@@ -10,7 +10,7 @@ const skip = !URL_ ? 'brak TEST_DATABASE_URL'
   : !local && process.env.ALLOW_REMOTE_TEST_DB !== '1' ? 'TEST_DATABASE_URL nie wskazuje na localhost (ustaw ALLOW_REMOTE_TEST_DB=1)' : false;
 
 const SECRET = 'objawy: bol glowy, THC 22% (dane z zadania)';
-let q, pool, logError, alerts, mail, realFetch;
+let q, pool, logError, alerts, mail, realFetch, jar;
 const hooks = [];
 const outbox = [];
 
@@ -18,11 +18,16 @@ before(async () => {
   if (skip) return;
   process.env.DATABASE_URL = URL_;
   process.env.BOCIAN_INITIAL_PASSWORD ||= 'startowe-haslo';
+  process.env.AUTH_SECRET ||= 'test-secret-0123456789';
   ({ pool } = await import('./neon-shim.mjs'));
+  ({ jar } = await import('./headers-shim.mjs'));
   await pool.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public');
   const db = await import('../../lib/db.js');
   await db.ensureDb();
   q = db.sql();
+  const bcrypt = (await import('bcryptjs')).default;
+  const hash = await bcrypt.hash('haslo1234', 4);
+  await q`INSERT INTO users (username, password_hash, is_admin, must_change_password) VALUES ('szef', ${hash}, TRUE, FALSE), ('zwykly', ${hash}, FALSE, FALSE)`;
   ({ logError } = await import('../../lib/errorlog.js'));
   alerts = await import('../../lib/alerts.js');
   mail = await import('../../lib/mail.js');
@@ -30,7 +35,7 @@ before(async () => {
   realFetch = globalThis.fetch;
   globalThis.fetch = async (url, init) => {
     hooks.push({ url: String(url), body: JSON.parse(init.body) });
-    return new Response('', { status: 204 });
+    return new Response(null, { status: 204 });
   };
 });
 
@@ -131,4 +136,50 @@ test('kanał e-mail: ALERT_EMAIL działa tylko z wysyłką e-maili; nieudana wys
   } finally {
     mail.setMailTransport(async (m) => { outbox.push(m); });
   }
+});
+
+test('ścieżka w alercie bez nazwy konta i identyfikatorów; /api/strains/12 i /13 to ten sam rodzaj', { skip }, async () => {
+  process.env.ALERT_WEBHOOK_URL = 'https://hooks.slack.com/services/T/B/x';
+  process.env.ALERT_THRESHOLD = '1000';
+  assert.equal(alerts.alertPath('/u/kasia.k/oceny'), '/u/:handle/oceny');
+  assert.equal(alerts.alertPath('/api/account/sessions/abcdefghijklmnopqrstuv'), '/api/account/sessions/:id');
+  assert.equal(alerts.alertPath('/api/strains/12/tests?x=1'), '/api/strains/:id/tests');
+  await logError('render', new Error('boom'), { path: '/u/someuser' });
+  assert.equal(hooks.length, 1);
+  assert.equal(hooks[0].body.text.includes('someuser'), false, hooks[0].body.text);
+  assert.match(hooks[0].body.text, /\/u\/:handle/);
+  await logError('render', new Error('boom'), { path: '/u/innaosoba' });
+  await logError('api', new Error('zly stan'), { path: '/api/strains/12' });
+  await logError('api', new Error('zly stan'), { path: '/api/strains/13' });
+  assert.equal(hooks.length, 2, 'ta sama trasa z innym identyfikatorem to nie nowy rodzaj');
+});
+
+async function asUser(username) {
+  jar.clear();
+  const mod = await import('../../app/api/auth/login/route.js');
+  const r = await mod.POST(new Request('http://localhost/api/auth/login', { method: 'POST', body: JSON.stringify({ username, password: 'haslo1234' }) }));
+  assert.equal(r.status, 200);
+}
+async function adminAlerts(method) {
+  const mod = await import('../../app/api/admin/alerts/route.js');
+  const r = await mod[method](new Request('http://localhost/api/admin/alerts', { method }));
+  return { status: r.status, json: await r.json() };
+}
+
+test('admin/alerts: tylko admin; stan bez adresu webhooka; alert próbny 503 bez kanałów, potem wysyłka i limit 3 na 10 min', { skip }, async () => {
+  await asUser('zwykly');
+  assert.equal((await adminAlerts('GET')).status, 403);
+  assert.equal((await adminAlerts('POST')).status, 403);
+  await asUser('szef');
+  assert.equal((await adminAlerts('POST')).status, 503);
+  process.env.ALERT_WEBHOOK_URL = 'https://hooks.slack.com/services/T/B/tajny-klucz';
+  const g = await adminAlerts('GET');
+  assert.deepEqual(g.json, { channels: { webhook: true, email: false }, threshold: 5 });
+  assert.equal(JSON.stringify(g.json).includes('tajny'), false);
+  const codes = [];
+  for (let i = 0; i < 4; i++) codes.push(await adminAlerts('POST'));
+  assert.deepEqual(codes.map((c) => c.status), [200, 200, 200, 429]);
+  assert.deepEqual(codes[0].json.sent, { webhook: true, email: null });
+  assert.equal(hooks.length, 3);
+  assert.match(hooks[0].body.text, /Alert próbny/);
 });
