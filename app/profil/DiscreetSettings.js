@@ -13,7 +13,7 @@ export default function DiscreetSettings() {
         <input type="checkbox" className="switch" role="switch" checked={on} onChange={toggle} aria-labelledby="discreet-h" aria-describedby="discreet-d" /></div>
       <p id="discreet-d" className="muted">Dla osób, które nie chcą, żeby ktoś zaglądający w telefon od razu widział, czego dotyczy aplikacja. Ustawienie działa tylko na tym urządzeniu.</p>
       <ul className="muted small">
-        <li>{on ? 'Karta przeglądarki nazywa się „Notatnik”.' : 'Karta przeglądarki nazywa się „Notatnik”, a nie „Zielnik”.'}</li>
+        <li>Karta przeglądarki nazywa się wtedy „Notatnik”.</li>
         <li>Nazwy odmian, producentów i terpenów są rozmyte. Dotknij nazwy, żeby pokazać ją na 5 sekund.</li>
         <li>Szybkie przełączanie: dwa szybkie dotknięcia logo w nagłówku.</li>
         <li>Ikona i nazwa na ekranie głównym telefonu pozostają bez zmian (ustawia je system, nie da się ich zmienić dla jednego użytkownika). Powiadomienia i tak mają neutralną treść.</li>
