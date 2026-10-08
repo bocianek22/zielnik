@@ -8,6 +8,35 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.49.0] - 2026-10
+Przygotowanie do zamkniętej bety (`docs/BETA.md`).
+### Dodano
+- **Zgłaszanie uwag:** „Zgłoś uwagę” (`/uwagi`, z menu „Więcej”, profilu, Pomocy i strony błędu).
+  - Kategoria i opis; wersja, ekran (bez identyfikatorów), platforma i motyw dołączają się same, bez danych zdrowotnych.
+  - Tester widzi status swoich zgłoszeń; admin ma zakładkę „Zgłoszenia” ze statusem i notatką.
+  - Powiadomienie na webhook alertów bez treści zgłoszenia.
+  - Link do grupy testerów (`BETA_GROUP_URL`).
+- **„Co nowego”, Pomoc i oznaczenie wersji:**
+  - okno „Co nowego” raz po aktualizacji (czeka, aż zniknie ekran blokady);
+  - strona „Pomoc” (instalacja na Androidzie, iPhonie i komputerze, zgłaszanie, znane ograniczenia, FAQ);
+  - wersja i oznaczenie „Beta” w profilu.
+- **Regulamin bety i polityka prywatności:**
+  - publiczne `/regulamin` i `/prywatnosc` (wersje robocze do przeglądu przez prawnika przed otwartą betą; kontakt administratora z `LEGAL_ADMIN_NAME`, `LEGAL_CONTACT_EMAIL`);
+  - przy rejestracji dwie osobne zgody (regulamin i polityka; dane o zdrowiu, art. 9 RODO), zapis wersji dokumentów;
+  - po zmianie wersji ekran ponownej akceptacji z opcjami „Pobierz moje dane” i „Usuń konto”.
+- **Panel admina „Gotowość”:** stan konfiguracji produkcji bez ujawniania wartości, wersja PostgreSQL, ostatnia kopia i ostatnie przebiegi cronów, błędy z 24 h.
+- **`GET /api/health`** dla monitoringu dostępności.
+- **Próba odtworzenia kopii:** `scripts/dev/restore-drill.mjs`.
+- **Konto admina:** powiadomienie o każdym logowaniu admina.
+- **Wskaźniki bety:** liczby zbiorcze, ukryte dla grup mniejszych niż 5 kont.
+- **Widżet Androida „Zapas i Zużyłem” (POM-13), APK 0.4.0:** do telefonu trafia tylko data końca zapasu; przy blokadzie widżet nie pokazuje liczby.
+### Zmieniono
+- Limity: zapis zakupu 300 na godzinę, „Do omówienia” 60 zapisów na godzinę (kolejka offline ponawia).
+- Eksport konta: `feedback`, `reportsFiled`, `consentAt`, `consentVersion`.
+### Uwaga przy wdrożeniu
+- **Migracja addytywna:** tabela `beta_feedback`, `users.consent_version`.
+- **Wszystkie istniejące konta** (także admin) przy pierwszym wejściu zobaczą ekran akceptacji dokumentów; nikt nie jest wylogowywany.
+
 ## [0.48.0] - 2026-10
 ### Dodano
 - Powiązanie zakupów z receptą (POM-16, PAC-4): „Wykupiłem” przypisuje zakup do recepty (automatycznie: ważna w dniu zakupu, ta sama jednostka, z pozostałą ilością, najbliższa wygaśnięcia; przy kilku pasujących wybór „Z której recepty”, także „bez recepty” dla zakupu prywatnego). Przypisane zakupy liczą się tylko do swojej recepty, więc nakładające się recepty nie liczą tych samych gramów. W Historii można zmienić przypisanie; na recepcie widać, ile gramów pochodzi z szacunku (stare zakupy bez przypisania). Kolejka offline: brakująca recepta nie odrzuca zapisu (tryb automatyczny).
