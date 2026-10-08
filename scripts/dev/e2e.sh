@@ -17,6 +17,9 @@ cleanup() {
   psql "$ADMIN" -qc "DROP DATABASE IF EXISTS \"$DB\" WITH (FORCE)" >/dev/null 2>&1 || true
 }
 trap cleanup EXIT
+# KON-1: wysyłka e-maili włączona, z atrapą API Resend na 127.0.0.1 (tests/e2e/email.test.mjs); linki na adres serwera testowego
+MAIL_PORT=${E2E_MAIL_PORT:-$(node -e "const s=require('net').createServer().listen(0,()=>{console.log(s.address().port);s.close()})")}
+export E2E_MAIL_PORT=$MAIL_PORT RESEND_API_KEY=e2e MAIL_FROM='Notatnik <notatnik@example.test>' MAIL_API_URL="http://127.0.0.1:$MAIL_PORT/emails" APP_URL="http://localhost:$PORT"
 scripts/dev/serve.sh "$PORT" "$DB"
 node scripts/dev/seed.mjs "$DB" --port "$PORT" | tail -1
 export E2E_BASE="http://localhost:$PORT" E2E_SHOTS="${E2E_SHOTS:-zrzuty/e2e}"
