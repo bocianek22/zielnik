@@ -1,24 +1,26 @@
 # Pomysły na rozwój Zielnika
 
-Lista prowadzona przez agenta „innowacje” (`.claude/agents/innowacje.md`). Stan na wersję **0.38.0** (0.33: Cofnij, szybki wpis objawów, czas polski; 0.34: podpowiedzi wyszukiwania i ml; 0.35: Moje obserwacje i raport 2.0; 0.36: zapisy offline, skróty APK; 0.37: sposób i pora, CSV, puste stany; 0.38: sesje i blokada PIN w PWA). W toku w 0.39.0: POM-07 i POM-23 (ich wierszy nie zmieniamy do wydania). Pierwsza runda: 2026-10-03, odświeżenie: 2026-10-04, bez implementacji.
+Lista prowadzona przez agenta „innowacje” (`.claude/agents/innowacje.md`). Stan na wersję **0.44.0** (0.39: własne objawy POM-07 i lżejszy ekran główny POM-23; 0.40: zmień PIN, `safe()` w trasach auth; 0.41: dzień bez zużycia; 0.42: karta „W aptece”; 0.43: „Do omówienia z lekarzem”; 0.44: statystyki w porównaniu). Pierwsza runda: 2026-10-03, odświeżenia: 2026-10-04 i 2026-10-08.
 
 Oznaczenia: **wartość** dla pacjenta 1-5 · **koszt** S (godziny) / M (dzień-dwa) / L (tydzień i więcej) · **ryzyko**: P prywatność / danych zdrowotnych, Pr prawo, T techniczne · **zależności**: 🌐 domena, ⚖️ prawnik, 💳 płatności, 📧 e-mail, 🔑 klucze w Vercel (VAPID/FCM), ⏱ cron co godzinę (`PUSH_CRON_HOURLY=1`, plan Vercel Pro, PLA-3). Identyfikatory `POM-xx` są nowe; przy pokrywaniu się z `ROADMAP.md` podano powiązany punkt i zawężenie.
 
 Zasady oceny: odrzucamy wszystko, co jest poradą medyczną, sugeruje zwiększanie dawek, reklamuje produkty lecznicze lub apteki, albo ujawnia dane zdrowotne poza właściciela. „Jak zmierzyć” korzysta tylko z tego, co projekt ma: zbiorcze liczniki SQL w panelu admina (`StatsAdmin`, bez danych zdrowotnych konkretnych osób), `error_log`, Lighthouse (cele MOB: LCP < 2,5 s, INP < 200 ms, CLS < 0,1), testy w `tests/` i ręczna próba na telefonie. Nie dodajemy analityki zachowań.
 
-## Rekomendacje na kolejne wydania (0.40.0-0.41.0)
+## Plan i rekomendacje
 
-Reguła wyboru: brak zależności od decyzji właściciela (🌐 ⚖️ 💳 📧 ani kluczy), koszt S lub M, domyka luki z przeglądów 0.35-0.38 i poprawia jakość zapisów, zanim dojdą kolejne funkcje. Kolejność = sugerowana kolejność wydań. Poprzednia pula (POM-01, 02, 04, 06, 09, część 21) jest zrobiona.
+Plan do 31.10 (fale agentów, zależności od właściciela, lista kontrolna 1.0.0) jest w [`docs/PLAN-PAZDZIERNIK.md`](PLAN-PAZDZIERNIK.md); tu go nie powielamy. Z tej listy w falach są m.in. POM-35 i POM-24 (fala 1), POM-21/22 (fala 2), POM-05/15 (fala 3), POM-13 i POM-19 (fala 4), POM-28 (fala 5).
 
-| # | Pomysł | Koszt | Uzasadnienie |
-|---|---|---|---|
-| 1 | **0.40.0 „Twarde podstawy”: POM-24 Lighthouse w CI + POM-34 trasy auth bez `safe()`/`requireUser()` + POM-33 „Zmień PIN”** | S + S + S | Trzy małe luki z przeglądów w jednym wydaniu. Lighthouse w CI zmierzy efekt POM-23 (lżejszy ekran główny) zamiast zgadywać. `change-password` to jedyna trasa chroniona sesją bez `requireUser()` i bez `safe()`. „Zmień PIN” dziś wymaga wyłączenia blokady i ustawienia od nowa, co zniechęca do jej używania. |
-| 2 | **POM-38 „Dzień bez zużycia” jednym dotknięciem** | S/M | „Moje obserwacje” liczą „dni bez zużycia” od pierwszego zapisu, czyli brak wpisu uznają za brak użycia. Kto zapomni o wpisie, zawyża grupę porównawczą. Znacznik „dziś bez zużycia” rozdziela „nie wpisano” od „nie użyto”, poprawiając wiarygodność POM-06 i raportu. Bez nagradzania i bez serii. |
-| 3 | **POM-37 Karta „Co zostało na recepcie”** (apteka, wizyta) | S/M | Pacjent w aptece pyta: ile jeszcze mogę wykupić i której odmiany. Dane są (recepty, pula „do wykupienia”, zapas), ale rozproszone po trzech ekranach. Jeden zwarty widok, bez cen i bez nazw aptek (POM-R4). |
-| 4 | **0.41.0: POM-35 lekki indeks odmian i paginacja listy** (po POM-23) | M | Pełne `listStrains` ładują jeszcze `/wheel`, `/rankings` i `GET /api/strains`; przy kilkuset odmianach rośnie czas i transfer. Do podpowiedzi i wyborów wystarczy `strainIndex()` (id, nazwa, producent). Zamyka część PLA-5 po stronie serwera. |
-| 5 | **0.41.0: POM-18 + POM-21/22 reszta**: „W dniach z tą odmianą” w szczegółach i porównaniu, suwaki i duże cele | S + S/M | Dokończenie POM-06 tam, gdzie pacjent wybiera odmianę, oraz zamknięcie UX-2 przed 1.0.0 (drżenie rąk, osoby starsze, TalkBack). |
+### Pomysły „po 1.0” (nowe, od 0.44.0)
 
-Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnienie o objawach (⏱ 🔑), POM-15 przypomnienie o wizycie (🔑), POM-36 „Do omówienia z lekarzem”.
+Reguła: brak sprzeczności z zasadami oceny, dane tylko własne, każdy dotyka `can_see`, eksportu i kopii. Kolejność = sugerowana.
+
+| # | Pomysł | Wartość | Koszt | Uzasadnienie |
+|---|---|---|---|---|
+| 1 | **POM-40** PDF raportu i udostępnienie z APK | 4 | M | Raport dla lekarza dziś opiera się na wydruku z przeglądarki, co w WebView jest niewygodne. Plik PDF generowany lokalnie, wysyłany z arkusza udostępniania Androida (bez serwera trzeciego). |
+| 2 | **POM-41** Import kopii i CSV | 3 | M | Kopia i eksport istnieją, ale brak drogi powrotnej na nowe konto lub nowy telefon; import zamyka cykl „moje dane są moje”. |
+| 3 | **POM-42** Przegląd okresu („Mój miesiąc / kwartał”) | 3 | S/M | Porównanie dwóch okresów własnych danych (zużycie, objawy) bez ocen i celów; pomocne przed wizytą kontrolną. |
+| 4 | **POM-43** Dyktowanie notatek | 3 | M | Drżenie rąk i osoby starsze: notatka głosem. Zależy od rozpoznawania mowy na urządzeniu; bez wysyłania dźwięku do chmury. |
+| 5 | **POM-44** Opiekun / pełnomocnik (dostęp tylko do odczytu) | 3 | L | Wielu pacjentów korzysta z pomocy bliskiej osoby. Wysokie ryzyko prywatności i prawne, dlatego dopiero po 1.0 i przeglądzie prawnika. |
 
 ## Tabela pomysłów
 
@@ -30,7 +32,7 @@ Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnieni
 | POM-04 | Szybki wpis objawów w panelu „Dziś” | 5 | M | P | – | zrobiony (0.33.0) | PAC-14 |
 | POM-05 | Wieczorne przypomnienie o wpisie objawów | 4 | S | P | ⏱ 🔑 | nowy | PAC-9 |
 | POM-06 | Moje obserwacje: objawy a odmiany | 5 | M | P, Pr | – | zrobiony (0.35.0, ekran `/obserwacje`; sekcja w szczegółach odmiany zostaje do POM-18) | PAC-7 (zawężenie) |
-| POM-07 | Własne objawy i skale (np. VAS, nudności, apetyt) | 4 | M | P | – | nowy | PAC-14, PAC-6 |
+| POM-07 | Własne objawy i skale (np. VAS, nudności, apetyt) | 4 | M | P | – | zrobiony (0.39.0) | PAC-14, PAC-6 |
 | POM-08 | Nawyki bez presji: seria wpisów objawów | 3 | S | Pr | – | nowy | – |
 | POM-09 | Raport dla lekarza 2.0 | 5 | M | P | – | zrobiony (0.35.0) | MON-4 (przedsionek) |
 | POM-10 | Bezpieczne udostępnienie raportu lekarzowi linkiem | 4 | M | P, Pr | ⚖️ | nowy | MON-4 |
@@ -46,8 +48,8 @@ Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnieni
 | POM-20 | Puste stany prowadzące do pierwszego wpisu | 3 | S | – | – | zrobiony (0.37.0: Dziś, dziennik, recepty, Historia, raport) | UX-5 |
 | POM-21 | Dostępność wykresów i formularzy | 4 | S/M | – | – | częściowo (0.33.0: wykres objawów kreska + kształt + tabela dla czytnika; zostają suwaki, kolory, axe) | UX-2 |
 | POM-22 | Większy tekst i tryb „duże cele” | 3 | S | – | – | nowy | UX-2 |
-| POM-23 | Wydajność ekranu głównego (dane „Dziś” bez pełnej listy) | 3 | M | T | – | nowy | PLA-5, MOB-9 |
-| POM-24 | Budżety Lighthouse w CI | 3 | S | – | – | nowy (rekomendacja 0.40.0; zmierzy POM-23) | PLA-16, MOB-15 |
+| POM-23 | Wydajność ekranu głównego (dane „Dziś” bez pełnej listy) | 3 | M | T | – | zrobiony (0.39.0) | PLA-5, MOB-9 |
+| POM-24 | Budżety Lighthouse w CI | 3 | S | – | – | w toku (fala 1, `PLAN-PAZDZIERNIK.md`; zmierzy POM-23) | PLA-16, MOB-15 |
 | POM-25 | Blokada PIN/biometrią także w PWA i automatyczne wylogowanie | 4 | M | P | – | zrobiony (0.38.0; zmiana PIN: POM-33) | KON-11 |
 | POM-26 | Klucze dostępu (passkeys) | 3 | M | T | 🌐 | nowy | KON-9 |
 | POM-27 | Lista sesji i urządzeń | 3 | M | T | – | zrobiony (0.38.0) | KON-4 |
@@ -58,11 +60,16 @@ Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnieni
 | POM-32 | Zgłoszenie „ta partia działała inaczej” | 3 | M | – | – | nowy | PAC-1, PAC-2 |
 | POM-33 | „Zmień PIN” w blokadzie bez jej wyłączania | 3 | S | P | – | zrobiony (0.40.0) | KON-11 |
 | POM-34 | Trasy auth w trybie `safe()` / `requireUser()` (`change-password`) | 2 | S | T | – | zrobiony (0.40.0) | – |
-| POM-35 | Lekki indeks odmian i paginacja listy po stronie serwera | 3 | M | T | POM-23 | nowy | PLA-5 |
+| POM-35 | Lekki indeks odmian i paginacja listy po stronie serwera | 3 | M | T | POM-23 | zaplanowany (fala 1, `PLAN-PAZDZIERNIK.md`) | PLA-5 |
 | POM-36 | „Do omówienia z lekarzem”: lista pytań przy raporcie | 3 | S | P | – | zrobiony (0.43.0) | MON-4 |
 | POM-37 | Karta „Co zostało na recepcie” (apteka, wizyta) | 4 | S/M | P | – | zrobiony (0.42.0) | PAC-4 |
 | POM-38 | „Dzień bez zużycia” i nadrabianie wpisów | 4 | S/M | P | – | zrobiony (0.41.0) | PAC-7 |
 | POM-39 | Inne leki w raporcie dla lekarza (opcjonalna lista) | 3 | M | P, Pr | ⚖️ | nowy | PAC-5 |
+| POM-40 | PDF raportu i udostępnienie z APK | 4 | M | P | – | nowy (po 1.0) | MON-4, MOB |
+| POM-41 | Import kopii i CSV na nowe konto | 3 | M | P, T | – | nowy (po 1.0) | – |
+| POM-42 | Przegląd okresu („Mój miesiąc / kwartał”) | 3 | S/M | P | POM-06 | nowy (po 1.0) | PAC-7 |
+| POM-43 | Dyktowanie notatek | 3 | M | P | – | nowy (po 1.0) | UX-2 |
+| POM-44 | Opiekun / pełnomocnik (tylko odczyt) | 3 | L | P, Pr | ⚖️ | duplikat POM-29 (rozwinięcie po 1.0) | PAC-15 |
 | POM-R1 | Seria dni z użyciem / odznaki za zużycie | – | – | Pr | – | **odrzucony** | – |
 | POM-R2 | Podpowiedź dawki („spróbuj 0,3 g”) | – | – | Pr | – | **odrzucony** | – |
 | POM-R3 | „Inni z bólem wybierają X” (wnioski z danych społeczności) | – | – | P, Pr | – | **odrzucony** | MON-7 |
@@ -104,6 +111,7 @@ Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnieni
 - Jak zmierzyć: odsetek przypomnień, po których w ciągu 2 h powstał wpis (zbiorczo, z `push_sent` i `symptom_log`).
 
 **POM-07 Własne objawy i skale** (PAC-14, PAC-6)
+- Stan: zrobione w 0.39.0 (tabele `symptom_custom`, `symptom_values`, skala 0-10, eksport JSON/CSV, kopia).
 - Ekran / element: dziennik objawów, tabela `symptom_log` (cztery stałe kolumny).
 - Problem: pacjenci z różnymi wskazaniami (spastyczność, nudności, apetyt, migrena) nie mają gdzie zapisać swojego głównego objawu.
 - Propozycja: do 3 własnych objawów (nazwa, kierunek „wyżej = lepiej/gorzej”) w nowej tabeli `symptom_custom` + `symptom_values`; prywatne, w eksporcie i kopii; wykres i raport traktują je jak wbudowane.
@@ -131,6 +139,7 @@ Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnieni
 - **Stan: zrobione** jako osobny ekran `/obserwacje` (arkusz „Więcej” > Dziennik, link pod dziennikiem objawów), obliczenia w `lib/observations.js`, testy w `tests/db/observations.test.js` (próg, sen z poprzedniego dnia, północ w czasie polskim, g/ml osobno, dni mieszane, tylko własne dane). Grupy rozłączne dla każdego objawu: wiersz na odmianę (dni z tylko tą odmianą), „Dni z kilkoma odmianami”, „Dni bez zużycia” (liczone od pierwszego zapisu zużycia). Poniżej 5 dni średnia nie opuszcza serwera. Kolejność wierszy według liczby dni, bez kolorów lepiej/gorzej; ilości tylko jako sumy w okresie w jednostce odmiany (bez ilości na dzień obok średniej). Nie zapisuje nowych danych, więc bez zmian w `can_see`, eksporcie i kopii. Zostaje: sekcja „W dniach z tą odmianą” w szczegółach odmiany (razem z POM-18) i przegląd słownictwa przy PRA-3.
 
 **POM-18 Porównanie z moimi statystykami i objawami**
+- Stan: częściowo; 0.44.0 dodało moje statystyki w porównaniu, zostają objawy przy odmianie (szczegóły i porównanie).
 - Ekran / element: `app/compare/page.js`.
 - Problem: porównanie pokazuje dane odmiany i oceny, ale nie to, co pacjent wie najlepiej: ile jej zużył, jak często, kiedy ostatnio, i (po POM-06) średnie objawów.
 - Propozycja: wiersze „Zużyłem razem / średnio dziennie / ostatnie użycie” z `lib/strain-stats.js` i opcjonalnie „Średni sen po dniach z tą odmianą (n dni)”, z tymi samymi progami co POM-06.
@@ -234,12 +243,14 @@ Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnieni
 ### Wydajność
 
 **POM-23 Lżejszy ekran główny** (PLA-5, MOB-9)
+- Stan: zrobione w 0.39.0 (panel „Dziś” z lekkiego zapytania, lista odmian strumieniowana); paginacja serwerowa w POM-35.
 - Ekran / element: `app/page.js` (siedem zapytań, w tym pełne `listStrains`, przy każdym otwarciu).
 - Problem: panel „Dziś” potrzebuje tylko zapasu, serii i recept, ale czeka na całą listę odmian z wpisami.
 - Propozycja: panel „Dziś” renderowany od razu, lista odmian w `Suspense` (strumieniowanie) z paginacją po stronie serwera.
 - Jak zmierzyć: Lighthouse mobilny na `/` (LCP < 2,5 s), czas odpowiedzi w logach Vercel przed i po.
 
 **POM-24 Budżety Lighthouse w CI** (PLA-16, MOB-15)
+- Stan: w toku (fala 1 w `PLAN-PAZDZIERNIK.md`).
 - Ekran / element: `.github/workflows/ci.yml`.
 - Problem: cele wydajności z MOB są zapisane, ale nikt ich nie sprawdza automatycznie.
 - Propozycja: Lighthouse CI na podglądzie Vercel dla `/login` i `/` (konto testowe), budżet rozmiaru JS.
@@ -304,6 +315,7 @@ Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnieni
 - Jak zmierzyć: `npm run check` zawodzi dla nowej trasy bez `safe`; istniejące testy zmiany hasła w `tests/db/` przechodzą bez zmian.
 
 **POM-35 Lekki indeks odmian i paginacja listy** (PLA-5, po POM-23)
+- Stan: zaplanowany, fala 1 (`PLAN-PAZDZIERNIK.md`).
 - Ekran / element: `lib/strains.js` (`listStrains`), `/wheel`, `/rankings`, `GET /api/strains`, podpowiedzi i wybór odmiany w formularzach.
 - Problem: pełna lista z wpisami użytkownika jest ładowana tam, gdzie potrzebna jest nazwa, producent i identyfikator. Przy kilkuset odmianach rośnie czas zapytania, transfer i zużycie pamięci WebView. `strainIndex()` już istnieje (szczegóły odmiany), ale nie jest używany szerzej.
 - Propozycja: `strainIndex()` (z `ids` i filtrem) jako źródło podpowiedzi i wyborów; lista na `/` stronicowana kursorem (`created_at, id`), „Pokaż więcej” zamiast pełnego ładowania; filtr i wyszukiwarka po stronie serwera przy dużej liście. Widoczność dalej przez `can_see`.
@@ -335,6 +347,43 @@ Następne w kolejce (po spełnieniu zależności): POM-05 wieczorne przypomnieni
 - Propozycja: lista nazw (tekst wolny do 100 znaków), drukowana w raporcie tylko po zaznaczeniu „dołącz”. Aplikacja niczego nie ocenia i nie ostrzega o interakcjach (to porada medyczna).
 - Ryzyko: P (dane zdrowotne), Pr (granica porady medycznej, przegląd przy PRA-3).
 - Jak zmierzyć: test w `tests/db/report.test.js` (tylko własna lista, domyślnie niedołączana); przegląd tekstów.
+
+### Po 1.0
+
+**POM-40 PDF raportu i udostępnienie z APK** (MON-4)
+- Ekran / element: `app/raport/page.js`, arkusz udostępniania w APK (Capacitor).
+- Problem: wydruk z WebView jest niewygodny, a pacjent chce wysłać lub pokazać raport lekarzowi z telefonu.
+- Propozycja: PDF składany na urządzeniu z tych samych danych co raport, zapisany lokalnie i wysłany przez arkusz udostępniania; bez linków publicznych (to POM-10, ⚖️).
+- Ryzyko: P (plik z danymi zdrowotnymi trafia do wybranej przez użytkownika aplikacji; ostrzeżenie przed wysłaniem).
+- Jak zmierzyć: ręcznie na telefonie (2 strony A4), test funkcji składającej treść.
+
+**POM-41 Import kopii i CSV**
+- Ekran / element: Konto > Eksport i kopia.
+- Problem: eksport i kopia są jednokierunkowe; zmiana konta lub telefonu oznacza utratę historii.
+- Propozycja: wczytanie własnego pliku kopii (JSON) do pustego konta, z podglądem liczby rekordów i walidacją; identyfikatory przemapowane, wszystko przez `can_see` i istniejące limity.
+- Ryzyko: P, T (zaufanie do pliku: ścisła walidacja, limity rozmiaru, transakcja).
+- Jak zmierzyć: test w `tests/db/import.test.js` (pętla eksport-import, obcy plik, przekroczone limity).
+
+**POM-42 Przegląd okresu**
+- Ekran / element: `/obserwacje`, nowa zakładka „Okres”.
+- Problem: przed wizytą kontrolną pacjent chce zobaczyć, co zmieniło się między dwoma miesiącami, a dziś porównuje je ręcznie.
+- Propozycja: dwa wybrane okresy obok siebie (gramy, średnie objawów, dni z wpisem), neutralnie, bez celów, ocen i sugestii zmiany dawki.
+- Ryzyko: P; Pr (nie sugerować, że mniej lub więcej jest lepsze).
+- Jak zmierzyć: test w `tests/db/observations.test.js`, ręcznie na 320 px.
+
+**POM-43 Dyktowanie notatek**
+- Ekran / element: pola notatek (dziennik, „Do omówienia”).
+- Problem: pisanie jest trudne przy drżeniu rąk i dla osób starszych (UX-2).
+- Propozycja: przycisk mikrofonu tylko tam, gdzie rozpoznawanie mowy działa na urządzeniu; gdy mowa idzie do chmury, wyraźne ostrzeżenie albo brak funkcji.
+- Ryzyko: P (głos i treść zdrowotna poza aplikacją).
+- Jak zmierzyć: ręcznie z TalkBack, czas wpisu notatki przed i po.
+
+**POM-44 Opiekun / pełnomocnik**
+- Ekran / element: Konto > Dostęp.
+- Problem: część pacjentów prowadzi dziennik z pomocą bliskiej osoby.
+- Propozycja: zaproszenie z zakresem „tylko odczyt wybranych działów”, cofane w każdej chwili, widoczne w dzienniku sesji.
+- Ryzyko: P (najwyższe z listy), Pr (zgoda, RODO); do decyzji po 1.0 i opinii prawnika.
+- Jak zmierzyć: testy uprawnień w `tests/db/access.test.js` (brak dostępu po cofnięciu, brak wycieku do innych działów).
 
 ## Odrzucone
 

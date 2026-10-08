@@ -42,12 +42,17 @@ export async function generateViewport() {
   };
 }
 
+// Jawna ikona karty: bez niej przeglądarka pyta o /favicon.ico (404 w konsoli)
+const icons = { icon: '/icon-192.png' };
+// tryb dyskretny: neutralna ikona karty (liść zdradzałby aplikację)
+const discreetIcons = { icon: '/notatnik.svg' };
+
 // Tryb dyskretny (ciasteczko ustawia przełącznik w profilu): neutralny tytuł karty
 export async function generateMetadata() {
   const discreet = (await cookies()).get('zielnik_discreet')?.value === '1';
   return discreet
-    ? { title: 'Notatnik', description: 'Notatnik.' }
-    : { title: 'Zielnik', description: 'Dziennik odmian medycznej konopi: stan, oceny i spostrzeżenia.' };
+    ? { title: 'Notatnik', description: 'Notatnik.', icons: discreetIcons }
+    : { title: 'Zielnik', description: 'Dziennik odmian medycznej konopi: stan, oceny i spostrzeżenia.', icons };
 }
 
 export default async function RootLayout({ children }) {

@@ -1,6 +1,6 @@
 # Zielnik: zasady dla Claude
 
-Dziennik odmian medycznej konopi. Next.js 15 (App Router, JavaScript, bez TypeScriptu) na Vercel, Neon Postgres przez `@neondatabase/serverless` (szablon `sql()\`...\``), sesje JWT (`jose`) w ciasteczku. Szczegóły: `docs/ARCHITEKTURA.md`, plan: `ROADMAP.md`, `docs/PRZEGLAD-2026-10.md`, stan i następne kroki: `docs/HANDOFF.md`, praca z agentami i oszczędzanie limitów: `docs/AGENCI.md`.
+Dziennik odmian medycznej konopi. Next.js 15 (App Router, JavaScript, bez TypeScriptu) na Vercel, Neon Postgres przez `@neondatabase/serverless` (szablon `sql()\`...\``), sesje JWT (`jose`) w ciasteczku. Szczegóły: `docs/ARCHITEKTURA.md`, plan: `ROADMAP.md`, `docs/PRZEGLAD-2026-10.md`, stan i następne kroki: `docs/HANDOFF.md`, praca z agentami i oszczędzanie limitów: `docs/AGENCI.md`, plan do 31.10: `docs/PLAN-PAZDZIERNIK.md`.
 
 ## Zasady
 - Odpowiedzi, komentarze w kodzie, komunikaty dla użytkownika i dokumentacja po polsku. Styl kodu jak w otoczeniu (zwięzły, komentarze tylko tam, gdzie wyjaśniają "dlaczego").
