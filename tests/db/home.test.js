@@ -51,6 +51,7 @@ test('homeSummary: zapas, „do wykupienia” (pula raz), liczba odmian i ostatn
 
   const h = await stats.homeSummary(A);
   assert.equal(h.count, 5);
+  assert.equal(h.mine, 4); // POM-20: tylko odmiany z moim wpisem (count to wszystkie w bazie)
   assert.deepEqual(h.stock, { g: 3.5, ml: 12 });
   assert.deepEqual(h.remaining, { g: 7, ml: 30 });
   assert.deepEqual(h.recent.map((r) => r.id), [S.a, S.c]);
@@ -71,4 +72,5 @@ test('homeSummary: zapas, „do wykupienia” (pula raz), liczba odmian i ostatn
   assert.deepEqual(b.stock, { g: 99, ml: 0 });
   assert.deepEqual(b.remaining, { g: 0, ml: 0 });
   assert.deepEqual(b.recent, []);
+  assert.equal(b.mine, 1);
 });

@@ -10,7 +10,7 @@ const n2 = (x) => Number(Number(x).toFixed(2)).toLocaleString('pl-PL');
 // Panel „Dziś” z lekkich danych serwera i wspólnego stanu (HomeStore); nie czeka na listę odmian.
 export default function TodayBoard({ usage = { perDay: 0, perDayMl: 0, cost: 0 }, bought = { grams: 0, ml: 0, cost: 0 },
   prescriptions = { items: [], total: 0, urgent: false }, symptoms = null, noUse = false }) {
-  const { boughtU, series, recent, stock: stockU, remaining: remainingU, count, low, limit, savePref, setLow, setLimit, entrySaved } = useHome();
+  const { boughtU, series, recent, stock: stockU, remaining: remainingU, mine, low, limit, savePref, setLow, setLimit, entrySaved } = useHome();
   const dailyUse = usage.perDay; // g/dzień (susz); ml/dzień: usage.perDayMl
   const boughtG = boughtU.g;
   const totalRemaining = remainingU.g;
@@ -23,10 +23,19 @@ export default function TodayBoard({ usage = { perDay: 0, perDayMl: 0, cost: 0 }
   }, [recent]);
   const onUsed = (id, en) => entrySaved(id, en, { name: quick?.name, form: quick?.form, prev: quick?.current });
 
+  // POM-20: pusty panel (nic nie mam, nic nie zużyłem) ma jedną akcję: bez własnych odmian „Dodaj odmianę”, z odmianami bez stanu „Wpisz stan”
+  const fresh = mine === 0 || (stockU.g + stockU.ml === 0 && recent.length === 0);
+  const onAdd = () => {
+    if (mine === 0) { window.dispatchEvent(new Event('zielnik:new-strain')); return; }
+    const h = document.getElementById('odmiany');
+    h?.scrollIntoView({ block: 'start' });
+    h?.focus({ preventScroll: true });
+  };
+
   if (series.length === 0) return null;
   return (
       <TodayPanel stock={stockU} dailyUse={{ g: dailyUse, ml: usage.perDayMl || 0 }} bought={boughtU} low={low} series={series} prescriptions={prescriptions} symptoms={symptoms} noUse={noUse}
-        quick={quick} onUsed={onUsed} fresh={count === 0} onAdd={() => window.dispatchEvent(new Event('zielnik:new-strain'))} settings={(
+        quick={quick} onUsed={onUsed} fresh={fresh} hasOwn={mine > 0} onAdd={onAdd} settings={(
           <details className="prefs">
             <summary>Szczegóły i ustawienia <Icon name="chevronDown" size={18} /></summary>
             <dl className="facts">

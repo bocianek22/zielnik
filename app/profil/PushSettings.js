@@ -60,7 +60,7 @@ export default function PushSettings() {
   async function enableNative() {
     setBusy(true); setMsg('');
     try {
-      if ((await requestPushPermission()) !== 'granted') throw new Error('Powiadomienia są zablokowane. Zezwól na nie dla Zielnika w ustawieniach telefonu i spróbuj ponownie.');
+      if ((await requestPushPermission()) !== 'granted') throw new Error('Powiadomienia są zablokowane. Zezwól na nie dla tej aplikacji w ustawieniach telefonu i spróbuj ponownie.');
       await saveFcm(await fcmToken(), true);
       setSub({ native: true });
       setPrefs((p) => ({ ...p, devices: Math.max(1, p.devices || 0) }));
@@ -75,7 +75,7 @@ export default function PushSettings() {
     try {
       const perm = await Notification.requestPermission();
       if (perm !== 'granted') throw new Error(perm === 'denied'
-        ? 'Powiadomienia są zablokowane w ustawieniach przeglądarki lub telefonu. Zezwól na nie dla Zielnika i spróbuj ponownie.'
+        ? 'Powiadomienia są zablokowane w ustawieniach przeglądarki lub telefonu. Zezwól na nie dla tej aplikacji i spróbuj ponownie.'
         : 'Nie udzielono zgody na powiadomienia.');
       const reg = await registration();
       let s = await reg.pushManager.getSubscription();
@@ -126,7 +126,7 @@ export default function PushSettings() {
   } else if (!cfg.enabled) body = <p className="muted">Powiadomienia nie są jeszcze włączone na serwerze. Gdy administrator je skonfiguruje, ustawisz je tutaj.</p>;
   else if (env.ios && !env.standalone) body = (
     <p className="alert note">Na iPhonie i iPadzie powiadomienia działają tylko w aplikacji dodanej do ekranu głównego (iOS 16.4 lub nowszy):
-      w Safari stuknij „Udostępnij”, potem „Do ekranu początk.”, otwórz Zielnik z ikony i wróć tutaj.</p>);
+      w Safari stuknij „Udostępnij”, potem „Do ekranu początk.”, otwórz aplikację z ikony i wróć tutaj.</p>);
   else if (!env.supported) body = <p className="muted">Ta przeglądarka nie obsługuje powiadomień push.</p>;
   body ??= (
     <>

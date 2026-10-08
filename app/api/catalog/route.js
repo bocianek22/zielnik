@@ -7,7 +7,7 @@ export const GET = safe(async () => {
   const { res } = await requireUser();
   if (res) return res;
   const items = await listCatalog();
-  return NextResponse.json({ items: items.filter((i) => i.active).map((i) => ({ producer: i.producer, name: i.name })) });
+  return NextResponse.json({ items: items.filter((i) => i.active).map((i) => ({ id: i.id, producer: i.producer, name: i.name, kind: i.kind, form: i.form, thc: i.thc, cbd: i.cbd })) });
 });
 
 // Ręczny import katalogu (tylko admin): { rows: [ { producent, odmiana, thc, cbd, rodzaj, dostępność } ], mode? }
