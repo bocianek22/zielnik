@@ -118,6 +118,7 @@ test('dodanie adresu: wymaga zgody, hasła i poprawnego adresu; link weryfikacyj
   assert.equal(outbox.length, 1);
   const m = outbox[0];
   assert.equal(m.to, 'ala@example.test');
+  assert.ok(m.text.includes('konta „ala”'), 'mail weryfikacyjny podaje nazwę konta');
   assert.ok(m.text.includes(`${APP}/potwierdz-email#t=`), m.text);
   const token = tokenFrom(m);
   const rows = await q`SELECT token_hash, email, purpose, expires_at - created_at AS ttl FROM email_tokens WHERE user_id = ${ids.ala}`;
@@ -305,6 +306,25 @@ test('Host header injection: bez APP_URL link tylko do hosta z listy dozwolonych
   }
 });
 
+test('issueToken: tylko najnowszy token danego rodzaju działa, stary i wygasłe są usuwane w jednym zapytaniu', { skip }, async () => {
+  const uid = ids.henio;
+  await q`DELETE FROM email_tokens WHERE user_id = ${uid}`;
+  const t1 = await acct.issueToken(uid, 'reset', 'henio@example.test');
+  const t2 = await acct.issueToken(uid, 'reset', 'henio@example.test');
+  const v = await acct.issueToken(uid, 'verify', 'henio@example.test');
+  assert.equal((await q`SELECT count(*)::int AS n FROM email_tokens WHERE user_id = ${uid} AND purpose = 'reset'`)[0].n, 1);
+  assert.equal(await acct.consumeToken(t1, 'reset'), null);
+  assert.ok(await acct.consumeToken(t2, 'reset'));
+  assert.ok(await acct.consumeToken(v, 'verify'), 'token innego rodzaju zostaje');
+  // wygasłe od ponad doby sprzątane przy kolejnym wydaniu
+  await q`INSERT INTO email_tokens (user_id, purpose, token_hash, email, expires_at) VALUES (${uid}, 'verify', 'stary-skrot', 'x@example.test', now() - interval '2 days')`;
+  await acct.issueToken(uid, 'reset', 'henio@example.test');
+  assert.equal((await q`SELECT count(*)::int AS n FROM email_tokens WHERE token_hash = 'stary-skrot'`)[0].n, 0);
+  // wyzwalacz tworzony przez DROP + CREATE (bez CREATE OR REPLACE TRIGGER, które wymaga PG14) istnieje dokładnie raz
+  const n = (await pool.query("SELECT count(*)::int AS n FROM pg_trigger WHERE tgname = 'users_email_tokens_invalidate'")).rows[0].n;
+  assert.equal(n, 1);
+});
+
 test('treść neutralna: bez słowa „konopie”, w trybie dyskretnym nazwa „Notatnik”', { skip }, async () => {
   outbox.length = 0;
   await q`DELETE FROM rate_limits WHERE key LIKE 'mail-reset%' OR key LIKE 'forgot-id%'`;
@@ -314,9 +334,10 @@ test('treść neutralna: bez słowa „konopie”, w trybie dyskretnym nazwa „
   freshIp();
   await req('auth/forgot', 'POST', { login: 'gosia' });
   assert.equal(outbox.length, 2);
-  assert.match(outbox[0].subject, /^Zielnik:/);
+  // reset jest anonimowy: zawsze nazwa neutralna, niezależnie od ciasteczka trybu dyskretnego wywołującego
+  assert.match(outbox[0].subject, /^Notatnik:/);
   assert.match(outbox[1].subject, /^Notatnik:/);
-  assert.equal(outbox[1].text.includes('Zielnik'), false);
+  for (const m of outbox) assert.equal((m.subject + m.text + m.html).includes('Zielnik'), false);
   for (const m of outbox) assert.equal(/konop|marihuan|thc|lek/i.test(m.subject + m.text + m.html), false, m.text);
 });
 

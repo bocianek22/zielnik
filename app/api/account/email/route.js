@@ -35,7 +35,7 @@ export const PUT = safe(async (req) => {
   }
   // nowy adres: potwierdzenie od nowa (wyzwalacz w bazie usuwa tokeny wysłane na poprzedni adres)
   await sql()`UPDATE users SET email = ${addr}, email_verified_at = NULL, email_consent_at = now() WHERE id = ${user.id}`;
-  await sendVerification(user.id, addr);
+  await sendVerification(user.id, addr, user.username);
   return NextResponse.json({ ok: true, email: addr, verified: false });
 });
 
