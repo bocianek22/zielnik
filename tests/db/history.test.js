@@ -26,6 +26,15 @@ async function call(uid, route, method, body, params = {}) {
 const create = async (uid, f) => (await call(uid, 'strains', 'POST', { type: 'haze', ...f })).json.id;
 const edit = async (uid, id, f) => {
   const r = await call(uid, 'strains/[id]', 'PATCH', { type: 'haze', ...f }, { id: String(id) });
+  if (r.status === 400 && /Nie zmieniono/.test(r.json.error)) return; // identyczne dane: propozycji nie ma
+  if (r.status === 202) {
+    // KAT-1: edycja cudzej odmiany to propozycja; przyjmuje ją admin, a autorem zmiany zostaje autor propozycji
+    await q`UPDATE users SET must_change_password = FALSE WHERE is_admin`;
+    const [p] = await q`SELECT id FROM strain_proposals WHERE strain_id = ${id} AND user_id = ${uid} AND status = 'oczekuje'`;
+    const a = await call(ids.Bocian, 'admin/proposals', 'POST', { id: p.id, action: 'accept' });
+    assert.equal(a.status, 200, JSON.stringify(a.json));
+    return;
+  }
   assert.equal(r.status, 200, JSON.stringify(r.json));
 };
 before(async () => {

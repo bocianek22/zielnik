@@ -3,17 +3,29 @@ import { sql } from '@/lib/db';
 import { requireUser, bad, safe, intId } from '@/lib/guard';
 import { parseCommon, updateStrain, invalidateStrains } from '@/lib/strains';
 import { deletePhotos } from '@/lib/photos';
+import { hit } from '@/lib/ratelimit';
+import { editMode, createProposal, MAX_PENDING } from '@/lib/proposals';
 
-// Edycja pól wspólnych (dostępna dla każdego zalogowanego)
+// Edycja pól wspólnych: bezpośrednio tylko admin i twórca odmiany, dopóki nikt inny jej nie używa (KAT-1).
+// Każdy inny zalogowany tworzy propozycję zmiany, którą rozpatruje admin.
 export const PATCH = safe(async (req, { params }) => {
   const { user, res } = await requireUser();
   if (res) return res;
   const id = intId((await params).id);
   const { error, fields: f } = await parseCommon(await req.json().catch(() => ({})));
   if (error) return bad(error);
-  const row = await updateStrain(id, f, user.id);
-  if (!row) return bad('Nie znaleziono odmiany.', 404);
-  return NextResponse.json({ ok: true });
+  const mode = await editMode(user, id);
+  if (!mode) return bad('Nie znaleziono odmiany.', 404);
+  if (mode === 'direct') {
+    const row = await updateStrain(id, f, user.id);
+    if (!row) return bad('Nie znaleziono odmiany.', 404);
+    return NextResponse.json({ ok: true });
+  }
+  if (!(await hit(`proposal:${user.id}`, 30, 3600))) return bad('Zbyt wiele propozycji w krótkim czasie. Spróbuj ponownie za godzinę.', 429);
+  const p = await createProposal(id, user.id, f);
+  if (p.error === 'limit') return bad(`Masz już ${MAX_PENDING} propozycji czekających na decyzję. Poczekaj na odpowiedź albo wycofaj którąś.`, 409);
+  if (p.error === 'nochange') return bad('Nie zmieniono żadnego pola.');
+  return NextResponse.json({ ok: true, proposal: true, id: p.id }, { status: 202 });
 });
 
 // Usunięcie: twórca odmiany lub admin
@@ -37,14 +49,8 @@ export const DELETE = safe(async (_req, { params }) => {
   }
   // usunięcie kasuje kaskadowo oceny, testy i dziennik zużycia wszystkich osób, więc twórca może usunąć
   // tylko odmianę, której nikt inny jeszcze nie używa; sprawdzenie i usunięcie w jednym zapytaniu
-  const del = await sql()`DELETE FROM strains WHERE id = ${id} AND NOT (
-      EXISTS (SELECT 1 FROM user_strain WHERE strain_id = ${id} AND user_id <> ${user.id}
-              AND (rating IS NOT NULL OR notes <> '' OR effects <> '{}'::jsonb OR current_amount > 0)) OR
-      EXISTS (SELECT 1 FROM usage_log WHERE strain_id = ${id} AND user_id <> ${user.id}) OR
-      EXISTS (SELECT 1 FROM purchases WHERE strain_id = ${id} AND user_id <> ${user.id}) OR
-      EXISTS (SELECT 1 FROM user_pool WHERE pool_key = 'strain:' || ${id}::int AND user_id <> ${user.id} AND remaining_to_buy > 0) OR
-      EXISTS (SELECT 1 FROM strain_tests WHERE strain_id = ${id} AND user_id IS DISTINCT FROM ${user.id})
-    ) RETURNING id`;
+  const del = await sql()`DELETE FROM strains WHERE id = ${id} AND NOT strain_used_by_others(${id}::int, ${user.id}::int)
+    RETURNING id`;
   if (!del.length) return bad('Tej odmiany używają już inne osoby (oceny, zakupy, zużycie lub testy). Usunąć ją może tylko admin.', 409);
   invalidateStrains();
   await deletePhotos(blobs);

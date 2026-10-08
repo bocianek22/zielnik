@@ -5,6 +5,7 @@ import { isNativeApp } from '@/lib/client';
 import { intId } from '@/lib/ids';
 import { listStrains, listOptions, listTests, strainIndex } from '@/lib/strains';
 import { strainStats } from '@/lib/strain-stats';
+import { editMode, listMine } from '@/lib/proposals';
 import Header from '../../components/Header';
 import StrainDetail from '../../components/StrainDetail';
 
@@ -19,7 +20,7 @@ export default async function StrainPage({ params }) {
   if (!id) notFound();
   // pełne wpisy tylko tej odmiany; do puli i podpowiedzi smaków wystarcza lekki spis
   // statystyki zawsze z user.id z sesji: tylko własne zużycia i zakupy
-  const [[strain], strains, options, tests, stats] = await Promise.all([listStrains(user.id, { ids: [id] }), strainIndex(), listOptions(), listTests(id, user.id), strainStats(user.id, id)]);
+  const [[strain], strains, options, tests, stats, mode, proposals] = await Promise.all([listStrains(user.id, { ids: [id] }), strainIndex(), listOptions(), listTests(id, user.id), strainStats(user.id, id), editMode(user, id), listMine(user.id, id)]);
   if (!strain) notFound();
 
   const mates = strains.filter((s) => s.id !== id && s.pool_key === strain.pool_key).map((s) => s.name);
@@ -29,7 +30,7 @@ export default async function StrainPage({ params }) {
     <>
       <Header user={user} />
       <main className="page">
-        <StrainDetail strain={strain} options={options} tastes={tastes} mates={mates} tests={tests} stats={stats}
+        <StrainDetail strain={strain} options={options} tastes={tastes} mates={mates} tests={tests} stats={stats} proposals={proposals.slice(0, 3)} proposing={mode === 'proposal'}
           me={{ id: user.id, isAdmin: user.is_admin, hidePrices: isNativeApp(await headers()) }} />
       </main>
     </>

@@ -274,7 +274,7 @@ export default function StrainsBoard({ initialStrains, initialOptions, me }) {
       {strains.length > 0 && visible.length === 0 && <p className="muted empty-inline">Nic nie pasuje do filtrów.</p>}
 
       {visible.slice(0, visibleLimit).map((s) => (formFor === s.id ? (
-        <StrainForm key={s.id} strain={s} options={options} tastes={tastes} canDelete={canDelete(s)} hidePrice={me.hidePrices}
+        <StrainForm key={s.id} strain={s} options={options} tastes={tastes} canDelete={canDelete(s)} proposing={!me.isAdmin && s.created_by !== me.id} hidePrice={me.hidePrices}
           onOptionsChange={setOptions} onDone={done} onCancel={() => setFormFor(null)} />
       ) : (
         <StrainCard key={s.id} strain={s} meId={me.id} hidePrice={me.hidePrices} mates={matesOf(s)} low={low} cmpOn={cmp.includes(s.id)} onCmp={() => setCmp((c) => (c.includes(s.id) ? c.filter((x) => x !== s.id) : [...c, s.id].slice(-3)))} onEdit={() => setFormFor(s.id)} onEntrySaved={entrySaved} />

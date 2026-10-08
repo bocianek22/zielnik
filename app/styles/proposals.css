@@ -1,0 +1,25 @@
+/* Propozycje zmian odmian (KAT-1): panel admina (app/admin/ProposalsAdmin.js) i „Twoja propozycja” w szczegółach odmiany
+   (app/components/StrainProposals.js). Kolory tylko przez zmienne. */
+
+.proposal-diff { list-style: none; margin: var(--s-3) 0 0; padding: 0; display: grid; gap: var(--s-2); }
+.proposal-diff > li { display: grid; gap: var(--s-1); padding: var(--s-2) var(--s-3); border: 1px solid var(--sep); border-radius: var(--r-md); }
+.proposal-diff > li.conflict { border-color: var(--warn-line); background: var(--warn-soft); }
+.proposal-field { font-weight: 600; }
+.proposal-vals { display: grid; gap: var(--s-1); overflow-wrap: anywhere; }
+.proposal-vals > span { display: block; }
+.proposal-vals s { color: var(--muted); }
+.proposal-vals .muted { margin-right: var(--s-1); }
+.proposal-conflict { margin-top: var(--s-2) !important; padding: var(--s-2) var(--s-3); border-radius: var(--r-md); background: var(--warn-soft); border: 1px solid var(--warn-line); }
+.proposal-item .proposal-reject { display: grid; gap: var(--s-2); margin-top: var(--s-3); }
+.proposal-item .proposal-reject .input { width: 100%; }
+
+.proposal-box { display: grid; gap: var(--s-2); }
+.proposal-box h2, .proposal-box p { margin: 0; }
+.proposal-box.oczekuje { border-left: 3px solid var(--warn-line); }
+.proposal-box.przyjeta { border-left: 3px solid var(--ok); }
+.proposal-box.odrzucona { border-left: 3px solid var(--danger); }
+.proposal-reason { overflow-wrap: anywhere; }
+.proposal-box > .btn { justify-self: start; }
+.proposal-sent { display: grid; gap: var(--s-3); }
+.proposal-sent h2, .proposal-sent p { margin: 0; }
+.proposal-sent .btn { justify-self: start; }

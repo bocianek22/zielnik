@@ -58,7 +58,9 @@ Waga: K = krytyczna, W = wysoka, Ś = średnia, N = niska. Status: ✅ naprawion
 | `account/sessions/[id]` | DELETE | U, `sid` sprawdzany wzorcem `SID_RE` zamiast `intId` (identyfikator tekstowy), tylko własna aktywna sesja (inaczej 404) + limit | OK po #26 |
 | `export` | GET | U, `listStrains` z `can_see` | OK |
 | `strains` | GET, POST | U | OK |
-| `strains/[id]` | PATCH, DELETE | U, `intId`; usuwa twórca (gdy odmiana nieużywana) albo admin | OK (wspólna edycja: DT-7, niżej) |
+| `strains/[id]` | PATCH, DELETE | U, `intId`; PATCH: bezpośrednio admin lub twórca nieużywanej odmiany, inni dostają propozycję (202); usuwa twórca (gdy odmiana nieużywana, `strain_used_by_others`) albo admin | OK (DT-7 zamknięte) |
+| `proposals`, `proposals/[id]` | GET, DELETE | U, `intId`, tylko własne (`user_id` w zapytaniu), DELETE tylko oczekująca | OK |
+| `admin/proposals` | GET, POST | A (`requireAdmin`), `intId`, przyjęcie atomowe (status + konflikt w jednym UPDATE), wpis w audycie | OK |
 | `strains/[id]/entry`, `effects` | PUT | U, `intId`, tylko własny wiersz | OK |
 | `strains/[id]/history` | GET, POST | U / A, `intId`, autor tylko przy `can_see` | OK |
 | `strains/[id]/photo` | GET, PUT, DELETE | U, `intId`, podmiana: dodający, autor odmiany albo admin | OK po #6 |
@@ -109,7 +111,7 @@ Ekran PIN zasłania treść (także przy ukryciu karty); chroni przed przypadkow
 3. ~~**Unieważnianie pojedynczej sesji po wylogowaniu**~~: zrobione w POM-27 (#26).
 4. **Szyfrowanie kopii:** ustawić `BACKUP_ENCRYPTION_KEY`. Bez niego kopie w Blob (wszystkie dane zdrowotne) są tylko skompresowane.
 5. **Pobieranie kopii przez admina:** rozważyć ponowne podanie hasła przed `GET /api/backup`. Przejęta sesja admina daje dziś pełny zrzut bazy.
-6. **DT-7:** każdy zalogowany edytuje wspólne pola odmian. Jest historia i przywracanie przez admina, ale nie ma zatwierdzania.
+6. ~~**DT-7:** każdy zalogowany edytuje wspólne pola odmian.~~ Zamknięte (KAT-1): pola wspólne zmienia bezpośrednio tylko admin i twórca odmiany, dopóki nikt inny jej nie używa; pozostali składają propozycję (limit 20 oczekujących i 30 na godzinę na osobę), którą rozpatruje admin. Propozycje widzi tylko autor i admin. Usunięcie konta kasuje propozycje autora (kaskada), a przyjęte zmiany zostają w historii odmiany bez powiązania z kontem. Pozostaje: nowe opcje (producent, typ, terpen) dopisują się do wspólnych list już przy złożeniu propozycji, bez zatwierdzenia; zdjęcie odmiany ma własne reguły uprawnień (dodający, twórca, admin).
 7. **Wyszukiwarka użytkowników:** każdy zalogowany może wylistować nazwy kont (po 10 na zapytanie, od 2 znaków). Rozważyć wyszukiwanie tylko po pełnej nazwie albo limit.
 8. **Next 16:** usuwa ostrzeżenie o postcss (#24) i daje nowsze poprawki bezpieczeństwa. To osobne zadanie z testami.
 9. **HSTS `includeSubDomains; preload`:** dopiero przy własnej domenie.

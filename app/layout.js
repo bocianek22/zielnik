@@ -18,6 +18,7 @@ import './styles/social.css';
 import './styles/content.css';
 import './styles/home.css';
 import './styles/platform.css';
+import './styles/proposals.css';
 import { cookies, headers } from 'next/headers';
 import { isNativeApp } from '@/lib/client';
 import RegisterSW from './components/RegisterSW';
