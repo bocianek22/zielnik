@@ -8,6 +8,25 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.51.0] - 2026-10
+Poprawki z przeglądu gotowości do 1.0 (`docs/PRZEGLAD-1.0.md`).
+### Bezpieczeństwo
+- **Eksport CSV:** teksty zaczynające się od `= + - @` są neutralizowane (wstrzyknięcie formuł przez nazwy ze wspólnego katalogu), także w CSV z panelu admina.
+- **Limity tworzenia treści:**
+  - odmiany 20/h, opcje 30/h, testy 30/h i najwyżej 50 na odmianę, zaproszenia 30/h, recepty 30/h;
+  - zgłaszanie odmian i zdjęć odmian; admin może usunąć zdjęcie i zamknąć zgłoszenie.
+- **Nieprawidłowy JSON:** wspólne `jsonBody()` w 51 trasach daje 400 zamiast 500 (logowanie: limit prób przed parsowaniem).
+- **Pobieranie kopii przez admina:**
+  - wymaga ponownego podania hasła (`POST /api/backup`), limit 5 prób na 15 minut;
+  - `GET /api/backup` zwraca teraz 405.
+- **Web Push:** subskrypcje tylko z dozwolonych hostów usług push, sprawdzane także przy wysyłce.
+### Zmieniono
+- Kopia zapasowa codziennie zamiast raz w tygodniu.
+- Wyszukiwarka nie pokazuje kont z profilem „Tylko ja” (poza znajomymi).
+- Wieczorne przypomnienie o objawach nieaktywne i opisane, dopóki cron nie działa co godzinę.
+- Usunięcie konta w jednej transakcji.
+- `ROADMAP.md`: stan listy kontrolnej 1.0.
+
 ## [0.50.0] - 2026-10
 ### Dodano
 - **Szyfrowanie notatek w bazie (POM-28, projekt w `docs/SZYFROWANIE-NOTATEK.md`), za kluczem `DATA_ENCRYPTION_KEY`; bez klucza wszystko działa jak dotąd.**
