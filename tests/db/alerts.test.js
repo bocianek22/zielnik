@@ -58,7 +58,7 @@ after(async () => {
 });
 
 test('bez ALERT_WEBHOOK_URL i ALERT_EMAIL: błędy zapisują się, alertów brak', { skip }, async () => {
-  for (let i = 0; i < 8; i++) await logError('api', new Error('x'), { path: '/api/a' });
+  for (let i = 0; i < 8; i++) await logError('api', new Error('x'), { path: '/api/stats' });
   assert.equal((await q`SELECT count(*)::int AS n FROM error_log`)[0].n, 8);
   assert.equal(hooks.length + outbox.length, 0);
   assert.equal(alerts.alertsEnabled(), false);
@@ -94,28 +94,28 @@ test('błędy z przeglądarki i błędy alertów nie wywołują alertów', { ski
 test('próg: N błędów w 15 min daje alert z liczbą i ścieżkami; kolejny dopiero po 15 min; Discord dostaje `content`', { skip }, async () => {
   process.env.ALERT_WEBHOOK_URL = 'https://discord.com/api/webhooks/1/abc';
   process.env.ALERT_THRESHOLD = '4';
-  await logError('api', new Error(SECRET), { path: '/api/a' }); // nowy rodzaj
-  for (let i = 0; i < 2; i++) await logError('api', new Error(SECRET), { path: '/api/a' });
+  await logError('api', new Error(SECRET), { path: '/api/stats' }); // nowy rodzaj
+  for (let i = 0; i < 2; i++) await logError('api', new Error(SECRET), { path: '/api/stats' });
   assert.equal(hooks.length, 1);
-  await logError('route', new Error(SECRET), { path: '/api/b' }); // 4. błąd: próg
+  await logError('route', new Error(SECRET), { path: '/api/search' }); // 4. błąd: próg
   assert.equal(hooks.length, 2);
   const body = hooks[1].body;
   assert.deepEqual(Object.keys(body), ['content']);
   assert.match(body.content, /4 błędów serwera w 15 min/);
-  assert.match(body.content, /api \/api\/a: 3/);
+  assert.match(body.content, /api \/api\/stats: 3/);
   assert.equal(body.content.includes('bol glowy'), false);
-  for (let i = 0; i < 10; i++) await logError('api', new Error(SECRET), { path: '/api/a' });
+  for (let i = 0; i < 10; i++) await logError('api', new Error(SECRET), { path: '/api/stats' });
   assert.equal(hooks.length, 2, 'najwyżej jeden alert progowy na 15 min');
   // po 15 minutach kolejny
   await q`UPDATE rate_limits SET reset_at = now() - interval '1 second' WHERE key = 'alert:burst'`;
-  await logError('api', new Error(SECRET), { path: '/api/a' });
+  await logError('api', new Error(SECRET), { path: '/api/stats' });
   assert.equal(hooks.length, 3);
 });
 
 test('nowe rodzaje: najwyżej 3 alerty na godzinę', { skip }, async () => {
   process.env.ALERT_WEBHOOK_URL = 'https://hooks.slack.com/services/T/B/x';
   process.env.ALERT_THRESHOLD = '1000';
-  for (const m of ['a', 'b', 'c', 'd', 'e']) await logError('api', new Error(`rodzaj ${m}`), { path: '/api/x' });
+  for (const m of ['a', 'b', 'c', 'd', 'e']) await logError('api', new Error(`rodzaj ${m}`), { path: '/api/photos' });
   assert.equal(hooks.length, 3);
 });
 
@@ -143,7 +143,7 @@ test('kanał e-mail: ALERT_EMAIL działa tylko z wysyłką e-maili; nieudana wys
 test('ścieżka w alercie bez nazwy konta i identyfikatorów; /api/strains/12 i /13 to ten sam rodzaj', { skip }, async () => {
   process.env.ALERT_WEBHOOK_URL = 'https://hooks.slack.com/services/T/B/x';
   process.env.ALERT_THRESHOLD = '1000';
-  assert.equal(alerts.alertPath('/u/kasia.k/oceny'), '/u/:handle/oceny');
+  assert.equal(alerts.alertPath('/u/kasia.k/dziennik'), '/u/:handle/dziennik');
   assert.equal(alerts.alertPath('/api/account/sessions/abcdefghijklmnopqrstuv'), '/api/account/sessions/:id');
   assert.equal(alerts.alertPath('/api/strains/12/tests?x=1'), '/api/strains/:id/tests');
   await logError('render', new Error('boom'), { path: '/u/someuser' });
@@ -154,6 +154,24 @@ test('ścieżka w alercie bez nazwy konta i identyfikatorów; /api/strains/12 i 
   await logError('api', new Error('zly stan'), { path: '/api/strains/12' });
   await logError('api', new Error('zly stan'), { path: '/api/strains/13' });
   assert.equal(hooks.length, 2, 'ta sama trasa z innym identyfikatorem to nie nowy rodzaj');
+});
+
+test('alertPath: nieznane segmenty (przyszły slug, token, nazwa) są maskowane, a lista tras obejmuje wszystkie katalogi app/', { skip }, async () => {
+  const { readdirSync } = await import('node:fs');
+  const missing = [];
+  const walk = (dir) => {
+    for (const e of readdirSync(dir, { withFileTypes: true })) {
+      if (!e.isDirectory()) continue;
+      if (!e.name.startsWith('[') && !['components', 'styles'].includes(e.name) && !alerts.ROUTE_SEGMENTS.has(e.name)) missing.push(e.name);
+      walk(`${dir}/${e.name}`);
+    }
+  };
+  walk(`${process.cwd()}/app`);
+  assert.deepEqual(missing, [], 'dodaj nowy segment trasy do ROUTE_SEGMENTS w lib/alerts.js');
+  assert.equal(alerts.alertPath('/wiedza/moj-tajny-slug-artykulu'), '/wiedza/:id');
+  assert.equal(alerts.alertPath('/api/account/email/verify'), '/api/account/email/verify');
+  assert.equal(alerts.alertPath('/api/strains/Kasia-Haze/tests?x=1'), '/api/strains/:id/tests');
+  assert.equal(alerts.alertPath('/u/admin'), '/u/:handle');
 });
 
 async function asUser(username) {
