@@ -2,7 +2,11 @@ import { NextResponse } from 'next/server';
 import { safe } from '@/lib/guard';
 import bcrypt from 'bcryptjs';
 import { ensureDb, sql } from '@/lib/db';
+import { headers } from 'next/headers';
 import { createSession, knownDevice } from '@/lib/auth';
+import { notifyAdminLogin } from '@/lib/alerts';
+import { describeDevice } from '@/lib/client';
+import { background } from '@/lib/mail';
 import { clear, clientIp, hit } from '@/lib/ratelimit';
 
 // Górna granica tylko przeciw bardzo długim danym (bcrypt i tak bierze 72 bajty). Nowe hasła mają limit 100 znaków,
@@ -17,7 +21,7 @@ export const POST = safe(async (req) => {
   await ensureDb();
   const uname = String(username).trim().toLowerCase().slice(0, 64);
   const ip = await clientIp();
-  const rows = await sql()`SELECT id, password_hash, must_change_password, session_version
+  const rows = await sql()`SELECT id, password_hash, must_change_password, session_version, is_admin
                            FROM users WHERE lower(username) = lower(${String(username).trim()})`;
   const u = rows[0];
   // Limity: na IP, na parę IP+nazwa (zgadywanie hasła) i wyższy na samą nazwę (atak rozproszony).
@@ -39,5 +43,10 @@ export const POST = safe(async (req) => {
   }
   await clear(`login-pair:${ip}|${uname}`);
   await createSession(u.id, { device: true });
+  // konto admina: powiadomienie o każdym udanym logowaniu (bez IP; po odpowiedzi)
+  if (u.is_admin) {
+    const device = describeDevice((await headers()).get('user-agent') || '');
+    background(() => notifyAdminLogin(device));
+  }
   return NextResponse.json({ ok: true, mustChange: u.must_change_password });
 });

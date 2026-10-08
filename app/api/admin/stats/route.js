@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
 import { requireAdmin, safe } from '@/lib/guard';
+import { betaMetrics } from '@/lib/beta-metrics';
 
 // Statystyki serwisu (tylko liczby, bez danych zdrowotnych)
 export const GET = safe(async () => {
@@ -16,5 +17,5 @@ export const GET = safe(async () => {
     (SELECT count(DISTINCT user_id)::int FROM usage_log WHERE created_at > now() - interval '7 days') AS active7,
     (SELECT count(*)::int FROM reports WHERE status = 'open') AS reports,
     (SELECT count(*)::int FROM invites WHERE uses < max_uses AND (expires_at IS NULL OR expires_at > now())) AS open_invites`;
-  return NextResponse.json(s);
+  return NextResponse.json({ ...s, beta: await betaMetrics() });
 });

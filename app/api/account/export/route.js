@@ -62,6 +62,8 @@ export const GET = safe(async (req) => {
     doctorNotes: await q`SELECT text, done, created_at AS "createdAt", done_at AS "doneAt" FROM doctor_notes WHERE user_id = ${me} ORDER BY created_at`,
     noUseDays: (await q`SELECT to_char(day, 'YYYY-MM-DD') AS day FROM no_use_days WHERE user_id = ${me} ORDER BY day`).map((r) => r.day),
     blocked: await q`SELECT u.username FROM blocks b JOIN users u ON u.id = b.blocked WHERE b.blocker = ${me}`,
+    // zgłoszenia wysłane przez użytkownika (z jego własnym opisem); zgłoszeń o nim samym nie ujawniamy (dane moderacji i zgłaszających)
+    reportsFiled: await q`SELECT type, reason, note, status, created_at AS "createdAt" FROM reports WHERE reporter_id = ${me} ORDER BY created_at`,
     // adresów subskrypcji (endpointy i klucze urządzeń) nie eksportujemy: to dane techniczne przeglądarki,
     // działają jak hasło do wysyłania powiadomień na urządzenie i nie mówią nic o użytkowniku; podajemy tylko ich liczbę i daty
     pushNotifications: {

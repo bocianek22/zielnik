@@ -11,8 +11,9 @@ import AuditAdmin from './AuditAdmin';
 import EnrichAdmin from './EnrichAdmin';
 import PharmacyPhotoAdmin from './PharmacyPhotoAdmin';
 import ProposalsAdmin from './ProposalsAdmin';
+import ReadinessAdmin from './ReadinessAdmin';
 
-const TABS = [['konta', 'Konta'], ['zgloszenia', 'Zgłoszenia'], ['propozycje', 'Propozycje'], ['system', 'System']];
+const TABS = [['konta', 'Konta'], ['zgloszenia', 'Zgłoszenia'], ['propozycje', 'Propozycje'], ['system', 'System'], ['gotowosc', 'Gotowość']];
 
 // Panel dzieli się na zakładki, żeby na telefonie nie przewijać wielu sekcji naraz.
 // Panele zostają zamontowane (ukrywa je atrybut hidden): odmontowanie gubiłoby np. hasło tymczasowe pokazane po resecie konta.
@@ -56,6 +57,9 @@ export default function AdminTabs({ meId }) {
       </div>
       <div id="apanel-system" role="tabpanel" aria-labelledby="atab-system" hidden={tab !== 'system'} className="admin-panel">
         <BackupsAdmin /><EnrichAdmin /><PharmacyPhotoAdmin /><ErrorsAdmin /><AuditAdmin />
+      </div>
+      <div id="apanel-gotowosc" role="tabpanel" aria-labelledby="atab-gotowosc" hidden={tab !== 'gotowosc'} className="admin-panel">
+        <ReadinessAdmin />
       </div>
     </div>
   );

@@ -41,6 +41,18 @@ Co niedzielę (cron) i na żądanie z panelu admina `lib/backup.js` zrzuca do JS
 - **Format `.enc`** (`lib/backup-pack.js`): `ZBK1` (4 B, także AAD) + iv (12 B) + tag GCM (16 B) + szyfrogram z gzip(JSON).
 - **Odtworzenie:** pobierz plik z panelu admina (albo z konsoli Vercel Blob), potem lokalnie `BACKUP_ENCRYPTION_KEY=<klucz> node --experimental-default-type=module scripts/backup-decrypt.js zielnik-kopia-RRRR-MM-DD.json.gz.enc kopia.json` (dla pliku niezaszyfrowanego klucz jest zbędny). Wynik to obiekt `{ createdAt, <tabela>: [wiersze] }`; import do bazy jest ręczny (`INSERT ... SELECT * FROM jsonb_populate_recordset(NULL::tabela, ...)`). Klucz trzymaj poza Vercel (menedżer haseł): bez niego kopie `.enc` są nie do odczytania, a zmiana klucza nie dotyczy kopii już zapisanych.
 
+## Próba odtworzenia kopii
+Kopia (`buildBackup()`) nie zawiera haseł, awatarów i zdjęć odmian, więc po odtworzeniu konta mają nieużywalne hasła i `must_change_password = TRUE`: admin Bocian wraca hasłem `BOCIAN_INITIAL_PASSWORD` (pierwszy start aplikacji na odtworzonej bazie, `syncAdmin`) i resetuje pozostałe konta w panelu. Próba na lokalnym PostgreSQL, przed betą i po większych zmianach schematu:
+1. Baza źródłowa z danymi: `scripts/dev/build-local.sh`, `scripts/dev/serve.sh 4400 zrodlo`, `node scripts/dev/seed.mjs zrodlo` (opis w nagłówkach skryptów), potem `scripts/dev/stop.sh 4400`.
+2. `node --experimental-default-type=module scripts/dev/restore-drill.mjs zrodlo cel` (baza `cel` jest usuwana i tworzona od nowa; `PG_ADMIN_URL` jak w `seed.mjs`). Skrypt robi kopię, tworzy schemat w `cel`, wczytuje kopię (`restoreBackup()`: `TRUNCATE`, wstawianie w kolejności kluczy obcych w jednej transakcji, `setval` liczników) uruchamia start aplikacji na odtworzonej bazie i sprawdza, że admin loguje się hasłem startowym, po czym wypisuje dla każdej tabeli kopii liczbę wierszy: źródło, kopia, odtworzone. Kod wyjścia 1 przy jakiejkolwiek rozbieżności.
+3. Z pliku z panelu admina (`.json.gz[.enc]`) najpierw `scripts/backup-decrypt.js`; odtworzenie produkcyjne wymagałoby osobnej decyzji (hasła, sesje, zdjęcia), więc `restoreBackup()` jest tylko w `scripts/dev/`. Test: `tests/db/restore-drill.test.js`.
+
+## Stan i gotowość (beta)
+- **`GET /api/health`** (publiczny, pod UptimeRobot lub podobne): `{ ok, db, schema: 'zgodny'|'niezgodny', version }`, 200 albo 503 (baza niedostępna lub niezgodny schemat), `no-store`, 120 zapytań na 10 min na IP.
+- **Panel admina, zakładka „Gotowość”** (`/api/admin/readiness`, `lib/readiness.js`): stan konfiguracji bez wartości zmiennych, wersja PostgreSQL, ostatnia kopia, ostatnie przebiegi cronów (`cron:reminders`, `cron:backup`, `cron:catalog` w `schema_meta`), błędy z 24 h.
+- **Alert o logowaniu admina:** `lib/alerts.js` (`notifyAdminLogin`), bez IP; wymaga `ALERT_WEBHOOK_URL` lub `ALERT_EMAIL`.
+- **Wskaźniki bety** w statystykach admina: `lib/beta-metrics.js`, tylko liczby zbiorcze, grupy < 5 kont ukryte.
+
 ## Zadania cykliczne (`vercel.json`)
 Poniedziałek 05:00 UTC: aktualizacja katalogu · niedziela 03:00 UTC: migawka bazy · codziennie 07:00 UTC (9:00 latem, 8:00 zimą w Polsce): przypomnienia push (`lib/push.js`; Vercel Hobby pozwala na cron najwyżej raz dziennie).
 
