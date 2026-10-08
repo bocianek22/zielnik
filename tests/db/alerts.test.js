@@ -28,9 +28,11 @@ before(async () => {
   const bcrypt = (await import('bcryptjs')).default;
   const hash = await bcrypt.hash('haslo1234', 4);
   await q`INSERT INTO users (username, password_hash, is_admin, must_change_password) VALUES ('szef', ${hash}, TRUE, FALSE), ('zwykly', ${hash}, FALSE, FALSE)`;
-  ({ logError } = await import('../../lib/errorlog.js'));
+  const errorlog = await import('../../lib/errorlog.js');
   alerts = await import('../../lib/alerts.js');
   mail = await import('../../lib/mail.js');
+  // alerty idą w tle (after()): test czeka na ich zakończenie
+  logError = async (...a) => { await errorlog.logError(...a); await mail.flushBackground(); };
   mail.setMailTransport(async (m) => { outbox.push(m); });
   realFetch = globalThis.fetch;
   globalThis.fetch = async (url, init) => {
