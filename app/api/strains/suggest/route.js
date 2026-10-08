@@ -4,19 +4,12 @@ import { requireUser, bad, safe } from '@/lib/guard';
 import { hit } from '@/lib/ratelimit';
 import { logError } from '@/lib/errorlog';
 import { listOptions } from '@/lib/strains';
-import { KINDS } from '@/lib/kinds';
+import { buildRequest, parseResponse, usageOf } from '@/lib/strain-suggest';
 
 export const maxDuration = 60;
 
-const MODEL = process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001';
-const DOMAINS = (process.env.SUGGEST_DOMAINS || 'leafly.com,allbud.com,wikileaf.com,seedfinder.eu').split(',').map((s) => s.trim()).filter(Boolean);
-
-const SYSTEM = `Przygotowujesz krótką, ostrożną kartę charakterystyki odmiany konopi na podstawie wyników wyszukiwania w internecie.
-Zasady: używaj wyłącznie informacji znalezionych w wynikach wyszukiwania; jeśli czegoś nie znajdziesz, wpisz null lub pustą listę i nic nie zgaduj.
-Nie podawaj porad medycznych, dawkowania ani twierdzeń o leczeniu; efekty opisuj jako "zwykle opisywane przez użytkowników".
-Opis pisz po polsku, w 3-4 zdaniach: pochodzenie/rodzaj, aromat i smak, zwykle opisywane efekty.
-Odpowiedz wyłącznie jednym obiektem JSON, bez komentarza i bez znaczników kodu, w formacie:
-{"description": string, "kind": "indica"|"sativa"|"hybryda"|null, "thc": number|null, "cbd": number|null, "terpenes": string[], "taste": string, "confidence": "niska"|"średnia"|"wysoka"}`;
+const DOMAINS = (process.env.SUGGEST_DOMAINS || '').split(',').map((s) => s.trim()).filter(Boolean);
+const NOT_FOUND = 'Nie znaleziono w internecie wiarygodnych informacji o tej odmianie. Uzupełnij pola ręcznie (np. z ulotki lub strony producenta).';
 
 // Podpowiedź opisu odmiany z internetu (tylko podgląd: użytkownik sprawdza i zapisuje sam)
 export const POST = safe(async (req) => {
@@ -30,54 +23,50 @@ export const POST = safe(async (req) => {
 
   const key = `${producer.toLowerCase()}|${name.toLowerCase()}`;
   const q = sql();
-  const cached = await q`SELECT data FROM strain_suggestions WHERE key = ${key} AND created_at > now() - interval '90 days'`;
-  if (cached.length) return NextResponse.json({ ...cached[0].data, cached: true });
+  // zapamiętany wynik 90 dni, „nie znaleziono” 7 dni: ponowne próby nie kosztują
+  const cached = await q`SELECT data FROM strain_suggestions WHERE key = ${key}
+                          AND created_at > now() - CASE WHEN data->>'notFound' IS NOT NULL THEN interval '7 days' ELSE interval '90 days' END`;
+  if (cached.length) return cached[0].data.notFound ? bad(NOT_FOUND, 404) : NextResponse.json({ ...cached[0].data, cached: true });
 
   if (!(await hit(`suggest:${user.id}`, 15, 86400))) return bad('Dzienny limit podpowiedzi został wykorzystany. Spróbuj jutro.', 429);
 
   const terpeneOptions = (await listOptions()).terpene;
-  const prompt = `Odmiana: "${name}", producent: "${producer}".\nZnajdź: rodzaj, typowe stężenie THC i CBD (%), dominujące terpeny (wybierz wyłącznie z listy: ${terpeneOptions.join(', ')}), smak i aromat oraz krótki opis.`;
+  const body = buildRequest({ producer, name, terpeneOptions, domains: DOMAINS });
+  const call = async (extra = {}) => {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+      body: JSON.stringify({ ...body, ...extra }),
+    });
+    if (!r.ok) throw new Error(`Anthropic ${r.status}: ${(await r.text()).slice(0, 200)}`);
+    return r.json();
+  };
 
-  const r = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: { 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-    body: JSON.stringify({
-      model: MODEL, max_tokens: 1500, system: SYSTEM,
-      tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 3, allowed_domains: DOMAINS }],
-      messages: [{ role: 'user', content: prompt }],
-    }),
-  });
-  if (!r.ok) {
-    await logError('suggest', new Error(`Anthropic ${r.status}: ${(await r.text()).slice(0, 200)}`), { path: '/api/strains/suggest' });
+  const blocks = [];
+  const used = { searches: 0, input: 0, output: 0, calls: 0 };
+  const take = (j) => { blocks.push(...(j.content || [])); const u = usageOf(j); for (const k of ['searches', 'input', 'output']) used[k] += u[k]; used.calls++; return j; };
+  try {
+    let j = take(await call());
+    // długie wyszukiwanie: API przerywa turę (pause_turn), wznawiamy z dotychczasową treścią
+    for (let i = 0; j.stop_reason === 'pause_turn' && i < 2; i++) {
+      j = take(await call({ messages: [...body.messages, { role: 'assistant', content: blocks }] }));
+    }
+    // były wyniki, ale model nie oddał karty: jedna prośba z wymuszonym narzędziem (bez nowych wyszukiwań)
+    if (used.searches && !blocks.some((x) => x.type === 'tool_use' && x.name === 'karta_odmiany') && j.stop_reason !== 'tool_use') {
+      take(await call({
+        messages: [...body.messages, { role: 'assistant', content: blocks }, { role: 'user', content: 'Wywołaj teraz karta_odmiany na podstawie znalezionych wyników.' }],
+        tool_choice: { type: 'tool', name: 'karta_odmiany' },
+      }));
+    }
+  } catch (e) {
+    await logError('suggest', e, { path: '/api/strains/suggest' });
     return bad('Nie udało się pobrać podpowiedzi. Spróbuj ponownie później.', 502);
   }
-  const j = await r.json();
-  const blocks = j.content || [];
-  const text = blocks.filter((x) => x.type === 'text').map((x) => x.text).join('\n');
-  const m = text.match(/\{[\s\S]*\}/);
-  let raw;
-  try { raw = m ? JSON.parse(m[0]) : null; } catch { raw = null; }
-  if (!raw) return bad('Nie znaleziono wiarygodnych informacji o tej odmianie w wybranych serwisach.', 404);
 
-  // źródła: cytowane w tekście, a gdy ich brak, wyniki wyszukiwania
-  const found = [];
-  const add = (x) => { if (x?.url && /^https?:\/\//.test(x.url) && !found.some((f) => f.url === x.url)) found.push({ title: String(x.title || new URL(x.url).hostname).slice(0, 120), url: x.url }); };
-  blocks.filter((x) => x.type === 'text').forEach((x) => (x.citations || []).forEach(add));
-  if (!found.length) blocks.filter((x) => x.type === 'web_search_tool_result' && Array.isArray(x.content)).forEach((x) => x.content.forEach(add));
-
-  const num = (v) => (typeof v === 'number' && v >= 0 && v <= 40 ? Math.round(v * 10) / 10 : null);
-  const allowed = new Map(terpeneOptions.map((t) => [t.toLowerCase(), t]));
-  const suggestion = {
-    description: String(raw.description ?? '').trim().slice(0, 900),
-    kind: KINDS.some((k) => k.value === raw.kind) ? raw.kind : null,
-    thc: num(raw.thc), cbd: num(raw.cbd),
-    terpenes: [...new Set((Array.isArray(raw.terpenes) ? raw.terpenes : []).map((t) => allowed.get(String(t).toLowerCase())).filter(Boolean))].slice(0, 6),
-    taste: String(raw.taste ?? '').trim().slice(0, 120),
-    confidence: ['niska', 'średnia', 'wysoka'].includes(raw.confidence) ? raw.confidence : 'niska',
-  };
-  if (!suggestion.description) return bad('Nie znaleziono wiarygodnych informacji o tej odmianie w wybranych serwisach.', 404);
-  const out = { suggestion, sources: found.slice(0, 4) };
-  await q`INSERT INTO strain_suggestions (key, data) VALUES (${key}, ${JSON.stringify(out)}::jsonb)
+  const out = parseResponse(blocks, terpeneOptions);
+  console.log(`suggest: ${out ? 'ok' : 'brak'}, wywołania ${used.calls}, wyszukiwania ${used.searches}, tokeny ${used.input}/${used.output}`);
+  await q`INSERT INTO strain_suggestions (key, data) VALUES (${key}, ${JSON.stringify(out || { notFound: true })}::jsonb)
           ON CONFLICT (key) DO UPDATE SET data = EXCLUDED.data, created_at = now()`;
+  if (!out) return bad(NOT_FOUND, 404);
   return NextResponse.json({ ...out, cached: false });
 });
