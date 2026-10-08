@@ -69,7 +69,7 @@
 
 /* cele dotykowe >= 44 px także bez pointer: coarse (np. okno przeglądarki w telefonie) */
 .strain-form .chip, .strain-form .btn, .strain-form .btn.small, .terp .chip { min-height: var(--tap); }
-.strain-form .input { font-size: 16px; }
+.strain-form .input { font-size: 1rem; }
 
 /* podpowiedź postaci w formularzu nowej odmiany („Extractum …” → olej) */
 .form-hint p { margin: 0 0 var(--s-2); }

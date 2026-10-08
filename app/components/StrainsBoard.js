@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { api } from '@/lib/api';
 import useNativeRefresh from './native/useNativeRefresh';
 import { KINDS } from '@/lib/kinds';
@@ -17,6 +17,23 @@ import { unitOf } from '@/lib/units';
 import { revertOf } from '@/lib/offline-queue';
 import { hasQueued, wasOptimistic } from '@/lib/offline-client';
 import useQueueEvents from './useQueueEvents';
+import useFocusTrap from './useFocusTrap';
+
+// Na telefonie formularz odmiany jest arkuszem na cały ekran (forms.css): Tab krąży po nim, a po zamknięciu fokus wraca na przycisk.
+// Escape nie zamyka (nie gubimy wpisanych danych); na szerokim ekranie formularz jest zwykłą kartą bez pułapki.
+function FormSheet({ children }) {
+  const ref = useRef(null);
+  const [sheet, setSheet] = useState(false);
+  useEffect(() => {
+    const mq = matchMedia('(max-width: 760px)');
+    const sync = () => setSheet(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
+  useFocusTrap(ref, sheet);
+  return <div ref={ref} style={{ display: 'contents' }}>{children}</div>;
+}
 
 // lista na ekranie głównym działa na pełnych danych, więc odświeżenie dociąga kolejne strony (`next`), aż zabraknie kursora
 async function fetchAll() {
@@ -178,7 +195,7 @@ export default function StrainsBoard({ initialStrains, initialOptions, me }) {
 
   // Szybka akcja „Nowa odmiana” z przycisku „+” (także po przejściu na stronę z ?new=1)
   useEffect(() => {
-    const open = () => { setFormFor('new'); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+    const open = () => { setFormFor('new'); window.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); };
     window.addEventListener('zielnik:new-strain', open);
     const params = new URLSearchParams(window.location.search);
     if (takeNewRequest?.()) open();
@@ -261,7 +278,7 @@ export default function StrainsBoard({ initialStrains, initialOptions, me }) {
       {error && <div className="alert error" role="alert">{error}</div>}
 
       {formFor === 'new' && (
-        <StrainForm options={options} tastes={tastes} hidePrice={me.hidePrices} onOptionsChange={setOptions} onDone={done} onCancel={() => setFormFor(null)} />
+        <FormSheet><StrainForm options={options} tastes={tastes} hidePrice={me.hidePrices} onOptionsChange={setOptions} onDone={done} onCancel={() => setFormFor(null)} /></FormSheet>
       )}
 
       {strains.length === 0 && formFor !== 'new' && (
@@ -274,8 +291,8 @@ export default function StrainsBoard({ initialStrains, initialOptions, me }) {
       {strains.length > 0 && visible.length === 0 && <p className="muted empty-inline">Nic nie pasuje do filtrów.</p>}
 
       {visible.slice(0, visibleLimit).map((s) => (formFor === s.id ? (
-        <StrainForm key={s.id} strain={s} options={options} tastes={tastes} canDelete={canDelete(s)} proposing={!me.isAdmin && s.created_by !== me.id} hidePrice={me.hidePrices}
-          onOptionsChange={setOptions} onDone={done} onCancel={() => setFormFor(null)} />
+        <FormSheet key={s.id}><StrainForm strain={s} options={options} tastes={tastes} canDelete={canDelete(s)} proposing={!me.isAdmin && s.created_by !== me.id} hidePrice={me.hidePrices}
+          onOptionsChange={setOptions} onDone={done} onCancel={() => setFormFor(null)} /></FormSheet>
       ) : (
         <StrainCard key={s.id} strain={s} meId={me.id} hidePrice={me.hidePrices} mates={matesOf(s)} low={low} cmpOn={cmp.includes(s.id)} onCmp={() => setCmp((c) => (c.includes(s.id) ? c.filter((x) => x !== s.id) : [...c, s.id].slice(-3)))} onEdit={() => setFormFor(s.id)} onEntrySaved={entrySaved} />
       )))}

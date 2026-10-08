@@ -224,7 +224,7 @@ code { background: var(--surface-2); color: var(--text); padding: 2px 6px; borde
 .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 ::placeholder { color: var(--text-3); opacity: 1; }
-@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
 
 /* ===== Układ ===== */
 .page { max-width: var(--page-max); margin: 0 auto; padding: var(--s-8) var(--s-5) var(--s-12); }
@@ -405,7 +405,23 @@ a.chip.static:hover { background: var(--surface-3); color: var(--text); }
   .chips.small .chip, .chip.tag { min-height: 0; }
   .btn.small { min-height: var(--tap); }
   .chips.small .use-chip { min-height: 40px; padding: 0 12px; }
-  input, select, textarea { font-size: 16px; }
+  input, select, textarea { font-size: 1rem; }
   button, a, .btn, .chip { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
   .check input:not(.switch) { width: 22px; height: 22px; }
 }
+
+/* ===== „Większy tekst i przyciski” (profil, na urządzeniu; klasa na <html> z layout.js). Typografia jest w rem, więc skaluje ją rozmiar bazowy ===== */
+html.big-ui { font-size: 125%; --tap: 56px; --bottomnav-h: 72px; }
+html.big-ui .btn, html.big-ui .btn.small, html.big-ui .chip, html.big-ui .seg button, html.big-ui .linklike, html.big-ui .obs-period a,
+html.big-ui select.input, html.big-ui input.input, html.big-ui textarea.input, html.big-ui .more-menu a, html.big-ui .nav a { min-height: var(--tap); }
+html.big-ui .chips.small .use-chip { min-height: var(--tap); padding: 0 14px; }
+html.big-ui .list-row, html.big-ui .list.inset .list-row, html.big-ui .fab-menu .list-row, html.big-ui .toc .list-row { min-height: 60px; }
+html.big-ui .icon-btn, html.big-ui .fab { width: var(--tap); height: var(--tap); }
+html.big-ui input.switch { width: 62px !important; height: 36px !important; }
+html.big-ui input.switch::after { width: 30px; height: 30px; }
+html.big-ui input.switch:checked::after { transform: translateX(26px); }
+html.big-ui .check input:not(.switch) { width: 28px; height: 28px; }
+html.big-ui .slider input[type=range] { min-height: var(--tap); }
+html.big-ui .btn .icon { width: 24px; height: 24px; }
+html.big-ui .bottomnav a, html.big-ui .bottomnav button { font-size: .75rem; }
+html.big-ui .topbar-in { min-height: 64px; }

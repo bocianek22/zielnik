@@ -2,8 +2,7 @@ import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
 import { rankingRows } from '@/lib/strains';
 import Header from '../components/Header';
-import dynamicImport from 'next/dynamic';
-const Rankings = dynamicImport(() => import('./Rankings'), { loading: () => <p className="muted">Wczytuję rankingi…</p> });
+import Rankings from './Rankings';
 
 export const dynamic = 'force-dynamic';
 
