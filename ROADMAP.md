@@ -55,7 +55,7 @@ Bieżąca wersja: **0.44.0** (zamknięta beta, rejestracja z zaproszeniem).
 - **SPO-6 (P3, M)** Zestawienia i listy odmian tworzone przez użytkowników.
 
 ## 5. Katalog i treści
-- **KAT-1 (P1, M)** Model własności katalogu odmian: propozycje zmian i zatwierdzanie zamiast wspólnej edycji.
+- ~~**KAT-1 (P1, M)** Model własności katalogu odmian: propozycje zmian i zatwierdzanie zamiast wspólnej edycji~~ ✅ (wydanie ustali koordynator). Pola wspólne edytuje bezpośrednio admin i twórca odmiany, dopóki nikt inny jej nie używa; każdy inny tworzy propozycję (tabela `strain_proposals`, najwyżej 20 oczekujących na osobę, 30 na godzinę, nowa propozycja do tej samej odmiany zastępuje poprzednią). Admin w panelu, zakładka „Propozycje”, widzi różnice pole po polu i konflikty, przyjmuje (zapis jak zwykła edycja, w historii autor propozycji; „mimo konfliktu” tylko świadomie) albo odrzuca z powodem. Autor widzi status w szczegółach odmiany. Pola prywatne (oceny, stany, notatki) bez zmian. Konto usunięte = jego propozycje usunięte, przyjęte zmiany zostają w historii jako „ktoś”. Później: powiadomienie autora o decyzji, edycja zdjęcia i opcji (producent, typ, terpeny) też przez propozycje.
 - ~~**KAT-2 (P1, S)** Podpowiadanie nazw z katalogu przy dodawaniu odmiany~~ ✅ 0.24.0.
 - ~~**KAT-11** Karta charakterystyki, podpowiedź opisu z internetu, szczegóły w katalogu~~ ✅ 0.18.0
 - **KAT-12 (P1, M)** Weryfikacja i ocena jakości podpowiedzi AI (oznaczanie błędów przez użytkowników, ręczna korekta, historia zmian opisu).
@@ -110,7 +110,7 @@ Bieżąca wersja: **0.44.0** (zamknięta beta, rejestracja z zaproszeniem).
 - **DT-4** Rankingi i filtry liczą się w przeglądarce ze wszystkich odmian (PLA-5).
 - **DT-5** Strefa czasowa `Europe/Warsaw` jest wpisana na stałe.
 - **DT-6** Import CSV ogranicza do 200 wierszy i nie ma podglądu błędów przed zapisem.
-- **DT-7** Wspólny katalog odmian może edytować każdy zalogowany (KAT-1).
+- ~~**DT-7** Wspólny katalog odmian może edytować każdy zalogowany (KAT-1)~~ ✅ propozycje zmian i zatwierdzanie przez admina.
 - **DT-8** Limit prób logowania opiera się o adres z `x-forwarded-for`.
 - **DT-9** Regulamin, polityka prywatności i treści Wiedzy są projektem roboczym (PRA-1, KAT-4).
 - ~~**DT-10** Zamknięcie zaproszenia przy nieudanej rejestracji nie było cofane~~ ✅ 0.16.0
