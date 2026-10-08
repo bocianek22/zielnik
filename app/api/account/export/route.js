@@ -26,10 +26,12 @@ export const GET = safe(async (req) => {
   const withPhotos = new URL(req.url).searchParams.get('photos') === '1';
   const q = sql();
   const me = user.id;
-  const [profile] = await q`SELECT username, display_name, bio, links, profile_visibility, consent_at, email, email_verified_at, email_consent_at, onboarded_at FROM users WHERE id = ${me}`;
+  const [profile] = await q`SELECT username, display_name, bio, links, profile_visibility, consent_at, consent_at AS "consentAt", consent_version AS "consentVersion", email, email_verified_at, email_consent_at, onboarded_at FROM users WHERE id = ${me}`;
   const data = {
     exportedAt: new Date().toISOString(),
     profile,
+    // historia zgód (dowód z art. 7 ust. 1 RODO); profile.consentAt/consent_at/consentVersion to ta sama, najnowsza zgoda
+    consentLog: await q`SELECT version, terms, health, at FROM consent_log WHERE user_id = ${me} ORDER BY at, id`,
     strainsCreated: await q`SELECT id, name, producer FROM strains WHERE created_by = ${me}`,
     strainPhotosAdded: withPhotos
       ? await inline(await q`SELECT s.name AS strain, s.producer, p.updated_at, p.mime, p.data AS photo_base64, p.blob_path FROM strain_photos p JOIN strains s ON s.id = p.strain_id WHERE p.uploaded_by = ${me} ORDER BY s.name`)
@@ -52,6 +54,8 @@ export const GET = safe(async (req) => {
     // propozycje zmian odmian (KAT-1): własne, ze statusem i powodem odrzucenia
     strainProposals: await q`SELECT s.name AS strain, p.status, p.changes, p.reject_reason AS "rejectReason", p.created_at AS "createdAt", p.decided_at AS "decidedAt"
       FROM strain_proposals p JOIN strains s ON s.id = p.strain_id WHERE p.user_id = ${me} ORDER BY p.created_at`,
+    // uwagi z formularza „Zgłoś uwagę” (BETA-A): własne, ze statusem; notatki admina nie eksportujemy
+    feedback: await q`SELECT kind, body, status, meta, created_at AS "createdAt" FROM beta_feedback WHERE user_id = ${me} ORDER BY created_at`,
     friends: await q`SELECT u.username, f.status FROM friendships f JOIN users u ON u.id = CASE WHEN f.requester = ${me} THEN f.addressee ELSE f.requester END WHERE f.requester = ${me} OR f.addressee = ${me}`,
     groups: await q`SELECT g.name, gm.role, gm.status FROM group_members gm JOIN groups g ON g.id = gm.group_id WHERE gm.user_id = ${me}`,
     prescriptions: await q`SELECT id, issued_on, valid_until, grams::float8 AS grams, unit, note FROM prescriptions WHERE user_id = ${me} ORDER BY issued_on`,
@@ -62,6 +66,8 @@ export const GET = safe(async (req) => {
     doctorNotes: await q`SELECT text, done, created_at AS "createdAt", done_at AS "doneAt" FROM doctor_notes WHERE user_id = ${me} ORDER BY created_at`,
     noUseDays: (await q`SELECT to_char(day, 'YYYY-MM-DD') AS day FROM no_use_days WHERE user_id = ${me} ORDER BY day`).map((r) => r.day),
     blocked: await q`SELECT u.username FROM blocks b JOIN users u ON u.id = b.blocked WHERE b.blocker = ${me}`,
+    // zgłoszenia wysłane przez użytkownika (z jego własnym opisem); zgłoszeń o nim samym nie ujawniamy (dane moderacji i zgłaszających)
+    reportsFiled: await q`SELECT type, reason, note, status, created_at AS "createdAt" FROM reports WHERE reporter_id = ${me} ORDER BY created_at`,
     // adresów subskrypcji (endpointy i klucze urządzeń) nie eksportujemy: to dane techniczne przeglądarki,
     // działają jak hasło do wysyłania powiadomień na urządzenie i nie mówią nic o użytkowniku; podajemy tylko ich liczbę i daty
     pushNotifications: {

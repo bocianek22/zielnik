@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { fileToDataUrl } from '@/lib/image';
 import { clearDeviceData } from '../components/deviceData';
-import { storedFcm } from '../components/native/bridge';
+import { storedFcm, widgetClear } from '../components/native/bridge';
 import { VIS } from '@/lib/visibility';
 import Icon from '../components/Icon';
 import Sessions from './Sessions';
@@ -49,13 +49,13 @@ export default function ProfileForm({ me, initial, children }) {
 
   async function del() {
     if (!confirm('Trwale usunąć konto i wszystkie Twoje dane? Tego nie da się cofnąć.')) return;
-    try { await api('/api/account', 'DELETE', { password: pw }); await clearQueue(); router.replace('/login'); router.refresh(); }
+    try { await api('/api/account', 'DELETE', { password: pw }); await clearQueue(); widgetClear(); router.replace('/login'); router.refresh(); }
     catch (err) { setMsg(err.message); }
   }
 
   async function logoutAll() {
     if (!confirm('Wylogować ze wszystkich urządzeń, także z tego?')) return;
-    try { await api('/api/auth/logout', 'POST', { all: true, fcmToken: storedFcm() || undefined }); clearDeviceData(); router.replace('/login'); router.refresh(); }
+    try { await api('/api/auth/logout', 'POST', { all: true, fcmToken: storedFcm() || undefined }); clearDeviceData(); widgetClear(); router.replace('/login'); router.refresh(); }
     catch (err) { setMsg(err.message); }
   }
 
@@ -95,6 +95,7 @@ export default function ProfileForm({ me, initial, children }) {
       <section className="card">
         <h2>Moje dane</h2>
         <p className="muted">Pobierz kopię wszystkich swoich danych: profil, oceny, opinie, zużycie, zakupy, testy, znajomych i grupy.</p>
+        <p className="muted">Dokumenty: <Link href="/regulamin">regulamin bety</Link> i <Link href="/prywatnosc">polityka prywatności</Link>.</p>
         <div className="list inset">
           <a className="list-row" href="/api/account/export"><Icon name="download" /><span className="lr-main">Pobierz dane (JSON)</span></a>
           <a className="list-row" href="/api/account/export?photos=1"><Icon name="download" /><span className="lr-main">Pobierz ze zdjęciami</span></a>

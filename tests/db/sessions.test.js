@@ -62,7 +62,7 @@ before(async () => {
   for (const n of ['ala', 'bob', 'cela', 'darek', 'ela', 'franek']) {
     jar.clear();
     client.ip = `10.1.0.${Object.keys(ids).length + 1}`;
-    const r = await req('auth/register', 'POST', { username: n, password: 'haslo1234', invite: 'test', adult: true, consent: true });
+    const r = await req('auth/register', 'POST', { username: n, password: 'haslo1234', invite: 'test', adult: true, consent: true, healthConsent: true });
     assert.equal(r.status, 200, JSON.stringify(r.json));
     ids[n] = (await q`SELECT id FROM users WHERE username = ${n}`)[0].id;
   }

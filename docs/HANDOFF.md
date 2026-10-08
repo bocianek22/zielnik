@@ -52,8 +52,19 @@ Tryb awaryjny (rozmowa bez dostępu do repozytorium):
 - Wybór bramki płatności i platformy wpłat (`DONATE_URL`), decyzja o `PREMIUM_ENFORCED`.
 - Źródło danych do katalogu (`CATALOG_FEED_URL`), plan Vercel Pro przy działalności komercyjnej.
 
-## 6. Następne kroki (aktualne dla wersji 0.48.0)
+## 6. Następne kroki (aktualne dla wersji 0.49.0)
 Pełna lista z uzasadnieniem: `docs/PRZEGLAD-2026-10.md`; aplikacje natywne: `docs/APLIKACJE-NATYWNE.md`; system projektowy: `docs/DESIGN.md`. Praca z podziałem na subagentów (`.claude/agents/`): koordynator scala gałęzie, uruchamia kontrole, zleca przegląd (reviewer) i prowadzi CHANGELOG/wersję. Przebieg pracy nocnej: `docs/PLAN-NOC.md`.
+1. **Przed betą (0.49.0), zadania właściciela, pełna lista w `docs/BETA.md`, stan w panelu admina → „Gotowość”:**
+   - Vercel: `LEGAL_ADMIN_NAME`, `LEGAL_CONTACT_EMAIL`, `BETA_GROUP_URL`, `ALERT_WEBHOOK_URL`, `AUTH_SECRET` (co najmniej 32 znaki), `BACKUP_ENCRYPTION_KEY`, `CRON_SECRET`; usunąć `SUGGEST_DOMAINS`; zostawić `BOCIAN_INITIAL_PASSWORD`.
+   - Prywatny Vercel Blob na kopie.
+   - Sprawdzić region Neon i ustawić ten sam region funkcji Vercel (`regions` w `vercel.json`; dziś domyślnie `iad1`, USA).
+   - UptimeRobot na `/api/health`.
+   - Po ustawieniu `LEGAL_*`: pierwsze wejście każdego konta, także admina, to akceptacja dokumentów (bez nich ekran zgody się nie pokazuje).
+   - „Gotowość” → liczba wpisów widocznych dla wszystkich: zdecydować, czy przestawić stare wpisy na prywatne.
+   - Na telefonie:
+     - „Zgłoś uwagę” z różnych ekranów;
+     - Pomoc i „Co nowego”;
+     - APK 0.4.0 z widżetem (lista w `mobile/README.md`).
 1. **Ręcznie na telefonie (0.48.0):** „Wykupiłem” przy dwóch ważnych receptach (wybór, „bez recepty”), Recepty (pozostało, informacja o szacunku), Historia → „Popraw” zakupu (trzy opcje recepty); nowe konto: kreator (wyszukiwanie odmiany z klawiaturą ekranową, powiadomienia w kroku 3 w APK, TalkBack przy zmianie kroku), pominięcie i brak powrotu na drugim urządzeniu; istniejące konto: panel „Dziś” bez kreatora. Następnie wg `docs/PLAN-PAZDZIERNIK.md`: widżet Androida wg `docs/WIDZET-ANDROID.md`, fala 5 (POM-28).
 1. **Właściciel (0.47.0), Vercel → zmienne, potem ponowne wdrożenie:** e-mail: `RESEND_API_KEY`, `MAIL_FROM` z domeną zweryfikowaną w Resend (neutralna nazwa nadawcy, np. `Notatnik <konto@domena.pl>`), `APP_URL`; alerty: `ALERT_WEBHOOK_URL` (Discord/Slack) i/lub `ALERT_EMAIL`, potem „Wyślij alert próbny” w Dzienniku błędów; przypomnienia: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, `CRON_SECRET`, a wieczorne objawy dodatkowo Vercel Pro + `0 * * * *` dla `/api/cron/reminders` i `PUSH_CRON_HOURLY=1`. Podpowiedzi z internetu: usunąć `SUGGEST_DOMAINS`, jeśli ustawione (zawęża wyszukiwanie).
 1. **Ręcznie na telefonie (0.47.0):** profil → e-mail (dodanie, mail potwierdzający, zmiana, usunięcie), „Nie pamiętam hasła” → mail → nowe hasło → inne urządzenia wylogowane; profil → „Przypomnienia” (data wizyty z klawiatury i z wybieraka, przełączniki); „Uzupełnij z internetu” dla odmian z polskimi nazwami aptecznymi (logi: linie `suggest:` z liczbą wyszukiwań i tokenów).

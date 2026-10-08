@@ -84,3 +84,8 @@
   .admin-tabs { width: fit-content; }
   .admin-tabs button { flex: none; }
 }
+
+/* uwagi testerów (status): ten sam znacznik u autora (/uwagi) i u admina */
+.fb-nowe { background: var(--warn-soft); color: var(--warn); }
+.fb-w_toku { background: var(--accent-soft); color: var(--on-accent-soft); }
+.fb-zrobione { background: var(--ok-soft); color: var(--ok); }

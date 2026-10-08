@@ -23,6 +23,9 @@
 .read-article .klist { max-width: 65ch; margin: var(--s-4) 0; }
 .read-article .klist > div { grid-template-columns: minmax(96px, 30%) 1fr; }
 .read-article .klist dt { color: var(--text); font-weight: 600; }
+.legal-list { max-width: 65ch; margin: 0 0 var(--s-4); padding-left: var(--s-5); line-height: 1.65; overflow-wrap: anywhere; }
+.legal-list li + li { margin-top: var(--s-2); }
+.legal-meta { font-size: var(--fs-sm); margin: var(--s-3) 0 0; }
 .to-top { display: inline-flex; align-items: center; min-height: var(--tap); font-size: var(--fs-sm); }
 @media (max-width: 560px) {
   .read-article .klist > div { grid-template-columns: 1fr; gap: 2px; padding: var(--s-3) 0; }
@@ -57,3 +60,22 @@
 
 .sources { margin: var(--s-2) 0 0; padding-left: var(--s-5); color: var(--text-2); }
 .sources li { margin-bottom: var(--s-1); overflow-wrap: anywhere; }
+
+/* pomoc */
+.steps { max-width: 65ch; margin: 0 0 var(--s-4); padding-left: var(--s-5); line-height: 1.65; }
+.steps li { margin-bottom: var(--s-2); overflow-wrap: anywhere; }
+.read-article h3 { font-size: var(--fs-lg); margin: var(--s-4) 0 var(--s-2); }
+.read-article .btn { text-decoration: none; }
+.faq-a { margin: 0; padding: 0 var(--s-4) var(--s-4); max-width: 65ch; line-height: 1.6; }
+
+/* uwagi testerów i „Co nowego” */
+.fb-row { align-items: flex-start; }
+.fb-body { display: block; white-space: pre-wrap; overflow-wrap: anywhere; font-weight: 400; }
+.wn-backdrop { position: fixed; inset: 0; z-index: 60; background: var(--scrim); }
+.wn { position: fixed; z-index: 61; left: var(--s-4); right: var(--s-4); bottom: max(var(--s-4), env(safe-area-inset-bottom)); max-width: 440px; margin: 0 auto; max-height: 80vh; overflow: auto;
+  padding: var(--s-5); background: var(--surface); color: var(--text); border: 1px solid var(--sep); border-radius: var(--r-xl); box-shadow: var(--shadow-2); }
+.wn h2 { margin: 0 0 var(--s-3); }
+.wn h3 { margin: var(--s-3) 0 var(--s-1); font-size: var(--fs-md); }
+.wn ul { margin: 0; padding-left: var(--s-5); line-height: 1.5; }
+.wn li { margin-bottom: var(--s-1); }
+.wn-actions { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-top: var(--s-4); }

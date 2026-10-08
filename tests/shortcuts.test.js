@@ -64,6 +64,18 @@ test('pliki natywne: komentarze XML bez „--”, ta sama nazwa dodatku i reguł
   assert.match(android('AndroidManifest.xml'), /android:name="android\.app\.shortcuts" android:resource="@xml\/shortcuts"/);
 });
 
+test('widżet (POM-13): ścieżki w StockWidget.java są bezpieczne i zgodne ze skrótem „Zapisz”', () => {
+  const widget = android('java/pl/zielnik/app/StockWidget.java');
+  const use = widget.match(/PATH_USE = "([^"]+)"/)?.[1];
+  const home = widget.match(/PATH_HOME = "([^"]+)"/)?.[1];
+  assert.equal(use, SHORTCUT_PATHS.use);
+  assert.equal(home, '/');
+  for (const p of [use, home]) assert.match(p, SAFE_PATH);
+  assert.match(widget, /putExtra\(MainActivity\.EXTRA_PATH, path\)/);
+  const u = new URL(use, 'https://x.pl');
+  assert.equal(shortcutAction(u.search, u.hash), 'use');
+});
+
 test('reportTitle: opis okresu albo neutralna nazwa w trybie dyskretnym', () => {
   assert.equal(reportTitle('2026-09-01', '2026-09-30'), 'Raport dla lekarza 2026-09-01 – 2026-09-30');
   assert.equal(reportTitle('2026-09-01', '2026-09-30', true), NEUTRAL_REPORT_TITLE);

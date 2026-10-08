@@ -7,6 +7,7 @@ import Icon from './Icon';
 import SymptomsQuick from './SymptomsQuick';
 import { unitOf } from '@/lib/units';
 import { shortcutAction, withoutUseParam } from '@/lib/shortcuts';
+import { daysLeft as daysOf } from '@/lib/widget';
 
 // Panel „Dziś” na stronie głównej: zapas i prognoza, zużycie z 14 dni, szybkie „Zużyłem”, szybki wpis objawów, recepty.
 // Daty liczy z dni z serwera (czas polski), a nie z zegara przeglądarki, żeby serwer i klient renderowały to samo.
@@ -129,7 +130,7 @@ function Prescriptions({ items, total }) {
 
 // Zapas i prognoza jednej jednostki; `named`: podpis jednostki, gdy w panelu są dwa bloki (g i ml)
 function StockBlock({ unit, stock, dailyUse, bought, today, named, ok, id }) {
-  const daysLeft = dailyUse > 0 && stock > 0 ? Math.floor(stock / dailyUse) : null;
+  const daysLeft = daysOf(stock, dailyUse);
   const pct = daysLeft != null ? Math.min(daysLeft / HORIZON, 1) * 100 : 0;
   const notes = [
     dailyUse > 0 && `średnio ${n2(dailyUse)} ${unit} dziennie`,
@@ -174,7 +175,7 @@ export default function TodayPanel({ stock, dailyUse, bought, low, series, presc
   const hasG = !hasMl || stock.g > 0 || dailyUse.g > 0;
   const units = [hasG && 'g', hasMl && 'ml'].filter(Boolean);
   const warnOf = (u) => {
-    const d = dailyUse[u] > 0 && stock[u] > 0 ? Math.floor(stock[u] / dailyUse[u]) : null;
+    const d = daysOf(stock[u], dailyUse[u]);
     return stock[u] > 0 && ((u === 'g' && low > 0 && stock[u] <= low) || (d != null && d < 7));
   };
   const warn = units.some(warnOf);

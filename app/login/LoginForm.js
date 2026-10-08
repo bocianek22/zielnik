@@ -57,6 +57,7 @@ export default function LoginForm({ forgot = false }) {
           <button type="submit" className="btn" disabled={busy}>{busy ? 'Logowanie…' : 'Zaloguj się'}</button>
           {forgot && <p className="auth-alt"><a href="/odzyskaj-haslo">Nie pamiętam hasła</a></p>}
           <p className="auth-alt">Masz kod zaproszenia? <a href="/register">Załóż konto</a></p>
+          <p className="auth-alt"><a href="/regulamin">Regulamin</a> · <a href="/prywatnosc">Polityka prywatności</a></p>
         </form>
       </main>
     </div>

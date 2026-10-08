@@ -10,7 +10,7 @@ import {
 } from '@/lib/applock';
 import { clearDeviceData } from './deviceData';
 import { dropPush } from './LogoutButton';
-import { isNative, storedFcm } from './native/bridge';
+import { isNative, storedFcm, widgetClear } from './native/bridge';
 import useFocusTrap from './useFocusTrap';
 
 const ss = {
@@ -34,6 +34,7 @@ export async function forceLogout({ keepData = false } = {}) {
     await api('/api/auth/logout', 'POST', pushEndpoint || fcmToken ? { pushEndpoint, fcmToken } : undefined);
   } catch { return false; } // ciasteczko sesji kasuje tylko serwer: bez niego nie udajemy wylogowania
   clearDeviceData();
+  widgetClear();
   window.location.replace('/login');
   return true;
 }

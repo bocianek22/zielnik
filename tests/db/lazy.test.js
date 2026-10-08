@@ -27,7 +27,7 @@ async function call(uid, route, method, body, params = {}) {
 }
 
 const register = async (username) => {
-  const r = await call(null, 'auth/register', 'POST', { username, password: 'haslo1234', invite: 'lazy', adult: true, consent: true });
+  const r = await call(null, 'auth/register', 'POST', { username, password: 'haslo1234', invite: 'lazy', adult: true, consent: true, healthConsent: true });
   assert.equal(r.status, 200, JSON.stringify(r.json));
   return (await q`SELECT id FROM users WHERE username = ${username}`)[0].id;
 };

@@ -3,6 +3,7 @@
 // Skrypt można uruchomić ponownie na tej samej bazie: istniejące konta są logowane, odmiany nie są dublowane.
 import pg from 'pg';
 import { pngBytes } from '../../tests/db/images.mjs';
+import { legalVersion } from '../../lib/legal.js';
 
 const args = process.argv.slice(2);
 const pi = args.indexOf('--port');
@@ -39,12 +40,14 @@ await q("INSERT INTO invites (code, max_uses) VALUES ('DEV1', 50) ON CONFLICT DO
 
 async function user(username) {
   const c = client(), password = `${username}-haslo-1`;
-  const r = await c('/api/auth/register', 'POST', { invite: 'DEV1', username, password, adult: true, consent: true });
+  const r = await c('/api/auth/register', 'POST', { invite: 'DEV1', username, password, adult: true, consent: true, healthConsent: true });
   if (r.status >= 400) must(await c('/api/auth/login', 'POST', { username, password }), `login ${username}`);
   const [row] = await q('SELECT id FROM users WHERE username = $1', [username]);
   return { c, id: row.id };
 }
 const ania = await user('ania'), bartek = await user('bartek');
+// konta bez zapisanej wersji dokumentów (Bocian z bootstrapu) dostałyby ekran akceptacji i zatrzymały inne testy
+await q('UPDATE users SET consent_version = $1, consent_at = COALESCE(consent_at, now()) WHERE consent_version IS NULL', [legalVersion()]);
 
 const SUSZ = [
   { name: 'Lemon Skunk', producer: 'Aurora', type: 'haze', kind: 'sativa', thc: 22, cbd: 0.5, finalRating: 8.5, taste: 'cytrusowy, ziemisty', terpenes: ['Limonen', 'Mircen'], price: 45, batch: 'A2231', description: 'Wyraźnie pobudzająca, dobra na dzień.' },

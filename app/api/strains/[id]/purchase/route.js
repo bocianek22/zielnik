@@ -3,6 +3,7 @@ import { sql } from '@/lib/db';
 import { requireUser, bad, safe, intId } from '@/lib/guard';
 import { requestId, clientAt, otherAccount, OTHER_ACCOUNT_MSG } from '@/lib/ids';
 import { parseNumber } from '@/lib/strains';
+import { hit } from '@/lib/ratelimit';
 
 // Zapis wykupu: zwiększa stan, zmniejsza pulę "do wykupienia", dopisuje wpis do historii zakupów.
 // requestId (z klienta): ponowione żądanie nie zapisuje drugi raz i oddaje pierwszy wpis.
@@ -11,6 +12,8 @@ import { parseNumber } from '@/lib/strains';
 export const POST = safe(async (req, { params }) => {
   const { user, res } = await requireUser();
   if (res) return res;
+  // wysoki limit (kolejka offline potrafi wysłać wiele zapisów naraz; 429 jest ponawiane, nic nie ginie)
+  if (!(await hit(`purchase:${user.id}`, 300, 3600))) return bad('Zbyt wiele zapisów. Spróbuj ponownie za chwilę.', 429);
   const id = intId((await params).id);
   const body = await req.json().catch(() => ({}));
   const g = parseNumber(body.grams, 0.01, 100000);

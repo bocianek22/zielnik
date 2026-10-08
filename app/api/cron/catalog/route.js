@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { bad, cronAuthorized, safe } from '@/lib/guard';
+import { markCron } from '@/lib/readiness';
 import { syncCatalog } from '@/lib/catalog';
 import { csvToObjects } from '@/lib/csv';
 
@@ -18,5 +19,7 @@ export const GET = safe(async (req) => {
     const j = JSON.parse(text);
     rows = Array.isArray(j) ? j : j.items || [];
   } else rows = csvToObjects(text);
-  return NextResponse.json(await syncCatalog(rows, 'automatyczne źródło'));
+  const result = await syncCatalog(rows, 'automatyczne źródło');
+  await markCron('catalog');
+  return NextResponse.json(result);
 });

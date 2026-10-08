@@ -42,7 +42,7 @@ before(async () => {
   q = db.sql();
   await q`INSERT INTO invites (code, max_uses) VALUES ('FCM', 10)`;
   for (const name of ['ania', 'bartek']) {
-    const r = await call(null, 'auth/register', 'POST', { username: name, password: 'haslo1234', invite: 'fcm', adult: true, consent: true });
+    const r = await call(null, 'auth/register', 'POST', { username: name, password: 'haslo1234', invite: 'fcm', adult: true, consent: true, healthConsent: true });
     assert.equal(r.status, 200, JSON.stringify(r.json));
   }
   for (const u of await q`SELECT id, username FROM users`) ids[u.username] = u.id;
