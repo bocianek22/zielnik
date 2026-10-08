@@ -18,6 +18,7 @@ import './styles/social.css';
 import './styles/content.css';
 import './styles/home.css';
 import './styles/platform.css';
+import './styles/proposals.css';
 import { cookies, headers } from 'next/headers';
 import { isNativeApp } from '@/lib/client';
 import RegisterSW from './components/RegisterSW';
@@ -65,7 +66,7 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="pl" data-discreet={discreet ? '1' : undefined} className={`${display.variable} ${body.variable}${native ? ' native-app' : ''}`} suppressHydrationWarning>
       <head>
-        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: "try{var t=localStorage.getItem('zielnik.theme');if(t==='dark'||t==='light')document.documentElement.dataset.theme=t}catch(e){}try{if(localStorage.getItem('zielnik.discreet')==='1'&&document.documentElement.dataset.discreet!=='1'){document.documentElement.dataset.discreet='1';document.cookie='zielnik_discreet=1; path=/; max-age=31536000; SameSite=Lax'}}catch(e){}" }} />
+        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: "try{var t=localStorage.getItem('zielnik.theme');if(t==='dark'||t==='light')document.documentElement.dataset.theme=t}catch(e){}try{if(localStorage.getItem('zielnik.big')==='1')document.documentElement.classList.add('big-ui')}catch(e){}try{if(localStorage.getItem('zielnik.discreet')==='1'&&document.documentElement.dataset.discreet!=='1'){document.documentElement.dataset.discreet='1';document.cookie='zielnik_discreet=1; path=/; max-age=31536000; SameSite=Lax'}}catch(e){}" }} />
         <script nonce={nonce} dangerouslySetInnerHTML={{ __html: BOOT_SCRIPT }} />
       </head>
       <body>{children}<RegisterSW /><DiscreetGuard /><NativeShell /><WebLock /></body>

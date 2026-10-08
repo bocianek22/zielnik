@@ -69,6 +69,12 @@ export async function hydrated(page) {
   }, null, { timeout: 15000 });
 }
 
+// React podpina obsługę zdarzeń do poddrzew w różnym czasie; przed klawiaturą czekamy na konkretny element
+export async function interactive(locator) {
+  await locator.page().waitForFunction((el) => Object.keys(el).some((k) => k.startsWith('__reactProps')),
+    await locator.elementHandle(), { timeout: 15000 });
+}
+
 export async function go(page, path) {
   await page.goto(`${BASE}${path}`, { waitUntil: 'load' });
   await hydrated(page);

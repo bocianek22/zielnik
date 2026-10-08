@@ -52,8 +52,9 @@ Tryb awaryjny (rozmowa bez dostępu do repozytorium):
 - Wybór bramki płatności i platformy wpłat (`DONATE_URL`), decyzja o `PREMIUM_ENFORCED`.
 - Źródło danych do katalogu (`CATALOG_FEED_URL`), plan Vercel Pro przy działalności komercyjnej.
 
-## 6. Następne kroki (aktualne dla wersji 0.45.0)
+## 6. Następne kroki (aktualne dla wersji 0.46.0)
 Pełna lista z uzasadnieniem: `docs/PRZEGLAD-2026-10.md`; aplikacje natywne: `docs/APLIKACJE-NATYWNE.md`; system projektowy: `docs/DESIGN.md`. Praca z podziałem na subagentów (`.claude/agents/`): koordynator scala gałęzie, uruchamia kontrole, zleca przegląd (reviewer) i prowadzi CHANGELOG/wersję. Przebieg pracy nocnej: `docs/PLAN-NOC.md`.
+1. **Ręcznie na telefonie (0.46.0):** edycja cudzej odmiany = „Wyślij propozycję” (także samo zdjęcie), panel admina → „Propozycje” (przyjmij/odrzuć, konflikt), status u autora; profil → „Większy tekst i przyciski” na 320 px z systemową czcionką 130-200%; TalkBack/VoiceOver w arkuszu „Więcej”, blokadzie PIN i formularzu odmiany (`docs/DOSTEPNOSC.md`).
 1. **Ręcznie na telefonie (0.45.0):** koło fortuny i rankingi (szybsze, te same wyniki), ikona karty (liść; w trybie dyskretnym neutralny notatnik). Testy: `npm run test:e2e`, `npm run test:perf` (opis w `docs/AGENCI.md` sekcja 7). Plan do 31.10: `docs/PLAN-PAZDZIERNIK.md`.
 1. **Ręcznie na telefonie (0.44.0):** porównanie 3 odmian na 320 px: wiersze „Zużyłem razem”, „Średnio dziennie”, „Ostatnie użycie”.
 1. **Ręcznie na telefonie (0.43.0):** Raport → „Do omówienia z lekarzem”: dodanie punktu, widoczny w arkuszu i na wydruku/PDF, odhaczenie (znika z wydruku, „Omówione”), usunięcie.

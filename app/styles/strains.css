@@ -125,7 +125,7 @@
 .entry-field label, .entry-field .lbl { font-size: var(--fs-xs); font-weight: 600; color: var(--text-2); }
 .entry-field b { padding-top: 6px; font-variant-numeric: tabular-nums; }
 .entry-field .notes-text, .entry-field.notes > span:last-child { padding-top: 6px; overflow-wrap: anywhere; }
-.entry-field .input { padding: 8px 10px; background: var(--field-bg); min-height: var(--tap); font-size: 16px; }
+.entry-field .input { padding: 8px 10px; background: var(--field-bg); min-height: var(--tap); font-size: 1rem; }
 .entry-field .btn.small, .use-row .btn { min-height: var(--tap); }
 .entry-field.use, .entry-field.buy, .entry-field.vis, .entry-field.price { grid-column: 1 / -1; }
 .entry-field.price .input, .vis-select, .entry-field.vis .input { max-width: 260px; }
@@ -168,10 +168,10 @@
 .quick-more summary { min-height: var(--tap); display: flex; align-items: center; cursor: pointer; font-size: var(--fs-sm); color: var(--text-2); }
 .quick-more-row { display: grid; gap: var(--s-1); }
 .quick-more-row label { font-weight: 600; font-size: var(--fs-sm); }
-.quick-more-row .input { font-size: 16px; min-height: var(--tap); }
+.quick-more-row .input { font-size: 1rem; min-height: var(--tap); }
 .quick-chips .chip, .chips.small.quick-chips .chip { min-height: var(--tap); padding: 0 var(--s-4); font-size: .9375rem; font-weight: 500; cursor: pointer; border: 1px solid var(--sep-strong); border-radius: var(--r-pill); background: var(--surface); color: var(--text); font-variant-numeric: tabular-nums; }
 .quick-panel .use-row { max-width: none; }
-.quick-panel .use-row .input { flex: 1 1 110px; min-width: 0; font-size: 16px; min-height: var(--tap); }
+.quick-panel .use-row .input { flex: 1 1 110px; min-width: 0; font-size: 1rem; min-height: var(--tap); }
 .quick-panel .btn.small { min-height: var(--tap); }
 .quick-msg { margin: 0; font-size: var(--fs-sm); color: var(--ok); font-weight: 600; }
 .quick-msg:empty { display: none; }

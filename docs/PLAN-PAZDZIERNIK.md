@@ -30,4 +30,4 @@ Kolejność może się przesunąć, gdy właściciel poda klucze (fala 3) albo z
 | PLA-3 | przejście na Vercel Pro |
 
 ## Stan
-- 8.10: plan zapisany, stare worktree wyczyszczone, fala 1 uruchomiona.
+- 8.10: plan zapisany, fala 1 (POM-35, E2E, Lighthouse) wydana jako 0.45.0 (PR #17), job E2E w CI zielony za pierwszym razem. Fala 2 (KAT-1, UX-2) w toku.

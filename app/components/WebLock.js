@@ -11,6 +11,7 @@ import {
 import { clearDeviceData } from './deviceData';
 import { dropPush } from './LogoutButton';
 import { isNative, storedFcm } from './native/bridge';
+import useFocusTrap from './useFocusTrap';
 
 const ss = {
   get: (k) => { try { return sessionStorage.getItem(k); } catch { return null; } },
@@ -133,6 +134,8 @@ function LockScreen({ onUnlock }) {
   const [rec] = useState(() => loadLock());
   const [discreet] = useState(() => isDiscreet());
   const input = useRef(null);
+  const box = useRef(null);
+  useFocusTrap(box, true);
   const name = discreet ? 'Notatnik' : 'Zielnik';
 
   // odliczanie opóźnienia po błędnych próbach
@@ -173,7 +176,7 @@ function LockScreen({ onUnlock }) {
   const secs = Math.ceil(fail.wait / 1000);
   const left = 10 - fail.n;
   return (
-    <div className="web-lock" role="dialog" aria-modal="true" aria-labelledby="web-lock-h">
+    <div className="web-lock" ref={box} role="dialog" aria-modal="true" aria-labelledby="web-lock-h">
       <form className="web-lock-in" onSubmit={submit}>
         <h2 id="web-lock-h">{name} jest zablokowany</h2>
         <p>Podaj PIN{rec?.cred ? ' albo użyj odcisku palca lub twarzy' : ''}.</p>

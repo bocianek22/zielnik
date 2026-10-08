@@ -12,8 +12,10 @@ const pt = (i, v) => {
 const poly = (vals) => vals.map((v, i) => pt(i, v ?? 0).join(',')).join(' ');
 
 function Radar({ avg, mine }) {
+  const v = (x) => (x == null ? 'brak' : String(Math.round(x * 10) / 10).replace('.', ','));
   return (
-    <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="radar" role="img" aria-label="Wykres odczuć: średnia i Twoje oceny">
+    <>
+    <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="radar" role="img" aria-label="Wykres odczuć: średnia i Twoje oceny. Dane w tabeli poniżej.">
       {[2.5, 5, 7.5, 10].map((lvl) => (
         <polygon key={lvl} points={poly(EFFECTS.map(() => lvl))} fill="none" stroke="var(--line)" />
       ))}
@@ -26,9 +28,15 @@ function Radar({ avg, mine }) {
           </g>
         );
       })}
-      <polygon className="radar-avg" points={poly(avg)} fill="rgba(217,153,43,.30)" stroke="#d9992b" strokeWidth="2" />
-      <polygon className="radar-me" points={poly(mine)} fill="rgba(47,91,58,.18)" stroke="#2f5b3a" strokeWidth="2" strokeDasharray="5 3" />
+      <polygon className="radar-avg" points={poly(avg)} fill="var(--kind-sativa)" fillOpacity=".3" stroke="var(--kind-sativa)" strokeWidth="2" />
+      <polygon className="radar-me" points={poly(mine)} fill="var(--accent)" fillOpacity=".18" stroke="var(--accent)" strokeWidth="2" strokeDasharray="5 3" />
     </svg>
+    <div className="sr-only"><table>
+      <caption>Skala odczuć, 0–10</caption>
+      <thead><tr><th scope="col">Odczucie</th><th scope="col">Średnia wszystkich</th><th scope="col">Twoja ocena</th></tr></thead>
+      <tbody>{EFFECTS.map(([k, label], i) => <tr key={k}><th scope="row">{label}</th><td>{v(avg[i] || null)}</td><td>{v(mine[i])}</td></tr>)}</tbody>
+    </table></div>
+    </>
   );
 }
 
@@ -65,6 +73,7 @@ export default function Effects({ strain, meId }) {
               <label htmlFor={`fx-${k}`}>{label} <b>{mine[k] ?? '–'}</b></label>
               <small className="muted">{EFFECT_HELP[k]}</small>
               <input id={`fx-${k}`} type="range" min="0" max="10" step="1" value={mine[k] ?? 5}
+                aria-valuetext={mine[k] == null ? 'nie oceniono, przesuń, aby ustawić' : `${mine[k]} z 10`}
                 onChange={(e) => setMine((p) => ({ ...p, [k]: Number(e.target.value) }))} />
               {mine[k] != null && <button type="button" className="btn ghost small" onClick={() => setMine((p) => ({ ...p, [k]: null }))}>Wyczyść ocenę</button>}
             </div>

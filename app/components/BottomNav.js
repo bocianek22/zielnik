@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import useFocusTrap from './useFocusTrap';
 import { usePathname, useRouter } from 'next/navigation';
 import NavBadge from './NavBadge';
 import ThemeToggle from './ThemeToggle';
@@ -17,12 +18,11 @@ export default function BottomNav({ isAdmin }) {
   const [open, setOpen] = useState(false);
   const [fab, setFab] = useState(false);
   useEffect(() => { setOpen(false); setFab(false); }, [path]);
-  useEffect(() => {
-    if (!open && !fab) return undefined;
-    const onKey = (e) => { if (e.key === 'Escape') { setOpen(false); setFab(false); } };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [open, fab]);
+  const sheetRef = useRef(null);
+  const fabRef = useRef(null);
+  const closeAll = () => { setOpen(false); setFab(false); };
+  useFocusTrap(sheetRef, open, closeAll);
+  useFocusTrap(fabRef, fab, closeAll);
 
   function newStrain() {
     setFab(false);
@@ -33,9 +33,9 @@ export default function BottomNav({ isAdmin }) {
   const sheet = navItems('sheet', isAdmin);
   return (
     <>
-      {(open || fab) && <div className="sheet-backdrop" onClick={() => { setOpen(false); setFab(false); }} />}
+      {(open || fab) && <div className="sheet-backdrop" onClick={closeAll} aria-hidden="true" />}
       {fab && (
-        <div className="fab-menu list" role="menu">
+        <div className="fab-menu list" role="menu" ref={fabRef}>
           <button type="button" role="menuitem" className="list-row" onClick={newStrain}><Icon name="plus" /><span className="lr-main">Nowa odmiana</span></button>
           <Link href="/dziennik" role="menuitem" className="list-row"><Icon name="pulse" /><span className="lr-main">Objawy dnia</span></Link>
           <Link href="/historia" role="menuitem" className="list-row"><Icon name="clock" /><span className="lr-main">Historia zużycia i zakupów</span></Link>
@@ -48,7 +48,7 @@ export default function BottomNav({ isAdmin }) {
         </button>
       )}
       {open && (
-        <nav className="sheet" aria-label="Więcej">
+        <nav className="sheet" aria-label="Więcej" ref={sheetRef}>
           {SHEET_GROUPS.map(([g, title]) => {
             const items = sheet.filter((i) => i.sheet === g);
             if (!items.length) return null;

@@ -14,6 +14,24 @@ function apply(next) {
 }
 const systemDark = () => typeof matchMedia === 'function' && matchMedia('(prefers-color-scheme: dark)').matches;
 
+// „Większy tekst i przyciski” (POM-22): ustawienie tylko na tym urządzeniu; klasę na <html> ustawia też skrypt startowy w layout.js
+export function BigChoice() {
+  const [on, setOn] = useState(false);
+  useEffect(() => { setOn(document.documentElement.classList.contains('big-ui')); }, []);
+  function toggle(e) {
+    const next = e.target.checked;
+    setOn(next);
+    document.documentElement.classList.toggle('big-ui', next);
+    try { if (next) localStorage.setItem('zielnik.big', '1'); else localStorage.removeItem('zielnik.big'); } catch {}
+  }
+  return (
+    <label className="switch-row">
+      <span>Większy tekst i przyciski<small className="muted" style={{ display: 'block', fontWeight: 400 }}>Powiększa pismo i przyciski. Dotyczy tylko tego urządzenia.</small></span>
+      <input type="checkbox" className="switch" checked={on} onChange={toggle} />
+    </label>
+  );
+}
+
 // Szybki przełącznik w menu: odwraca to, co widać teraz (także gdy motyw wynika z systemu)
 export default function ThemeToggle({ variant }) {
   const [dark, setDark] = useState(false);

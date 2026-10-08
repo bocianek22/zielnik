@@ -8,6 +8,16 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.46.0] - 2026-10
+### Dodano
+- Propozycje zmian w katalogu (KAT-1, DT-7): twórca nieużywanej odmiany i admin edytują wspólne pola bezpośrednio, każdy inny wysyła propozycję; admin w zakładce „Propozycje” widzi różnice pole po polu (konflikty podświetlone), przyjmuje (także mimo konfliktu) albo odrzuca z powodem; autor widzi status w szczegółach odmiany i może wycofać oczekującą. Limity: 20 oczekujących na osobę, 30 na godzinę. Nowi producenci, typy i terpeny trafiają do wspólnych list dopiero po akceptacji. Eksport konta: `strainProposals`.
+- Dostępność (UX-2, POM-21, POM-22): ustawienie „Większy tekst i przyciski” (na urządzeniu, bez migania), cele dotykowe ≥ 44 px (≥ 56 px w trybie dużym), pułapki fokusu z powrotem fokusu w blokadzie PIN, menu, podglądzie zdjęcia i formularzu odmiany na telefonie, tabela tekstowa dla wykresu odczuć, `prefers-reduced-motion`; testy axe (WCAG 2.2 AA) i klawiatury w E2E; opis w `docs/DOSTEPNOSC.md`.
+### Naprawiono
+- „Uzupełnij z internetu” prawie nigdy nie znajdowało danych, choć płaciło za wyszukiwania: odpowiedź z cytatami była sklejana z błędem (JSON nie dawał się odczytać), a wyszukiwanie ograniczały 4 zagraniczne serwisy, w których nie ma nazw aptecznych. Teraz: cały internet z perspektywy Polski (najpierw producent i polskie źródła, potem genetyka po samej nazwie), karta oddawana przez narzędzie ze schematem, wystarczą częściowe dane (np. samo THC i terpeny), wznowienie po `pause_turn`, źródła tylko spośród faktycznych wyników. „Nie znaleziono” zapamiętane na 7 dni (ponowna próba nic nie kosztuje), w dzienniku liczba wyszukiwań i tokenów każdego wywołania. Domyślny model: `claude-haiku-5-5` (`ANTHROPIC_MODEL`), `SUGGEST_DOMAINS` zawęża wyszukiwanie tylko, gdy ustawione.
+- Błąd CSP w konsoli przy pełnym ładowaniu strony odmiany, koła i rankingów (podgląd skryptu `next/dynamic` bez nonce): zwykłe importy.
+### Uwaga przy wdrożeniu
+- Migracja addytywna: tabela `strain_proposals`, funkcje `strain_common_json`, `strain_used_by_others`.
+
 ## [0.45.0] - 2026-10
 ### Dodano
 - Testy E2E na stałe (`tests/e2e/`, `npm run test:e2e`): 10 scenariuszy na 390 px (logowanie, „Zużyłem”/„Wykupiłem” z „Cofnij”, objawy z własnymi, „Dziś bez zużycia”, „W aptece”, „Do omówienia”, blokada PIN i „Zmień PIN”, tryb dyskretny, wylogowanie), każdy pada przy błędzie konsoli, CSP albo odpowiedzi ≥ 400; nowy job w CI.

@@ -3,7 +3,7 @@
 // Każdy test kończy się porażką także wtedy, gdy w konsoli pojawi się błąd, naruszenie CSP albo odpowiedź >= 400.
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { launch, phone, login, shot, go, hydrated } from './helpers.mjs';
+import { launch, phone, login, shot, go, hydrated, interactive } from './helpers.mjs';
 
 let browser;
 let session; // storageState konta ania po pierwszym logowaniu (kolejne testy nie obciążają limitu logowań)
@@ -235,6 +235,43 @@ scenario('tryb dyskretny: nazwy rozmyte, tytuł "Notatnik"', async (page) => {
   await page.waitForSelector('.dn');
   assert.ok((await page.$$eval('.dn', (els) => els.map((e) => getComputedStyle(e).filter))).every((f) => !/blur/.test(f)));
 }, withSession);
+
+scenario('KAT-1: edycja cudzej odmiany to propozycja; admin ją odrzuca z powodem, autor widzi status', async (page, ctx, problems) => {
+  await login(page, 'bartek');
+  const id = await page.evaluate(async () => (await (await fetch('/api/strains?limit=100')).json()).strains.find((x) => x.name === 'Lemon Skunk').id);
+  await go(page, `/strains/${id}`);
+  const edit = page.getByRole('button', { name: 'Edytuj odmianę' });
+  await interactive(edit);
+  await edit.click();
+  await page.getByText('Twoja zmiana trafi do akceptacji').waitFor();
+  await page.locator(`#s${id}-taste`).fill('propozycja e2e');
+  await page.getByRole('button', { name: 'Wyślij', exact: true }).click();
+  await page.getByText('Propozycja wysłana').waitFor();
+  await page.getByRole('button', { name: 'Zamknij' }).click();
+  await page.getByRole('heading', { name: 'Twoja propozycja czeka' }).waitFor();
+  assert.ok(!(await text(page.locator('main'))).includes('propozycja e2e') || (await text(page.locator('.proposal-box'))).includes('propozycja e2e'), 'odmiana bez zmian do decyzji admina');
+  // admin: zakładka „Propozycje”, różnica pole po polu, odrzucenie z powodem
+  const admin = await phone(browser);
+  const ap = await admin.ctx.newPage();
+  try {
+    await login(ap, 'Bocian');
+    await go(ap, '/admin');
+    const tab = ap.getByRole('tab', { name: /Propozycje/ });
+    await interactive(tab);
+    await tab.click();
+    const item = ap.locator('.proposal-item', { hasText: 'Lemon Skunk' });
+    await item.getByText('propozycja e2e').waitFor();
+    await item.getByRole('button', { name: 'Odrzuć…' }).click();
+    await item.getByLabel(/Powód odrzucenia/).fill('Smak do sprawdzenia');
+    await item.getByRole('button', { name: 'Odrzuć', exact: true }).click();
+    await ap.locator('.proposal-item', { hasText: 'Lemon Skunk' }).waitFor({ state: 'detached' });
+    assert.deepEqual(admin.problems.left(), []);
+  } finally { await admin.ctx.close(); }
+  await page.reload();
+  await page.getByRole('heading', { name: 'Twoja propozycja została odrzucona' }).waitFor();
+  assert.match(await text(page.locator('.proposal-box')), /Smak do sprawdzenia/);
+  assert.deepEqual(problems.left(), []);
+});
 
 scenario('wylogowanie', async (page) => {
   await login(page, 'ania');

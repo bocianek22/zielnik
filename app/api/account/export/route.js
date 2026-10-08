@@ -49,6 +49,9 @@ export const GET = safe(async (req) => {
       ? await inline(await q`SELECT s.name AS strain, t.note, t.visibility, t.created_at, t.mime, t.data AS photo_base64, t.blob_path FROM strain_tests t JOIN strains s ON s.id = t.strain_id WHERE t.user_id = ${me} ORDER BY t.created_at`)
       : await q`SELECT s.name AS strain, t.note, t.visibility, t.created_at, (t.data IS NOT NULL) AS has_photo FROM strain_tests t JOIN strains s ON s.id = t.strain_id WHERE t.user_id = ${me} ORDER BY t.created_at`,
     strainEdits: await q`SELECT s.name AS strain, e.at, e.changes FROM strain_edits e JOIN strains s ON s.id = e.strain_id WHERE e.user_id = ${me} ORDER BY e.at`,
+    // propozycje zmian odmian (KAT-1): własne, ze statusem i powodem odrzucenia
+    strainProposals: await q`SELECT s.name AS strain, p.status, p.changes, p.reject_reason AS "rejectReason", p.created_at AS "createdAt", p.decided_at AS "decidedAt"
+      FROM strain_proposals p JOIN strains s ON s.id = p.strain_id WHERE p.user_id = ${me} ORDER BY p.created_at`,
     friends: await q`SELECT u.username, f.status FROM friendships f JOIN users u ON u.id = CASE WHEN f.requester = ${me} THEN f.addressee ELSE f.requester END WHERE f.requester = ${me} OR f.addressee = ${me}`,
     groups: await q`SELECT g.name, gm.role, gm.status FROM group_members gm JOIN groups g ON g.id = gm.group_id WHERE gm.user_id = ${me}`,
     prescriptions: await q`SELECT issued_on, valid_until, grams::float8 AS grams, unit, note FROM prescriptions WHERE user_id = ${me} ORDER BY issued_on`,
