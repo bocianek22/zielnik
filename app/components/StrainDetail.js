@@ -12,6 +12,7 @@ import CharacteristicCard from './CharacteristicCard';
 import PharmacyLink from './PharmacyLink';
 import Lightbox, { PhotoCredit } from './Lightbox';
 import StrainHistory from './StrainHistory';
+import StrainProposals from './StrainProposals';
 import UsageChart from './UsageChart';
 import { expiryInfo } from '@/lib/expiry';
 import { formLabel } from '@/lib/forms';
@@ -82,7 +83,7 @@ function MyStats({ stats, unit }) {
   );
 }
 
-export default function StrainDetail({ strain, options, tastes, mates, tests, stats, me }) {
+export default function StrainDetail({ strain, options, tastes, mates, tests, stats, me, proposals = [], proposing = false }) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [opts, setOpts] = useState(options);
@@ -124,8 +125,10 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, st
         {!editing && <button type="button" className="btn text" aria-label="Edytuj odmianę" onClick={() => setEditing(true)}><Icon name="edit" size={18} />Edytuj</button>}
       </div>
 
+      {!editing && <StrainProposals proposals={proposals} onChange={() => router.refresh()} />}
+
       {editing ? (
-        <StrainForm strain={strain} options={opts} tastes={tastes} canDelete={canDelete} hidePrice={me.hidePrices} onOptionsChange={setOpts}
+        <StrainForm strain={strain} options={opts} tastes={tastes} canDelete={canDelete} proposing={proposing} hidePrice={me.hidePrices} onOptionsChange={setOpts}
           onDone={() => { setEditing(false); router.refresh(); }} onDeleted={() => router.push('/')}
           onCancel={() => setEditing(false)} />
       ) : (

@@ -12,7 +12,8 @@ import { unitOf, suggestForm } from '@/lib/units';
 
 // Formularz pól wspólnych: producent, odmiana, rodzaj, typ, THC/CBD, terpeny, opis, smak, zdjęcie
 // hidePrice: aplikacja natywna (lib/client.js); pole ceny znika, ale wartość zostaje w stanie, więc zapis jej nie kasuje
-export default function StrainForm({ strain, options, tastes, canDelete, hidePrice = false, onOptionsChange, onDone, onDeleted, onCancel }) {
+// proposing: edycja cudzej odmiany (KAT-1), zmiana trafia do akceptacji admina jako propozycja
+export default function StrainForm({ strain, options, tastes, canDelete, proposing = false, hidePrice = false, onOptionsChange, onDone, onDeleted, onCancel }) {
   const [f, setF] = useState({
     producer: strain?.producer ?? '',
     name: strain?.name ?? '',
@@ -39,6 +40,7 @@ export default function StrainForm({ strain, options, tastes, canDelete, hidePri
   const [error, setError] = useState('');
   const [fe, setFe] = useState({}); // błędy przy polach: { klucz: komunikat }
   const [busy, setBusy] = useState(false);
+  const [sent, setSent] = useState(false); // propozycja wysłana (serwer mógł uznać edycję za propozycję mimo braku znacznika)
   const set = (k) => (v) => setF((p) => ({ ...p, [k]: v }));
   const uid = strain ? `s${strain.id}` : 'new';
   // nowa odmiana o nazwie „Extractum …”: podpowiedź postaci „Olej” (bez wymuszania; znika po ręcznym wyborze postaci)
@@ -90,8 +92,10 @@ export default function StrainForm({ strain, options, tastes, canDelete, hidePri
     try {
       let id = strain?.id;
       const body = { ...f, thc: parseNum(f.thc) ?? '', cbd: parseNum(f.cbd) ?? '', finalRating: parseNum(f.finalRating) ?? '', price: parseNum(f.price) ?? '', sources, descriptionAuto: auto };
-      if (strain) await api(`/api/strains/${id}`, 'PATCH', body);
-      else id = (await api('/api/strains', 'POST', body)).id;
+      if (strain) {
+        const r = await api(`/api/strains/${id}`, 'PATCH', body);
+        if (r.proposal) { setSent(true); setBusy(false); return; }
+      } else id = (await api('/api/strains', 'POST', body)).id;
       try {
         if (photo.data) await api(`/api/strains/${id}/photo`, 'PUT', { image: photo.data });
         else if (photo.remove) await api(`/api/strains/${id}/photo`, 'DELETE');
@@ -134,15 +138,29 @@ export default function StrainForm({ strain, options, tastes, canDelete, hidePri
   }
 
   const title = strain ? 'Edytuj odmianę' : 'Nowa odmiana';
-  const saveLabel = busy ? 'Zapisuję…' : strain ? 'Zapisz zmiany' : 'Dodaj odmianę';
+  const saveLabel = busy ? 'Zapisuję…' : proposing ? 'Wyślij propozycję' : strain ? 'Zapisz zmiany' : 'Dodaj odmianę';
+  if (sent) {
+    return (
+      <section className="card proposal-sent" aria-label="Propozycja wysłana">
+        <h2>Propozycja wysłana</h2>
+        <p role="status">Admin rozpatrzy Twoją zmianę; do tego czasu odmiana zostaje bez zmian. Status propozycji zobaczysz w szczegółach odmiany.</p>
+        <button type="button" className="btn" onClick={() => onDone()}>Zamknij</button>
+      </section>
+    );
+  }
   return (
     <form className="card strain-form" onSubmit={submit} noValidate aria-label={title}>
       <div className="mobile-form-bar">
         <button type="button" className="btn text" onClick={onCancel}><Icon name="chevronLeft" size={20} />Anuluj</button>
         <span className="bar-title">{title}</span>
-        <button type="submit" className="btn small bar-save" disabled={busy}>{busy ? 'Zapisuję…' : 'Zapisz'}</button>
+        <button type="submit" className="btn small bar-save" disabled={busy}>{busy ? 'Zapisuję…' : proposing ? 'Wyślij' : 'Zapisz'}</button>
       </div>
       <h2 className="only-desktop">{title}</h2>
+      {proposing && (
+        <div className="alert note">
+          <p><b>Twoja zmiana trafi do akceptacji.</b> Odmianę dodała inna osoba (albo ktoś już jej używa), więc admin sprawdzi propozycję, zanim pola wspólne się zmienią. Do tego czasu odmiana zostaje bez zmian. Twoje oceny, stany i notatki zapisują się od razu.</p>
+        </div>
+      )}
       {error && <div className="alert error" role="alert">{error}</div>}
 
       <h3 className="section-label">Podstawowe</h3>
