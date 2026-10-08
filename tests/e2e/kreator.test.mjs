@@ -20,7 +20,7 @@ async function register(page, name) {
   const r = await page.evaluate(async (u) => {
     const res = await fetch('/api/auth/register', {
       method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ invite: 'DEV1', username: u, password: `${u}-haslo-1`, adult: true, consent: true }),
+      body: JSON.stringify({ invite: 'DEV1', username: u, password: `${u}-haslo-1`, adult: true, consent: true, healthConsent: true }),
     });
     return { status: res.status, body: await res.text() };
   }, name);

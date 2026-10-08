@@ -28,7 +28,7 @@ async function call(uid, route, method, body, params = {}, query = '') {
 }
 const register = (username, invite = 'AUDYT', ip = '10.9.0.1') => {
   client.ip = ip;
-  return call(null, 'auth/register', 'POST', { username, password: 'haslo1234', invite, adult: true, consent: true });
+  return call(null, 'auth/register', 'POST', { username, password: 'haslo1234', invite, adult: true, consent: true, healthConsent: true });
 };
 
 before(async () => {

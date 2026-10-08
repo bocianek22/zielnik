@@ -42,7 +42,7 @@ test('e-mail: dodanie i potwierdzenie adresu, reset hasła z linku, logowanie no
   const user = `ewa${Date.now() % 100000}`;
   const addr = `${user}@example.test`;
   try {
-    const reg = await page.request.post(`${BASE}/api/auth/register`, { data: { invite: 'DEV1', username: user, password: 'stare-haslo-1', adult: true, consent: true } });
+    const reg = await page.request.post(`${BASE}/api/auth/register`, { data: { invite: 'DEV1', username: user, password: 'stare-haslo-1', adult: true, consent: true, healthConsent: true } });
     assert.equal(reg.status(), 200);
     await go(page, '/profil');
     await page.getByRole('button', { name: 'Dodaj adres' }).click();

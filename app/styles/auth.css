@@ -23,3 +23,14 @@
   .auth-mark .mark { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; background: var(--bar); color: var(--bar-mark); }
 }
 .auth.solo { grid-template-columns: 1fr; } /* odzyskiwanie hasła, potwierdzenie adresu: bez panelu z opisem */
+
+/* Ekran ponownej akceptacji dokumentów: app/components/ConsentGate.js (nad całą aplikacją, przewijany) */
+.consent-gate { position: fixed; inset: 0; z-index: 95; overflow-y: auto; background: var(--bg); color: var(--text); display: grid; place-items: start center; padding: calc(var(--s-8) + env(safe-area-inset-top)) var(--s-5) calc(var(--s-8) + env(safe-area-inset-bottom)); }
+.consent-box { width: 100%; max-width: 440px; display: grid; gap: var(--s-3); }
+.consent-box h2, .consent-box p { margin: 0; }
+.consent-links { margin: 0; padding-left: var(--s-5); display: grid; gap: var(--s-1); }
+.consent-box .check { align-items: flex-start; font-size: .9375rem; }
+.consent-box .check input { margin-top: 3px; }
+.consent-box .btn { width: 100%; }
+.consent-alt { display: grid; gap: var(--s-2); margin-top: var(--s-4); padding-top: var(--s-4); border-top: 1px solid var(--sep); color: var(--text-2); }
+.consent-alt .btn { text-align: center; }

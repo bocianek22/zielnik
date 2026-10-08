@@ -46,7 +46,7 @@ before(async () => {
   await q`INSERT INTO invites (code, max_uses) VALUES ('TEST', 10)`;
   await q`UPDATE users SET must_change_password = FALSE WHERE is_admin`;
   for (const n of ['ania', 'bartek', 'celina']) {
-    const r = await call(null, 'auth/register', 'POST', { username: n, password: 'haslo1234', invite: 'test', adult: true, consent: true });
+    const r = await call(null, 'auth/register', 'POST', { username: n, password: 'haslo1234', invite: 'test', adult: true, consent: true, healthConsent: true });
     assert.equal(r.status, 200, JSON.stringify(r.json));
   }
   for (const u of await q`SELECT id, username FROM users`) ids[u.username] = u.id;
@@ -265,7 +265,7 @@ test('kopia zapasowa obejmuje tabelę propozycji', { skip }, async () => {
 
 test('usunięcie konta usuwa propozycje autora, historia zmian zostaje', { skip }, async () => {
   const { ania: A, Bocian: ADM } = ids;
-  const reg = await call(null, 'auth/register', 'POST', { username: 'dorota', password: 'haslo1234', invite: 'test', adult: true, consent: true });
+  const reg = await call(null, 'auth/register', 'POST', { username: 'dorota', password: 'haslo1234', invite: 'test', adult: true, consent: true, healthConsent: true });
   assert.equal(reg.status, 200);
   const D = (await q`SELECT id FROM users WHERE username = 'dorota'`)[0].id;
   const s1 = await create(A, { name: 'Konto 1', thc: 10 });

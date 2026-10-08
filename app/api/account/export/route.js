@@ -26,7 +26,7 @@ export const GET = safe(async (req) => {
   const withPhotos = new URL(req.url).searchParams.get('photos') === '1';
   const q = sql();
   const me = user.id;
-  const [profile] = await q`SELECT username, display_name, bio, links, profile_visibility, consent_at, email, email_verified_at, email_consent_at, onboarded_at FROM users WHERE id = ${me}`;
+  const [profile] = await q`SELECT username, display_name, bio, links, profile_visibility, consent_at, consent_at AS "consentAt", consent_version AS "consentVersion", email, email_verified_at, email_consent_at, onboarded_at FROM users WHERE id = ${me}`;
   const data = {
     exportedAt: new Date().toISOString(),
     profile,

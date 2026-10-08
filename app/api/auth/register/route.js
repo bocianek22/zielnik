@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import { ensureDb, sql } from '@/lib/db';
 import { createSession, USERNAME_RE } from '@/lib/auth';
 import { clientIp, hit } from '@/lib/ratelimit';
+import { LEGAL_VERSION } from '@/lib/legal';
 
 const err = (msg, status = 400) => NextResponse.json({ error: msg }, { status });
 const BAD_INVITE = 'Nieprawidłowy, wygasły lub wykorzystany kod zaproszenia.';
@@ -14,7 +15,10 @@ export const POST = safe(async (req) => {
   const username = String(b.username ?? '').trim();
   const password = String(b.password ?? '');
   const code = String(b.invite ?? '').trim().toUpperCase();
-  if (!b.adult || !b.consent) return err('Potwierdź pełnoletność oraz zaakceptuj regulamin i politykę prywatności.');
+  if (b.adult !== true) return err('Potwierdź, że masz ukończone 18 lat.');
+  // `consent` = regulamin i polityka prywatności (nazwa z wcześniejszych wersji), `healthConsent` = wyraźna zgoda z art. 9 RODO
+  if (b.consent !== true) return err('Zaakceptuj regulamin i politykę prywatności.');
+  if (b.healthConsent !== true) return err('Wyraź zgodę na przetwarzanie danych o zdrowiu, bez niej nie można założyć konta.');
   if (!USERNAME_RE.test(username)) return err('Nazwa użytkownika: 3–24 znaki (litery, cyfry, kropka, _ lub -).');
   if (password.length < 8 || password.length > 100) return err('Hasło musi mieć od 8 do 100 znaków.');
 
@@ -34,8 +38,8 @@ export const POST = safe(async (req) => {
   const hash = await bcrypt.hash(password, 10);
   let u;
   try {
-    [u] = await q`INSERT INTO users (username, password_hash, is_admin, must_change_password, consent_at)
-                        VALUES (${username}, ${hash}, FALSE, FALSE, now()) RETURNING id`;
+    [u] = await q`INSERT INTO users (username, password_hash, is_admin, must_change_password, consent_at, consent_version)
+                        VALUES (${username}, ${hash}, FALSE, FALSE, now(), ${LEGAL_VERSION}) RETURNING id`;
   } catch (e) {
     await q`UPDATE invites SET uses = GREATEST(uses - 1, 0) WHERE code = ${code}`; // zwrot użycia kodu
     throw e;

@@ -24,6 +24,7 @@ export E2E_MAIL_PORT=$MAIL_PORT RESEND_API_KEY=e2e MAIL_FROM='Notatnik <notatnik
 export BETA_GROUP_URL=https://grupa.example.test/beta
 scripts/dev/serve.sh "$PORT" "$DB"
 node scripts/dev/seed.mjs "$DB" --port "$PORT" | tail -1
+export E2E_DB_URL="${ADMIN%/*}/$DB" # testy, które muszą ustawić stan konta w bazie (np. stara wersja zgody)
 export E2E_BASE="http://localhost:$PORT" E2E_SHOTS="${E2E_SHOTS:-zrzuty/e2e}"
 rm -rf "$E2E_SHOTS"
 if [ "$1" = perf ]; then

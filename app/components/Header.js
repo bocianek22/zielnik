@@ -11,6 +11,8 @@ import TopNav from './TopNav';
 import WhatsNew from './WhatsNew';
 import { navItems } from './navItems';
 import { VERSION } from '@/lib/version';
+import { LEGAL_VERSION } from '@/lib/legal';
+import ConsentGate from './ConsentGate';
 
 export default function Header({ user }) {
   const admin = !!user.is_admin;
@@ -43,6 +45,7 @@ export default function Header({ user }) {
     </header>
     <BottomNav isAdmin={admin} />
     <WhatsNew />
+    {!user.must_change_password && user.consent_version !== LEGAL_VERSION && <ConsentGate version={LEGAL_VERSION} admin={admin} />}
     </>
   );
 }

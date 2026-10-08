@@ -8,7 +8,7 @@ import { markFreshLogin } from '@/lib/applock';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [f, setF] = useState({ invite: '', username: '', password: '', adult: false, consent: false });
+  const [f, setF] = useState({ invite: '', username: '', password: '', adult: false, consent: false, healthConsent: false });
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   useEffect(() => {
@@ -48,7 +48,9 @@ export default function RegisterPage() {
             <input id="r-pass" className="input" type="password" value={f.password} onChange={set('password')} required minLength={8} autoComplete="new-password" /></div>
           <label className="check"><input type="checkbox" checked={f.adult} onChange={set('adult')} /> Mam ukończone 18 lat</label>
           <label className="check"><input type="checkbox" checked={f.consent} onChange={set('consent')} />
-            <span>Akceptuję <a href="/prywatnosc" target="_blank">regulamin i politykę prywatności</a></span></label>
+            <span>Akceptuję <a href="/regulamin" target="_blank" rel="noopener noreferrer">regulamin</a> i <a href="/prywatnosc" target="_blank" rel="noopener noreferrer">politykę prywatności</a></span></label>
+          <label className="check"><input type="checkbox" checked={f.healthConsent} onChange={set('healthConsent')} />
+            <span>Wyrażam wyraźną zgodę na przetwarzanie danych o moim zdrowiu (art. 9 ust. 2 lit. a RODO) w celu prowadzenia dziennika. Mogę ją cofnąć w każdej chwili, usuwając konto.</span></label>
           {error && <div className="alert error" role="alert">{error}</div>}
           <button type="submit" className="btn" disabled={busy}>{busy ? 'Zakładam konto…' : 'Załóż konto'}</button>
           <p className="auth-alt">Masz już konto? <a href="/login">Zaloguj się</a></p>

@@ -23,6 +23,9 @@
 .read-article .klist { max-width: 65ch; margin: var(--s-4) 0; }
 .read-article .klist > div { grid-template-columns: minmax(96px, 30%) 1fr; }
 .read-article .klist dt { color: var(--text); font-weight: 600; }
+.legal-list { max-width: 65ch; margin: 0 0 var(--s-4); padding-left: var(--s-5); line-height: 1.65; overflow-wrap: anywhere; }
+.legal-list li + li { margin-top: var(--s-2); }
+.legal-meta { font-size: var(--fs-sm); margin: var(--s-3) 0 0; }
 .to-top { display: inline-flex; align-items: center; min-height: var(--tap); font-size: var(--fs-sm); }
 @media (max-width: 560px) {
   .read-article .klist > div { grid-template-columns: 1fr; gap: 2px; padding: var(--s-3) 0; }
