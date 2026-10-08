@@ -177,6 +177,34 @@ test('objawy o własnej godzinie nie zależą od ogólnej godziny przypomnień',
   assert.deepEqual(await keys(A, { respectHour: true, hour: 19 }), ['symptoms']);
 });
 
+test('cron: porcje z kursorem (limit 1) obsługują wszystkich w jednym przebiegu, także gdy dostawa pierwszego zawodzi', { skip }, async () => {
+  const A = ids.ania, B = ids.bartek;
+  await q`UPDATE push_prefs SET notify_symptoms = TRUE, symptoms_hour = 21 WHERE user_id IN (${A}, ${B})`;
+  const send = mockSender();
+  const r = await push.sendReminders({ send, respectHour: true, hour: 21, limit: 1 });
+  assert.equal(r.users, 2);
+  assert.equal(r.delivered, 2);
+  assert.equal(send.sent.length, 2);
+  // pierwszy użytkownik zawodzi (rezerwacja zwolniona), drugi i tak dostaje w tym samym przebiegu
+  await q`DELETE FROM push_sent`;
+  const ania = (await q`SELECT endpoint FROM push_subscriptions WHERE user_id = ${A}`).map((x) => x.endpoint);
+  const got = [];
+  const flaky = async (s, json) => {
+    if (ania.includes(s.endpoint)) throw Object.assign(new Error('blad'), { statusCode: 500 });
+    got.push(s.endpoint); JSON.parse(json);
+  };
+  const r2 = await push.sendReminders({ send: flaky, respectHour: true, hour: 21, limit: 1 });
+  assert.equal(r2.notifications, 1);
+  assert.equal(got.length, 1);
+  assert.equal((await q`SELECT count(*)::int AS n FROM push_sent WHERE user_id = ${A}`)[0].n, 0);
+  // budżet czasu wyczerpany: przebieg kończy się częściowo, bez rezerwacji dla reszty
+  await q`DELETE FROM push_sent`;
+  const r3 = await push.sendReminders({ send, respectHour: true, hour: 21, limit: 1, budgetMs: -1 });
+  assert.equal(r3.partial, true);
+  assert.equal(r3.users, 0);
+  assert.equal((await q`SELECT count(*)::int AS n FROM push_sent`)[0].n, 0);
+});
+
 test('cron: deduplikacja, brak wysyłki po wpisie, treść dyskretna, limit i brak kluczy', { skip }, async () => {
   const A = ids.ania, B = ids.bartek;
   await q`UPDATE push_prefs SET notify_symptoms = TRUE, symptoms_hour = 21 WHERE user_id = ${A}`;
