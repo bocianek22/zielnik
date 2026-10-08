@@ -8,6 +8,18 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.49.1] - 2026-10
+### Naprawiono
+- Safari i iPhone:
+  - pola nazwy użytkownika i kodu zaproszenia bez automatycznej wielkiej litery i autokorekty;
+  - wysokość arkuszy i okien liczona z `dvh` (z `vh` jako zapasem);
+  - pola daty i godziny nie rozpychają formularzy;
+  - pełna nazwa „Do ekranu początkowego” w instrukcji powiadomień.
+### Dodano
+- Testy E2E na szerokości komputera (1280 i 1024 px): wszystkie główne ekrany, raport w wersji do druku, eksport konta, panel admina.
+- `docs/TEST-RECZNY.md`: lista do ręcznego testu przed zaproszeniami (Android APK i Chrome, iPhone Safari i PWA, komputer), z ryzykami z przeglądu pod Safari.
+- `docs/BETA-ZAPROSZENIE.md`: wiadomość powitalna dla grupy testerów, szablon zaproszenia, ankieta po dwóch tygodniach.
+
 ## [0.49.0] - 2026-10
 Przygotowanie do zamkniętej bety (`docs/BETA.md`).
 ### Dodano
