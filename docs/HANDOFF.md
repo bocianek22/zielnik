@@ -59,7 +59,8 @@ Pełna lista z uzasadnieniem: `docs/PRZEGLAD-2026-10.md`; aplikacje natywne: `do
    - Prywatny Vercel Blob na kopie.
    - Sprawdzić region Neon i ustawić ten sam region funkcji Vercel (`regions` w `vercel.json`; dziś domyślnie `iad1`, USA).
    - UptimeRobot na `/api/health`.
-   - Pierwsze wejście: akceptacja dokumentów (także admin).
+   - Po ustawieniu `LEGAL_*`: pierwsze wejście każdego konta, także admina, to akceptacja dokumentów (bez nich ekran zgody się nie pokazuje).
+   - „Gotowość” → liczba wpisów widocznych dla wszystkich: zdecydować, czy przestawić stare wpisy na prywatne.
    - Na telefonie:
      - „Zgłoś uwagę” z różnych ekranów;
      - Pomoc i „Co nowego”;

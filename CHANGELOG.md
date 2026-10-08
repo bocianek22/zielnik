@@ -24,6 +24,10 @@ Przygotowanie do zamkniętej bety (`docs/BETA.md`).
   - publiczne `/regulamin` i `/prywatnosc` (wersje robocze do przeglądu przez prawnika przed otwartą betą; kontakt administratora z `LEGAL_ADMIN_NAME`, `LEGAL_CONTACT_EMAIL`);
   - przy rejestracji dwie osobne zgody (regulamin i polityka; dane o zdrowiu, art. 9 RODO), zapis wersji dokumentów;
   - po zmianie wersji ekran ponownej akceptacji z opcjami „Pobierz moje dane” i „Usuń konto”.
+  - historia zgód (`consent_log`) jako dowód zgody (art. 7 RODO), w eksporcie konta;
+  - wersja dokumentów zawiera skrót danych administratora: ekran zgody pojawia się dopiero po ustawieniu `LEGAL_ADMIN_NAME` i `LEGAL_CONTACT_EMAIL`, a ich zmiana wymaga ponownej akceptacji;
+  - ekran zgody nie przykrywa ekranu blokady PIN i odcisku palca, a „Co nowego” czeka na akceptację.
+- Panel „Gotowość” pokazuje dodatkowo, ile wpisów ma widoczność „wszyscy” (stare wpisy sprzed domyślnej prywatności; aplikacja ich nie zmienia).
 - **Panel admina „Gotowość”:** stan konfiguracji produkcji bez ujawniania wartości, wersja PostgreSQL, ostatnia kopia i ostatnie przebiegi cronów, błędy z 24 h.
 - **`GET /api/health`** dla monitoringu dostępności.
 - **Próba odtworzenia kopii:** `scripts/dev/restore-drill.mjs`.
@@ -34,8 +38,8 @@ Przygotowanie do zamkniętej bety (`docs/BETA.md`).
 - Limity: zapis zakupu 300 na godzinę, „Do omówienia” 60 zapisów na godzinę (kolejka offline ponawia).
 - Eksport konta: `feedback`, `reportsFiled`, `consentAt`, `consentVersion`.
 ### Uwaga przy wdrożeniu
-- **Migracja addytywna:** tabela `beta_feedback`, `users.consent_version`.
-- **Wszystkie istniejące konta** (także admin) przy pierwszym wejściu zobaczą ekran akceptacji dokumentów; nikt nie jest wylogowywany.
+- **Migracja addytywna:** tabele `beta_feedback`, `consent_log` (z jednorazowym wpisem dotychczasowej zgody z rejestracji), `users.consent_version`.
+- **Wszystkie istniejące konta** (także admin) zobaczą ekran akceptacji dokumentów przy pierwszym wejściu po ustawieniu `LEGAL_ADMIN_NAME` i `LEGAL_CONTACT_EMAIL`; nikt nie jest wylogowywany.
 
 ## [0.48.0] - 2026-10
 ### Dodano
