@@ -10,6 +10,7 @@ import { storedFcm } from '../components/native/bridge';
 import { VIS } from '@/lib/visibility';
 import Icon from '../components/Icon';
 import Sessions from './Sessions';
+import EmailSettings from './EmailSettings';
 
 export default function ProfileForm({ me, initial, children }) {
   const router = useRouter();
@@ -108,6 +109,8 @@ export default function ProfileForm({ me, initial, children }) {
         </div>
         <p className="muted">Pusty zakres dat oznacza cały dziennik. Plik otwiera się w Excelu (separator „;”, przecinek dziesiętny).</p>
       </section>
+
+      <EmailSettings isAdmin={me.isAdmin} />
 
       <section className="card">
         <h2>Sesje</h2>

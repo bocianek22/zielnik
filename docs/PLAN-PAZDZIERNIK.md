@@ -31,3 +31,4 @@ Kolejność może się przesunąć, gdy właściciel poda klucze (fala 3) albo z
 
 ## Stan
 - 8.10: plan zapisany, fala 1 (POM-35, E2E, Lighthouse) wydana jako 0.45.0 (PR #17), job E2E w CI zielony za pierwszym razem. Fala 2 (KAT-1, UX-2) w toku.
+- 8.10: fala 2 wydana jako 0.46.0 (PR #18, KAT-1 propozycje, UX-2 dostępność, naprawione podpowiedzi z internetu). Fala 3 (KON-1, PLA-2, POM-05/15) gotowa jako 0.47.0 po przeglądzie Opus i poprawkach; działa po podaniu kluczy przez właściciela.

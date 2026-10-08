@@ -26,7 +26,7 @@ export const GET = safe(async (req) => {
   const withPhotos = new URL(req.url).searchParams.get('photos') === '1';
   const q = sql();
   const me = user.id;
-  const [profile] = await q`SELECT username, display_name, bio, links, profile_visibility, consent_at, email FROM users WHERE id = ${me}`;
+  const [profile] = await q`SELECT username, display_name, bio, links, profile_visibility, consent_at, email, email_verified_at, email_consent_at FROM users WHERE id = ${me}`;
   const data = {
     exportedAt: new Date().toISOString(),
     profile,
@@ -65,7 +65,7 @@ export const GET = safe(async (req) => {
     // adresów subskrypcji (endpointy i klucze urządzeń) nie eksportujemy: to dane techniczne przeglądarki,
     // działają jak hasło do wysyłania powiadomień na urządzenie i nie mówią nic o użytkowniku; podajemy tylko ich liczbę i daty
     pushNotifications: {
-      settings: (await q`SELECT notify_prescription, notify_stock, stock_days, notify_hour, show_details, updated_at FROM push_prefs WHERE user_id = ${me}`)[0] ?? null,
+      settings: (await q`SELECT notify_prescription, notify_stock, stock_days, notify_hour, show_details, notify_symptoms, symptoms_hour, notify_visit, to_char(next_visit_on, 'YYYY-MM-DD') AS next_visit_on, updated_at FROM push_prefs WHERE user_id = ${me}`)[0] ?? null,
       devices: await q`SELECT kind, created_at, last_ok_at FROM push_subscriptions WHERE user_id = ${me} ORDER BY created_at`,
     },
     // zalogowane urządzenia bez identyfikatorów sesji (to dane techniczne, nie treść konta)

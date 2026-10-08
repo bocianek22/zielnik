@@ -22,3 +22,4 @@
   .auth-mark { display: inline-flex; align-items: center; gap: 10px; margin-bottom: var(--s-8); color: var(--text); font-family: var(--font-display), Georgia, serif; font-size: var(--fs-xl); font-weight: 600; text-decoration: none; }
   .auth-mark .mark { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; background: var(--bar); color: var(--bar-mark); }
 }
+.auth.solo { grid-template-columns: 1fr; } /* odzyskiwanie hasła, potwierdzenie adresu: bez panelu z opisem */
