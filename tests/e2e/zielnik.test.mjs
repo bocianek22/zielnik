@@ -216,7 +216,7 @@ scenario('Profil: blokada PIN (włącz, nowa karta blokuje, odblokuj, zmień PIN
   await page.waitForFunction(() => !document.querySelector('.lock-setup input[role=switch]')?.checked && !document.querySelector('#wl-off'));
 }, withSession);
 
-scenario('Profil: przypomnienia (wyłączone domyślnie, informacja o braku kluczy, godzina i data wizyty zapisują się)', async (page) => {
+scenario('Profil: przypomnienia (wyłączone domyślnie, wieczorne zablokowane bez crona co godzinę, data wizyty zapisuje się)', async (page) => {
   await go(page, '/profil');
   const sec = page.locator('section[aria-labelledby=remind-h]');
   await sec.getByRole('switch').first().waitFor();
@@ -226,10 +226,10 @@ scenario('Profil: przypomnienia (wyłączone domyślnie, informacja o braku kluc
   assert.equal(await visit.isChecked(), false);
   assert.equal(await sec.locator('#remind-hour').isDisabled(), true);
   assert.equal(await sec.locator('#remind-visit').isDisabled(), true);
+  // serwer testowy nie ma PUSH_CRON_HOURLY: wieczorne przypomnienie nie do włączenia, z wyjaśnieniem
+  assert.equal(await sym.isDisabled(), true);
+  await sec.getByText(/Wymaga planu z przypomnieniami co godzinę/).waitFor();
 
-  await sym.click();
-  await sec.getByText('Zapisano.').waitFor();
-  await sec.locator('#remind-hour').selectOption('22');
   await visit.click();
   const date = new Date(Date.now() + 3 * 864e5).toISOString().slice(0, 10);
   await sec.locator('#remind-visit').fill(date);
@@ -239,15 +239,13 @@ scenario('Profil: przypomnienia (wyłączone domyślnie, informacja o braku kluc
   await page.reload({ waitUntil: 'load' });
   await hydrated(page);
   await sec.getByRole('switch').first().waitFor();
-  await page.waitForFunction((d) => document.querySelector('#remind-visit')?.value === d && document.querySelector('#remind-hour')?.value === '22', date);
-  assert.equal(await sec.getByRole('switch').nth(0).isChecked(), true);
+  await page.waitForFunction((d) => document.querySelector('#remind-visit')?.value === d, date);
+  assert.equal(await sec.getByRole('switch').nth(1).isChecked(), true);
 
-  // sprzątanie: wyłączenie i usunięcie daty
-  await sec.locator('#remind-hour').selectOption('21');
+  // sprzątanie: usunięcie daty i wyłączenie
   await sec.locator('#remind-visit').fill('');
   await sec.getByRole('switch').nth(1).click();
-  await sec.getByRole('switch').nth(0).click();
-  await page.waitForFunction(() => !document.querySelector('section[aria-labelledby=remind-h] input[role=switch]')?.checked);
+  await page.waitForFunction(() => !document.querySelectorAll('section[aria-labelledby=remind-h] input[role=switch]')[1]?.checked);
   await sec.getByText('Zapisano.').waitFor();
 }, withSession);
 

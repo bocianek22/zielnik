@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireUser, requireAdmin, bad, safe, intId } from '@/lib/guard';
+import { requireUser, requireAdmin, bad, safe, intId, jsonBody } from '@/lib/guard';
 import { listHistory, updateStrain, EDIT_FIELDS } from '@/lib/strains';
 
 export const GET = safe(async (_req, { params }) => {
@@ -16,7 +16,7 @@ export const POST = safe(async (req, { params }) => {
   const { user, res } = await requireAdmin('Przywracać zmiany może tylko admin.');
   if (res) return res;
   const id = intId((await params).id);
-  const body = await req.json().catch(() => ({}));
+  const body = await jsonBody(req);
   const editId = intId(body.editId);
   const [edit] = await sql()`SELECT changes FROM strain_edits WHERE id = ${editId} AND strain_id = ${id}`;
   if (!edit) return bad('Nie znaleziono wpisu historii.', 404);

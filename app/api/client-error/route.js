@@ -7,7 +7,9 @@ import { logError } from '@/lib/errorlog';
 export async function POST(req) {
   try {
     if (!(await hit(`client-error:${await clientIp()}`, 20, 3600))) return NextResponse.json({ ok: false }, { status: 429 });
-    const b = await req.json().catch(() => ({}));
+    const j = await req.json().catch(() => null);
+    if (!j || typeof j !== 'object' || Array.isArray(j)) return NextResponse.json({ ok: false }, { status: 400 });
+    const b = j;
     await logError('przeglądarka', String(b.message ?? '').slice(0, 300), { path: b.path, digest: b.digest ? String(b.digest).slice(0, 40) : null });
     return NextResponse.json({ ok: true });
   } catch {

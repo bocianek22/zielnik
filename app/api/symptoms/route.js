@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireUser, bad, safe } from '@/lib/guard';
+import { requireUser, bad, safe, jsonBody } from '@/lib/guard';
 import { parseNumber } from '@/lib/strains';
 import { otherAccount, OTHER_ACCOUNT_MSG, intId } from '@/lib/ids';
 import { listCustom, customValues } from '@/lib/symptoms-custom';
@@ -37,7 +37,7 @@ export const GET = safe(async () => {
 export const PUT = safe(async (req) => {
   const { user, res } = await requireUser();
   if (res) return res;
-  const b = await req.json().catch(() => ({}));
+  const b = await jsonBody(req);
   if (otherAccount(b, user)) return bad(OTHER_ACCOUNT_MSG, 409); // zapis z kolejki offline innego konta
   const day = String(b.day ?? '');
   if (!DATE.test(day) || Number.isNaN(Date.parse(day)) || Date.parse(day) > Date.now() + 864e5) return bad('Nieprawidłowa data.');
@@ -84,7 +84,7 @@ export const PUT = safe(async (req) => {
 export const DELETE = safe(async (req) => {
   const { user, res } = await requireUser();
   if (res) return res;
-  const day = String((await req.json().catch(() => ({}))).day ?? '');
+  const day = String((await jsonBody(req)).day ?? '');
   if (!DATE.test(day) || Number.isNaN(Date.parse(day))) return bad('Nieprawidłowa data.');
   const q = sql();
   await q.transaction([

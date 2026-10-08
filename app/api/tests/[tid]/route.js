@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireUser, bad, safe, intId } from '@/lib/guard';
+import { requireUser, bad, safe, intId, jsonBody } from '@/lib/guard';
 import { listTests } from '@/lib/strains';
 import { VIS_VALUES } from '@/lib/visibility';
 import { putPhoto, deletePhotos } from '@/lib/photos';
@@ -13,7 +13,7 @@ export const PATCH = safe(async (req, { params }) => {
   const { user, res } = await requireUser();
   if (res) return res;
   const tid = intId((await params).tid);
-  const b = await req.json().catch(() => ({}));
+  const b = await jsonBody(req);
   const [t] = await sql()`SELECT user_id, strain_id, (data IS NOT NULL) AS has FROM strain_tests WHERE id = ${tid}`;
   if (!t) return bad('Nie znaleziono testu.', 404);
   if (t.user_id !== user.id) return bad('Testy edytuje tylko ich autor.', 403);

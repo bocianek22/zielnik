@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireUser, bad, safe } from '@/lib/guard';
+import { requireUser, bad, safe, jsonBody } from '@/lib/guard';
 import { VIS_VALUES } from '@/lib/visibility';
 import { cleanDataUrl } from '@/lib/image-meta';
 
@@ -8,7 +8,7 @@ import { cleanDataUrl } from '@/lib/image-meta';
 export const PUT = safe(async (req) => {
   const { user, res } = await requireUser();
   if (res) return res;
-  const b = await req.json().catch(() => ({}));
+  const b = await jsonBody(req);
   const links = [];
   for (const raw of Array.isArray(b.links) ? b.links.slice(0, 3) : []) {
     const u = String(raw ?? '').trim();

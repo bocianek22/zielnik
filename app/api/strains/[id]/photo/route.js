@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireUser, bad, safe, intId } from '@/lib/guard';
+import { requireUser, bad, safe, intId, jsonBody } from '@/lib/guard';
 import { putPhoto, deletePhotos, photoResponse } from '@/lib/photos';
 import { cleanImage } from '@/lib/image-meta';
 
@@ -22,7 +22,7 @@ export const PUT = safe(async (req, { params }) => {
   const { user, res } = await requireUser();
   if (res) return res;
   const id = intId((await params).id);
-  const { image } = await req.json().catch(() => ({}));
+  const { image } = await jsonBody(req);
   const m = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/.exec(String(image || ''));
   if (!m) return bad('Nieprawidłowy format zdjęcia (JPEG, PNG lub WebP).');
   if (m[2].length > MAX_CHARS) return bad('Zdjęcie jest za duże.');

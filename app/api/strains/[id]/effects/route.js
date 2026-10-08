@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireUser, bad, safe, intId } from '@/lib/guard';
+import { requireUser, bad, safe, intId, jsonBody } from '@/lib/guard';
 import { EFFECTS } from '@/lib/effects';
 import { parseNumber } from '@/lib/strains';
 
@@ -9,7 +9,7 @@ export const PUT = safe(async (req, { params }) => {
   const { user, res } = await requireUser();
   if (res) return res;
   const id = intId((await params).id);
-  const { effects } = await req.json().catch(() => ({}));
+  const { effects } = await jsonBody(req);
   const clean = {};
   for (const [key] of EFFECTS) {
     const v = parseNumber(effects?.[key], 0, 10);

@@ -6,6 +6,7 @@ import { OwnEntry, dec } from './StrainCard';
 import Icon from './Icon';
 import StrainForm from './StrainForm';
 import Tests from './Tests';
+import ReportButton from './ReportButton';
 // zwykły import: fragment ma ~3,5 KB, a leniwe ładowanie (next/dynamic) dokładało podgląd <link rel=preload> bez nonce,
 // który CSP strict-dynamic blokował (błąd w konsoli przy pełnym ładowaniu strony odmiany)
 import Effects from './Effects';
@@ -165,6 +166,13 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, st
               </dl>
             </div>
           </header>
+
+          {((strain.created_by && strain.created_by !== me.id) || photo) && (
+            <div className="row">
+              {strain.created_by && strain.created_by !== me.id && <ReportButton type="strain" refId={strain.id} label="Zgłoś odmianę" />}
+              {photo && <ReportButton type="photo" refId={strain.id} label="Zgłoś zdjęcie" />}
+            </div>
+          )}
 
           {hasComposition && (
             <section className="card dcomp" aria-labelledby="dcomp-h">

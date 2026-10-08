@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import { sql } from '@/lib/db';
 import { randomPassword, USERNAME_RE } from '@/lib/auth';
 import { logAudit } from '@/lib/audit';
-import { requireAdmin, safe } from '@/lib/guard';
+import { requireAdmin, safe, jsonBody } from '@/lib/guard';
 
 export const GET = safe(async () => {
   const { res } = await requireAdmin('Brak uprawnień.');
@@ -16,7 +16,7 @@ export const GET = safe(async () => {
 export const POST = safe(async (req) => {
   const { user: me, res } = await requireAdmin('Brak uprawnień.');
   if (res) return res;
-  const { username = '', password = '' } = await req.json();
+  const { username = '', password = '' } = await jsonBody(req);
   const name = String(username).trim();
   if (!USERNAME_RE.test(name)) {
     return NextResponse.json({ error: 'Nazwa: 3–24 znaki (litery, cyfry, . _ -).' }, { status: 400 });

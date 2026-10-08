@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireUser, bad, safe } from '@/lib/guard';
+import { requireUser, bad, safe, jsonBody } from '@/lib/guard';
 import { hit } from '@/lib/ratelimit';
 import { logError } from '@/lib/errorlog';
 import { listOptions } from '@/lib/strains';
@@ -15,7 +15,7 @@ const NOT_FOUND = 'Nie znaleziono w internecie wiarygodnych informacji o tej odm
 export const POST = safe(async (req) => {
   const { user, res } = await requireUser();
   if (res) return res;
-  const b = await req.json().catch(() => ({}));
+  const b = await jsonBody(req);
   const producer = String(b.producer ?? '').trim().slice(0, 60);
   const name = String(b.name ?? '').trim().slice(0, 80);
   if (!producer || !name) return bad('Podaj producenta i nazwę odmiany.');

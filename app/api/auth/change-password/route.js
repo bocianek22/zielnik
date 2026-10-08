@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { safe } from '@/lib/guard';
+import { safe, jsonBody } from '@/lib/guard';
 import bcrypt from 'bcryptjs';
 import { sql } from '@/lib/db';
 import { getUser, revokeOtherSessions } from '@/lib/auth';
@@ -8,7 +8,7 @@ import { hit } from '@/lib/ratelimit';
 export const POST = safe(async (req) => {
   const me = await getUser();
   if (!me) return NextResponse.json({ error: 'Sesja wygasła. Zaloguj się ponownie.' }, { status: 401 });
-  const { current = '', password = '' } = await req.json();
+  const { current = '', password = '' } = await jsonBody(req);
   // bcrypt bierze tylko 72 bajty, więc górna granica jak przy rejestracji
   if (String(password).length < 8 || String(password).length > 100) {
     return NextResponse.json({ error: 'Nowe hasło musi mieć od 8 do 100 znaków.' }, { status: 400 });

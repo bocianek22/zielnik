@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireUser, bad, safe } from '@/lib/guard';
+import { requireUser, bad, safe, jsonBody } from '@/lib/guard';
 import { legalContactReady, legalVersion } from '@/lib/legal';
 
 // Ponowna akceptacja regulaminu i polityki prywatności po zmianie ich wersji. Oba pola są wymagane (jak przy rejestracji).
@@ -10,7 +10,7 @@ import { legalContactReady, legalVersion } from '@/lib/legal';
 export const POST = safe(async (req) => {
   const { user, res } = await requireUser();
   if (res) return res;
-  const b = await req.json().catch(() => ({}));
+  const b = await jsonBody(req);
   if (b.consent !== true) return bad('Zaakceptuj regulamin i politykę prywatności.');
   if (b.healthConsent !== true) return bad('Wyraź zgodę na przetwarzanie danych o zdrowiu albo usuń konto.');
   if (!legalContactReady()) return bad('Dokumenty są w przygotowaniu (brak danych administratora). Spróbuj później.', 409);

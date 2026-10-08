@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireUser, bad, safe, intId } from '@/lib/guard';
+import { requireUser, bad, safe, intId, jsonBody } from '@/lib/guard';
 import { parseNumber } from '@/lib/strains';
 import { VIS_VALUES } from '@/lib/visibility';
 import { openEditable, rowScope, NOTE_UNAVAILABLE_MSG } from '@/lib/data-crypto';
@@ -11,7 +11,7 @@ export const PUT = safe(async (req, { params }) => {
   const { user, res } = await requireUser();
   if (res) return res;
   const id = intId((await params).id);
-  const b = await req.json().catch(() => ({}));
+  const b = await jsonBody(req);
 
   const rating = parseNumber(b.rating, 0, 10);
   // ilości są opcjonalne: brak pola = bez zmian (autozapis innych pól nie może nadpisać stanu zmienionego

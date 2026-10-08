@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import Icon from '../components/Icon';
 
+const WHAT = { user: 'Profil', test: 'Test', strain: 'Odmiana', photo: 'Zdjęcie odmiany' };
 const REASONS = { spam: 'Spam', ad: 'Reklama lub sprzedaż', abuse: 'Nękanie lub wyzwiska', privacy: 'Naruszenie prywatności', other: 'Inne' };
 
 export default function ReportsAdmin({ onCount }) {
@@ -22,18 +23,19 @@ export default function ReportsAdmin({ onCount }) {
         <div className="empty">
           <Icon name="shield" size={32} />
           <h2>Brak otwartych zgłoszeń</h2>
-          <p>Gdy ktoś zgłosi profil lub test, pojawi się tutaj.</p>
+          <p>Gdy ktoś zgłosi profil, test, odmianę lub zdjęcie, pojawi się tutaj.</p>
         </div>
       ) : (
         <ul className="list">{reports.map((r) => (
           <li key={r.id} className="admin-report">
             <p className="admin-report-title">{REASONS[r.reason] || r.reason}</p>
-            <p className="muted small">{r.type === 'test' ? 'Test' : 'Profil'} użytkownika{' '}
+            <p className="muted small">{WHAT[r.type] || r.type}{' '}{r.strain_name ? <><Link href={`/strains/${r.ref}`}>{r.strain_name}</Link>, autor:</> : 'użytkownika'}{' '}
               <Link href={`/u/${encodeURIComponent(r.target)}`}>@{r.target}</Link>. Zgłosił(a): {r.reporter || 'usunięty użytkownik'}, {r.at}</p>
             {r.note && <p className="admin-quote">Opis zgłaszającego: {r.note}</p>}
             {r.test_note && <p className="admin-quote">Treść testu: {r.test_note}</p>}
             <div className="admin-actions-bar">
               <button className="btn small" onClick={() => resolve(r.id, false)}>Zamknij zgłoszenie</button>
+              {r.type === 'photo' && r.photo_exists && <button className="btn danger small" onClick={() => confirm('Usunąć zgłoszone zdjęcie odmiany?') && resolve(r.id, true)}>Usuń zdjęcie i zamknij</button>}
               {r.type === 'test' && r.ref && <button className="btn danger small" onClick={() => confirm('Usunąć zgłoszony test?') && resolve(r.id, true)}>Usuń test i zamknij</button>}
             </div>
           </li>))}</ul>)}

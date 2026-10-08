@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireUser, bad, safe } from '@/lib/guard';
+import { requireUser, bad, safe, jsonBody } from '@/lib/guard';
 
 const list = (me) => sql()`
   SELECT g.id, g.name, g.description, gm.status, gm.role,
@@ -18,7 +18,7 @@ export const GET = safe(async () => {
 export const POST = safe(async (req) => {
   const { user, res } = await requireUser();
   if (res) return res;
-  const b = await req.json().catch(() => ({}));
+  const b = await jsonBody(req);
   const name = String(b.name ?? '').trim().slice(0, 60);
   if (name.length < 3) return bad('Nazwa grupy musi mieć co najmniej 3 znaki.');
   const own = await sql()`SELECT count(*)::int AS n FROM groups WHERE owner_id = ${user.id}`;

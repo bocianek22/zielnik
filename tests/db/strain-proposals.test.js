@@ -24,7 +24,8 @@ async function call(uid, route, method, body, params = {}) {
   return { status: res.status, json };
 }
 
-const create = async (uid, f) => (await call(uid, 'strains', 'POST', { type: 'haze', producer: 'Aurora', ...f })).json.id;
+// limit nowych odmian (strain-new) nie jest tu przedmiotem testu: zerujemy go przed każdym tworzeniem
+const create = async (uid, f) => (await q`DELETE FROM rate_limits WHERE key LIKE 'strain-new:%'`, await call(uid, 'strains', 'POST', { type: 'haze', producer: 'Aurora', ...f })).json.id;
 const patch = (uid, id, f) => call(uid, 'strains/[id]', 'PATCH', { type: 'haze', producer: 'Aurora', ...f }, { id: String(id) });
 const row = async (id) => (await q`SELECT name, thc::float8 AS thc, taste, description FROM strains WHERE id = ${id}`)[0];
 const pending = async (uid) => (await call(uid, 'proposals', 'GET')).json.proposals;

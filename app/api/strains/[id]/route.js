@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireUser, bad, safe, intId } from '@/lib/guard';
+import { requireUser, bad, safe, intId, jsonBody } from '@/lib/guard';
 import { parseCommon, updateStrain, invalidateStrains } from '@/lib/strains';
 import { deletePhotos } from '@/lib/photos';
 import { hit } from '@/lib/ratelimit';
@@ -15,7 +15,7 @@ export const PATCH = safe(async (req, { params }) => {
   const mode = await editMode(user, id);
   if (!mode) return bad('Nie znaleziono odmiany.', 404);
   // propozycja nie dopisuje nowych producentów, typów ani terpenów do wspólnych list (robi to dopiero akceptacja)
-  const { error, fields: f } = await parseCommon(await req.json().catch(() => ({})), { newOptions: mode === 'direct' });
+  const { error, fields: f } = await parseCommon(await jsonBody(req), { newOptions: mode === 'direct' });
   if (error) return bad(error);
   if (mode === 'direct') {
     const row = await updateStrain(id, f, user.id);

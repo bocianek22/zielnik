@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireUser, bad, safe } from '@/lib/guard';
+import { requireUser, bad, safe, jsonBody } from '@/lib/guard';
 import { hit } from '@/lib/ratelimit';
 import { KINDS, BODY_MAX, HOURLY_LIMIT, cleanMeta, notifyFeedback } from '@/lib/feedback';
 
@@ -17,7 +17,7 @@ export const GET = safe(async () => {
 export const POST = safe(async (req) => {
   const { user, res } = await requireUser();
   if (res) return res;
-  const b = await req.json().catch(() => ({}));
+  const b = await jsonBody(req);
   if (!KINDS.includes(b.kind)) return bad('Wybierz rodzaj uwagi.');
   const body = String(b.body ?? '').trim();
   if (!body) return bad('Opisz krótko, o co chodzi.');

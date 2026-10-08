@@ -204,3 +204,10 @@ test('gdziepolek: znana strona produktu, inaczej wyszukiwanie w obrębie gdziepo
     'https://www.google.com/search?q=site%3Agdziepolek.pl%20Cannabis%20flos%20Aurora%20THC%2022%25%2C%20CBD%20%3C1%25');
   assert.equal(pharmacySearchUrl({}), 'https://www.gdziepolek.pl/');
 });
+
+test('toCsv: tekst z rozpoznawania zdjęć nie wstrzykuje formuł (= + - @)', () => {
+  const csv = toCsv([{ producer: '=SUM(1)', name: '@cmd', registeredName: '+x', concUnit: '%', thc: '20', cbd: '1', form: 'susz', size: 10, unit: 'g', price: '100' }]);
+  const line = csv.replace(/^﻿/, '').split('\r\n')[1];
+  assert.match(line, /^'=SUM\(1\);'@cmd;/);
+  assert.match(line, /;'\+x;/);
+});

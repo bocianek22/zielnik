@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireUser, bad, safe, intId } from '@/lib/guard';
+import { requireUser, bad, safe, intId, jsonBody } from '@/lib/guard';
 import { parseCorrection } from '@/lib/corrections';
 import { METHODS, PERIODS, parseChoice } from '@/lib/usage-meta';
 
@@ -12,7 +12,7 @@ export const PATCH = safe(async (req, { params }) => {
   const { user, res } = await requireUser();
   if (res) return res;
   const id = intId((await params).id);
-  const body = await req.json().catch(() => ({}));
+  const body = await jsonBody(req);
   // sposób i pora: undefined = bez zmiany, null = wyczyszczone (pora wraca do wyliczanej z godziny zapisu)
   const method = parseChoice(body.method, METHODS), period = parseChoice(body.period, PERIODS);
   if (method === false || period === false) return bad('Błędny sposób lub pora przyjęcia.');

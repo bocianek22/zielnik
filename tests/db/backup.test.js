@@ -141,5 +141,10 @@ test('panel admina: lista oznacza kopie z Blob, trasa pobierania wymaga admina',
   assert.equal(backups[0].blob, true);
   assert.equal(backups[0].encrypted, true);
   const [b] = await q`SELECT id FROM backups`;
-  assert.equal((await callRoute(ania.id, 'backup', `http://localhost/api/backup?id=${b.id}`)).status, 403);
+  jar.clear();
+  await createSession(ania.id);
+  const mod = await import('../../app/api/backup/route.js');
+  const post = (body) => mod.POST(new Request('http://localhost/api/backup', { method: 'POST', body: JSON.stringify(body) }));
+  assert.equal((await post({ id: b.id, password: 'cokolwiek' })).status, 403);
+  assert.equal((await mod.GET(new Request(`http://localhost/api/backup?id=${b.id}`))).status, 405); // GET już nie wydaje kopii
 });

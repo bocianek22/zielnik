@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { requireUser, bad, safe, intId } from '@/lib/guard';
+import { requireUser, bad, safe, intId, jsonBody } from '@/lib/guard';
 import { parseCorrection, MAX_COST } from '@/lib/corrections';
 
 // Korekta własnego zakupu (Historia): gramy, koszt (cena za gram ALBO łączny koszt) i/lub dzień. Jedno zapytanie,
@@ -12,7 +12,7 @@ export const PATCH = safe(async (req, { params }) => {
   const { user, res } = await requireUser();
   if (res) return res;
   const id = intId((await params).id);
-  const body = await req.json().catch(() => ({}));
+  const body = await jsonBody(req);
   // POM-16: prescriptionId = liczba (przypisz do własnej recepty tej samej jednostki), null (zdejmij przypisanie: szacunek
   // z okresu ważności), noRx: true (zakup prywatny, poza rezerwą każdej recepty), brak obu = bez zmiany
   const noRx = body.noRx === true;
