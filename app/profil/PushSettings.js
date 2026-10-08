@@ -126,7 +126,7 @@ export default function PushSettings() {
   } else if (!cfg.enabled) body = <p className="muted">Powiadomienia nie są jeszcze włączone na serwerze. Gdy administrator je skonfiguruje, ustawisz je tutaj.</p>;
   else if (env.ios && !env.standalone) body = (
     <p className="alert note">Na iPhonie i iPadzie powiadomienia działają tylko w aplikacji dodanej do ekranu głównego (iOS 16.4 lub nowszy):
-      w Safari stuknij „Udostępnij”, potem „Do ekranu początk.”, otwórz aplikację z ikony i wróć tutaj.</p>);
+      w Safari stuknij „Udostępnij”, potem „Do ekranu początkowego”, otwórz aplikację z ikony i wróć tutaj.</p>);
   else if (!env.supported) body = <p className="muted">Ta przeglądarka nie obsługuje powiadomień push.</p>;
   body ??= (
     <>

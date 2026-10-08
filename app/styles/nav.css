@@ -70,7 +70,7 @@ a.who-name:hover { color: var(--on-bar); }
   .bottomnav .nbadge { position: absolute; top: 4px; left: calc(50% + 8px); margin: 0; }
 
   .sheet-backdrop { display: block; position: fixed; inset: 0; background: var(--scrim); z-index: 44; }
-  .sheet { display: block; position: fixed; left: 0; right: 0; bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom)); z-index: 45; max-height: min(78vh, 640px); overflow: auto;
+  .sheet { display: block; position: fixed; left: 0; right: 0; bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom)); z-index: 45; max-height: min(78vh, 640px); max-height: min(78dvh, 640px); overflow: auto;
     background: var(--bg); color: var(--text); border-radius: var(--r-xl) var(--r-xl) 0 0; padding: 8px var(--s-4) var(--s-4); box-shadow: var(--shadow-2);
     overscroll-behavior: contain; animation: sheet-in var(--dur-2) var(--ease); }
   .sheet::before { content: ''; display: block; width: 36px; height: 4px; border-radius: 2px; background: var(--sep-strong); margin: 0 auto var(--s-3); }

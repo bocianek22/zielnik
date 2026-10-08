@@ -41,9 +41,9 @@ export default function RegisterPage() {
           <h1>Załóż konto</h1>
           <p className="auth-lead">Rejestracja wymaga kodu zaproszenia.</p>
           <div className="field"><label htmlFor="r-code">Kod zaproszenia</label>
-            <input id="r-code" className="input" value={f.invite} onChange={set('invite')} required autoComplete="off" /></div>
+            <input id="r-code" className="input" value={f.invite} onChange={set('invite')} required autoComplete="off" autoCorrect="off" spellCheck={false} /></div>
           <div className="field"><label htmlFor="r-user">Nazwa użytkownika (unikalna, widoczna w adresie profilu)</label>
-            <input id="r-user" className="input" value={f.username} onChange={set('username')} required minLength={3} maxLength={24} autoComplete="username" /></div>
+            <input id="r-user" className="input" value={f.username} onChange={set('username')} required minLength={3} maxLength={24} autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} /></div>
           <div className="field"><label htmlFor="r-pass">Hasło (min. 8 znaków)</label>
             <input id="r-pass" className="input" type="password" value={f.password} onChange={set('password')} required minLength={8} autoComplete="new-password" /></div>
           <label className="check"><input type="checkbox" checked={f.adult} onChange={set('adult')} /> Mam ukończone 18 lat</label>

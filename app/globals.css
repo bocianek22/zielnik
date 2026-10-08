@@ -275,6 +275,9 @@ label, .label { font-weight: 600; font-size: var(--fs-sm); color: var(--text); }
 .label { display: block; margin-bottom: 6px; }
 .input { min-height: var(--tap); padding: 10px 12px; border: 1px solid var(--sep-strong); border-radius: var(--r-md); background: var(--field-bg); font: inherit; color: inherit; width: 100%;
   transition: border-color var(--dur-1) var(--ease), box-shadow var(--dur-1) var(--ease); }
+/* Safari/iOS: pole daty ma własną wysokość i wyśrodkowaną wartość; w układzie flex nie może wypychać rodzica */
+.input[type="date"], .input[type="time"] { min-width: 0; max-width: 100%; text-align: left; }
+.input[type="date"]::-webkit-date-and-time-value, .input[type="time"]::-webkit-date-and-time-value { text-align: left; min-height: 1.4em; }
 .input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--ring); }
 .input[aria-invalid="true"] { border-color: var(--danger); }
 textarea.input { resize: vertical; min-height: var(--tap); }

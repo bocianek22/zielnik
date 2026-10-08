@@ -72,7 +72,7 @@
 .fb-row { align-items: flex-start; }
 .fb-body { display: block; white-space: pre-wrap; overflow-wrap: anywhere; font-weight: 400; }
 .wn-backdrop { position: fixed; inset: 0; z-index: 60; background: var(--scrim); }
-.wn { position: fixed; z-index: 61; left: var(--s-4); right: var(--s-4); bottom: max(var(--s-4), env(safe-area-inset-bottom)); max-width: 440px; margin: 0 auto; max-height: 80vh; overflow: auto;
+.wn { position: fixed; z-index: 61; left: var(--s-4); right: var(--s-4); bottom: max(var(--s-4), env(safe-area-inset-bottom)); max-width: 440px; margin: 0 auto; max-height: 80vh; max-height: 80dvh; overflow: auto;
   padding: var(--s-5); background: var(--surface); color: var(--text); border: 1px solid var(--sep); border-radius: var(--r-xl); box-shadow: var(--shadow-2); }
 .wn h2 { margin: 0 0 var(--s-3); }
 .wn h3 { margin: var(--s-3) 0 var(--s-1); font-size: var(--fs-md); }

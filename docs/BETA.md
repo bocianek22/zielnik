@@ -94,3 +94,4 @@ Legenda: **[C]** robi Claude lub agenci, **[W]** robi właściciel, **[P]** wyma
 ## Stan
 - 8.10: plan zapisany; start prac A i D (agenci), B i C w kolejnej turze.
 - 8.10: sekcje A, B, D oraz widżet gotowe jako 0.49.0 (przegląd Opus, poprawki). TOTP admina odłożone (ryzyko zablokowania jedynego admina), zamiast niego powiadomienie o logowaniu. Do zrobienia: sekcja C (E2E 1280 px, przegląd pod Safari, lista ręczna, wiadomość powitalna dla grupy) i zadania właściciela (sekcja E).
+- 8.10: 0.49.0 na produkcji; sekcja C gotowa jako 0.49.1. Po stronie Claude faza 1 zamknięta; zostają zadania właściciela (sekcja E), ręczny test (`docs/TEST-RECZNY.md`) i zaproszenia (`docs/BETA-ZAPROSZENIE.md`).
