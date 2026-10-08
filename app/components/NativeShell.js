@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { LOCK_EVENT, NO_SECURITY, authenticate, fcmToken, hasFcm, isNative, listen, lockEnabled, plugin, pushPermission, saveFcm, setLockEnabled, storedFcm } from './native/bridge';
 import { installHaptics, installKeyboard, isPageLink, transition } from './native/behaviors';
 import PullRefresh from './native/PullRefresh';
+import useFocusTrap from './useFocusTrap';
 
 // Po tylu milisekundach w tle aplikacja z włączoną blokadą prosi o odblokowanie (krótsze wyjścia, np. wybór zdjęcia
 // albo link w przeglądarce, nie wymagają ponownej biometrii)
@@ -131,8 +132,10 @@ export default function NativeShell() {
 }
 
 function LockScreen({ lock, msg, unlock }) {
+  const box = useRef(null);
+  useFocusTrap(box, true);
   return (
-    <div className="native-lock" role="dialog" aria-modal="true" aria-labelledby="native-lock-h">
+    <div className="native-lock" ref={box} role="dialog" aria-modal="true" aria-labelledby="native-lock-h">
       <div className="native-lock-in">
         <h2 id="native-lock-h">Zielnik jest zablokowany</h2>
         {lock === 'locked' && (

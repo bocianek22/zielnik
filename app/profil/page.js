@@ -8,7 +8,7 @@ import DiscreetSettings from './DiscreetSettings';
 import NativeLock from './NativeLock';
 import WebLockSettings from './WebLockSettings';
 import NativeVersion from './NativeVersion';
-import { ThemeChoice } from '../components/ThemeToggle';
+import { ThemeChoice, BigChoice } from '../components/ThemeToggle';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,6 +32,7 @@ export default async function Profil() {
             <section className="card" aria-labelledby="theme-h">
               <h2 id="theme-h">Wygląd</h2>
               <ThemeChoice />
+              <BigChoice />
             </section>
           </ProfileForm>
           <NativeVersion />
