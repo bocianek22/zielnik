@@ -49,7 +49,7 @@ before(async () => {
   await db.ensureDb();
   q = db.sql();
   await q`INSERT INTO invites (code, max_uses) VALUES ('TEST', 10)`;
-  for (const n of ['ania', 'bartek', 'celina']) {
+  for (const n of ['ania', 'bartek', 'celina', 'dorota', 'edyta']) {
     const r = await call(null, 'auth/register', 'POST', { username: n, password: 'haslo1234', invite: 'test', adult: true, consent: true });
     assert.equal(r.status, 200, JSON.stringify(r.json));
   }
@@ -215,4 +215,95 @@ test('eksport konta i kopia zawierają powiązanie', { skip }, async () => {
   const { buildBackup } = await import('../../lib/backup.js');
   const b = await buildBackup();
   assert.ok(b.purchases.some((p) => p.prescription_id === rx));
+});
+
+test('powtórzony requestId z kolejki po usunięciu recepty: ten sam wynik, bez błędu i bez duplikatu', { skip }, async () => {
+  const C = ids.celina;
+  const s = await mkStrain(C, { name: 'Kolejka' });
+  const rx = await addRx(C, 10, 8);
+  const requestId = randomUUID();
+  const r1 = await buy(C, s, 2, { requestId, prescriptionId: rx, at: Date.now() - 60000 });
+  assert.equal(r1.status, 200);
+  assert.equal(r1.json.prescriptionId, rx);
+  await call(C, 'prescriptions', 'DELETE', { id: rx });
+  const r2 = await buy(C, s, 2, { requestId, prescriptionId: rx, at: Date.now() - 60000 });
+  assert.equal(r2.status, 200, JSON.stringify(r2.json)); // wcześniej 404 przed obsługą duplikatu
+  assert.equal(r2.json.id, r1.json.id);
+  assert.equal((await q`SELECT count(*)::int AS n FROM purchases WHERE user_id = ${C} AND request_id = ${requestId}`)[0].n, 1);
+  // także bez `at`: duplikat jest sprawdzany przed receptą
+  const r3 = await buy(C, s, 2, { requestId, prescriptionId: rx });
+  assert.equal(r3.status, 200);
+  assert.equal(r3.json.id, r1.json.id);
+});
+
+test('zapis z kolejki z receptą cudzą, nieistniejącą albo w innej jednostce: zakup się zapisuje (tryb auto), cudza nie zostaje przypisana', { skip }, async () => {
+  const A = ids.ania, C = ids.celina;
+  const s = await mkStrain(C, { name: 'Kolejka 2' });
+  const rxA = await addRx(A, 10, 7);
+  const ml = await addRx(C, 30, 3, { unit: 'ml' });
+  const at = Date.now() - 60000;
+  const foreign = await buy(C, s, 1, { prescriptionId: rxA, at });
+  assert.equal(foreign.status, 200, JSON.stringify(foreign.json));
+  assert.notEqual(foreign.json.prescriptionId, rxA);
+  assert.equal((await buy(C, s, 1, { prescriptionId: 2147483000, at })).status, 200);
+  const unit = await buy(C, s, 1, { prescriptionId: ml, at });
+  assert.equal(unit.status, 200);
+  assert.notEqual(unit.json.prescriptionId, ml);
+  // bez `at` (zapis interaktywny) błędy zostają
+  assert.equal((await buy(C, s, 1, { prescriptionId: rxA })).status, 404);
+});
+
+test('jawne „bez recepty” (prescriptionId: null) nie liczy się w rezerwie żadnej recepty; brak pola = auto', { skip }, async () => {
+  const B = ids.dorota;
+  const s = await mkStrain(B, { name: 'Prywatny' });
+  const rx = await addRx(B, 50, 12);
+  const before = await boughtOf(B, rx);
+  const priv = await buy(B, s, 4, { prescriptionId: null });
+  assert.equal(priv.status, 200);
+  assert.equal(priv.json.prescriptionId, null);
+  assert.equal((await q`SELECT no_rx FROM purchases WHERE id = ${priv.json.id}`)[0].no_rx, true);
+  assert.equal(await boughtOf(B, rx), before); // wcześniej +4 z rezerwy
+  const auto = await buy(B, s, 3);
+  assert.equal(auto.json.prescriptionId, rx);
+  assert.equal(await boughtOf(B, rx), before + 3);
+  // Historia: bez przypisania <-> bez recepty <-> konkretna
+  const patch = (body) => call(B, 'history/purchases/[id]', 'PATCH', body, { id: String(priv.json.id) });
+  assert.equal((await patch({ prescriptionId: null })).status, 200);
+  assert.equal(await boughtOf(B, rx), before + 3 + 4); // wróciło do rezerwy
+  const np = await patch({ noRx: true });
+  assert.equal(np.json.noRx, true);
+  assert.equal(await boughtOf(B, rx), before + 3);
+  assert.equal((await patch({ prescriptionId: rx })).json.noRx, false);
+  assert.equal(await boughtOf(B, rx), before + 3 + 4);
+  await patch({ noRx: true });
+  const { history } = await import('../../lib/strains.js');
+  assert.equal((await history(B)).purchases.find((x) => x.id === priv.json.id).noRx, true);
+  const ex = await call(B, 'account/export', 'GET');
+  assert.ok(ex.json.purchases.some((p) => p.noRx === true));
+});
+
+test('lista recept podaje część wykupu liczoną z szacunku; opcje Historii zawierają starszą przypisaną receptę', { skip }, async () => {
+  const A = ids.celina;
+  const s = await mkStrain(A, { name: 'Szacunek' });
+  const rx = await addRx(A, 100, 30);
+  const est0 = (await call(A, 'prescriptions', 'GET')).json.prescriptions.find((p) => p.id === rx).estimated;
+  await q`INSERT INTO purchases (user_id, strain_id, strain_name, grams) VALUES (${A}, ${s}, 'Szacunek', 6)`;
+  await buy(A, s, 5, { prescriptionId: rx });
+  const row = (await call(A, 'prescriptions', 'GET')).json.prescriptions.find((p) => p.id === rx);
+  assert.equal(row.estimated, est0 + 6);
+  assert.equal(row.bought, row.estimated + 5);
+  // 31 nowszych recept wypycha starą poza LIMIT 30, ale przypisanie do widocznego zakupu ją zachowuje
+  const { prescriptionOptions } = await import('../../lib/strains.js');
+  for (let i = 0; i < 31; i++) await q`INSERT INTO prescriptions (user_id, issued_on, grams) VALUES (${A}, CURRENT_DATE + 1, 1)`;
+  assert.ok((await prescriptionOptions(A)).some((p) => p.id === rx));
+});
+
+test('auto-wybór pomija receptę wyczerpaną (pozostało 0)', { skip }, async () => {
+  const B = ids.edyta;
+  const s = await mkStrain(B, { name: 'Wyczerpana' });
+  const full = await addRx(B, 1, 5);
+  const free = await addRx(B, 100, 20);
+  await q`INSERT INTO purchases (user_id, strain_id, strain_name, grams, prescription_id) VALUES (${B}, ${s}, 'Wyczerpana', 1, ${full})`;
+  const r = await buy(B, s, 2);
+  assert.equal(r.json.prescriptionId, free);
 });

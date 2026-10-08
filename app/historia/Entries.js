@@ -16,6 +16,9 @@ const perUnit = (u) => (u === 'ml' ? 'ml' : 'gram');
 // Zakupy albo zużycie w Historii z korektą: „Popraw” (gramy, data; przy zakupie cena za gram albo łączny koszt)
 // i „Usuń” z potwierdzeniem. Lista (telefon) i tabela (szeroki ekran) są w DOM obie naraz, więc edytor jest jeden,
 // nad nimi. Po zapisie odświeżamy stronę (podsumowanie miesiąca i wykres liczą się na serwerze).
+// wartość pola „Recepta”: numer recepty, 'none' (jawnie bez recepty) albo '' (bez przypisania)
+const rxOf = (row) => (row.prescriptionId ? String(row.prescriptionId) : row.noRx ? 'none' : '');
+
 export default function Entries({ kind, rows, prescriptions = [] }) {
   const purchase = kind === 'purchase';
   const base = purchase ? '/api/history/purchases' : '/api/history/usage';
@@ -34,7 +37,7 @@ export default function Entries({ kind, rows, prescriptions = [] }) {
     back.current = e?.currentTarget ?? null;
     setEdit({ row, confirm });
     setErr(''); setMsg(''); setOffer(null);
-    setF({ grams: dec(row.grams), day: row.day, method: row.method || '', period: row.period || '', costMode: 'price', cost: row.cost != null ? dec(row.cost / row.grams) : '', rx: row.prescriptionId ? String(row.prescriptionId) : '' });
+    setF({ grams: dec(row.grams), day: row.day, method: row.method || '', period: row.period || '', costMode: 'price', cost: row.cost != null ? dec(row.cost / row.grams) : '', rx: rxOf(row) });
   }
   function close() { setEdit(null); setErr(''); back.current?.focus?.(); }
 
@@ -51,8 +54,8 @@ export default function Entries({ kind, rows, prescriptions = [] }) {
       if (f.method !== (row.method || '')) body.method = f.method || null;
       if (f.period !== (row.period || '')) body.period = f.period || null;
     }
-    // POM-16: powiązanie z receptą (null = zdjęte)
-    if (purchase && f.rx !== (row.prescriptionId ? String(row.prescriptionId) : '')) body.prescriptionId = f.rx ? Number(f.rx) : null;
+    // POM-16: powiązanie z receptą: liczba = recepta, noRx = zakup prywatny, null = bez przypisania (szacunek)
+    if (purchase && f.rx !== rxOf(row)) { if (f.rx === 'none') body.noRx = true; else body.prescriptionId = f.rx ? Number(f.rx) : null; }
     if (purchase && c != null) {
       const was = row.cost != null ? (f.costMode === 'price' ? Math.round((row.cost / row.grams) * 100) / 100 : row.cost) : null;
       // sama zmiana gramów: serwer przelicza koszt proporcjonalnie (bez zaokrąglonej ceny za gram z pola)
@@ -167,7 +170,8 @@ export default function Entries({ kind, rows, prescriptions = [] }) {
                 <div className="field">
                   <label htmlFor={`${id}-rx`}>Recepta</label>
                   <select id={`${id}-rx`} className="input" value={f.rx} onChange={(e) => setF((p) => ({ ...p, rx: e.target.value }))}>
-                    <option value="">bez recepty (liczone jak dawniej, z okresu ważności)</option>
+                    <option value="">bez przypisania (szacunek z okresu ważności)</option>
+                    <option value="none">bez recepty (zakup prywatny)</option>
                     {prescriptions.filter((p) => uOf(p) === eu || String(p.id) === f.rx).map((p) => (
                       <option key={p.id} value={p.id}>{nf(p.grams)} {uOf(p)}, od {formatDay(p.issued_on)}{p.valid_until ? ` do ${formatDay(p.valid_until)}` : ''}</option>
                     ))}

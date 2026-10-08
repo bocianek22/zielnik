@@ -28,15 +28,15 @@ before(async () => {
     const [u] = await q`INSERT INTO users (username, password_hash) VALUES (${n}, 'x') RETURNING id`;
     ids[n] = u.id;
   }
-  const mk = async (key, producer, name, thc, form) => {
-    const [r] = await q`INSERT INTO strains (producer, name, type, thc, cbd, form, created_by) VALUES (${producer}, ${name}, 'haze', ${thc}, 0, ${form}, ${ids.ania}) RETURNING id`;
+  const mk = async (key, producer, name, thc, form, by = ids.ania) => {
+    const [r] = await q`INSERT INTO strains (producer, name, type, thc, cbd, form, created_by) VALUES (${producer}, ${name}, 'haze', ${thc}, 0, ${form}, ${by}) RETURNING id`;
     S[key] = r.id;
   };
   await mk('a', 'Aurora', 'Lemon', 20, 'susz');
   await mk('b', 'Aurora', 'Lemon 2', 20, 'susz');   // ta sama pula co „a”
   await mk('c', 'Tilray', 'Bediol', 6, 'susz');
   await mk('d', 'Medalchemy', 'Olej', 10, 'olej');
-  await mk('e', 'Inna', 'Cudza', 5, 'susz');        // bez wpisu Ani
+  await mk('e', 'Inna', 'Cudza', 5, 'susz', ids.bartek); // bez wpisu Ani, utworzona przez Bartka
 });
 
 after(async () => { if (pool) await pool.end(); });
@@ -51,7 +51,7 @@ test('homeSummary: zapas, „do wykupienia” (pula raz), liczba odmian i ostatn
 
   const h = await stats.homeSummary(A);
   assert.equal(h.count, 5);
-  assert.equal(h.mine, 4); // POM-20: tylko odmiany z moim wpisem (count to wszystkie w bazie)
+  assert.equal(h.mine, 4); // POM-20: wspólna definicja z lib/mine.js (ocena, stan, do wykupienia, notatka, własna); 
   assert.deepEqual(h.stock, { g: 3.5, ml: 12 });
   assert.deepEqual(h.remaining, { g: 7, ml: 30 });
   assert.deepEqual(h.recent.map((r) => r.id), [S.a, S.c]);
@@ -61,6 +61,8 @@ test('homeSummary: zapas, „do wykupienia” (pula raz), liczba odmian i ostatn
   // te same sumy z pełnej listy (jak liczył to StrainsBoard)
   const list = await strains.listStrains(A);
   const mine = (s) => s.entries.find((e) => e.userId === A);
+  const { isMine } = await import('../../lib/mine.js');
+  assert.equal(list.filter((s) => isMine(s, mine(s), A)).length, h.mine); // serwer i przeglądarka liczą tak samo
   const stockG = list.filter((s) => s.form === 'susz').reduce((a, s) => a + Number(mine(s).current), 0);
   assert.equal(h.stock.g, stockG);
   const pools = new Map();
@@ -72,5 +74,5 @@ test('homeSummary: zapas, „do wykupienia” (pula raz), liczba odmian i ostatn
   assert.deepEqual(b.stock, { g: 99, ml: 0 });
   assert.deepEqual(b.remaining, { g: 0, ml: 0 });
   assert.deepEqual(b.recent, []);
-  assert.equal(b.mine, 1);
+  assert.equal(b.mine, 2); // stan w „a” + własna „e”
 });

@@ -66,6 +66,7 @@ export default function Prescriptions() {
                   </div>
                   <progress value={Math.min(p.bought, p.grams)} max={p.grams} aria-label="Wykupiono z przepisanej ilości" />
                   <p className="rx-amount">Wykupiono <b>{nf(p.bought)} {u}</b>, zostało <b>{nf(left)} {u}</b>{expired && !done && ' (niewykorzystane)'}</p>
+                  {p.estimated > 0 && <p className="muted rx-est">{nf(p.estimated)} {u} liczone z szacunku (zakupy bez przypisania) — przypisz je w Historii.</p>}
                   <p className="rx-dates">Wystawiona {fmt(p.issued_on)}{p.valid_until ? `, ważna do ${fmt(p.valid_until)}` : ''}</p>
                   <div className="rx-foot"><button type="button" className="btn text small" onClick={() => remove(p.id)} aria-label={`Usuń receptę ${nf(p.grams)} ${u}`}>Usuń</button></div>
                 </li>

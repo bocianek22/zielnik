@@ -8,7 +8,8 @@ const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const list = (me) => sql()`
   SELECT p.id, to_char(p.issued_on, 'YYYY-MM-DD') AS issued_on, to_char(p.valid_until, 'YYYY-MM-DD') AS valid_until,
          p.grams::float8 AS grams, p.unit, p.note,
-         rx_bought(p.user_id, p.id, p.unit, p.issued_on, p.valid_until, NULL)::float8 AS bought
+         rx_bought(p.user_id, p.id, p.unit, p.issued_on, p.valid_until, NULL)::float8 AS bought,
+         rx_bought_est(p.user_id, p.id, p.unit, p.issued_on, p.valid_until, NULL)::float8 AS estimated
   FROM prescriptions p WHERE p.user_id = ${me}::int ORDER BY p.issued_on DESC, p.id DESC`;
 
 export const GET = safe(async () => {

@@ -44,7 +44,7 @@ export const GET = safe(async (req) => {
              WHEN pool_key ~ '^strain:[0-9]+$' THEN strain_unit(substr(pool_key, 8)::int) ELSE 'g' END AS unit
       FROM user_pool WHERE user_id = ${me}`,
     usage: await q`SELECT s.name AS strain, l.grams::float8 AS grams, form_unit(s.form) AS unit, l.method, usage_period(l.period, l.created_at) AS period, l.created_at FROM usage_log l JOIN strains s ON s.id = l.strain_id WHERE l.user_id = ${me} ORDER BY l.created_at`,
-    purchases: await q`SELECT strain_name AS strain, grams::float8 AS grams, strain_unit(strain_id) AS unit, cost::float8 AS cost, prescription_id AS "prescriptionId", created_at FROM purchases WHERE user_id = ${me} ORDER BY created_at`,
+    purchases: await q`SELECT strain_name AS strain, grams::float8 AS grams, strain_unit(strain_id) AS unit, cost::float8 AS cost, prescription_id AS "prescriptionId", no_rx AS "noRx", created_at FROM purchases WHERE user_id = ${me} ORDER BY created_at`,
     tests: withPhotos
       ? await inline(await q`SELECT s.name AS strain, t.note, t.visibility, t.created_at, t.mime, t.data AS photo_base64, t.blob_path FROM strain_tests t JOIN strains s ON s.id = t.strain_id WHERE t.user_id = ${me} ORDER BY t.created_at`)
       : await q`SELECT s.name AS strain, t.note, t.visibility, t.created_at, (t.data IS NOT NULL) AS has_photo FROM strain_tests t JOIN strains s ON s.id = t.strain_id WHERE t.user_id = ${me} ORDER BY t.created_at`,

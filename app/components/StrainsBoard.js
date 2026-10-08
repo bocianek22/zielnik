@@ -1,4 +1,5 @@
 'use client';
+import { isMine } from '@/lib/mine';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState, cloneElement } from 'react';
 import { api } from '@/lib/api';
@@ -152,7 +153,7 @@ export default function StrainsBoard({ initialStrains, initialOptions, me }) {
   const stockU = byUnit(strains, (s) => Number(mine(s).current || 0));
   // panel „Dziś” dostaje sumy z pełnej listy (np. po edycji odmiany albo odświeżeniu)
   useEffect(() => {
-    sync({ stock: stockU, remaining: remainingU, count: strains.length, mine: strains.filter((s) => { const m = mine(s); return s.created_by === me.id || m.rating != null || Number(m.current) > 0 || Number(m.remaining) > 0 || m.notes; }).length, current: Object.fromEntries(strains.map((s) => [s.id, Number(mine(s).current) || 0])) });
+    sync({ stock: stockU, remaining: remainingU, count: strains.length, mine: strains.filter((s) => isMine(s, mine(s), me.id)).length, current: Object.fromEntries(strains.map((s) => [s.id, Number(mine(s).current) || 0])) });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [strains]);
 
@@ -173,9 +174,7 @@ export default function StrainsBoard({ initialStrains, initialOptions, me }) {
     return strains
       .filter((s) => {
         if (scope === 'mine') {
-          const m = mine(s);
-          const isMine = s.created_by === me.id || m.rating != null || Number(m.current) > 0 || Number(m.remaining) > 0 || m.notes;
-          if (!isMine) return false;
+          if (!isMine(s, mine(s), me.id)) return false;
         }
         if (onlyStock && !(Number(mine(s).current) > 0)) return false;
         if (kindFilter && s.kind !== kindFilter) return false;

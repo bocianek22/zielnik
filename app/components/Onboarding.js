@@ -99,7 +99,7 @@ function StrainStep({ onSaved, onSkip }) {
               inputProps={{ id: 'onb-q', placeholder: 'Zacznij pisać nazwę…', maxLength: 60 }} />
             <small className="muted">Podpowiadam z bazy odmian i katalogu. Wybierz pozycję z listy.</small>
           </div>
-          {q.trim().length > 1 && <div><button type="button" className="btn ghost" onClick={startManual}><Icon name="plus" size={18} />Nie ma na liście? Dodaj „{q.trim()}” ręcznie</button></div>}
+          {q.trim().length > 1 && <div><button type="button" className="btn ghost" onClick={startManual}><Icon name="plus" size={18} />Nie ma na liście? Dodaj „<span className="dn">{q.trim()}</span>” ręcznie</button></div>}
         </>
       )}
       {target && (

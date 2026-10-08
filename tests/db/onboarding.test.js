@@ -2,6 +2,8 @@
 // Uruchom: TEST_DATABASE_URL=postgres://... npm run test:db  (baza zostanie WYCZYSZCZONA).
 import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
 const URL_ = process.env.TEST_DATABASE_URL;
 const local = URL_ && /@(localhost|127\.0\.0\.1)(:\d+)?\//.test(URL_);
@@ -80,4 +82,43 @@ test('kreator pozostaje zamknięty po dodaniu i usunięciu wpisów (stan na konc
   await q`INSERT INTO user_strain (strain_id, user_id) VALUES (${s.id}, ${ids.nowa})`;
   await q`DELETE FROM user_strain WHERE user_id = ${ids.nowa}`;
   assert.equal(await onb.onboardingOpen(ids.nowa), false);
+});
+
+test('has_data: zakup, zużycie, objawy, własny objaw, własna odmiana, dzień bez użycia i notatka zamykają kreator; admin go nie widzi', { skip }, async () => {
+  const mk = async (n) => (await q`INSERT INTO users (username, password_hash, must_change_password) VALUES (${n}, 'x', FALSE) RETURNING id`)[0].id;
+  const [s] = await q`INSERT INTO strains (producer, name, type) VALUES ('Aurora', 'Pusta', 'haze') RETURNING id`;
+  const cases = {
+    zakup: (u) => q`INSERT INTO purchases (user_id, strain_id, strain_name, grams) VALUES (${u}, ${s.id}, 'Pusta', 1)`,
+    zuzycie: (u) => q`INSERT INTO usage_log (user_id, strain_id, grams) VALUES (${u}, ${s.id}, 0.2)`,
+    objawy: (u) => q`INSERT INTO symptom_log (user_id, day) VALUES (${u}, CURRENT_DATE)`,
+    wlasny: (u) => q`INSERT INTO symptom_custom (user_id, slot, name) VALUES (${u}, 1, 'Moj objaw')`,
+    utworzona: (u) => q`INSERT INTO strains (producer, name, type, created_by) VALUES ('Tilray', ${`Wlasna ${u}`}, 'haze', ${u})`,
+    bez_uzycia: (u) => q`INSERT INTO no_use_days (user_id, day) VALUES (${u}, CURRENT_DATE)`,
+    notatka: (u) => q`INSERT INTO doctor_notes (user_id, text) VALUES (${u}, 'zapytac')`,
+  };
+  for (const [name, add] of Object.entries(cases)) {
+    const u = await mk(`hd_${name}`);
+    assert.equal(await onb.onboardingOpen(u), true, name);
+    await add(u);
+    assert.equal(await onb.onboardingOpen(u), false, name);
+  }
+  const [adm] = await q`INSERT INTO users (username, password_hash, is_admin, must_change_password) VALUES ('hd_admin', 'x', TRUE, FALSE) RETURNING id`;
+  assert.equal(await onb.onboardingOpen(adm.id), false);
+});
+
+test('ensureDb zamyka kreator na kontach sprzed wdrożenia (created_at < 2026-10-08 14:00 UTC), nowszych nie', { skip }, async () => {
+  const [old] = await q`INSERT INTO users (username, password_hash, must_change_password, created_at) VALUES ('sprzed', 'x', FALSE, '2026-10-01 10:00+00') RETURNING id`;
+  const [fresh] = await q`INSERT INTO users (username, password_hash, must_change_password, created_at) VALUES ('po', 'x', FALSE, '2026-10-08 15:00+00') RETURNING id`;
+  await q`DELETE FROM schema_meta`; // bez zapisanej sumy migracja nie jest pomijana (zimny start po wdrożeniu nowego SQL)
+  // zimny start w osobnym procesie (nowa instancja modułu db)
+  const root = new URL('../../', import.meta.url);
+  const code = `const db = await import(${JSON.stringify(new URL('lib/db.js', root).href)}); await db.ensureDb(); process.exit(0);`;
+  execFileSync(process.execPath, ['--experimental-default-type=module', '--import', fileURLToPath(new URL('register.mjs', import.meta.url)), '--input-type=module', '-e', code],
+    { env: { ...process.env, DATABASE_URL: URL_ }, stdio: 'pipe' });
+  const [a] = await q`SELECT onboarded_at FROM users WHERE id = ${old.id}`;
+  const [b] = await q`SELECT onboarded_at FROM users WHERE id = ${fresh.id}`;
+  assert.ok(a.onboarded_at);
+  assert.equal(b.onboarded_at, null);
+  assert.equal(await onb.onboardingOpen(old.id), false);
+  assert.equal(await onb.onboardingOpen(fresh.id), true);
 });
