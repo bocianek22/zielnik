@@ -12,10 +12,11 @@ export const PATCH = safe(async (req, { params }) => {
   const { user, res } = await requireUser();
   if (res) return res;
   const id = intId((await params).id);
-  const { error, fields: f } = await parseCommon(await req.json().catch(() => ({})));
-  if (error) return bad(error);
   const mode = await editMode(user, id);
   if (!mode) return bad('Nie znaleziono odmiany.', 404);
+  // propozycja nie dopisuje nowych producentów, typów ani terpenów do wspólnych list (robi to dopiero akceptacja)
+  const { error, fields: f } = await parseCommon(await req.json().catch(() => ({})), { newOptions: mode === 'direct' });
+  if (error) return bad(error);
   if (mode === 'direct') {
     const row = await updateStrain(id, f, user.id);
     if (!row) return bad('Nie znaleziono odmiany.', 404);

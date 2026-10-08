@@ -237,8 +237,6 @@ scenario('tryb dyskretny: nazwy rozmyte, tytuł "Notatnik"', async (page) => {
 }, withSession);
 
 scenario('KAT-1: edycja cudzej odmiany to propozycja; admin ją odrzuca z powodem, autor widzi status', async (page, ctx, problems) => {
-  // znany błąd (nie z KAT-1): na stronie odmiany leniwy fragment skali odczuć (next/dynamic) jest blokowany przez CSP strict-dynamic
-  problems.allow(/Refused to load the script .*\/_next\/static\/chunks\//);
   await login(page, 'bartek');
   const id = await page.evaluate(async () => (await (await fetch('/api/strains?limit=100')).json()).strains.find((x) => x.name === 'Lemon Skunk').id);
   await go(page, `/strains/${id}`);

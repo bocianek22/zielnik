@@ -6,8 +6,9 @@ import { OwnEntry, dec } from './StrainCard';
 import Icon from './Icon';
 import StrainForm from './StrainForm';
 import Tests from './Tests';
-import dynamicImport from 'next/dynamic';
-const Effects = dynamicImport(() => import('./Effects'), { loading: () => <div className="card"><p className="muted">Wczytuję skalę odczuć…</p></div> });
+// zwykły import: fragment ma ~3,5 KB, a leniwe ładowanie (next/dynamic) dokładało podgląd <link rel=preload> bez nonce,
+// który CSP strict-dynamic blokował (błąd w konsoli przy pełnym ładowaniu strony odmiany)
+import Effects from './Effects';
 import CharacteristicCard from './CharacteristicCard';
 import PharmacyLink from './PharmacyLink';
 import Lightbox, { PhotoCredit } from './Lightbox';

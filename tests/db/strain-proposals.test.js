@@ -131,6 +131,18 @@ test('admin przyjmuje: zapis jak zwykła edycja, historia z autorem propozycji, 
   assert.equal((await row(s)).thc, 12);
 });
 
+test('nowy producent z propozycji trafia do wspólnej listy dopiero po akceptacji', { skip }, async () => {
+  const { ania: A, bartek: B, Bocian: ADM } = ids;
+  const s = await create(A, { name: 'Nowy producent' });
+  const has = async () => (await q`SELECT 1 FROM options WHERE kind = 'producer' AND value = 'Zupełnie Nowy Producent'`).length > 0;
+  await patch(B, s, { name: 'Nowy producent', producer: 'Zupełnie Nowy Producent' });
+  assert.equal(await has(), false, 'propozycja nie dopisuje opcji');
+  const [item] = (await queue()).filter((x) => x.strainId === s);
+  assert.equal((await decide(ADM, { id: item.id, action: 'accept' })).status, 200);
+  assert.equal(await has(), true, 'akceptacja dopisuje opcję');
+  assert.equal((await q`SELECT producer FROM strains WHERE id = ${s}`)[0].producer, 'Zupełnie Nowy Producent');
+});
+
 test('admin odrzuca z powodem; autor go widzi; odmiana bez zmian', { skip }, async () => {
   const { ania: A, bartek: B, Bocian: ADM } = ids;
   const s = await create(A, { name: 'Do odrzucenia', thc: 10 });
