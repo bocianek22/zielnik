@@ -19,7 +19,7 @@ Bieżąca wersja: **0.45.0** (zamknięta beta, rejestracja z zaproszeniem).
 | 1.x | Rozwój | społeczność, B2B, wersja angielska |
 
 ## 1. Konta i bezpieczeństwo
-- **KON-1 (P0, M, 📧)** Odzyskiwanie hasła e-mailem i weryfikacja adresu.
+- **KON-1 (P0, M, 📧)** Odzyskiwanie hasła e-mailem i weryfikacja adresu. ✅ kod (Unreleased) za flagą `RESEND_API_KEY` + `MAIL_FROM`: opcjonalny adres w profilu (za zgodą, prywatny), potwierdzenie linkiem, „Nie pamiętam hasła” na `/login`, nowe hasło z linku (wylogowanie wszędzie). Zostaje: konto Resend, domena nadawcy i zmienne w Vercel (właściciel).
 - ~~**KON-2 (P0, S)** Zwrot użycia kodu zaproszenia przy nieudanej rejestracji~~ ✅ 0.16.0
 - **KON-3 (P1, M, 🌐)** Logowanie przez Google, potem Apple.
 - **KON-4 (P1, M)** Lista aktywnych sesji i wylogowanie z innych urządzeń. ✅ częściowo 0.29.0 („wyloguj ze wszystkich urządzeń”); zostaje lista sesji.
@@ -74,7 +74,7 @@ Bieżąca wersja: **0.45.0** (zamknięta beta, rejestracja z zaproszeniem).
 
 ## 7. Platforma i infrastruktura
 - **PLA-1 (P0, M)** Testy automatyczne. ✅ 0.16.0: funkcje czyste (`npm test`). ✅ 0.28.2: testy z lokalnym PostgreSQL (`npm run test:db`: `ensureDb`, `can_see`, wybrane trasy API) i CI w GitHub Actions. Do zrobienia: rozszerzać `tests/db/` przy każdej zmianie SQL (rankingi, pule, grupy, eksport, kopia), testy komponentów.
-- **PLA-2 (P0, S)** Monitoring błędów. ✅ 0.16.0: własny dziennik błędów w panelu admina. Do zrobienia: alerty (e-mail lub komunikator) i uptime.
+- **PLA-2 (P0, S)** Monitoring błędów. ✅ 0.16.0: własny dziennik błędów w panelu admina. ✅ alerty (Unreleased): webhook Discord/Slack (`ALERT_WEBHOOK_URL`) i/lub e-mail (`ALERT_EMAIL`) przy ≥ N błędach serwera w 15 min albo nowym rodzaju błędu, bez treści błędów, z limitami; alert próbny w panelu admina. Do zrobienia: uptime (zewnętrzny monitor `/api/version`).
 - **PLA-3 (P0, S)** Przejście na plan Vercel Pro (użycie komercyjne) i osobna gałąź bazy dla podglądów.
 - **PLA-4 (P1, M)** Zdjęcia poza bazą (magazyn obiektów, np. Vercel Blob lub S3) z miniaturami. ✅ częściowo (Unreleased): zapis i odczyt przez prywatny Vercel Blob, skrypt migracji `scripts/photos-to-blob.js`. Zostaje: uruchomienie migracji na produkcji, miniatury, awatary (`users.avatar`) i ewentualne dołączenie zdjęć do kopii.
 - **PLA-5 (P1, M)** Paginacja i pamięć podręczna listy odmian oraz rankingów (dziś ładujemy wszystko naraz).
