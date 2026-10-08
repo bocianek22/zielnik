@@ -2,7 +2,7 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import AxeBuilder from '@axe-core/playwright';
-import { launch, phone, login, go, hydrated } from './helpers.mjs';
+import { launch, phone, login, go, hydrated, interactive } from './helpers.mjs';
 
 let browser;
 let session;
@@ -33,6 +33,7 @@ test('arkusz „Więcej”: pułapka fokusu, Escape, powrót fokusu, axe w obu m
     try {
       await go(page, '/profil');
       const more = page.locator('.bottomnav button', { hasText: 'Więcej' });
+      await interactive(more);
       await more.focus();
       await page.keyboard.press('Enter');
       await page.waitForSelector('nav.sheet');

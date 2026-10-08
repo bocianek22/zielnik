@@ -3,7 +3,7 @@
 // Każdy test kończy się porażką także wtedy, gdy w konsoli pojawi się błąd, naruszenie CSP albo odpowiedź >= 400.
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { launch, phone, login, shot, go, hydrated } from './helpers.mjs';
+import { launch, phone, login, shot, go, hydrated, interactive } from './helpers.mjs';
 
 let browser;
 let session; // storageState konta ania po pierwszym logowaniu (kolejne testy nie obciążają limitu logowań)
@@ -240,7 +240,9 @@ scenario('KAT-1: edycja cudzej odmiany to propozycja; admin ją odrzuca z powode
   await login(page, 'bartek');
   const id = await page.evaluate(async () => (await (await fetch('/api/strains?limit=100')).json()).strains.find((x) => x.name === 'Lemon Skunk').id);
   await go(page, `/strains/${id}`);
-  await page.getByRole('button', { name: 'Edytuj odmianę' }).click();
+  const edit = page.getByRole('button', { name: 'Edytuj odmianę' });
+  await interactive(edit);
+  await edit.click();
   await page.getByText('Twoja zmiana trafi do akceptacji').waitFor();
   await page.locator(`#s${id}-taste`).fill('propozycja e2e');
   await page.getByRole('button', { name: 'Wyślij', exact: true }).click();
@@ -254,7 +256,9 @@ scenario('KAT-1: edycja cudzej odmiany to propozycja; admin ją odrzuca z powode
   try {
     await login(ap, 'Bocian');
     await go(ap, '/admin');
-    await ap.getByRole('tab', { name: /Propozycje/ }).click();
+    const tab = ap.getByRole('tab', { name: /Propozycje/ });
+    await interactive(tab);
+    await tab.click();
     const item = ap.locator('.proposal-item', { hasText: 'Lemon Skunk' });
     await item.getByText('propozycja e2e').waitFor();
     await item.getByRole('button', { name: 'Odrzuć…' }).click();
