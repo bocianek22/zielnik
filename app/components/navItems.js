@@ -19,6 +19,8 @@ export const NAV_ITEMS = [
   { href: '/raport', label: 'Raport dla lekarza', top: 'more', sheet: 'journal', icon: 'clipboard' },
   { href: '/wiedza', label: 'Wiedza', top: 'more', sheet: 'discover', icon: 'info' },
   { href: '/premium', label: 'Premium i wsparcie', top: 'more', sheet: 'account', icon: 'heart' },
+  { href: '/pomoc', label: 'Pomoc', top: 'more', sheet: 'account', icon: 'info' },
+  { href: '/uwagi', label: 'Zgłoś uwagę', top: 'more', sheet: 'account', icon: 'edit' },
   { href: '/profil', label: 'Mój profil', sheet: 'account', icon: 'user' },
   { href: '/admin', label: 'Użytkownicy', badge: 'admin', admin: true, top: 'more', sheet: 'account', icon: 'shield' },
   { href: '/change-password', label: 'Zmień hasło', top: 'more', sheet: 'account', icon: 'key' },

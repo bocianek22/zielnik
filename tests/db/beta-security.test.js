@@ -223,7 +223,7 @@ const EXPORT_KEY = {
   users: 'profile', strains: 'strainsCreated', strain_photos: 'strainPhotosAdded', user_strain: 'entries', user_pool: 'remainingToBuy',
   usage_log: 'usage', purchases: 'purchases', strain_tests: 'tests', strain_edits: 'strainEdits', strain_proposals: 'strainProposals',
   friendships: 'friends', groups: 'groups', group_members: 'groups', prescriptions: 'prescriptions', symptom_log: 'symptoms',
-  symptom_custom: 'customSymptoms', symptom_values: 'customSymptomValues', doctor_notes: 'doctorNotes', no_use_days: 'noUseDays',
+  symptom_custom: 'customSymptoms', symptom_values: 'customSymptomValues', doctor_notes: 'doctorNotes', beta_feedback: 'feedback', no_use_days: 'noUseDays',
   blocks: 'blocked', reports: 'reportsFiled', push_subscriptions: 'pushNotifications', push_prefs: 'pushNotifications', sessions: 'sessions',
 };
 const EXPORT_EXCEPTIONS = {

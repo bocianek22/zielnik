@@ -8,6 +8,7 @@ import MoreMenu from './MoreMenu';
 import ThemeToggle from './ThemeToggle';
 import BottomNav from './BottomNav';
 import TopNav from './TopNav';
+import WhatsNew from './WhatsNew';
 import { navItems } from './navItems';
 import { VERSION } from '@/lib/version';
 
@@ -41,6 +42,7 @@ export default function Header({ user }) {
       </div>
     </header>
     <BottomNav isAdmin={admin} />
+    <WhatsNew />
     </>
   );
 }

@@ -57,7 +57,7 @@ export default function BottomNav({ isAdmin }) {
                 <h2 className="section-label">{title}</h2>
                 <div className="list">
                   {items.map((i) => (
-                    <Link key={i.href} href={i.href} className="list-row" aria-current={isActive(path, i.href) ? 'page' : undefined}>
+                    <Link key={i.href} href={i.href === '/uwagi' && path ? `/uwagi?ekran=${encodeURIComponent(path)}` : i.href} className="list-row" aria-current={isActive(path, i.href) ? 'page' : undefined}>
                       <Icon name={i.icon} /><span className="lr-main">{i.label}</span>
                       {i.badge && <NavBadge kind={i.badge} />}
                       <Icon name="chevronRight" size={18} className="lr-chev" />

@@ -17,6 +17,7 @@ export default function ErrorPage({ error, reset }) {
         <div className="system-actions">
           <button className="btn" onClick={reset}>Spróbuj ponownie</button>
           <a className="btn text" href="/">Wróć do odmian</a>
+          <a className="btn text" href="/uwagi">Zgłoś uwagę</a>
         </div>
       </div>
     </main>

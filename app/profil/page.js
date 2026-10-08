@@ -9,6 +9,9 @@ import DiscreetSettings from './DiscreetSettings';
 import NativeLock from './NativeLock';
 import WebLockSettings from './WebLockSettings';
 import NativeVersion from './NativeVersion';
+import Link from 'next/link';
+import { VERSION } from '@/lib/version';
+import Icon from '../components/Icon';
 import { ThemeChoice, BigChoice } from '../components/ThemeToggle';
 
 export const dynamic = 'force-dynamic';
@@ -37,6 +40,18 @@ export default async function Profil() {
               <BigChoice />
             </section>
           </ProfileForm>
+          <section className="card" aria-labelledby="about-h">
+            <h2 id="about-h">O aplikacji</h2>
+            <p>
+              <span className="brand-name">Zielnik</span><span className="brand-alt">Notatnik</span> v{VERSION} <span className="badge">Beta</span>
+            </p>
+            <p className="muted">Wersja testowa: coś może jeszcze nie działać jak trzeba. Dziękujemy za uwagi.</p>
+            <div className="list inset">
+              <Link className="list-row" href="/pomoc#co-nowego"><Icon name="info" /><span className="lr-main">Co nowego</span></Link>
+              <Link className="list-row" href="/pomoc"><Icon name="book" /><span className="lr-main">Pomoc i instalacja</span></Link>
+              <Link className="list-row" href="/uwagi"><Icon name="edit" /><span className="lr-main">Zgłoś uwagę</span></Link>
+            </div>
+          </section>
           <NativeVersion />
         </div>
       </main>

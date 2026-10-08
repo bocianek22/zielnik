@@ -5,6 +5,7 @@ import UsersAdmin from './UsersAdmin';
 import InvitesAdmin from './InvitesAdmin';
 import PlansAdmin from './PlansAdmin';
 import ReportsAdmin from './ReportsAdmin';
+import FeedbackAdmin from './FeedbackAdmin';
 import BackupsAdmin from './BackupsAdmin';
 import ErrorsAdmin from './ErrorsAdmin';
 import AuditAdmin from './AuditAdmin';
@@ -21,6 +22,7 @@ export default function AdminTabs({ meId }) {
   const [tab, setTab] = useState('konta');
   const [reportCount, setReportCount] = useState(0);
   const [proposalCount, setProposalCount] = useState(0);
+  const [feedbackCount, setFeedbackCount] = useState(0);
   const refs = useRef({});
 
   // wzorzec ARIA tabs: strzałki, Home i End przenoszą zaznaczenie i fokus
@@ -42,7 +44,7 @@ export default function AdminTabs({ meId }) {
           <button key={id} type="button" role="tab" id={`atab-${id}`} ref={(el) => { refs.current[id] = el; }}
             aria-selected={tab === id} aria-controls={`apanel-${id}`} tabIndex={tab === id ? 0 : -1}
             className={tab === id ? 'on' : ''} onClick={() => setTab(id)}>
-            {label}{id === 'zgloszenia' && reportCount > 0 ? ` (${reportCount})` : ''}{id === 'propozycje' && proposalCount > 0 ? ` (${proposalCount})` : ''}
+            {label}{id === 'zgloszenia' && reportCount + feedbackCount > 0 ? ` (${reportCount + feedbackCount})` : ''}{id === 'propozycje' && proposalCount > 0 ? ` (${proposalCount})` : ''}
           </button>
         ))}
       </div>
@@ -51,6 +53,7 @@ export default function AdminTabs({ meId }) {
       </div>
       <div id="apanel-zgloszenia" role="tabpanel" aria-labelledby="atab-zgloszenia" hidden={tab !== 'zgloszenia'} className="admin-panel">
         <ReportsAdmin onCount={setReportCount} />
+        <FeedbackAdmin onCount={setFeedbackCount} />
       </div>
       <div id="apanel-propozycje" role="tabpanel" aria-labelledby="atab-propozycje" hidden={tab !== 'propozycje'} className="admin-panel">
         <ProposalsAdmin onCount={setProposalCount} />
