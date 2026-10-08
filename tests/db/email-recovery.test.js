@@ -34,12 +34,12 @@ async function login(username, password = 'haslo1234') {
   assert.equal(r.status, 200, JSON.stringify(r.json));
   return jar.get(COOKIE);
 }
-const use = (token) => { jar.clear(); if (token) jar.set(COOKIE, token); };
+const asUser = (token) => { jar.clear(); if (token) jar.set(COOKIE, token); };
 const tokenFrom = (m) => m.text.match(/#t=([A-Za-z0-9_-]{43})/)[1];
 const forgot = (login) => { jar.clear(); freshIp(); return req('auth/forgot', 'POST', { login }); };
 // Dodanie i potwierdzenie adresu przez API (jak w profilu i z linku)
 async function addVerified(name, email) {
-  use(await login(name));
+  asUser(await login(name));
   outbox.length = 0;
   const r = await req('account/email', 'PUT', { email, consent: true, password: 'haslo1234' });
   assert.equal(r.status, 200, JSON.stringify(r.json));
@@ -88,7 +88,7 @@ after(async () => {
 test('bez RESEND_API_KEY i MAIL_FROM: funkcja ukryta, trasy odpowiadają 503 z komunikatem', { skip }, async () => {
   delete process.env.RESEND_API_KEY;
   try {
-    use(await login('bob'));
+    asUser(await login('bob'));
     const g = await req('account/email', 'GET');
     assert.equal(g.json.enabled, false);
     const p = await req('account/email', 'PUT', { email: 'bob@example.test', consent: true, password: 'haslo1234' });
@@ -105,7 +105,7 @@ test('bez RESEND_API_KEY i MAIL_FROM: funkcja ukryta, trasy odpowiadają 503 z k
 });
 
 test('dodanie adresu: wymaga zgody, hasła i poprawnego adresu; link weryfikacyjny jednorazowy, w bazie tylko skrót', { skip }, async () => {
-  use(await login('ala'));
+  asUser(await login('ala'));
   outbox.length = 0;
   assert.equal((await req('account/email', 'PUT', { email: 'ala@example.test', password: 'haslo1234' })).status, 400);
   assert.equal((await req('account/email', 'PUT', { email: 'nie-adres', consent: true, password: 'haslo1234' })).status, 400);
@@ -139,7 +139,7 @@ test('dodanie adresu: wymaga zgody, hasła i poprawnego adresu; link weryfikacyj
 });
 
 test('zmiana adresu wymaga ponownej weryfikacji; stary link przestaje działać; usunięcie czyści adres i zgodę', { skip }, async () => {
-  use(await login('darek'));
+  asUser(await login('darek'));
   outbox.length = 0;
   await req('account/email', 'PUT', { email: 'darek1@example.test', consent: true, password: 'haslo1234' });
   const old = tokenFrom(outbox[0]);
@@ -149,7 +149,7 @@ test('zmiana adresu wymaga ponownej weryfikacji; stary link przestaje działać;
   assert.equal((await req('account/email/verify', 'POST', { token: old })).status, 400, 'link na poprzedni adres nieważny');
   assert.equal((await req('account/email/verify', 'POST', { token: tokenFrom(outbox[1]) })).status, 200);
   // zmiana potwierdzonego adresu: z powrotem niepotwierdzony
-  use(await login('darek'));
+  asUser(await login('darek'));
   const r = await req('account/email', 'PUT', { email: 'darek3@example.test', consent: true, password: 'haslo1234' });
   assert.equal(r.json.verified, false);
   assert.equal((await q`SELECT email_verified_at FROM users WHERE id = ${ids.darek}`)[0].email_verified_at, null);
@@ -162,7 +162,7 @@ test('zmiana adresu wymaga ponownej weryfikacji; stary link przestaje działać;
 
 test('„Nie pamiętam hasła” nie zdradza konta ani adresu: ta sama odpowiedź, mail tylko na potwierdzony adres', { skip }, async () => {
   // cela: adres niepotwierdzony; bob: bez adresu; Bocian: admin z potwierdzonym adresem
-  use(await login('cela'));
+  asUser(await login('cela'));
   await req('account/email', 'PUT', { email: 'cela@example.test', consent: true, password: 'haslo1234' });
   await q`UPDATE users SET email = 'admin@example.test', email_verified_at = now() WHERE lower(username) = 'bocian'`;
   outbox.length = 0;
@@ -218,13 +218,13 @@ test('reset: nowe hasło jeden raz, wylogowanie wszędzie, pusta lista sesji, st
   const r = await req('auth/reset', 'POST', { token, password: 'nowehaslo1' });
   assert.equal(r.status, 200, JSON.stringify(r.json));
   assert.equal((await req('auth/reset', 'POST', { token, password: 'innehaslo1' })).status, 400, 'token jednorazowy');
-  for (const s of [s1, s2]) { use(s); assert.equal(await auth.getUser(), null); }
+  for (const s of [s1, s2]) { asUser(s); assert.equal(await auth.getUser(), null); }
   assert.equal((await q`SELECT count(*)::int AS n FROM sessions WHERE user_id = ${ids.ela} AND revoked_at IS NULL`)[0].n, 0);
   jar.clear();
   freshIp();
   assert.equal((await req('auth/login', 'POST', { username: 'ela', password: 'haslo1234' })).status, 401);
   const fresh = await login('ela', 'nowehaslo1');
-  use(fresh);
+  asUser(fresh);
   const list = await req('account/sessions', 'GET');
   assert.equal(list.json.sessions.length, 1);
   assert.equal((await q`SELECT must_change_password FROM users WHERE id = ${ids.ela}`)[0].must_change_password, false);
@@ -240,7 +240,7 @@ test('wygasły token (po 30 min) nie działa; zmiana hasła i reset przez admina
   // zmiana hasła w profilu
   await forgot('franek');
   token = tokenFrom(outbox.at(-1));
-  use(await login('franek'));
+  asUser(await login('franek'));
   assert.equal((await req('auth/change-password', 'POST', { current: 'haslo1234', password: 'haslo12345' })).status, 200);
   jar.clear();
   assert.equal((await req('auth/reset', 'POST', { token, password: 'nowehaslo1' })).status, 400);
@@ -272,7 +272,7 @@ test('limity: na IP i na wpisany tekst zwracają 429 niezależnie od istnienia k
   assert.equal(v[19], 400);
   assert.equal(v[20], 429);
   // dodawanie adresu: 5 na godzinę na konto
-  use(await login('henio'));
+  asUser(await login('henio'));
   const p = [];
   for (let i = 0; i < 6; i++) p.push((await req('account/email', 'PUT', { email: `h${i}@example.test`, consent: true, password: 'haslo1234' })).status);
   assert.deepEqual(p, [200, 200, 200, 200, 200, 429]);
@@ -321,11 +321,11 @@ test('treść neutralna: bez słowa „konopie”, w trybie dyskretnym nazwa „
 });
 
 test('prywatność adresu: eksport właściciela tak, inni nie; kopia bez tokenów; usunięcie konta kasuje adres i tokeny', { skip }, async () => {
-  use(await login('gosia'));
+  asUser(await login('gosia'));
   const ex = await req('account/export', 'GET');
   assert.equal(ex.json.profile.email, 'gosia@example.test');
   assert.ok(ex.json.profile.email_verified_at);
-  use(await login('bob'));
+  asUser(await login('bob'));
   const mod = await import('../../app/api/users/search/route.js');
   const res = await mod.GET(new Request('http://localhost/api/users/search?q=gosia'));
   const text = await res.text();
@@ -335,7 +335,7 @@ test('prywatność adresu: eksport właściciela tak, inni nie; kopia bez token�
   assert.equal('email_tokens' in b, false);
   assert.equal(b.users.find((u) => u.username === 'gosia').email, 'gosia@example.test');
   await forgot('gosia');
-  use(await login('gosia'));
+  asUser(await login('gosia'));
   assert.equal((await req('account', 'DELETE', { password: 'haslo1234' })).status, 200);
   assert.equal((await q`SELECT count(*)::int AS n FROM email_tokens WHERE user_id = ${ids.gosia}`)[0].n, 0);
   assert.equal((await q`SELECT count(*)::int AS n FROM users WHERE email = 'gosia@example.test'`)[0].n, 0);
