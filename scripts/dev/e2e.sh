@@ -27,5 +27,5 @@ rm -rf "$E2E_SHOTS"
 if [ "$1" = perf ]; then
   node scripts/dev/lighthouse.mjs --port "$PORT"
 else
-  node --test --test-concurrency=1 tests/e2e/*.test.mjs
+  node --test --test-concurrency=1 ${E2E_FILES:-tests/e2e/*.test.mjs}
 fi

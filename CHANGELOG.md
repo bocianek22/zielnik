@@ -8,6 +8,17 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.48.0] - 2026-10
+### Dodano
+- Powiązanie zakupów z receptą (POM-16, PAC-4): „Wykupiłem” przypisuje zakup do recepty (automatycznie: ważna w dniu zakupu, ta sama jednostka, z pozostałą ilością, najbliższa wygaśnięcia; przy kilku pasujących wybór „Z której recepty”, także „bez recepty” dla zakupu prywatnego). Przypisane zakupy liczą się tylko do swojej recepty, więc nakładające się recepty nie liczą tych samych gramów. W Historii można zmienić przypisanie; na recepcie widać, ile gramów pochodzi z szacunku (stare zakupy bez przypisania). Kolejka offline: brakująca recepta nie odrzuca zapisu (tryb automatyczny).
+- Kreator pierwszego uruchomienia (POM-19, UX-6): nowe konto przechodzi trzy kroki do pominięcia (odmiana i stan, recepta, przypomnienia i tryb dyskretny); stan zamknięcia na koncie, więc kreator nie wraca na innym urządzeniu. Istniejące konta i admin go nie widzą.
+- Puste stany z akcją (POM-20): panel „Dziś” („Dodaj odmianę” / „Wpisz stan”), „Moje obserwacje” bez wpisów.
+- Projekt widżetu Androida (POM-13) w `docs/WIDZET-ANDROID.md`.
+### Zmieniono
+- „Moje odmiany” liczone jedną definicją na serwerze i w przeglądarce (ocena, stan, notatka albo własna odmiana).
+### Uwaga przy wdrożeniu
+- Migracja addytywna: `purchases.prescription_id`, `purchases.no_rx`, funkcje `rx_bought`, `rx_bought_est`, `users.onboarded_at` (dla kont sprzed wdrożenia ustawiane od razu).
+
 ## [0.47.0] - 2026-10
 ### Dodano
 - Odzyskiwanie hasła e-mailem i weryfikacja adresu (KON-1, za kluczem `RESEND_API_KEY`): adres w profilu tylko za hasłem i zgodą, zawsze do potwierdzenia; „Nie pamiętam hasła” na `/login`, strony `/odzyskaj-haslo`, `/nowe-haslo`, `/potwierdz-email`. Ta sama odpowiedź i czas niezależnie od istnienia konta, token jednorazowy (30 min, w bazie tylko SHA-256, we fragmencie linku), reset unieważnia wszystkie sesje, linki tylko z `APP_URL` lub dozwolonych hostów, mail resetu zawsze jako „Notatnik”. Konta admina bez resetu e-mailem.

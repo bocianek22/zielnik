@@ -158,3 +158,27 @@
 /* POM-38: „Dziś bez zużycia” pod szybkim „Zużyłem” */
 .no-use { display: grid; gap: var(--s-1); justify-items: start; padding: var(--s-3) var(--s-5); border-top: 1px solid var(--sep); }
 .no-use p { margin: 0; }
+
+/* POM-19: kreator pierwszego uruchomienia (Onboarding.js) */
+.onb-head { display: grid; gap: var(--s-1); justify-items: start; }
+.onb-head h1 { margin: 0; }
+.onb-head p { margin: 0; }
+.onb-steps { list-style: none; margin: 0; padding: 0; display: flex; gap: var(--s-2); }
+.onb-steps li { flex: 1 1 0; min-width: 0; display: flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); color: var(--text-2); }
+.onb-steps li.on { color: var(--text); font-weight: 600; }
+.onb-n { flex: none; width: 24px; height: 24px; border-radius: var(--r-pill); display: inline-grid; place-items: center; font-size: var(--fs-xs); font-weight: 600;
+  background: var(--surface-2); color: var(--text-2); }
+.onb-steps li.on .onb-n { background: var(--accent); color: var(--on-accent); }
+.onb-steps li.past .onb-n { background: var(--accent-soft); color: var(--on-accent-soft); }
+@media (max-width: 359px) { .onb-steps li > span:last-child { overflow-wrap: anywhere; } .onb-steps { gap: var(--s-1); } }
+.onb-count { margin: 0; font-size: var(--fs-sm); color: var(--text-2); }
+.onb-card h2 { margin: 0; scroll-margin-top: var(--s-4); }
+.onb-card h2:focus { outline: none; }
+.onb-card h2:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: var(--r-sm); }
+.onb-actions { display: flex; flex-wrap: wrap; gap: var(--s-3); }
+.onb-actions .btn { flex: 1 1 10rem; justify-content: center; }
+.onb-picked { margin: 0; display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-2) var(--s-3);
+  background: var(--surface-2); border-radius: var(--r-md); }
+.onb-sum { margin: 0; padding-left: var(--s-5); display: grid; gap: var(--s-1); }
+.onb .card .card { border: 0; padding-inline: 0; }
+.onb .narrow-input { max-width: 160px; }

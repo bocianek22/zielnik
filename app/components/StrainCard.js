@@ -7,6 +7,7 @@ import { VIS } from '@/lib/visibility';
 import { formLabel } from '@/lib/forms';
 import Lightbox from './Lightbox';
 import QuickActions from './QuickActions';
+import RxPicker, { useOpenPrescriptions, rxField } from './RxPicker';
 import { useQuickSave, SaveNote } from './useQuickSave';
 import Icon from './Icon';
 import { parseNum, decimalProps } from './num';
@@ -44,6 +45,8 @@ export function OwnEntry({ strainId, strainName = '', form = 'susz', entry, onSa
   const id = `e${strainId}`;
   const [buyG, setBuyG] = useState('');
   const [use, setUse] = useState('');
+  const [rx, setRx] = useState(undefined); // POM-16: undefined = domyślna recepta (wybierze serwer)
+  const rxList = useOpenPrescriptions(unit, buyG !== '');
   // osobne komunikaty (i „Cofnij”) przy polach zużycia i wykupu
   const useQs = useQuickSave(strainId);
   const buyQs = useQuickSave(strainId);
@@ -61,14 +64,14 @@ export function OwnEntry({ strainId, strainName = '', form = 'susz', entry, onSa
     try {
       const cur = parseNum(f.current) || 0, rem = parseNum(f.remaining) || 0;
       const poolDelta = Math.min(g, Math.max(rem, 0));
-      const r = await buyQs.save('purchase', g, { name: strainName, unit, delta: g, poolDelta });
+      const r = await buyQs.save('purchase', g, { name: strainName, unit, delta: g, poolDelta }, rxField(rx));
       if (r.queued) {
         applyStock({ current: cur + g, remaining: rem - poolDelta }, { bought: g });
-        setBuyG(''); buyQs.show(`Czeka na wysłanie: zakup ${dec(g)} ${unit}. Wyślę, gdy wróci sieć.`, false, { kind: 'purchase', queued: r.queued.id });
+        setBuyG(''); setRx(undefined); buyQs.show(`Czeka na wysłanie: zakup ${dec(g)} ${unit}. Wyślę, gdy wróci sieć.`, false, { kind: 'purchase', queued: r.queued.id });
         return;
       }
       applyStock(r, { bought: r.bought ?? g });
-      setBuyG(''); buyQs.show(`Zapisano zakup: ${dec(r.bought ?? g)} ${unit}`, false, r.id ? { kind: 'purchase', id: r.id } : null);
+      setBuyG(''); setRx(undefined); buyQs.show(`Zapisano zakup: ${dec(r.bought ?? g)} ${unit}`, false, r.id ? { kind: 'purchase', id: r.id } : null);
     } catch (e) { buyQs.show(e.message, true); }
   }
 
@@ -187,6 +190,7 @@ export function OwnEntry({ strainId, strainName = '', form = 'susz', entry, onSa
             onChange={(e) => setBuyG(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); buy(); } }} />
           <button type="button" className="btn small" onClick={buy}>Dodaj zakup</button>
         </div>
+        <RxPicker id={`${id}-rx`} list={rxList} value={rx} onChange={setRx} />
         <SaveNote note={buyQs.note} undoing={buyQs.undoing} onUndo={() => undoWith(buyQs, 'bought')} className="pool-note" />
       </div>
     </div>

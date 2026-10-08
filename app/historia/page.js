@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
-import { history, monthlyRecap, purchaseStats } from '@/lib/strains';
+import { history, monthlyRecap, purchaseStats, prescriptionOptions } from '@/lib/strains';
 import Header from '../components/Header';
 import Icon from '../components/Icon';
 import Entries from './Entries';
@@ -26,8 +26,8 @@ export default async function Historia() {
   const user = await getUser();
   if (!user) redirect('/login');
   if (user.must_change_password) redirect('/change-password');
-  const [{ purchases, usage, weekly, top }, recap, bought] = await Promise.all([
-    history(user.id), monthlyRecap(user.id), purchaseStats(user.id),
+  const [{ purchases, usage, weekly, top }, recap, bought, rxOptions] = await Promise.all([
+    history(user.id), monthlyRecap(user.id), purchaseStats(user.id), prescriptionOptions(user.id),
   ]);
   // wykres tygodniowy: gramy suszu; ml (olej, pen) osobną serią tylko gdy są wpisy w ml
   const hasMl = weekly.some((w) => w.ml > 0);
@@ -109,7 +109,7 @@ export default async function Historia() {
         {purchases.length === 0 ? (
           <Empty icon="list" title="Brak zakupów" text="Dodaj je w karcie odmiany, w polu „Wykupiłem”." />
         ) : (
-          <Entries kind="purchase" rows={purchases} />
+          <Entries kind="purchase" rows={purchases} prescriptions={rxOptions} />
         )}
 
         <h2 className="section-label">Zużycie</h2>

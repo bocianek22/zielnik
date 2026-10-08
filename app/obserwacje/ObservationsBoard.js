@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { useState } from 'react';
 import { SYMPTOMS, customMeta } from '@/lib/symptoms';
 import { fmtNum } from '@/lib/units';
@@ -46,7 +47,10 @@ export default function ObservationsBoard({ symptoms, minDays, custom = [] }) {
         {s.custom ? <span className="dn">{s.label}</span> : s.label}<span>średnia 0–10 · 0 = {s.low}, 10 = {s.high}</span>
       </h2>
       {empty ? (
-        <p className="muted small obs-none">Brak wpisów „{s.custom ? <span className="dn">{s.short}</span> : s.label.toLowerCase()}” w tym okresie (od pierwszego zapisu zużycia).</p>
+        <div className="stack obs-none">
+          <p className="muted small">Brak wpisów „{s.custom ? <span className="dn">{s.short}</span> : s.label.toLowerCase()}” w tym okresie (od pierwszego zapisu zużycia).</p>
+          <div><Link className="btn ghost" href="/dziennik">Wpisz stan w dzienniku</Link></div>
+        </div>
       ) : (
         <ul className="list obs-list" aria-label={`${s.label}: średnie według dni`}>
           {d.strains.map((g) => <Row key={g.id} title={g.name} cell={g} minDays={minDays} dn label={s.label}

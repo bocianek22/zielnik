@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import useNativeRefresh from '@/app/components/native/useNativeRefresh';
 import Icon from '@/app/components/Icon';
-import { parseNum, decimalProps } from '@/app/components/num';
-import { formatDay, todayPL } from '@/lib/date';
+import { formatDay } from '@/lib/date';
+import RxForm from './RxForm';
 
 const daysLeft = (iso) => Math.ceil((new Date(`${iso}T23:59:59`) - Date.now()) / 864e5);
 const nf = (n) => Number(n).toLocaleString('pl-PL', { maximumFractionDigits: 2 });
@@ -14,7 +14,6 @@ const uOf = (p) => (p.unit === 'ml' ? 'ml' : 'g'); // recepta na susz (g) albo o
 
 export default function Prescriptions() {
   const [list, setList] = useState(null);
-  const [f, setF] = useState({ issuedOn: todayPL(), validUntil: '', grams: '', unit: 'g', note: '' });
   const [msg, setMsg] = useState('');
   const [open, setOpen] = useState(false);
   useEffect(() => { api('/api/prescriptions').then((r) => setList(r.prescriptions)).catch((e) => setMsg(e.message)); }, []);
@@ -26,17 +25,9 @@ export default function Prescriptions() {
     return () => window.removeEventListener('zielnik:purchase', on);
   }, []);
 
-  async function add(e) {
-    e.preventDefault();
-    const grams = parseNum(f.grams);
-    if (!(grams > 0)) { setMsg(f.unit === 'ml' ? 'Podaj przepisaną ilość w ml, np. 30.' : 'Podaj przepisaną ilość w gramach, np. 10 lub 7,5.'); return; }
-    try { setList((await api('/api/prescriptions', 'POST', { ...f, grams })).prescriptions); setF({ ...f, grams: '', note: '' }); setMsg(''); setOpen(false); }
-    catch (err) { setMsg(err.message); }
-  }
   async function remove(id) {
     if (confirm('Usunąć tę receptę z listy?')) setList((await api('/api/prescriptions', 'DELETE', { id })).prescriptions);
   }
-  const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
   const showForm = open || list?.length === 0;
 
   return (
@@ -75,6 +66,7 @@ export default function Prescriptions() {
                   </div>
                   <progress value={Math.min(p.bought, p.grams)} max={p.grams} aria-label="Wykupiono z przepisanej ilości" />
                   <p className="rx-amount">Wykupiono <b>{nf(p.bought)} {u}</b>, zostało <b>{nf(left)} {u}</b>{expired && !done && ' (niewykorzystane)'}</p>
+                  {p.estimated > 0 && <p className="muted rx-est">{nf(p.estimated)} {u} liczone z szacunku (zakupy bez przypisania) — przypisz je w Historii.</p>}
                   <p className="rx-dates">Wystawiona {fmt(p.issued_on)}{p.valid_until ? `, ważna do ${fmt(p.valid_until)}` : ''}</p>
                   <div className="rx-foot"><button type="button" className="btn text small" onClick={() => remove(p.id)} aria-label={`Usuń receptę ${nf(p.grams)} ${u}`}>Usuń</button></div>
                 </li>
@@ -86,26 +78,7 @@ export default function Prescriptions() {
 
       <details className="card rx-add" open={showForm} onToggle={(e) => { if (list?.length) setOpen(e.currentTarget.open); }}>
         <summary><Icon name="plus" size={20} />Nowa recepta</summary>
-        <form className="stack" onSubmit={add} noValidate>
-          <fieldset className="field rx-unit">
-            <legend>Na co jest recepta</legend>
-            <div className="seg" role="radiogroup" aria-label="Jednostka recepty">
-              {[['g', 'Susz (g)'], ['ml', 'Olej lub pen (ml)']].map(([v, l]) => (
-                <button key={v} type="button" role="radio" aria-checked={f.unit === v} className={f.unit === v ? 'on' : ''}
-                  onClick={() => setF({ ...f, unit: v })}>{l}</button>
-              ))}
-            </div>
-            <small className="muted">Wykupione liczymy tylko z zakupów w tej samej jednostce.</small>
-          </fieldset>
-          <div className="row">
-            <div className="field grow"><label htmlFor="rx-from">Data wystawienia</label><input id="rx-from" className="input" type="date" required value={f.issuedOn} onChange={set('issuedOn')} /></div>
-            <div className="field grow"><label htmlFor="rx-to">Ważna do (opcjonalnie)</label><input id="rx-to" className="input" type="date" value={f.validUntil} onChange={set('validUntil')} /></div>
-            <div className="field grow"><label htmlFor="rx-g">Przepisana ilość ({f.unit})</label><input id="rx-g" className="input" {...decimalProps} required value={f.grams} onChange={set('grams')} /></div>
-          </div>
-          <div className="field"><label htmlFor="rx-n">Notatka (np. lekarz, numer)</label><input id="rx-n" className="input" maxLength={120} value={f.note} onChange={set('note')} /></div>
-          {msg && <div className="alert error" role="alert">{msg}</div>}
-          <div><button className="btn">Dodaj receptę</button></div>
-        </form>
+        <RxForm onAdded={(l) => { setList(l); setMsg(''); setOpen(false); }} />
       </details>
     </div>
   );

@@ -6,11 +6,13 @@ import { isNativeApp } from '@/lib/client';
 import { listStrains, listOptions, dailyUse, purchaseStats } from '@/lib/strains';
 import { dailyUsageSeries, homeSummary, prescriptionCountdown, todaySymptoms } from '@/lib/stats';
 import { noUseToday } from '@/lib/no-use';
+import { onboardingOpen } from '@/lib/onboarding';
 import Header from './components/Header';
 import StrainsBoard from './components/StrainsBoard';
 import HomeStore from './components/HomeStore';
 import TodayBoard from './components/TodayBoard';
 import Skeleton from './components/Skeleton';
+import Onboarding from './components/Onboarding';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,6 +27,16 @@ export default async function Home() {
   const user = await getUser();
   if (!user) redirect('/login');
   if (user.must_change_password) redirect('/change-password');
+
+  // POM-19: nowe konto bez odmian i recept widzi kreator zamiast pustego panelu (bez ciężkich zapytań)
+  if (await onboardingOpen(user.id)) {
+    return (
+      <>
+        <Header user={user} />
+        <main className="page home"><Onboarding /></main>
+      </>
+    );
+  }
 
   const listData = Promise.all([listStrains(user.id), listOptions()]);
   listData.catch(() => {}); // błąd zobaczy StrainsData; tu tylko bez nieobsłużonego odrzucenia, gdy panel padnie pierwszy
@@ -46,7 +58,7 @@ export default async function Home() {
         </header>
         <HomeStore bought={bought} series={series} summary={summary}>
           <TodayBoard usage={daily} bought={bought} prescriptions={prescriptions} symptoms={symptoms} noUse={noUse} />
-          <h2 className="home-section">Odmiany</h2>
+          <h2 className="home-section" id="odmiany" tabIndex={-1}>Odmiany</h2>
           <Suspense fallback={<Skeleton rows={6} />}>
             <StrainsData me={me} data={listData} />
           </Suspense>

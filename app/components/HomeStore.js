@@ -18,6 +18,7 @@ export default function HomeStore({ children, bought, series: initialSeries, sum
   const [stock, setStock] = useState(summary.stock);         // { g, ml }: suma moich stanów
   const [remaining, setRemaining] = useState(summary.remaining); // { g, ml }: do wykupienia, każda pula raz
   const [count, setCount] = useState(summary.count);         // liczba odmian w zielniku
+  const [mine, setMine] = useState(summary.mine ?? summary.count); // z nich z moim wpisem (stan, ocena, notatka)
   const [low, setLow] = useState(3);      // próg „Kończy się” (g), zapisywany w tej przeglądarce
   const [limit, setLimit] = useState(0);  // miesięczny limit wykupu (g), zapisywany w tej przeglądarce
   useEffect(() => {
@@ -101,12 +102,12 @@ export default function HomeStore({ children, bought, series: initialSeries, sum
 
   // lista po wczytaniu i po każdej zmianie przekazuje sumy policzone z pełnych danych (np. po edycji odmiany)
   const sync = useCallback((s) => {
-    setStock(s.stock); setRemaining(s.remaining); setCount(s.count);
+    setStock(s.stock); setRemaining(s.remaining); setCount(s.count); if (s.mine !== undefined) setMine(s.mine);
     setRecent((list) => list.map((x) => (s.current[x.id] === undefined ? x : { ...x, current: s.current[x.id] })));
   }, []);
 
   const value = useMemo(() => ({
-    boughtU, series, recent, stock, remaining, count, low, limit, setLimit, savePref, setLow, entrySaved, subscribe, sync, takeNewRequest,
-  }), [boughtU, series, recent, stock, remaining, count, low, limit, entrySaved, subscribe, sync, takeNewRequest]);
+    boughtU, series, recent, stock, remaining, count, mine, low, limit, setLimit, savePref, setLow, entrySaved, subscribe, sync, takeNewRequest,
+  }), [boughtU, series, recent, stock, remaining, count, mine, low, limit, entrySaved, subscribe, sync, takeNewRequest]);
   return <Ctx.Provider value={value}><div className="stack">{children}</div></Ctx.Provider>;
 }

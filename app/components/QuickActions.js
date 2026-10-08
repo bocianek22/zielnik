@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useQuickSave, SaveNote } from './useQuickSave';
 import { METHODS, PERIODS, defaultMethod } from '@/lib/usage-meta';
+import RxPicker, { useOpenPrescriptions, rxField } from './RxPicker';
 import { unitOf, unitGen, quickValues, consumePlaceholder, buyPlaceholder } from '@/lib/units';
 
 // tytuł, szybkie wartości i przykład zależą od postaci (susz w g, olej i pen w ml)
@@ -29,6 +30,8 @@ export default function QuickActions({ strainId, name, form = 'susz', current, r
   const [val, setVal] = useState('');
   const [method, setMethod] = useState(''); // POM-03: opcjonalne, zwinięte; '' = nie podano (w podsumowaniu podpowiedź z postaci)
   const [period, setPeriod] = useState(''); // '' = z godziny zapisu
+  const [rx, setRx] = useState(undefined); // POM-16: undefined = domyślna recepta (wybierze serwer)
+  const rxList = useOpenPrescriptions(unit, mode === 'buy');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   const input = useRef(null);
@@ -40,7 +43,7 @@ export default function QuickActions({ strainId, name, form = 'susz', current, r
 
   function open(m) {
     if (mode === m) return close();
-    setMode(m); setVal(''); setErr(''); setMethod(''); setPeriod(''); qs.clear(); qs.renew(); // nowe otwarcie panelu = nowy zapis
+    setMode(m); setVal(''); setErr(''); setMethod(''); setPeriod(''); setRx(undefined); qs.clear(); qs.renew(); // nowe otwarcie panelu = nowy zapis
   }
   function close() {
     const m = mode;
@@ -60,7 +63,7 @@ export default function QuickActions({ strainId, name, form = 'susz', current, r
       const cur = Number(current) || 0, rem = Number(remaining) || 0;
       const delta = mode === 'use' ? Math.min(g, Math.max(cur, 0)) : g;
       const poolDelta = mode === 'use' ? 0 : Math.min(g, Math.max(rem, 0));
-      const r = await qs.save(kind, g, { name, unit, delta, poolDelta }, mode === 'use' ? { ...(method && { method }), ...(period && { period }) } : {});
+      const r = await qs.save(kind, g, { name, unit, delta, poolDelta }, mode === 'use' ? { ...(method && { method }), ...(period && { period }) } : rxField(rx));
       if (!mounted.current) return;
       if (r.queued) {
         const undoQ = { kind, queued: r.queued.id };
@@ -140,6 +143,7 @@ export default function QuickActions({ strainId, name, form = 'susz', current, r
               </div>
             </details>
           )}
+          {mode === 'buy' && <RxPicker id={`${id}-rx`} list={rxList} value={rx} onChange={setRx} />}
           {err && <p id={`${id}-e`} className="field-err" role="alert">{err}</p>}
         </form>
       )}
