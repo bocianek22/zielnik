@@ -66,7 +66,10 @@ test('„Większy tekst i przyciski”: ustawienie w profilu zapamiętane na urz
     await page.waitForFunction(() => document.documentElement.classList.contains('big-ui'), null, { timeout: 5000 });
     await page.waitForLoadState('load');
     await hydrated(page);
-    await page.getByLabel(/Większy tekst i przyciski/).uncheck();
+    // przełącznik dostaje stan z klasy dopiero w efekcie po hydratacji; bez czekania uncheck() bywa pusty
+    const box = page.getByLabel(/Większy tekst i przyciski/);
+    await page.waitForFunction((el) => el.checked, await box.elementHandle(), { timeout: 5000 });
+    await box.uncheck();
     assert.equal(await page.evaluate(() => localStorage.getItem('zielnik.big')), null);
     assert.equal(await size(), base);
   } finally { await ctx.close(); }
