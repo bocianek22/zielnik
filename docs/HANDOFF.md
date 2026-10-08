@@ -52,8 +52,12 @@ Tryb awaryjny (rozmowa bez dostępu do repozytorium):
 - Wybór bramki płatności i platformy wpłat (`DONATE_URL`), decyzja o `PREMIUM_ENFORCED`.
 - Źródło danych do katalogu (`CATALOG_FEED_URL`), plan Vercel Pro przy działalności komercyjnej.
 
-## 6. Następne kroki (aktualne dla wersji 0.49.1)
+## 6. Następne kroki (aktualne dla wersji 0.50.0)
 Pełna lista z uzasadnieniem: `docs/PRZEGLAD-2026-10.md`; aplikacje natywne: `docs/APLIKACJE-NATYWNE.md`; system projektowy: `docs/DESIGN.md`. Praca z podziałem na subagentów (`.claude/agents/`): koordynator scala gałęzie, uruchamia kontrole, zleca przegląd (reviewer) i prowadzi CHANGELOG/wersję. Przebieg pracy nocnej: `docs/PLAN-NOC.md`.
+1. **Szyfrowanie notatek (0.50.0), decyzje właściciela:**
+   - Kiedy włączyć (`DATA_ENCRYPTION_KEY` po zapisaniu dwóch kopii klucza, potem `node scripts/encrypt-notes.mjs --dry-run`, następnie bez `--dry-run`).
+   - „Do omówienia”: (a) zdjąć CHECK 200 znaków w bazie czy (b) dodać kolumnę `text_enc`.
+   - Po migracji skrócić okno PITR w Neon i usunąć stare migawki `backups.data`.
 1. **Przed betą (0.49.1): ręczny test według `docs/TEST-RECZNY.md`, potem zaproszenia według `docs/BETA-ZAPROSZENIE.md` (uzupełnić pola w nawiasach). Zadania właściciela, pełna lista w `docs/BETA.md`, stan w panelu admina → „Gotowość”:**
    - Vercel: `LEGAL_ADMIN_NAME`, `LEGAL_CONTACT_EMAIL`, `BETA_GROUP_URL`, `ALERT_WEBHOOK_URL`, `AUTH_SECRET` (co najmniej 32 znaki), `BACKUP_ENCRYPTION_KEY`, `CRON_SECRET`; usunąć `SUGGEST_DOMAINS`; zostawić `BOCIAN_INITIAL_PASSWORD`.
    - Prywatny Vercel Blob na kopie.
