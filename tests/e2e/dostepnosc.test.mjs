@@ -59,12 +59,14 @@ for (const [theme, big] of [['light', false], ['dark', false], ['light', true]])
   });
 }
 
-test('axe: /login w jasnym i ciemnym motywie', async () => {
+test('axe: /login i strony odzyskiwania hasła w jasnym i ciemnym motywie', async () => {
   for (const theme of ['light', 'dark']) {
     const { ctx, page } = await open(undefined, theme, false);
     try {
-      await go(page, '/login');
-      assert.deepEqual(await violations(page), []);
+      for (const path of ['/login', '/odzyskaj-haslo', '/nowe-haslo', '/potwierdz-email']) {
+        await go(page, path);
+        assert.deepEqual(await violations(page), [], `${path} (${theme})`);
+      }
     } finally { await ctx.close(); }
   }
 });
