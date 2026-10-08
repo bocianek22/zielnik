@@ -5,6 +5,8 @@ import { listTests } from '@/lib/strains';
 import { VIS_VALUES } from '@/lib/visibility';
 import { putPhoto, deletePhotos } from '@/lib/photos';
 import { cleanImage } from '@/lib/image-meta';
+import { NOTE_UNAVAILABLE_MSG } from '@/lib/data-crypto';
+import { planNoteDb } from '@/lib/notes';
 
 // Edycja własnego testu: { note, visibility, image? (nowe zdjęcie), removePhoto? }
 export const PATCH = safe(async (req, { params }) => {
@@ -28,10 +30,12 @@ export const PATCH = safe(async (req, { params }) => {
     photo = [null, img.mime, img.b64];
   }
   const willHavePhoto = photo ? true : b.removePhoto ? false : t.has;
-  if (!text && !willHavePhoto) return bad('Test musi mieć opis lub zdjęcie.');
+  // nieczytelny szyfrogram i znacznik od klienta nie nadpisują zapisanej wartości (planNote); zachowana notatka liczy się jako opis
+  const plan = await planNoteDb('strain_tests', 'note', { id: tid }, String(tid), text);
+  if (!text && !willHavePhoto && !(plan.keep && plan.value)) return bad('Test musi mieć opis lub zdjęcie.');
 
   const q = sql();
-  await q`UPDATE strain_tests SET note = ${text}, visibility = COALESCE(${vis}::text, visibility), updated_at = now() WHERE id = ${tid}`;
+  await q`UPDATE strain_tests SET note = CASE WHEN ${plan.keep}::boolean THEN note ELSE ${plan.value}::text END, visibility = COALESCE(${vis}::text, visibility), updated_at = now() WHERE id = ${tid}`;
   if (photo) {
     const path = await putPhoto(photo[1], photo[2]);
     try {
@@ -46,7 +50,7 @@ export const PATCH = safe(async (req, { params }) => {
                         RETURNING (SELECT blob_path FROM old) AS old_path`;
     await deletePhotos(o?.old_path);
   }
-  return NextResponse.json({ tests: await listTests(t.strain_id, user.id) });
+  return NextResponse.json({ tests: await listTests(t.strain_id, user.id), ...(plan.unavailable && { noteError: NOTE_UNAVAILABLE_MSG }) });
 });
 
 // Usunięcie testu: autor lub admin

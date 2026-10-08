@@ -58,6 +58,20 @@ export async function restoreBackup(pool, data) {
   }
 }
 
+// POM-28: czy każdy szyfrogram notatki w odtworzonej bazie daje się odszyfrować kluczem z DATA_ENCRYPTION_KEY
+// (AAD zawiera konto i klucz wiersza, więc to sprawdza też, że identyfikatory przeszły odtworzenie bez zmian).
+export async function verifyNotes(pool) {
+  const { COLUMNS, decryptStrict } = await import('../../lib/data-crypto.js');
+  const out = { checked: 0, failed: 0 };
+  for (const { table, col, scopeSql } of COLUMNS) {
+    for (const r of (await pool.query(`SELECT ${scopeSql} AS scope, ${col} AS val FROM "${table}" WHERE ${col} LIKE 'zenc1:%'`)).rows) {
+      out.checked++;
+      try { decryptStrict(table, col, r.scope, r.val); } catch { out.failed++; }
+    }
+  }
+  return out;
+}
+
 export async function countRows(pool, tables) {
   const out = {};
   for (const t of tables) out[t] = (await pool.query(`SELECT count(*)::int AS n FROM "${t}"`)).rows[0].n;
@@ -109,6 +123,13 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       if (!ok) bad++;
       total += a[t];
       console.log(`${ok ? 'OK ' : 'ROZBIEŻNOŚĆ'} ${t.padEnd(22)} źródło ${String(a[t]).padStart(6)}  kopia ${String(backup[t].length).padStart(6)}  odtworzone ${String(b[t]).padStart(6)}`);
+    }
+    const notes = await verifyNotes(dp);
+    if (notes.checked) {
+      const keyed = !!process.env.DATA_ENCRYPTION_KEY;
+      if (keyed && notes.failed) bad++;
+      console.log(!keyed ? `UWAGA zaszyfrowane notatki: ${notes.checked} (brak DATA_ENCRYPTION_KEY, nie sprawdzono; uruchom z kluczem)`
+        : `${notes.failed ? 'ROZBIEŻNOŚĆ' : 'OK '} zaszyfrowane notatki: ${notes.checked - notes.failed}/${notes.checked} odszyfrowuje się kluczem`);
     }
     await sp.end(); await dp.end();
     console.log(bad ? `\nNIEPOWODZENIE: ${bad} pozycji z rozbieżnością.` : `\nOK: ${tables.length} tabel, ${total} wierszy zgodnych. Pozostałe konta mają nieużywalne hasła (kopia ich nie zawiera): admin resetuje je w panelu.`);

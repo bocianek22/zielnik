@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 
-const STATE = { ok: ['OK', 'ok'], missing: ['Brak', 'low'], weak: ['Słabe', 'low'] };
+const STATE = { ok: ['OK', 'ok'], missing: ['Brak', 'low'], weak: ['Słabe', 'low'], critical: ['Krytyczne', 'crit'] };
 const CRONS = [['reminders', 'Przypomnienia push'], ['backup', 'Kopia zapasowa'], ['catalog', 'Katalog']];
 const fmt = (iso) => (iso ? new Date(iso).toLocaleString('pl-PL', { dateStyle: 'short', timeStyle: 'short' }) : 'brak zapisu');
 

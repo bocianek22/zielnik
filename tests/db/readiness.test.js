@@ -78,7 +78,7 @@ test('gotowość: odpowiedź nie zawiera żadnej wartości sekretu', { skip }, a
   // kształt: tylko id, nazwa, stan, wskazówka
   for (const c of json.checks) {
     assert.deepEqual(Object.keys(c).sort(), ['hint', 'id', 'label', 'optional', 'state']);
-    assert.ok(['ok', 'missing', 'weak'].includes(c.state));
+    assert.ok(['ok', 'missing', 'weak', 'critical'].includes(c.state));
   }
   assert.match(json.postgres, /^\d+/);
   assert.equal(typeof json.errors24h.server, 'number');

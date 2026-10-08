@@ -3,6 +3,7 @@ import { sql } from '@/lib/db';
 import { requireUser, bad, safe } from '@/lib/guard';
 import { hit } from '@/lib/ratelimit';
 import { parseCommon, parseNumber, invalidateStrains } from '@/lib/strains';
+import { planNote, rowScope, LOCKED_NOTE, NOTE_UNAVAILABLE_REJECT_MSG } from '@/lib/data-crypto';
 
 const dec = (v) => String(v ?? '').trim().replace(',', '.');
 
@@ -28,18 +29,25 @@ export const POST = safe(async (req) => {
     const dup = await q`SELECT 1 FROM strains WHERE lower(name) = lower(${f.name}) AND lower(producer) = lower(${f.producer})`;
     if (dup.length) { skipped++; continue; }
 
+    let notes = String(r.notes ?? '').trim().slice(0, 1000);
+    if (notes === LOCKED_NOTE) notes = ''; // znacznik z wcześniejszego eksportu nie jest treścią
+    // AAD szyfrogramu zawiera id odmiany, więc id pobieramy z sekwencji przed INSERT
+    const [{ sid }] = await q`SELECT nextval(pg_get_serial_sequence('strains', 'id'))::int AS sid`;
+    const plan = planNote('user_strain', 'notes', rowScope('user_strain', { user_id: user.id, strain_id: sid }), notes);
+    // zły format klucza: wiersza z notatką nie importujemy (reszta importu idzie dalej)
+    if (plan.unavailable) { errors.push(`${r.name || '(pusty wiersz)'}: ${NOTE_UNAVAILABLE_REJECT_MSG}`); continue; }
     const rating = parseNumber(dec(r.rating), 0, 10);
     const current = parseNumber(dec(r.current), 0, 100000);
     const remaining = parseNumber(dec(r.remaining), 0, 100000);
     const rt = Number.isNaN(rating) ? null : rating;
     // odmiana i wpis osobisty tylko importującego, w jednym zapytaniu (inni dostają wiersz przy pierwszym zapisie)
     const [s] = await q`WITH s AS (
-        INSERT INTO strains (producer, name, type, final_rating, taste, thc, cbd, kind, terpenes, description, price_per_g, batch, expires_on, form, created_by)
-        VALUES (${f.producer}, ${f.name}, ${f.type}, ${f.finalRating}, ${f.taste}, ${f.thc}, ${f.cbd}, ${f.kind},
+        INSERT INTO strains (id, producer, name, type, final_rating, taste, thc, cbd, kind, terpenes, description, price_per_g, batch, expires_on, form, created_by)
+        VALUES (${sid}, ${f.producer}, ${f.name}, ${f.type}, ${f.finalRating}, ${f.taste}, ${f.thc}, ${f.cbd}, ${f.kind},
                 ${JSON.stringify(f.terpenes)}::jsonb, '', ${f.price}, ${f.batch}, ${f.expires}::date, ${f.form}, ${user.id}) RETURNING id)
       INSERT INTO user_strain (strain_id, user_id, rating, rated_at, current_amount, notes)
       SELECT id, ${user.id}::int, ${rt}::numeric, CASE WHEN ${rt}::numeric IS NULL THEN NULL ELSE now() END,
-             ${Number.isNaN(current) || current == null ? 0 : current}::numeric, ${String(r.notes ?? '').trim().slice(0, 1000)}
+             ${Number.isNaN(current) || current == null ? 0 : current}::numeric, ${plan.value}
       FROM s RETURNING strain_id AS id`;
     if (remaining > 0) {
       await q`INSERT INTO user_pool (user_id, pool_key, remaining_to_buy)

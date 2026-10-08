@@ -152,6 +152,7 @@ export function OwnEntry({ strainId, strainName = '', form = 'susz', entry, onSa
       <div className="entry-field notes">
         <label htmlFor={`${id}-n`}>Spostrzeżenia</label>
         <textarea id={`${id}-n`} className="input" rows={2} maxLength={1000} {...bind('notes')} />
+        {entry.notesLocked && !f.notes && <small className="pool-note">Zapisana notatka jest zaszyfrowana i chwilowo nieczytelna (brak klucza na serwerze). Zostanie zachowana; wpisany tu nowy tekst ją zastąpi.</small>}
       </div>
       {!hidePrice && (
         <div className="entry-field price">

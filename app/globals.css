@@ -339,6 +339,7 @@ input.switch:disabled { opacity: .5; cursor: default; }
 .badge { display: inline-block; padding: 1px 8px; border-radius: var(--r-sm); font-size: var(--fs-xs); font-weight: 600; line-height: 1.6; background: var(--surface-2); color: var(--text-2); white-space: nowrap; }
 .badge::first-letter { text-transform: uppercase; }
 .badge.low { background: var(--warn-soft); color: var(--warn); }
+.badge.crit { background: var(--danger); color: #fff; }
 .badge.form { background: var(--surface-2); color: var(--text-2); }
 .badge.kind-indica { color: var(--kind-indica); background: color-mix(in srgb, var(--kind-indica) 12%, transparent); }
 .badge.kind-sativa { color: var(--kind-sativa); background: color-mix(in srgb, var(--kind-sativa) 12%, transparent); }

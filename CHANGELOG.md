@@ -8,6 +8,24 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.50.0] - 2026-10
+### Dodano
+- **Szyfrowanie notatek w bazie (POM-28, projekt w `docs/SZYFROWANIE-NOTATEK.md`), za kluczem `DATA_ENCRYPTION_KEY`; bez klucza wszystko działa jak dotąd.**
+  - Notatki objawów, wpisów odmian, recept i testów zapisywane jako AES-256-GCM (`zenc1:<kid>:…`), z AAD wiążącym szyfrogram z kontem i wierszem; rotacja kluczy.
+  - Odczyt jawnych wierszy bez zmian. Eksport, raport, CSV i profil znajomego zawsze odszyfrowane.
+  - Nieczytelna notatka (brak klucza, usunięty klucz) nie jest nadpisywana przy zapisie; zły format klucza nie blokuje zapisów ani kolejki offline.
+- `scripts/encrypt-notes.mjs`: przepisanie istniejących notatek porcjami (`--dry-run`, `--batch`, `--table`, `--decrypt` do wycofania, rotacja).
+- Panel „Gotowość”: stan klucza i postęp szyfrowania (same liczby); `backup-decrypt --data-key`; próba odtworzenia kopii sprawdza notatki.
+### Uwaga przy wdrożeniu
+- Bez migracji bazy.
+- Włączanie:
+  1. klucz w menedżerze haseł i druga kopia offline, osobno od `BACKUP_ENCRYPTION_KEY`; utrata klucza oznacza utratę notatek;
+  2. `DATA_ENCRYPTION_KEY` w Vercel;
+  3. wdrożenie;
+  4. `scripts/encrypt-notes.mjs`.
+- Wycofanie: najpierw `--decrypt`, potem wdrożenie starego kodu.
+- „Do omówienia z lekarzem” na razie bez szyfrowania (czeka na decyzję o ograniczeniu długości w bazie).
+
 ## [0.49.1] - 2026-10
 ### Naprawiono
 - Safari i iPhone:
