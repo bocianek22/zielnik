@@ -69,7 +69,7 @@ Reguła: brak sprzeczności z zasadami oceny, dane tylko własne, każdy dotyka 
 | POM-41 | Import kopii i CSV na nowe konto | 3 | M | P, T | – | nowy (po 1.0) | – |
 | POM-42 | Przegląd okresu („Mój miesiąc / kwartał”) | 3 | S/M | P | POM-06 | nowy (po 1.0) | PAC-7 |
 | POM-43 | Dyktowanie notatek | 3 | M | P | – | nowy (po 1.0) | UX-2 |
-| POM-44 | Opiekun / pełnomocnik (tylko odczyt) | 3 | L | P, Pr | ⚖️ | nowy (po 1.0) | – |
+| POM-44 | Opiekun / pełnomocnik (tylko odczyt) | 3 | L | P, Pr | ⚖️ | duplikat POM-29 (rozwinięcie po 1.0) | PAC-15 |
 | POM-R1 | Seria dni z użyciem / odznaki za zużycie | – | – | Pr | – | **odrzucony** | – |
 | POM-R2 | Podpowiedź dawki („spróbuj 0,3 g”) | – | – | Pr | – | **odrzucony** | – |
 | POM-R3 | „Inni z bólem wybierają X” (wnioski z danych społeczności) | – | – | P, Pr | – | **odrzucony** | MON-7 |
