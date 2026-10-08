@@ -127,7 +127,7 @@ test('subskrypcje i preferencje: każdy zmienia tylko własne', { skip }, async 
   assert.equal((await call(A, 'push/prefs', 'PUT', { showDetails: 'tak' })).status, 400);
   const r = await call(A, 'push/prefs', 'PUT', { notifyHour: 20, showDetails: true });
   assert.equal(r.status, 200);
-  assert.deepEqual(r.json.prefs, { notifyPrescription: true, notifyStock: true, stockDays: 5, notifyHour: 20, showDetails: true, devices: 0 });
+  assert.deepEqual(r.json.prefs, { notifyPrescription: true, notifyStock: true, stockDays: 5, notifyHour: 20, showDetails: true, notifySymptoms: false, symptomsHour: 21, notifyVisit: false, nextVisit: null, devices: 0 });
   await call(A, 'push/prefs', 'PUT', { stockDays: 3 });
   const a = (await call(A, 'push/config', 'GET')).json;
   assert.equal(a.enabled, true);
@@ -135,7 +135,7 @@ test('subskrypcje i preferencje: każdy zmienia tylko własne', { skip }, async 
   assert.equal(a.prefs.notifyHour, 20);
   assert.equal(a.prefs.stockDays, 3);
   const b = (await call(B, 'push/config', 'GET')).json;
-  assert.deepEqual(b.prefs, { notifyPrescription: true, notifyStock: true, stockDays: 5, notifyHour: 9, showDetails: false, devices: 0 });
+  assert.deepEqual(b.prefs, { notifyPrescription: true, notifyStock: true, stockDays: 5, notifyHour: 9, showDetails: false, notifySymptoms: false, symptomsHour: 21, notifyVisit: false, nextVisit: null, devices: 0 });
   assert.equal((await call(null, 'push/prefs', 'PUT', { notifyHour: 8 })).status, 401);
   await q`DELETE FROM push_prefs`;
 });

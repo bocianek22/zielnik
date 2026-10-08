@@ -4,6 +4,7 @@ import { sql } from '@/lib/db';
 import Header from '../components/Header';
 import ProfileForm from './ProfileForm';
 import PushSettings from './PushSettings';
+import ReminderSettings from './ReminderSettings';
 import DiscreetSettings from './DiscreetSettings';
 import NativeLock from './NativeLock';
 import WebLockSettings from './WebLockSettings';
@@ -28,6 +29,7 @@ export default async function Profil() {
             <NativeLock />
             <WebLockSettings />
             <PushSettings />
+            <ReminderSettings />
             <DiscreetSettings />
             <section className="card" aria-labelledby="theme-h">
               <h2 id="theme-h">Wygląd</h2>
