@@ -8,6 +8,16 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.47.0] - 2026-10
+### Dodano
+- Odzyskiwanie hasła e-mailem i weryfikacja adresu (KON-1, za kluczem `RESEND_API_KEY`): adres w profilu tylko za hasłem i zgodą, zawsze do potwierdzenia; „Nie pamiętam hasła” na `/login`, strony `/odzyskaj-haslo`, `/nowe-haslo`, `/potwierdz-email`. Ta sama odpowiedź i czas niezależnie od istnienia konta, token jednorazowy (30 min, w bazie tylko SHA-256, we fragmencie linku), reset unieważnia wszystkie sesje, linki tylko z `APP_URL` lub dozwolonych hostów, mail resetu zawsze jako „Notatnik”. Konta admina bez resetu e-mailem.
+- Alerty o błędach serwera (PLA-2): webhook (`ALERT_WEBHOOK_URL`) i/lub e-mail (`ALERT_EMAIL`) po progu błędów w 15 min albo przy nowym rodzaju błędu; bez treści błędów, ścieżki z zamaskowanymi identyfikatorami, limity wysyłki; alert próbny w panelu admina.
+- Przypomnienia (POM-05, POM-15, za kluczami push): wieczorne o wpisie objawów (tylko gdy dziś brak wpisu; wymaga crona co godzinę) i o wizycie (dzień wcześniej i w dniu), w profilu „Przypomnienia”; treść neutralna, domyślnie wyłączone; data wizyty w eksporcie i kopii.
+### Zmieniono
+- Cron przypomnień pracuje porcjami z kursorem i budżetem czasu, więc przy dużej liczbie kont nikt nie jest pomijany.
+### Uwaga przy wdrożeniu
+- Migracja addytywna: `users.email_verified_at`, `users.email_consent_at`, tabela `email_tokens` z wyzwalaczem (DROP/CREATE, działa na każdej wersji PostgreSQL), kolumny `push_prefs.notify_symptoms`, `symptoms_hour`, `notify_visit`, `next_visit_on`.
+
 ## [0.46.0] - 2026-10
 ### Dodano
 - Propozycje zmian w katalogu (KAT-1, DT-7): twórca nieużywanej odmiany i admin edytują wspólne pola bezpośrednio, każdy inny wysyła propozycję; admin w zakładce „Propozycje” widzi różnice pole po polu (konflikty podświetlone), przyjmuje (także mimo konfliktu) albo odrzuca z powodem; autor widzi status w szczegółach odmiany i może wycofać oczekującą. Limity: 20 oczekujących na osobę, 30 na godzinę. Nowi producenci, typy i terpeny trafiają do wspólnych list dopiero po akceptacji. Eksport konta: `strainProposals`.
