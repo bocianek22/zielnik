@@ -5,6 +5,7 @@ import { listTests } from '@/lib/strains';
 import { VIS_VALUES } from '@/lib/visibility';
 import { putPhoto, deletePhotos } from '@/lib/photos';
 import { cleanImage } from '@/lib/image-meta';
+import { encryptField, decryptField } from '@/lib/data-crypto';
 
 // Edycja własnego testu: { note, visibility, image? (nowe zdjęcie), removePhoto? }
 export const PATCH = safe(async (req, { params }) => {
@@ -31,7 +32,7 @@ export const PATCH = safe(async (req, { params }) => {
   if (!text && !willHavePhoto) return bad('Test musi mieć opis lub zdjęcie.');
 
   const q = sql();
-  await q`UPDATE strain_tests SET note = ${text}, visibility = COALESCE(${vis}::text, visibility), updated_at = now() WHERE id = ${tid}`;
+  await q`UPDATE strain_tests SET note = ${encryptField('strain_tests', 'note', tid, text)}, visibility = COALESCE(${vis}::text, visibility), updated_at = now() WHERE id = ${tid}`;
   if (photo) {
     const path = await putPhoto(photo[1], photo[2]);
     try {

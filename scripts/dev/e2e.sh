@@ -22,6 +22,8 @@ MAIL_PORT=${E2E_MAIL_PORT:-$(node -e "const s=require('net').createServer().list
 export E2E_MAIL_PORT=$MAIL_PORT RESEND_API_KEY=e2e MAIL_FROM='Notatnik <notatnik@example.test>' MAIL_API_URL="http://127.0.0.1:$MAIL_PORT/emails" APP_URL="http://localhost:$PORT"
 # BETA-A: link do grupy testerów włączony (tests/e2e/beta.test.mjs)
 export BETA_GROUP_URL=https://grupa.example.test/beta
+# POM-28: szyfrowanie notatek w bazie włączone (klucz wyłącznie testowy); seed.mjs i testy przechodzą ścieżką z szyfrowaniem
+export DATA_ENCRYPTION_KEY="${DATA_ENCRYPTION_KEY:-e2e1:$(printf 'zielnik-e2e-klucz-tylko-testy-32' | base64)}"
 # dane administratora w dokumentach: bez nich ekran zgody się nie pokazuje (tests/e2e/zgoda.test.mjs)
 export LEGAL_ADMIN_NAME='Administrator Testowy' LEGAL_CONTACT_EMAIL='kontakt@example.test'
 scripts/dev/serve.sh "$PORT" "$DB"

@@ -3,14 +3,15 @@ import { sql } from '@/lib/db';
 import { requireUser, bad, safe, intId } from '@/lib/guard';
 import { parseNumber } from '@/lib/strains';
 import { normUnit } from '@/lib/units';
+import { encryptField, decryptField } from '@/lib/data-crypto';
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
-const list = (me) => sql()`
+const list = async (me) => (await sql()`
   SELECT p.id, to_char(p.issued_on, 'YYYY-MM-DD') AS issued_on, to_char(p.valid_until, 'YYYY-MM-DD') AS valid_until,
          p.grams::float8 AS grams, p.unit, p.note,
          rx_bought(p.user_id, p.id, p.unit, p.issued_on, p.valid_until, NULL)::float8 AS bought,
          rx_bought_est(p.user_id, p.id, p.unit, p.issued_on, p.valid_until, NULL)::float8 AS estimated
-  FROM prescriptions p WHERE p.user_id = ${me}::int ORDER BY p.issued_on DESC, p.id DESC`;
+  FROM prescriptions p WHERE p.user_id = ${me}::int ORDER BY p.issued_on DESC, p.id DESC`).map((r) => ({ ...r, note: decryptField('prescriptions', 'note', me, r.note) }));
 
 export const GET = safe(async () => {
   const { user, res } = await requireUser();
@@ -30,7 +31,7 @@ export const POST = safe(async (req) => {
   if (valid && (!DATE.test(valid) || Number.isNaN(Date.parse(valid)) || valid < issued)) return bad('Data ważności musi być późniejsza niż wystawienia.');
   if (grams == null || Number.isNaN(grams)) return bad('Podaj przepisaną ilość (g lub ml).');
   await sql()`INSERT INTO prescriptions (user_id, issued_on, valid_until, grams, unit, note)
-              VALUES (${user.id}, ${issued}::date, ${valid}::date, ${grams}, ${normUnit(b.unit)}, ${String(b.note ?? '').trim().slice(0, 120)})`;
+              VALUES (${user.id}, ${issued}::date, ${valid}::date, ${grams}, ${normUnit(b.unit)}, ${encryptField('prescriptions', 'note', user.id, String(b.note ?? '').trim().slice(0, 120))})`;
   return NextResponse.json({ prescriptions: await list(user.id) });
 });
 

@@ -3,6 +3,7 @@ import { sql } from '@/lib/db';
 import { requireUser, bad, safe, intId } from '@/lib/guard';
 import { parseNumber } from '@/lib/strains';
 import { VIS_VALUES } from '@/lib/visibility';
+import { encryptField, decryptField } from '@/lib/data-crypto';
 
 // Zapis osobistych pól zalogowanego użytkownika: ocena, obecna ilość, do wykupienia, spostrzeżenia
 export const PUT = safe(async (req, { params }) => {
@@ -31,7 +32,7 @@ export const PUT = safe(async (req, { params }) => {
   const [e] = await sql()`
     INSERT INTO user_strain (strain_id, user_id, rating, rated_at, current_amount, notes, visibility, price_per_g)
     VALUES (${id}, ${user.id}, ${rating}::numeric, CASE WHEN ${rating}::numeric IS NULL THEN NULL ELSE now() END,
-            COALESCE(${current}::numeric, 0), ${notes}, COALESCE(${vis}::text, 'me'), ${price})
+            COALESCE(${current}::numeric, 0), ${encryptField('user_strain', 'notes', user.id, notes)}, COALESCE(${vis}::text, 'me'), ${price})
     ON CONFLICT (strain_id, user_id) DO UPDATE SET
       rated_at = CASE WHEN EXCLUDED.rating IS NULL THEN NULL
                       WHEN user_strain.rating IS DISTINCT FROM EXCLUDED.rating THEN now()
@@ -54,7 +55,7 @@ export const PUT = safe(async (req, { params }) => {
   const missingCost = price > 0
     ? (await sql()`SELECT count(*)::int AS n FROM purchases WHERE user_id = ${user.id}::int AND strain_id = ${id}::int AND cost IS NULL`)[0].n
     : 0;
-  const { current: cur, ...rest } = e;
+  const { current: cur, ...rest } = { ...e, notes: decryptField('user_strain', 'notes', user.id, e.notes) };
   // niewysłanych ilości nie odsyłamy, żeby spóźniona odpowiedź nie cofnęła w UI stanu po szybkiej akcji
   return NextResponse.json({ entry: { ...rest, ...(hasCurrent && { current: cur }), ...(hasRemaining && { remaining }),
     ratedAt: e.ratedAt ? new Date(e.ratedAt).toISOString() : null }, missingCost });

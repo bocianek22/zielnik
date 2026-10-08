@@ -5,6 +5,7 @@ import { parseNumber } from '@/lib/strains';
 import { otherAccount, OTHER_ACCOUNT_MSG, intId } from '@/lib/ids';
 import { listCustom, customValues } from '@/lib/symptoms-custom';
 import { CUSTOM_MAX } from '@/lib/symptoms';
+import { encryptField, decryptField } from '@/lib/data-crypto';
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const FIELDS = ['pain', 'sleep', 'anxiety', 'mood'];
@@ -22,7 +23,7 @@ async function load(me, days = 60) {
                         GROUP BY 1 ORDER BY 1`;
   // własne objawy (POM-07): definicje i wartości (osobno od wierszy, bo dzień może mieć tylko własne)
   const [custom, customVals] = await Promise.all([listCustom(me), customValues(me, days)]);
-  return { rows, usage, custom, customValues: customVals };
+  return { rows: rows.map((r) => ({ ...r, note: decryptField('symptom_log', 'note', me, r.note) })), usage, custom, customValues: customVals };
 }
 
 export const GET = safe(async () => {
@@ -70,7 +71,7 @@ export const PUT = safe(async (req) => {
   }
   // obie tabele w jednej transakcji: bez zapisu częściowego
   ops.push(q`INSERT INTO symptom_log (user_id, day, pain, sleep, anxiety, mood, note)
-              VALUES (${user.id}, ${day}::date, ${v.pain}, ${v.sleep}, ${v.anxiety}, ${v.mood}, ${String(b.note ?? '').trim().slice(0, 500)})
+              VALUES (${user.id}, ${day}::date, ${v.pain}, ${v.sleep}, ${v.anxiety}, ${v.mood}, ${encryptField('symptom_log', 'note', user.id, String(b.note ?? '').trim().slice(0, 500))})
               ON CONFLICT (user_id, day) DO UPDATE SET pain = EXCLUDED.pain, sleep = EXCLUDED.sleep, anxiety = EXCLUDED.anxiety,
                 mood = EXCLUDED.mood, note = EXCLUDED.note, updated_at = now()`);
   await q.transaction(ops);

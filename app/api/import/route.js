@@ -3,6 +3,7 @@ import { sql } from '@/lib/db';
 import { requireUser, bad, safe } from '@/lib/guard';
 import { hit } from '@/lib/ratelimit';
 import { parseCommon, parseNumber, invalidateStrains } from '@/lib/strains';
+import { encryptField, decryptField } from '@/lib/data-crypto';
 
 const dec = (v) => String(v ?? '').trim().replace(',', '.');
 
@@ -39,7 +40,7 @@ export const POST = safe(async (req) => {
                 ${JSON.stringify(f.terpenes)}::jsonb, '', ${f.price}, ${f.batch}, ${f.expires}::date, ${f.form}, ${user.id}) RETURNING id)
       INSERT INTO user_strain (strain_id, user_id, rating, rated_at, current_amount, notes)
       SELECT id, ${user.id}::int, ${rt}::numeric, CASE WHEN ${rt}::numeric IS NULL THEN NULL ELSE now() END,
-             ${Number.isNaN(current) || current == null ? 0 : current}::numeric, ${String(r.notes ?? '').trim().slice(0, 1000)}
+             ${Number.isNaN(current) || current == null ? 0 : current}::numeric, ${encryptField('user_strain', 'notes', user.id, String(r.notes ?? '').trim().slice(0, 1000))}
       FROM s RETURNING strain_id AS id`;
     if (remaining > 0) {
       await q`INSERT INTO user_pool (user_id, pool_key, remaining_to_buy)

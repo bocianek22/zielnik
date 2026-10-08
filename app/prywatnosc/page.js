@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import LegalDoc from '../components/LegalDoc';
 import { legalContact } from '@/lib/legal';
 import { parseKey } from '@/lib/backup-pack';
+import { keyStatus } from '@/lib/data-crypto';
 
 // Tryb dyskretny (ciasteczko): tytuł karty bez nazwy aplikacji
 export async function generateMetadata() {
@@ -17,6 +18,8 @@ export default function Prywatnosc() {
   // stan szyfrowania kopii czytany z konfiguracji (tylko tak/nie, bez wartości klucza)
   let encrypted = false;
   try { encrypted = !!parseKey(process.env.BACKUP_ENCRYPTION_KEY); } catch { /* klucz nieprawidłowy: kopie nie powstaną, tekst nie obiecuje szyfrowania */ }
+  // notatki w bazie szyfrowane osobnym kluczem (POM-28): zdanie tylko przy ważnym DATA_ENCRYPTION_KEY, bez ujawniania klucza
+  const notesEncrypted = keyStatus().state === 'ok';
   const sections = [
     ['administrator', 'Kto jest administratorem', [
       `Administratorem Twoich danych jest: ${c.name}. Kontakt w sprawach danych osobowych: ${c.email}.`,
@@ -82,7 +85,7 @@ export default function Prywatnosc() {
       'Podanie danych jest dobrowolne, ale bez nazwy użytkownika, hasła i zgody na przetwarzanie danych o zdrowiu nie możemy prowadzić konta.',
     ]],
     ['bezpieczenstwo', 'Jak chronimy dane', [
-      'Połączenie jest szyfrowane (HTTPS). Hasła przechowujemy tylko w postaci skrótu. Sesja jest w ciasteczku niedostępnym dla skryptów, a urządzenia możesz wylogować. Z przesyłanych zdjęć usuwamy metadane (np. lokalizację). Nowe wpisy są domyślnie prywatne. Aplikacja ma ograniczenia prób logowania, nagłówki bezpieczeństwa i opcjonalną blokadę PIN-em. Kopie zapasowe są przechowywane w prywatnym magazynie' + (encrypted ? ' i szyfrowane.' : '; szyfrowanie kopii nie jest obecnie włączone.') + ' Żaden system nie jest w pełni bezpieczny: o naruszeniu ochrony danych powiadomimy zgodnie z prawem.',
+      'Połączenie jest szyfrowane (HTTPS). Hasła przechowujemy tylko w postaci skrótu. Sesja jest w ciasteczku niedostępnym dla skryptów, a urządzenia możesz wylogować. Z przesyłanych zdjęć usuwamy metadane (np. lokalizację). Nowe wpisy są domyślnie prywatne. Aplikacja ma ograniczenia prób logowania, nagłówki bezpieczeństwa i opcjonalną blokadę PIN-em. Kopie zapasowe są przechowywane w prywatnym magazynie' + (encrypted ? ' i szyfrowane.' : '; szyfrowanie kopii nie jest obecnie włączone.') + ' ' + (notesEncrypted ? 'Treść notatek (objawy, odmiany, recepty, testy) jest w bazie dodatkowo szyfrowana kluczem znanym tylko aplikacji; administrator bazy nie widzi jej w jawnej postaci, ale aplikacja i jej administrator mają do niej dostęp. ' : '') + 'Żaden system nie jest w pełni bezpieczny: o naruszeniu ochrony danych powiadomimy zgodnie z prawem.',
     ]],
     ['dyskretny', 'Tryb dyskretny', [
       'Tryb dyskretny (Mój profil, ustawienie działa tylko na danym urządzeniu) zmienia nazwę karty przeglądarki na „Notatnik” i rozmywa nazwy odmian, producentów i terpenów na ekranie; e-maile mają neutralną treść. To ochrona przed przypadkowym podejrzeniem na ekranie telefonu, a nie zmiana tego, jakie dane przechowujemy. Ikona i nazwa aplikacji na ekranie głównym telefonu oraz tytuł powiadomień push pozostają bez zmian, a treść przypomnień jest neutralna.',

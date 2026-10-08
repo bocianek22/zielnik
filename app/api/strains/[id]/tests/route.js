@@ -5,6 +5,7 @@ import { listTests } from '@/lib/strains';
 import { VIS_VALUES } from '@/lib/visibility';
 import { putPhoto, deletePhotos } from '@/lib/photos';
 import { cleanImage } from '@/lib/image-meta';
+import { encryptField, decryptField } from '@/lib/data-crypto';
 
 export const GET = safe(async (_req, { params }) => {
   const { user, res } = await requireUser();
@@ -35,8 +36,10 @@ export const POST = safe(async (req, { params }) => {
   // z tokenem Blob zdjęcie leży w Blob (w bazie data = '' i blob_path), bez tokenu jako base64
   const path = data ? await putPhoto(mime, data) : null;
   try {
-    await sql()`INSERT INTO strain_tests (strain_id, user_id, note, mime, data, visibility, blob_path)
-                VALUES (${id}, ${user.id}, ${text}, ${mime}, ${path ? '' : data}, COALESCE(${vis}::text, 'me'), ${path}::text)`;
+    // AAD szyfrogramu zawiera id wiersza, więc id pobieramy z sekwencji przed INSERT (Neon HTTP nie ma interaktywnej transakcji)
+    const [{ tid }] = await sql()`SELECT nextval(pg_get_serial_sequence('strain_tests', 'id'))::int AS tid`;
+    await sql()`INSERT INTO strain_tests (id, strain_id, user_id, note, mime, data, visibility, blob_path)
+                VALUES (${tid}, ${id}, ${user.id}, ${encryptField('strain_tests', 'note', tid, text)}, ${mime}, ${path ? '' : data}, COALESCE(${vis}::text, 'me'), ${path}::text)`;
   } catch (e) { await deletePhotos(path); throw e; }
   return NextResponse.json({ tests: await listTests(id, user.id) });
 });

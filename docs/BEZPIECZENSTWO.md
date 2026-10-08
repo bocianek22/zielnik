@@ -193,11 +193,41 @@ Wnioski:
 - Eksport konta zawiera `profile.consentAt` i `profile.consentVersion` (oraz dotychczasowe `consent_at`).
 - Zgodność wstecz po stronie klientów: stary klient rejestracji, który wysyła tylko `consent: true`, dostanie 400 (brak `healthConsent`). Dotyczy wszystkich testów i skryptów rejestrujących konta (zaktualizowane w tym zadaniu); nowe testy z innych gałęzi muszą wysyłać `healthConsent: true`.
 
+## Szyfrowanie notatek w bazie (POM-28)
+Projekt i uzasadnienie wyboru: `docs/SZYFROWANIE-NOTATEK.md`. Moduł `lib/data-crypto.js`, przepisanie danych `scripts/encrypt-notes.mjs`.
+
+**Zakres.** Szyfrowane są `symptom_log.note`, `user_strain.notes`, `prescriptions.note` i `strain_tests.note`. `doctor_notes.text` zostaje jawne do decyzji właściciela (CHECK 1..200 vs szyfrogram; w kodzie komentarz TODO). Daty, liczby, skale, widoczność i nazwy odmian zostają jawne.
+
+**Model zagrożeń.**
+| Zagrożenie | Efekt |
+|---|---|
+| Zrzut bazy Neon, podgląd w konsoli, wyciek samego `DATABASE_URL`, migawki w `backups.data`, kopia w Blob odszyfrowana kluczem `BACKUP_ENCRYPTION_KEY` | notatki nieczytelne bez `DATA_ENCRYPTION_KEY` |
+| Przejęte env lub funkcja Vercel, admin aplikacji, przejęte konto, błąd w trasie API | **brak ochrony** (klucz jest w pamięci aplikacji) |
+| Metadane (daty, liczby, skale, kto komu co udostępnia) | jawne |
+| Przeniesienie szyfrogramu do innego konta, kolumny lub wiersza | odczyt daje znacznik „[notatka zaszyfrowana, brak klucza]” (AAD: tabela.kolumna i `user_id`, a dla testów `id` wiersza) |
+
+**Zgodność wsteczna.** Format `zenc1:<kid>:<base64>`; tekst bez prefiksu jest czytany jak dotąd, więc stare wiersze działają bez przepisywania, a bez klucza zapisy są jawne (funkcja wyłączona). Pusty tekst zostaje `''`. Limity długości liczone na jawnym tekście. Zły format `DATA_ENCRYPTION_KEY` **odrzuca zapis niepustej notatki** (500) zamiast zapisać jawnie: panel „Gotowość” pokazuje „Słabe”. Brak klucza przy istniejących szyfrogramach: notatki pokazują znacznik, a „Gotowość” jest „Krytyczne”. Nic nie dzieje się w `ensureDb` (żadnych migracji schematu).
+
+**Kopie i PITR.** W kopii (`lib/backup.js`, `backups.data`, Blob) zostaje szyfrogram; odtworzenie bez klucza przywraca wszystko poza treścią notatek. Odczyt: `DATA_ENCRYPTION_KEY=... BACKUP_ENCRYPTION_KEY=... node --experimental-default-type=module scripts/backup-decrypt.js --data-key kopia.json.gz.enc kopia.json`. Próba odtworzenia (`scripts/dev/restore-drill.mjs`) z ustawionym kluczem sprawdza, że każdy szyfrogram się odszyfrowuje (id wierszy przeszły bez zmian). **PITR i gałęzie Neon zawierają jawny tekst do końca okna historii** sprzed przepisania; po przepisaniu usuń stare migawki `backups.data` i skróć okno historii w Neon, jeśli to możliwe.
+
+**Włączanie (kolejność).**
+1. Wygeneruj klucz: `echo "k1:$(openssl rand -base64 32)"`. Zapisz go w menedżerze haseł i drugą kopię offline, osobno od `BACKUP_ENCRYPTION_KEY`. **Utrata klucza = trwała utrata notatek.**
+2. Gałąź Neon + wdrożenie podglądu Vercel z kluczem; sprawdź zapis i odczyt, `npm run test:db` z kluczem już przechodzi.
+3. Produkcja: ustaw `DATA_ENCRYPTION_KEY` w Vercel i wdróż. Od tej chwili nowe zapisy są szyfrowane, stare nadal jawne (panel „Gotowość” pokazuje liczbę jawnych wierszy).
+4. Przepisz dane: `node scripts/encrypt-notes.mjs --dry-run`, potem bez `--dry-run` (`--batch`, `--table`; drugi przebieg ma dać 0 zmian; „wyprzedzone edycją” = wiersz zmieniony w trakcie, uruchom ponownie).
+5. Usuń stare migawki `backups.data` (jawny tekst).
+
+**Rotacja.** Dopisz nowy klucz na początek listy: `DATA_ENCRYPTION_KEY="k2:...,k1:..."`, wdróż, uruchom `encrypt-notes.mjs` (przepisuje wiersze ze starym `kid`), po wyzerowaniu „starych” w panelu usuń `k1` z listy. Usunięcie klucza przed przepisaniem = nieczytelne wiersze (stan „Krytyczne”).
+
+**Wycofanie.** Przed wdrożeniem starego kodu (który nie zna prefiksu i pokazałby szyfrogram): `node scripts/encrypt-notes.mjs --decrypt` z kluczem w env, aż do 0 zmian i 0 błędów; dopiero potem usuń zmienną. Wycofanie nie dotyka `doctor_notes`.
+
+**Uwagi.** `/szukaj` nie przeszukuje notatek; ewentualne wyszukiwanie tylko w JS po odszyfrowaniu własnych, nigdy `ILIKE` w SQL. Dziennik błędów dostaje przy nieudanym odszyfrowaniu jedną linię na minutę (tabela.kolumna, bez treści i właściciela). Raport dla lekarza, eksport JSON/CSV i widok znajomego zawsze pokazują jawny tekst.
+
 ## Do decyzji właściciela
 1. **`AUTH_SECRET` ≥ 32 znaki** (panel „Gotowość” pokazuje stan): dziś minimum w kodzie to 16. Wymuszenie w kodzie wyłączyłoby produkcję, jeśli obecny sekret jest krótszy. Zalecenie: sprawdzić w Vercel i w razie potrzeby wymienić; wymiana wyloguje wszystkich.
 2. **Prefiks `__Host-` dla ciasteczka sesji:** chroni przed nadpisaniem ciasteczka z subdomeny. Zmiana nazwy wyloguje wszystkich jednorazowo. Ma sens po przejściu na własną domenę.
 3. ~~**Unieważnianie pojedynczej sesji po wylogowaniu**~~: zrobione w POM-27 (#26).
-4. **Szyfrowanie kopii:** ustawić `BACKUP_ENCRYPTION_KEY`. Bez niego kopie w Blob (wszystkie dane zdrowotne) są tylko skompresowane.
+4. **Szyfrowanie kopii:** ustawić `BACKUP_ENCRYPTION_KEY`. Bez niego kopie w Blob (wszystkie dane zdrowotne) są tylko skompresowane. Szyfrowanie samych notatek w bazie (`DATA_ENCRYPTION_KEY`, POM-28) to osobny klucz i osobna decyzja: patrz sekcja „Szyfrowanie notatek w bazie”; do decyzji zostaje też `doctor_notes.text` (CHECK 1..200).
 5. **Pobieranie kopii przez admina:** rozważyć ponowne podanie hasła przed `GET /api/backup`. Przejęta sesja admina daje dziś pełny zrzut bazy.
 6. ~~**DT-7:** każdy zalogowany edytuje wspólne pola odmian.~~ Zamknięte (KAT-1): pola wspólne zmienia bezpośrednio tylko admin i twórca odmiany, dopóki nikt inny jej nie używa; pozostali składają propozycję (limit 20 oczekujących i 30 na godzinę na osobę), którą rozpatruje admin. Propozycje widzi tylko autor i admin. Usunięcie konta kasuje propozycje autora (kaskada), a przyjęte zmiany zostają w historii odmiany bez powiązania z kontem. Pozostaje: nowe opcje (producent, typ, terpen) dopisują się do wspólnych list już przy złożeniu propozycji, bez zatwierdzenia; zdjęcie odmiany ma własne reguły uprawnień (dodający, twórca, admin).
 7. **Wyszukiwarka użytkowników:** każdy zalogowany może wylistować nazwy kont (po 10 na zapytanie, od 2 znaków). Rozważyć wyszukiwanie tylko po pełnej nazwie albo limit.
