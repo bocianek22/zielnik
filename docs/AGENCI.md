@@ -44,3 +44,17 @@ scripts/dev/stop.sh 4400                         # zatrzymuje tylko PID z .dev/4
 - Konta: `<login>-haslo-1` (`ania`, `bartek`, `Bocian`). Seed można powtarzać na tej samej bazie.
 - Każdy agent używa własnego portu i własnej bazy (równolegle pracujące worktree nie mogą dzielić `.next/` ani bazy).
 - `shots.mjs` kończy się kodem 1, gdy są błędy konsoli/CSP lub odpowiedzi >= 400.
+
+### Testy E2E i budżety wydajności
+Stałe testy w CI (job `e2e` w `.github/workflows/ci.yml`); lokalnie jedna komenda stawia wszystko sama: build z lokalnym PostgreSQL, serwer na wolnym porcie, świeża baza z `seed.mjs`, testy, stop i usunięcie bazy.
+```
+npm run test:e2e                       # tests/e2e/*.test.mjs (Playwright, Chromium, 390 px, node:test); ~1 min z buildem, ~20 s bez
+npm run test:perf                      # Lighthouse (mobilnie) dla /login i / względem tests/perf/budgets.json
+E2E_SKIP_BUILD=1 npm run test:e2e      # bez ponownego buildu, gdy .next jest aktualny (kod się nie zmienił)
+E2E_KEEP=1 E2E_PORT=4400 npm run test:e2e   # zostawia serwer po testach (stop: scripts/dev/stop.sh 4400)
+```
+- Wymagania: `service postgresql start` (użytkownik `z`/`z`, albo `PG_ADMIN_URL`), Chromium z `/opt/pw-browsers` albo `CHROME_PATH`. Moduł `playwright` jest w devDependencies; w sesji chmurowej bez `npm ci` działa globalny z `/opt/node22/lib/node_modules/`.
+- Każdy test kończy się porażką także przy błędzie konsoli, naruszeniu CSP albo odpowiedzi >= 400 (oczekiwane 4xx: `problems.allow(/401/)` w teście). Zrzuty z nieudanych testów: `zrzuty/e2e/`, w CI artefakt `e2e-zrzuty`.
+- Testy idą po kolei na jednej bazie i sprzątają po sobie (Cofnij, odhaczenie, wyłączenie blokady PIN). Nowy scenariusz: `scenario('nazwa', async (page) => {...}, withSession)` w `tests/e2e/zielnik.test.mjs`; stronę otwieraj przez `go(page, '/ścieżka')` (czeka na hydratację Reacta, bez tego klik bywa ignorowany).
+- Lighthouse: mediana z 3 przebiegów, `/login` bez sesji, `/` na koncie `ania` z seeda. Mierzy LCP, CLS, TBT (w trybie nawigacji INP nie istnieje, TBT jest jego laboratoryjnym odpowiednikiem), rozmiar JS (przesłane KB) i liczbę żądań. Progi w `tests/perf/budgets.json` = stan z 8.10 plus zapas (LCP x1,4; TBT x1,5 + 100 ms; JS x1,15; CLS +0,05). Stan w dniu ustawienia: `/login` LCP 2,6 s, TBT 95 ms, JS 168 KB; `/` LCP 3,1 s, TBT 130 ms, JS 163 KB, CLS 0.
+- Nowe progi po świadomej zmianie: `node scripts/dev/lighthouse.mjs --port <port> --update` wypisuje pomiar i propozycję; przekroczenie bez powodu to regresja do naprawy, nie do podbijania. Poza repo (bez `npm ci`): `LIGHTHOUSE_DIR=<katalog z node_modules z lighthouse@12.8.2 i chrome-launcher>`.
