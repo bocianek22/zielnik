@@ -110,7 +110,8 @@ test('strainIndex nie ujawnia cudzych stanów, a cache wspólnej części nie mi
 test('edycja, dodanie i usunięcie odmiany unieważniają cache; nowa opcja także', { skip }, async () => {
   await S.strainIndex(); await S.listOptions(); // rozgrzanie
   const target = strainIds[1];
-  const r = await call(ids.ania, 'strains/[id]', 'PATCH', { name: 'Zmieniona nazwa', producer: 'Producent A', type: 'Hybryda', taste: 'nowy smak', form: 'olej', terpenes: [] }, { params: { id: String(target) } });
+  await q`UPDATE users SET must_change_password = FALSE WHERE is_admin`;
+  const r = await call(ids.Bocian, 'strains/[id]', 'PATCH', { name: 'Zmieniona nazwa', producer: 'Producent A', type: 'Hybryda', taste: 'nowy smak', form: 'olej', terpenes: [] }, { params: { id: String(target) } });
   assert.equal(r.status, 200, JSON.stringify(r.json));
   const row = (await S.strainIndex()).find((s) => s.id === target);
   assert.equal(row.name, 'Zmieniona nazwa'); assert.equal(row.taste, 'nowy smak');
