@@ -1,0 +1,4 @@
+{
+  "/login": { "lcp": 3800, "cls": 0.05, "tbt": 400, "jsKb": 200, "requests": 35 },
+  "/": { "lcp": 4500, "cls": 0.05, "tbt": 500, "jsKb": 195, "requests": 42 }
+}

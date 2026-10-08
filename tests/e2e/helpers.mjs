@@ -73,3 +73,8 @@ export async function go(page, path) {
   await page.goto(`${BASE}${path}`, { waitUntil: 'load' });
   await hydrated(page);
 }
+
+// Ścieżka do Chromium dla narzędzi spoza Playwrighta (Lighthouse): CHROME_PATH, lokalny /opt/pw-browsers albo przeglądarka Playwrighta
+export function chromeExecutable() {
+  return process.env.CHROME_PATH || chromiumPath() || loadPlaywright().executablePath();
+}
