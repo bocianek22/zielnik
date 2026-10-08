@@ -92,6 +92,12 @@ test('ustawienia: walidacja, częściowy zapis, usuwanie daty, rozdzielne konta,
     { nextVisit: '2026-02-30' }, { nextVisit: 'jutro' }, { nextVisit: '1999-01-01' }]) {
     assert.equal((await call(A, 'push/prefs', 'PUT', bad)).status, 400, JSON.stringify(bad));
   }
+  // data wizyty sprzed dziś (Europe/Warsaw) odrzucona z komunikatem po polsku, dziś jeszcze można
+  const past = await call(A, 'push/prefs', 'PUT', { nextVisit: await day(-1) });
+  assert.equal(past.status, 400);
+  assert.match(past.json.error, /przeszłości/);
+  assert.equal((await call(A, 'push/prefs', 'PUT', { nextVisit: await day(0) })).status, 200);
+  await call(A, 'push/prefs', 'PUT', { nextVisit: null });
   const d = await day(2);
   const r = await call(A, 'push/prefs', 'PUT', { notifySymptoms: true, symptomsHour: 22, notifyVisit: true, nextVisit: d });
   assert.equal(r.status, 200, JSON.stringify(r.json));
