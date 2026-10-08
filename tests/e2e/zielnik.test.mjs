@@ -243,11 +243,12 @@ scenario('Profil: przypomnienia (wyłączone domyślnie, informacja o braku kluc
   assert.equal(await sec.getByRole('switch').nth(0).isChecked(), true);
 
   // sprzątanie: wyłączenie i usunięcie daty
+  await sec.locator('#remind-hour').selectOption('21');
   await sec.locator('#remind-visit').fill('');
   await sec.getByRole('switch').nth(1).click();
   await sec.getByRole('switch').nth(0).click();
   await page.waitForFunction(() => !document.querySelector('section[aria-labelledby=remind-h] input[role=switch]')?.checked);
-  await sec.locator('#remind-hour').selectOption('21');
+  await sec.getByText('Zapisano.').waitFor();
 }, withSession);
 
 scenario('tryb dyskretny: nazwy rozmyte, tytuł "Notatnik"',async (page) => {
