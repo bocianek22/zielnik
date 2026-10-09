@@ -1,4 +1,5 @@
 'use client';
+import SecHead from '../components/SecHead';
 import { useState } from 'react';
 import { api } from '@/lib/api';
 import { NOTES_EVENT } from './ReportNotes';
@@ -31,8 +32,8 @@ export default function DoctorNotes({ initial }) {
   const remove = (n) => { if (confirm('Usunąć ten punkt?')) run(api(`/api/doctor-notes/${n.id}`, 'DELETE')); };
 
   return (
-    <div className="card stack doctor-notes no-print" aria-labelledby="dn-h">
-      <h2 id="dn-h" className="section-label">Do omówienia z lekarzem</h2>
+    <div className="card stack doctor-notes no-print" data-cat="learn" aria-labelledby="dn-h">
+      <SecHead cat="learn" icon="clipboard" id="dn-h">Do omówienia z lekarzem</SecHead>
       {open.length > 0 && (
         <ul className="dn-list">
           {open.map((n) => (

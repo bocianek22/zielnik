@@ -1,4 +1,5 @@
 'use client';
+import SecHead from '../components/SecHead';
 import { useEffect, useRef, useState } from 'react';
 import { api } from '@/lib/api';
 import { HOURLY_NEEDED, symptomsSwitchDisabled } from '@/lib/reminder-ui';
@@ -51,7 +52,7 @@ export default function ReminderSettings() {
   const noEvening = symptomsSwitchDisabled(cfg, prefs);
   return (
     <section className="card stack" aria-labelledby="remind-h">
-      <h2 id="remind-h">Przypomnienia</h2>
+      <SecHead icon="clock" id="remind-h">Przypomnienia</SecHead>
       <p className="muted">Wyłączone, dopóki ich nie włączysz. Powiadomienie ma neutralną treść.</p>
       {cfg && !cfg.any && <p className="muted small" role="note">Powiadomienia nie są jeszcze włączone na serwerze. Ustawienia zapiszą się już teraz, a przypomnienia zaczną przychodzić, gdy administrator je skonfiguruje.</p>}
       {cfg?.any && prefs && !prefs.devices && <p className="muted small" role="note">Aby dostawać przypomnienia, włącz powiadomienia na tym urządzeniu w sekcji „Powiadomienia”.</p>}

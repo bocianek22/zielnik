@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
 import { history, monthlyRecap, purchaseStats, prescriptionOptions } from '@/lib/strains';
 import { periodCompare } from '@/lib/recap';
+import SecHead from '../components/SecHead';
 import Header from '../components/Header';
 import Icon from '../components/Icon';
 import Entries from './Entries';
@@ -40,26 +41,36 @@ export default async function Historia() {
     <>
       <Header user={user} />
       <main className="page hist-page">
-        <h1>Historia</h1>
+        <header className="hero cat-hero" data-cat="stock">
+          <div className="hero-top">
+            <span className="ic-dot sq"><Icon name="list" size={24} /></span>
+            <div>
+              <h1>Historia</h1>
+              <p className="hero-sub">Zakupy, zużycie i podsumowania</p>
+            </div>
+          </div>
+        </header>
         {nothing ? (
           <Empty icon="clipboard" title="Historia jest jeszcze pusta" text="Tu pojawią się zakupy, zużycie i wykres tygodniowy. Zacznij od zapisania pierwszego zużycia w karcie odmiany." />
         ) : (<>
         {hasRecap && (
           <>
-            <h2 className="section-label">Twój miesiąc: {monthLabel}</h2>
-            <section className="card recap summary">
-              <dl className="stat-strip">
-                <div><dt>Zużyte</dt><dd><b>{nf(recap.totalGrams)}</b> g{recap.totalMl > 0 && <span className="stat-sub"><b>{nf(recap.totalMl)}</b> ml</span>}</dd></div>
-                <div><dt>{recap.activeDays === 1 ? 'Aktywny dzień' : 'Aktywne dni'}</dt><dd><b>{recap.activeDays}</b></dd></div>
-                <div><dt>Wykupione</dt><dd><b>{nf(bought.grams)}</b> g{bought.ml > 0 && <span className="stat-sub"><b>{nf(bought.ml)}</b> ml</span>}{bought.cost > 0 && <span className="stat-sub">{nf(bought.cost, 0)} zł</span>}</dd></div>
-              </dl>
-              {recap.avgRating != null && (
-                <p className="recap-top">Średnia ocena: <b>{nf(recap.avgRating)}</b> (z {recap.ratedCount} {recap.ratedCount === 1 ? 'oceny' : 'ocen'})</p>
-              )}
-              {recap.topStrain && (
-                <p className="recap-top">Najczęściej: <b className="dn">{recap.topStrain.name}</b>, {nf(recap.topStrain.grams)} {recap.topStrain.unit}</p>
-              )}
+            <SecHead cat="stock" icon="calendar">Twój miesiąc: {monthLabel}</SecHead>
+            <section className="hist-kpis" data-cat="stock" aria-label={`Podsumowanie: ${monthLabel}`}>
+              <div className="kpi-tile"><span className="kt-label">Zużyte</span><span className="kt-value">{nf(recap.totalGrams)}<small>g</small></span>{recap.totalMl > 0 && <span className="kt-sub">{nf(recap.totalMl)} ml</span>}</div>
+              <div className="kpi-tile"><span className="kt-label">{recap.activeDays === 1 ? 'Aktywny dzień' : 'Aktywne dni'}</span><span className="kt-value">{recap.activeDays}</span></div>
+              <div className="kpi-tile"><span className="kt-label">Wykupione</span><span className="kt-value">{nf(bought.grams)}<small>g</small></span>{(bought.ml > 0 || bought.cost > 0) && <span className="kt-sub">{[bought.ml > 0 && `${nf(bought.ml)} ml`, bought.cost > 0 && `${nf(bought.cost, 0)} zł`].filter(Boolean).join(' · ')}</span>}</div>
             </section>
+            {(recap.avgRating != null || recap.topStrain) && (
+              <section className="card recap">
+                {recap.avgRating != null && (
+                  <p className="recap-top">Średnia ocena: <b>{nf(recap.avgRating)}</b> (z {recap.ratedCount} {recap.ratedCount === 1 ? 'oceny' : 'ocen'})</p>
+                )}
+                {recap.topStrain && (
+                  <p className="recap-top">Najczęściej: <b className="dn">{recap.topStrain.name}</b>, {nf(recap.topStrain.grams)} {recap.topStrain.unit}</p>
+                )}
+              </section>
+            )}
           </>
         )}
         <PeriodCompare compare={compare} />
@@ -68,7 +79,7 @@ export default async function Historia() {
 
         {top.length > 0 && (
           <>
-            <h2 className="section-label">Najczęściej używane, 30 dni</h2>
+            <SecHead cat="stock" icon="trend">Najczęściej używane, 30 dni</SecHead>
             <ol className="list">
               {top.map((t) => (
                 <li key={t.name} className="list-row"><span className="lr-main dn">{t.name}</span><span className="lr-value">{nf(t.grams, 2)} {t.unit}</span></li>
@@ -77,14 +88,14 @@ export default async function Historia() {
           </>
         )}
 
-        <h2 className="section-label">Zakupy</h2>
+        <SecHead cat="stock" icon="cart">Zakupy</SecHead>
         {purchases.length === 0 ? (
           <Empty icon="list" title="Brak zakupów" text="Dodaj je w karcie odmiany, w polu „Wykupiłem”." />
         ) : (
           <Entries kind="purchase" rows={purchases} prescriptions={rxOptions} />
         )}
 
-        <h2 className="section-label">Zużycie</h2>
+        <SecHead cat="stock" icon="jar">Zużycie</SecHead>
         {usage.length === 0 ? (
           <Empty icon="clipboard" title="Brak wpisów" text="Dodaj je w karcie odmiany, w polu „Zużycie”." />
         ) : (

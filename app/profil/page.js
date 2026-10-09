@@ -1,3 +1,4 @@
+import SecHead from '../components/SecHead';
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
 import { sql } from '@/lib/db';
@@ -35,13 +36,13 @@ export default async function Profil() {
             <ReminderSettings />
             <DiscreetSettings />
             <section className="card" aria-labelledby="theme-h">
-              <h2 id="theme-h">Wygląd</h2>
+              <SecHead icon="sun" id="theme-h">Wygląd</SecHead>
               <ThemeChoice />
               <BigChoice />
             </section>
           </ProfileForm>
           <section className="card" aria-labelledby="about-h">
-            <h2 id="about-h">O aplikacji</h2>
+            <SecHead icon="info" id="about-h">O aplikacji</SecHead>
             <p>
               <span className="brand-name">Zielnik</span><span className="brand-alt">Notatnik</span> v{VERSION} <span className="badge">Beta</span>
             </p>

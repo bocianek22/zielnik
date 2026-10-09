@@ -1,4 +1,5 @@
 'use client';
+import SecHead from '../components/SecHead';
 import { useEffect, useState } from 'react';
 import { forceLogout } from '../components/WebLock';
 import { isNative } from '../components/native/bridge';
@@ -105,7 +106,7 @@ export default function WebLockSettings() {
 
   return (
     <section className="card stack lock-setup" aria-labelledby="weblock-h">
-      <h2 id="weblock-h">Blokada i bezpieczeństwo</h2>
+      <SecHead icon="shield" id="weblock-h">Blokada i bezpieczeństwo</SecHead>
 
       {native ? (
         <p className="muted">W aplikacji na telefonie blokadę zapewnia odcisk palca, twarz albo kod telefonu (ustawienie powyżej). PIN w przeglądarce nie jest tu potrzebny.</p>

@@ -18,6 +18,14 @@ const N = 30, W = 326, WIN = 7, MIN = 4;
 const px = (i) => ((i + 0.5) * W) / N;
 const pct = (i) => `${((i + 0.5) / N) * 100}%`;
 const dn = (s) => (s.custom ? 'dn' : undefined); // własne nazwy objawów w trybie dyskretnym
+// trend opisowo: różnica średnich z 7 dni, pierwszej i ostatniej dostępnej w 30 dniach (bez oceny, czy to lepiej, czy gorzej)
+function trendOf(tr) {
+  const m = tr.filter(Boolean);
+  if (m.length < 2) return null;
+  const diff = Math.round((m.at(-1).mean - m[0].mean) * 10) / 10;
+  return diff === 0 ? { text: 'bez zmian', title: 'Średnia z 7 dni nie zmieniła się w ostatnich 30 dniach' }
+    : { text: `${diff > 0 ? '+' : '−'}${num(Math.abs(diff), 1)} w 30 dni`, title: `Średnia z 7 dni zmieniła się o ${diff > 0 ? '+' : '−'}${num(Math.abs(diff), 1)} w ostatnich 30 dniach` };
+}
 const wpisy = (n) => `${n} ${plural(n, 'wpis', 'wpisy', 'wpisów')}`;
 
 const polyline = (pts) => pts.map(([x, y], k) => `${k ? 'L' : 'M'}${x.toFixed(1)},${y.toFixed(1)}`).join('');
@@ -54,13 +62,14 @@ function Axis({ xs }) {
 // jeden objaw: nagłówek (nazwa, kierunek skali, wartość wybranego dnia) i wykres 72 px na skali 0–10
 function Panel({ s, d, sel }) {
   const H = 72, y = (v) => 70 - 6.8 * v;
+  const trend = trendOf(d.tr);
   const at = sel ?? d.last;
   const v = at != null && at >= 0 ? d.vals[at] : null;
   const label = `${s.label}, 30 dni, skala 0–10: ${wpisy(d.count)}${d.lastTrend ? `, ostatnio ${d.vals[d.last]}, zakres z 7 dni ${num(d.lastTrend.lo, 1)}–${num(d.lastTrend.hi, 1)}` : d.last != null ? `, ostatnio ${d.vals[d.last]}` : ''}`;
   return (
     <div className="sp-panel">
       <div className="sp-head">
-        <div className="sp-id"><b className={dn(s)}>{s.label}</b><span>0 = {s.low}, 10 = {s.high}</span></div>
+        <div className="sp-id"><b className={dn(s)}>{s.label}</b><span>0 = {s.low}, 10 = {s.high}</span>{trend && <span className="pill-trend" title={trend.title}>{trend.text}</span>}</div>
         <span className="sp-val" aria-hidden="true">{v ?? '–'}</span>
       </div>
       {d.count === 0 ? <p className="sp-none">Brak wpisów w ostatnich 30 dniach.</p> : (

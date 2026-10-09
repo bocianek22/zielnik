@@ -1,4 +1,5 @@
 'use client';
+import SecHead from '../components/SecHead';
 import { useCallback, useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 
@@ -45,7 +46,7 @@ export default function EmailSettings({ isAdmin }) {
 
   return (
     <section className="card" aria-labelledby="email-h">
-      <h2 id="email-h">Adres e-mail</h2>
+      <SecHead icon="file" id="email-h">Adres e-mail</SecHead>
       <p className="muted">Opcjonalny. Służy tylko do odzyskania hasła, gdy je zapomnisz. Nikt poza Tobą go nie widzi; trafia do eksportu Twoich danych i znika razem z kontem.</p>
       {isAdmin && <p className="muted">Konta administratora nie odzyskują hasła e-mailem (ochrona panelu i kopii zapasowych).</p>}
       {st.email && !editing && (

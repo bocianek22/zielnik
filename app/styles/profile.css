@@ -3,9 +3,13 @@
 .stack > .section-label { margin-top: var(--s-8); }
 .stack > .section-label:first-child { margin-top: 0; }
 .stack > .section-label + * { margin-top: 0; }
-.settings .card > h2, .settings .switch-row h2 { font-family: var(--font-body), system-ui, sans-serif; font-size: var(--fs-lg); font-weight: 600; letter-spacing: 0; margin: 0; }
+.settings .card > h2, .settings .switch-row h2, .settings .sec-head > h2 { font-family: var(--font-body), system-ui, sans-serif; font-size: var(--fs-lg); font-weight: 600; letter-spacing: 0; margin: 0; }
 .settings .card.stack > * + * { margin-top: var(--s-3); }
 .settings .card > h2 + .muted, .settings .card > .switch-row + .muted { margin-top: var(--s-1); }
+.settings .card > .sec-head { margin-bottom: 0; }
+.settings .card > .sec-head + * { margin-top: var(--s-3); }
+.settings .sec-head .switch { flex: none; }
+.danger-zone .sec-head .ic-dot { background: var(--danger-soft, var(--surface-2)); color: var(--danger); }
 .settings .card > p.muted { font-size: .9375rem; }
 .settings ul.muted.small { padding-left: 1.1rem; margin: var(--s-2) 0 0; line-height: 1.45; }
 .settings ul.muted.small li + li { margin-top: 4px; }
@@ -20,7 +24,7 @@
 .list.inset { margin-top: var(--s-3); border-radius: var(--r-md); }
 .list.inset .list-row { min-height: 48px; color: var(--accent-text); font-weight: 500; }
 .list.inset .list-row .icon { color: var(--accent-text); }
-.danger-zone h2 { color: var(--danger); }
+.danger-zone h2, .danger-zone .sec-head > h2 { color: var(--danger); }
 .settings .card > h2 + .seg { margin-top: var(--s-3); }
 .settings .vis-select { max-width: none; }
 .settings .row > [role="status"]:empty { position: absolute; } /* pusty komunikat nie zabiera miejsca, ale zostaje dla czytnika ekranu */

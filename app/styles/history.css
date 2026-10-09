@@ -3,6 +3,16 @@
 
 .hist-page > .section-label, .report-page .section-label { margin-top: var(--s-6); }
 .hist-page > .section-label:first-of-type { margin-top: 0; }
+.hist-page > .sec-head { margin-top: var(--s-6); }
+.hist-page > .hero + .sec-head { margin-top: 0; }
+.hist-page > .sec-head + .list, .hist-page > .sec-head + .card { margin-top: 0; }
+/* kafle liczb miesiąca */
+.hist-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-3); }
+.hist-kpis .kpi-tile { min-height: 104px; padding: var(--s-3); }
+.hist-kpis .kt-value { font-size: 1.75rem; }
+.hist-kpis .kt-sub { overflow-wrap: anywhere; }
+.recap { margin-top: var(--s-3); padding: 0; }
+.recap .recap-top:first-child { border-top: 0; }
 
 /* Twój miesiąc: pasek liczb (.stat-strip z strains.css) w 3 kolumnach, także na telefonie */
 .recap.summary .stat-strip > div { padding-inline: var(--s-3); }

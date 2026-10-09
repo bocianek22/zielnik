@@ -1,4 +1,5 @@
 'use client';
+import Icon from '../components/Icon';
 import { useEffect, useState } from 'react';
 import { isDiscreet, setDiscreet } from '@/lib/discreet';
 
@@ -9,8 +10,11 @@ export default function DiscreetSettings() {
   function toggle(e) { setOn(e.target.checked); setDiscreet(e.target.checked); }
   return (
     <section className="card stack">
-      <div className="switch-row"><h2 id="discreet-h">Tryb dyskretny</h2>
-        <input type="checkbox" className="switch" role="switch" checked={on} onChange={toggle} aria-labelledby="discreet-h" aria-describedby="discreet-d" /></div>
+      <div className="sec-head switch-row">
+        <div className="ic-dot sm"><Icon name="moon" size={20} /></div>
+        <h2 id="discreet-h">Tryb dyskretny</h2>
+        <input type="checkbox" className="switch" role="switch" checked={on} onChange={toggle} aria-labelledby="discreet-h" aria-describedby="discreet-d" />
+      </div>
       <p id="discreet-d" className="muted">Dla osób, które nie chcą, żeby ktoś zaglądający w telefon od razu widział, czego dotyczy aplikacja. Ustawienie działa tylko na tym urządzeniu.</p>
       <ul className="muted small">
         <li>Karta przeglądarki nazywa się wtedy „Notatnik”.</li>
