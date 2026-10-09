@@ -210,6 +210,25 @@ export function OtherEntry({ e }) {
 
 const cap = (s) => (s ? s[0].toUpperCase() + s.slice(1) : s);
 
+// Menu karty (rzadkie akcje): „Porównaj” i „Edytuj pola wspólne”. Zamyka się po kliknięciu poza nim.
+function CardMenu({ name, cmpOn, onCmp, onEdit }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const close = (e) => { if (ref.current?.open && !ref.current.contains(e.target)) ref.current.open = false; };
+    document.addEventListener('click', close);
+    return () => document.removeEventListener('click', close);
+  }, []);
+  return (
+    <details className="card-menu" ref={ref} onKeyDown={(e) => { if (e.key === 'Escape' && ref.current?.open) { ref.current.open = false; ref.current.querySelector('summary')?.focus(); } }}>
+      <summary aria-label={`Więcej akcji: ${name}`}><Icon name="more" size={22} /></summary>
+      <div className="card-menu-list">
+        <label className="check cmp-check"><input type="checkbox" checked={!!cmpOn} onChange={onCmp} /> <span>Porównaj</span></label>
+        <button type="button" className="btn text small" onClick={() => { if (ref.current) ref.current.open = false; onEdit(); }}><Icon name="edit" size={18} />Edytuj pola wspólne</button>
+      </div>
+    </details>
+  );
+}
+
 export default function StrainCard({ strain, meId, hidePrice = false, mates, low, cmpOn, onCmp, onEdit, onEntrySaved }) {
   const [expanded, setExpanded] = useState(false); // na telefonie szczegóły są domyślnie zwinięte
   const mine = strain.entries.find((e) => e.userId === meId);
@@ -220,19 +239,28 @@ export default function StrainCard({ strain, meId, hidePrice = false, mates, low
   const ex = expiryInfo(strain.expires_on);
   const photoSrc = `/api/strains/${strain.id}/photo?v=${strain.photo_v}`;
   const unit = unitOf(strain.form);
-  const lowStock = unit === 'g' && mine && Number(mine.current) > 0 && Number(mine.current) <= (low ?? LOW_STOCK);
+  const cur = Number(mine?.current) || 0;
+  const rem = Number(mine?.remaining) || 0;
+  const lowStock = unit === 'g' && mine && cur > 0 && cur <= (low ?? LOW_STOCK);
   const facts = [
     strain.thc != null && `THC ${dec(strain.thc)}%`,
     strain.cbd != null && `CBD ${dec(strain.cbd)}%`,
     strain.price_per_g != null && !hidePrice && `${dec(strain.price_per_g)} zł/${unit}`,
   ].filter(Boolean);
   const tags = strainTags(strain);
+  // pigułka stanu zapasu; czytnik ekranu dostaje ten sam stan z „.quick-stock” w szybkich akcjach
+  const stock = !mine ? null
+    : cur > 0 ? [lowStock ? 'low' : 'ok', `Mam ${dec(Math.round(cur * 100) / 100)} ${unit}${lowStock ? ', kończy się' : ''}`]
+    : ['none', rem > 0 ? `Brak w domu, ${dec(rem)} ${unit} do wykupienia` : 'Brak w domu'];
 
   return (
-    <article className={`card strain k-${strain.kind || 'none'}${expanded ? ' expanded' : ''}`}>
+    <article className={`strain k-${strain.kind || 'none'}${expanded ? ' expanded' : ''}`} data-cat="stock">
       <header className="strain-head">
-        {strain.photo_v && (
+        {strain.photo_v ? (
           <div className="photo-link dn-img"><Lightbox className="strain-photo" src={photoSrc} alt={`Zdjęcie: ${strain.name}`} attr={strain.photo_attr} /></div>
+        ) : (
+          // bez inicjałów: nazwa nie może wyciekać w trybie dyskretnym
+          <span className="strain-thumb" aria-hidden="true"><Icon name={unit === 'ml' ? 'drop' : 'jar'} size={26} /></span>
         )}
         <div className="strain-title">
           <h3><Link href={`/strains/${strain.id}`} className="dn">{strain.name}</Link></h3>
@@ -242,25 +270,23 @@ export default function StrainCard({ strain, meId, hidePrice = false, mates, low
             {strain.type?.toLowerCase() !== strain.kind && <span>{cap(strain.type)}</span>}
             {strain.form && strain.form !== 'susz' && <span>{formLabel(strain.form)}</span>}
           </p>
-          {facts.length > 0 && <p className="strain-facts">{facts.map((f) => <span key={f}>{f}</span>)}</p>}
-          {(ex?.expired || ex?.soon || lowStock) && (
-            <p className="strain-status">
-              {ex?.expired && <span className="badge low">Po terminie</span>}
-              {ex?.soon && <span className="badge low">Ważne jeszcze {ex.days} dni</span>}
-              {lowStock && <span className="badge low">Kończy się</span>}
-            </p>
-          )}
         </div>
         <div className="scores">
           <div className="score" title="Ocena końcowa">
-            <b>{strain.final_rating != null ? dec(strain.final_rating) : '–'}</b><small>ocena końcowa</small>
+            <b>{strain.final_rating != null ? dec(strain.final_rating) : '–'}</b><small>{strain.final_rating != null ? 'ocena' : 'brak'}</small>
           </div>
           {avg && <div className="score soft" title="Średnia ocen użytkowników">
             <b>{dec(avg)}</b><small>średnia ({rated.length})</small>
           </div>}
-          {Number(mine?.current) > 0 && <p className="score-stock" aria-hidden="true">Mam {dec(Math.round((Number(mine.current) || 0) * 100) / 100)} {unit}</p>}
         </div>
       </header>
+
+      <p className="strain-pills">
+        {facts.map((f) => <span key={f} className="pill">{f}</span>)}
+        {stock && <span className={`pill stock-${stock[0]}`} aria-hidden="true">{stock[1]}</span>}
+        {ex?.expired && <span className="pill stock-low">Po terminie</span>}
+        {ex?.soon && <span className="pill stock-low">Ważne jeszcze {ex.days} dni</span>}
+      </p>
 
       {(strain.batch || strain.expires_on || strain.taste || tags.length > 0 || strain.terpenes?.length > 0 || strain.description) && (
         <div className="strain-more">
@@ -294,8 +320,7 @@ export default function StrainCard({ strain, meId, hidePrice = false, mates, low
         <button type="button" className="btn text small only-mobile" onClick={() => setExpanded((v) => !v)} aria-expanded={expanded}>
           {expanded ? 'Zwiń' : 'Szczegóły'}<Icon name="chevronDown" size={18} className="chev" />
         </button>
-        <label className="check cmp-check"><input type="checkbox" checked={!!cmpOn} onChange={onCmp} /> <span>Porównaj</span></label>
-        <button type="button" className="btn text small" onClick={onEdit} aria-label="Edytuj pola wspólne"><Icon name="edit" size={18} />Edytuj<span className="hide-narrow"> pola wspólne</span></button>
+        <CardMenu name={strain.name} cmpOn={cmpOn} onCmp={onCmp} onEdit={onEdit} />
       </div>
     </article>
   );

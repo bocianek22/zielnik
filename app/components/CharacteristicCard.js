@@ -1,6 +1,7 @@
 import { EFFECTS, strainTags } from '@/lib/effects';
 import { formLabel } from '@/lib/forms';
 import { unitOf } from '@/lib/units';
+import SecHead from './SecHead';
 
 const dec = (n) => String(n).replace('.', ','); // jak dec() w StrainCard.js (ten plik renderuje też strona serwerowa katalogu)
 const fx = (n) => String(Number(n.toFixed(1))).replace('.', ',');
@@ -20,7 +21,7 @@ export default function CharacteristicCard({ strain, hidePrice = false, compact 
 
   return (
     <section className="card charcard">
-      <h2>Karta charakterystyki</h2>
+      <SecHead cat="learn" icon="book">Karta charakterystyki</SecHead>
       <div className="alert note">Informacje mają charakter poglądowy i edukacyjny. Nie zastępują porady lekarza: dobór odmiany i dawkowanie ustal z lekarzem prowadzącym.</div>
       {strain.description
         ? <p className="detail-desc">{strain.description}</p>
