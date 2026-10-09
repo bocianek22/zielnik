@@ -135,7 +135,7 @@ Na hero nie używamy półprzezroczystej bieli (`rgba(255,255,255,.14)` na `--he
 
 **Trasy:**
 - `/` to tylko panel „Dziś” z hero. Stare adresy `/?new=1` i `/?q=` przekierowują na `/odmiany`.
-- `/odmiany` to lista (`StrainsBoard` w `HomeStore` bez danych panelu) z przełącznikiem Moje / Katalog / Rankingi i ikoną wyszukiwania.
+- `/odmiany` to lista (`StrainsBoard` w `HomeStore` bez danych panelu) z przełącznikiem Moje / Katalog / Rankingi i ikoną wyszukiwania. `app/odmiany/WidgetSync.js` odświeża widżet Androida po „Zużyłem” i „Wykupiłem” na karcie, bo panelu „Dziś” na tej stronie nie ma.
 - Linki „Wszystkie odmiany” i „Przejdź do odmian” prowadzą na `/odmiany`.
 - Skrót manifestu „Nowa odmiana” to `/odmiany?new=1`.
 - Skróty APK (`SHORTCUT_PATHS`: `/?zuzylem=1`, `/#objawy`, `/raport`) bez zmian: wskazują panel „Dziś”, więc APK nie trzeba przebudowywać.

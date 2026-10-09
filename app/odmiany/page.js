@@ -4,12 +4,13 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getUser } from '@/lib/auth';
 import { isNativeApp } from '@/lib/client';
-import { listStrains, listOptions } from '@/lib/strains';
+import { listStrains, listOptions, dailyUse } from '@/lib/strains';
 import Header from '../components/Header';
 import StrainsBoard from '../components/StrainsBoard';
 import HomeStore from '../components/HomeStore';
 import Skeleton from '../components/Skeleton';
 import Icon from '../components/Icon';
+import WidgetSync from './WidgetSync';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,7 +28,10 @@ export default async function Strains() {
   if (user.must_change_password) redirect('/change-password');
   const listData = Promise.all([listStrains(user.id), listOptions()]);
   listData.catch(() => {}); // błąd zobaczy StrainsData
-  const me = { id: user.id, username: user.username, isAdmin: user.is_admin, hidePrices: isNativeApp(await headers()) };
+  const [h, usage] = await Promise.all([headers(), dailyUse(user.id)]);
+  const me = { id: user.id, username: user.username, isAdmin: user.is_admin, hidePrices: isNativeApp(h) };
+  // dzień w czasie polskim (serwer działa w UTC), jak w serii panelu „Dziś”
+  const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Warsaw' });
   return (
     <>
       <Header user={user} />
@@ -42,6 +46,7 @@ export default async function Strains() {
           <Link href="/rankings">Rankingi</Link>
         </nav>
         <HomeStore>
+          <WidgetSync dailyUse={{ g: usage.perDay || 0, ml: usage.perDayMl || 0 }} today={today} />
           <Suspense fallback={<Skeleton rows={6} />}>
             <StrainsData me={me} data={listData} />
           </Suspense>

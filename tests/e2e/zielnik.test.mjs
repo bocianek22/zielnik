@@ -277,6 +277,12 @@ scenario('tryb dyskretny: nazwy rozmyte, tytuł "Notatnik"',async (page) => {
   const blurs = await page.$$eval('.dn', (els) => els.map((e) => getComputedStyle(e).filter));
   assert.ok(blurs.length > 0 && blurs.every((f) => /blur/.test(f)), `nazwy rozmyte: ${blurs.slice(0, 3)}`);
   assert.equal(await page.title(), 'Notatnik');
+  // panel „Dziś” (strona główna) też rozmywa nazwę ostatnio używanej odmiany
+  await go(page, '/');
+  await page.waitForSelector('.dn');
+  assert.ok((await page.$$eval('.dn', (els) => els.map((e) => getComputedStyle(e).filter))).every((f) => /blur/.test(f)), 'nazwy rozmyte na „Dziś”');
+  await go(page, '/odmiany');
+  await page.waitForSelector('.dn');
   // dotknięcie odsłania nazwę na chwilę
   await page.locator('.dn').first().tap();
   await page.waitForFunction(() => !/blur/.test(getComputedStyle(document.querySelector('.dn')).filter), null, { timeout: 3000 });
