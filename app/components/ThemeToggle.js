@@ -32,24 +32,33 @@ export function BigChoice() {
   );
 }
 
-// Szybki przełącznik w menu: odwraca to, co widać teraz (także gdy motyw wynika z systemu)
+// Szybki wybór w menu: Systemowy (domyślnie, jak w telefonie) → Jasny → Ciemny; „Systemowy” usuwa zapisany wybór
+const LABELS = { auto: 'Systemowy', light: 'Jasny', dark: 'Ciemny' };
+const NEXT = { auto: 'light', light: 'dark', dark: 'auto' };
 export default function ThemeToggle({ variant }) {
-  const [dark, setDark] = useState(false);
-  useEffect(() => { const t = current(); setDark(t === 'dark' || (t === 'auto' && systemDark())); }, []);
-  function toggle() {
-    const next = !dark;
-    setDark(next);
-    apply(next ? 'dark' : 'light');
-  }
-  const label = dark ? 'Tryb jasny' : 'Tryb ciemny';
+  const [t, setT] = useState('auto');
+  const [sysDark, setSysDark] = useState(false);
+  useEffect(() => { setT(current()); setSysDark(systemDark()); }, []);
+  const pick = (v) => { setT(v); apply(v); };
   if (variant === 'row') {
     return (
-      <button type="button" className="list-row" onClick={toggle}>
-        <Icon name={dark ? 'sun' : 'moon'} /><span className="lr-main">{label}</span>
-      </button>
+      <div className="list-row theme-row">
+        <Icon name={t === 'dark' || (t === 'auto' && sysDark) ? 'moon' : 'sun'} /><span className="lr-main">Motyw</span>
+        <ThemeSeg value={t} onPick={pick} small />
+      </div>
     );
   }
-  return <button type="button" className="linklike" onClick={toggle}>{label}</button>;
+  return <button type="button" className="linklike" onClick={() => pick(NEXT[t])}>Motyw: {LABELS[t]}</button>;
+}
+
+function ThemeSeg({ value, onPick, small }) {
+  return (
+    <div className={`seg${small ? ' seg-sm' : ''}`} role="radiogroup" aria-label="Motyw">
+      {['auto', 'light', 'dark'].map((v) => (
+        <button key={v} type="button" role="radio" aria-checked={value === v} className={value === v ? 'on' : ''} onClick={() => onPick(v)}>{LABELS[v]}</button>
+      ))}
+    </div>
+  );
 }
 
 // Wybór motywu w profilu: systemowy, jasny albo ciemny
@@ -57,11 +66,5 @@ export function ThemeChoice() {
   const [t, setT] = useState('auto');
   useEffect(() => { setT(current()); }, []);
   const pick = (v) => { setT(v); apply(v); };
-  return (
-    <div className="seg" role="radiogroup" aria-label="Motyw">
-      {[['auto', 'Systemowy'], ['light', 'Jasny'], ['dark', 'Ciemny']].map(([v, l]) => (
-        <button key={v} type="button" role="radio" aria-checked={t === v} className={t === v ? 'on' : ''} onClick={() => pick(v)}>{l}</button>
-      ))}
-    </div>
-  );
+  return <ThemeSeg value={t} onPick={pick} />;
 }

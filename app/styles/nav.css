@@ -98,3 +98,7 @@ a.who-name:hover { color: var(--on-bar); }
   .fab-menu .list-row { min-height: 48px; }
 }
 @keyframes sheet-in { from { transform: translateY(12px); opacity: 0; } }
+.theme-row { cursor: default; }
+.theme-row .seg-sm { margin-left: auto; flex-wrap: nowrap; }
+.theme-row .seg-sm button { min-height: 40px; padding: 0 var(--s-2); }
+@media (pointer: coarse) { .theme-row .seg-sm button { min-height: 44px; } }
