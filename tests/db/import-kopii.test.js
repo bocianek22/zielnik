@@ -131,7 +131,7 @@ test('dryRun: podsumowanie bez zapisu, a po nim właściwy import daje to samo p
   assert.equal(sec.purchases.added, 3); assert.equal(sec.tests.added, 3);
   const M = JSON.stringify(r.json); assert.equal(sec.prescriptions.added, 2, M); assert.equal(sec.symptoms.added, 3, M); assert.equal(sec.custom.added, 2, M);
   assert.equal(sec.pool.added, 1);
-  assert.equal(sec.pool.invalid, 1, 'klucz strain:<id> odpada już przy walidacji');
+  assert.equal(sec.pool.missing, 1, 'klucz strain:<id> odmiany z THC nie jest kluczem jej puli');
   assert.equal(sec.prefs.added, 1);
   assert.equal(r.json.unmatched[0].name, 'Znikająca');
   assert.ok(r.json.notes.some((t) => /Zdjęcia nie są przenoszone \(1\)/.test(t)));

@@ -76,3 +76,4 @@
 /* podpowiedź postaci w formularzu nowej odmiany („Extractum …” → olej) */
 .form-hint p { margin: 0 0 var(--s-2); }
 .form-hint .row { gap: var(--s-2); }
+.file-btn:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }

@@ -46,7 +46,7 @@ test('normalizeBackup: identyfikatory z pliku nie przechodzą, limity i wartośc
     usage: [{ strain: 'A', grams: 0.5, unit: 'g', created_at: '2026-09-01T10:00:00Z', method: 'zła', id: 5 }, { strain: 'A', grams: 2000, created_at: '2026-09-01T10:00:00Z' }],
     purchases: [{ strain: 'A', grams: 5, created_at: '2026-09-01T10:00:00Z', prescriptionId: 12, user_id: 9 }],
     tests: [{ strain: 'A', note: 'n', created_at: '2026-09-01T10:00:00Z', has_photo: true }, { strain: 'A', note: '', created_at: '2026-09-01T10:00:00Z', has_photo: true }],
-    remainingToBuy: [{ pool_key: 'strain:5', grams: 3 }, { pool_key: 'p|20.0|1.0', grams: 3 }],
+    remainingToBuy: [{ pool_key: 'strain:5', grams: 3 }, { pool_key: 'p|20.0|1.0', grams: 3 }, { pool_key: 'p|1.0|1.0', grams: 0 }, { pool_key: 'p|2.0|1.0', grams: -1 }],
     customSymptoms: ['a', 'b', 'c', 'd', 'A'].map((name) => ({ name })),
     symptoms: [{ day: '2026-09-01', pain: 5.4, sleep: null, note: 'x'.repeat(900) }, { day: '2026-09-02', pain: 12 }],
     friends: [{ username: 'x' }], avatar: 'data:...',
@@ -60,7 +60,8 @@ test('normalizeBackup: identyfikatory z pliku nie przechodzą, limity i wartośc
   assert.deepEqual(Object.keys(r.s.usage[0]).sort(), ['at', 'grams', 'method', 'name', 'period', 'producer', 'unit'].sort(), 'bez id z pliku');
   assert.equal(r.s.purchases[0].oldRx, 12); assert.ok(!('user_id' in r.s.purchases[0]));
   assert.equal(r.s.tests.length, 1); assert.equal(r.photos, 3); // dwa testy ze zdjęciem + awatar
-  assert.deepEqual(r.s.pool.map((p) => p.key), ['p|20.0|1.0']);
+  // strain:<id> przechodzi walidację (odmiana bez THC); w bazie przyjmowany jest tylko klucz puli dopasowanej odmiany. Zero pomijamy bez błędu
+  assert.deepEqual(r.s.pool.map((p) => p.key), ['strain:5', 'p|20.0|1.0']);
   assert.equal(r.s.custom.length, 3); assert.equal(r.limit.custom, 1);
   assert.equal(r.s.symptoms.length, 1); assert.equal(r.s.symptoms[0].pain, 5); assert.equal(r.s.symptoms[0].note.length, 500);
   assert.deepEqual(r.ignored, ['znajomi']);
