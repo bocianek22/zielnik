@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
 import { history, monthlyRecap, purchaseStats, prescriptionOptions } from '@/lib/strains';
+import { periodCompare } from '@/lib/recap';
 import Header from '../components/Header';
 import Icon from '../components/Icon';
 import Entries from './Entries';
@@ -28,8 +29,8 @@ export default async function Historia() {
   const user = await getUser();
   if (!user) redirect('/login');
   if (user.must_change_password) redirect('/change-password');
-  const [{ purchases, usage, weekly, top }, recap, bought, rxOptions] = await Promise.all([
-    history(user.id), monthlyRecap(user.id), purchaseStats(user.id), prescriptionOptions(user.id),
+  const [{ purchases, usage, weekly, top }, recap, bought, rxOptions, compare] = await Promise.all([
+    history(user.id), monthlyRecap(user.id), purchaseStats(user.id), prescriptionOptions(user.id), periodCompare(user.id),
   ]);
   const monthLabel = cap(new Date().toLocaleDateString('pl-PL', { month: 'long', year: 'numeric' }));
   const hasRecap = recap.totalGrams > 0 || recap.totalMl > 0 || recap.ratedCount > 0 || bought.grams > 0 || bought.ml > 0;
@@ -61,7 +62,7 @@ export default async function Historia() {
             </section>
           </>
         )}
-        <PeriodCompare recap={recap} />
+        <PeriodCompare compare={compare} />
 
         <WeeklyBars weekly={weekly} empty={<Empty icon="chart" title="Brak zużycia" text="Wpisuj zużycie w karcie odmiany, a tu pojawi się wykres tygodniowy." />} />
 
