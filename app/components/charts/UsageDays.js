@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import Icon from '../Icon';
 import Frame from './Frame';
 import Bars from './Bars';
 import Scrub from './Scrub';
@@ -46,7 +47,9 @@ export default function UsageDays({ series: raw }) {
   })).filter((t, k) => k === 0 || k === last || weekday(series[k].day) === 'pon.'), W, { rows: 1 });
 
   return (
-    <Frame className="usage" headClass="usage-head" title="Zużycie, 14 dni" titleClass="today-h" readClass="usage-sel"
+    <>
+    <div className="sec-head"><span className="ic-dot"><Icon name="chart" size={22} /></span><h2 id="usage-h">Zużycie, 14 dni</h2></div>
+    <Frame className="usage" headClass="usage-head" readClass="usage-sel"
       read={<><span>{label(i)}</span> <b>{num(series[i].grams)} {unit}</b></>}
       axis={(
         <>
@@ -85,5 +88,6 @@ export default function UsageDays({ series: raw }) {
         {peak >= 0 && <span className="usage-peak" style={{ left: pct(peak), top: yOf(max) }} aria-hidden="true">{num(max)}</span>}
       </Scrub>
     </Frame>
+    </>
   );
 }

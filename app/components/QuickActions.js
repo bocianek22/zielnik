@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useQuickSave, SaveNote } from './useQuickSave';
 import { METHODS, PERIODS, defaultMethod } from '@/lib/usage-meta';
+import Icon from './Icon';
 import RxPicker, { useOpenPrescriptions, rxField } from './RxPicker';
 import { unitOf, unitGen, quickValues, consumePlaceholder, buyPlaceholder } from '@/lib/units';
 
@@ -22,8 +23,8 @@ export const parseGrams = (s) => {
 
 // Szybkie akcje na wierzchu karty: „Zużyłem” i „Wykupiłem” z małym panelem na ilość w jednostce odmiany (bez rozwijania karty).
 // idPrefix: inny przedrostek identyfikatorów, gdy ta sama odmiana ma akcje także w panelu „Dziś” (unikalne id w DOM);
-// buy={false}: tylko „Zużyłem”; use={false}: tylko „Wykupiłem” (karta „W aptece”).
-export default function QuickActions({ strainId, name, form = 'susz', current, remaining, onSaved, idPrefix = 'q', buy = true, use = true }) {
+// icons: ikony w przyciskach (nagłówek panelu „Dziś”); buy={false}: tylko „Zużyłem”; use={false}: tylko „Wykupiłem” (karta „W aptece”).
+export default function QuickActions({ strainId, name, form = 'susz', current, remaining, onSaved, idPrefix = 'q', buy = true, use = true, icons = false }) {
   const unit = unitOf(form);
   const MODES = modes(form);
   const [mode, setMode] = useState(null); // null | 'use' | 'buy'
@@ -106,11 +107,11 @@ export default function QuickActions({ strainId, name, form = 'susz', current, r
       <div className="quick-btns">
         {showUse && (
           <button type="button" ref={(el) => { trigger.current.use = el; }} className={`btn small quick-btn${mode === 'use' ? ' on' : ''}`}
-            aria-expanded={mode === 'use'} aria-controls={id} aria-label={`Zużyłem: ${name}`} onClick={() => open('use')}>Zużyłem</button>
+            aria-expanded={mode === 'use'} aria-controls={id} aria-label={`Zużyłem: ${name}`} onClick={() => open('use')}>{icons && <Icon name="check" size={20} />}Zużyłem</button>
         )}
         {buy && (
           <button type="button" ref={(el) => { trigger.current.buy = el; }} className={`btn small quick-btn ghost${mode === 'buy' ? ' on' : ''}`}
-            aria-expanded={mode === 'buy'} aria-controls={id} aria-label={`Wykupiłem: ${name}`} onClick={() => open('buy')}>Wykupiłem</button>
+            aria-expanded={mode === 'buy'} aria-controls={id} aria-label={`Wykupiłem: ${name}`} onClick={() => open('buy')}>{icons && <Icon name="cart" size={20} />}Wykupiłem</button>
         )}
         <span className="quick-stock muted">Mam {pl(current)} {unit}{Number(remaining) > 0 && <>, do wykupienia {pl(remaining)} {unit}</>}</span>
       </div>
