@@ -48,15 +48,15 @@ export default async function Historia() {
             <h2 className="section-label">Twój miesiąc: {monthLabel}</h2>
             <section className="card recap summary">
               <dl className="stat-strip">
-                <div><dt>Zużyte</dt><dd>{recap.totalMl > 0
-                  ? <><b>{nf(recap.totalGrams)}</b> g<span className="stat-sub"><b>{nf(recap.totalMl)}</b> ml</span></>
-                  : <><b>{nf(recap.totalGrams)}</b> g</>}</dd></div>
+                <div><dt>Zużyte</dt><dd><b>{nf(recap.totalGrams)}</b> g{recap.totalMl > 0 && <span className="stat-sub"><b>{nf(recap.totalMl)}</b> ml</span>}</dd></div>
                 <div><dt>{recap.activeDays === 1 ? 'Aktywny dzień' : 'Aktywne dni'}</dt><dd><b>{recap.activeDays}</b></dd></div>
                 <div><dt>Wykupione</dt><dd><b>{nf(bought.grams)}</b> g{bought.ml > 0 && <span className="stat-sub"><b>{nf(bought.ml)}</b> ml</span>}{bought.cost > 0 && <span className="stat-sub">{nf(bought.cost, 0)} zł</span>}</dd></div>
-                <div><dt>Średnia ocena</dt><dd><b>{recap.avgRating != null ? nf(recap.avgRating) : '–'}</b>{recap.ratedCount > 0 && <span className="stat-sub">z {recap.ratedCount} {recap.ratedCount === 1 ? 'oceny' : 'ocen'}</span>}</dd></div>
               </dl>
+              {recap.avgRating != null && (
+                <p className="recap-top">Średnia ocena: <b>{nf(recap.avgRating)}</b> (z {recap.ratedCount} {recap.ratedCount === 1 ? 'oceny' : 'ocen'})</p>
+              )}
               {recap.topStrain && (
-                <p className="recap-top">Najczęściej sięgałeś po <b className="dn">{recap.topStrain.name}</b>: {nf(recap.topStrain.grams)} {recap.topStrain.unit} w tym miesiącu.</p>
+                <p className="recap-top">Najczęściej: <b className="dn">{recap.topStrain.name}</b>, {nf(recap.topStrain.grams)} {recap.topStrain.unit}</p>
               )}
             </section>
           </>

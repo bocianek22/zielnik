@@ -4,18 +4,12 @@
 .hist-page > .section-label, .report-page .section-label { margin-top: var(--s-6); }
 .hist-page > .section-label:first-of-type { margin-top: 0; }
 
-/* Twój miesiąc: pasek liczb (.stat-strip z strains.css) w układzie 2 x 2 na telefonie */
-.recap.summary .stat-strip { grid-template-columns: repeat(2, 1fr); }
-.recap.summary .stat-strip > div:nth-child(odd) { border-left: 0; }
-.recap.summary .stat-strip > div:nth-child(n+3) { border-top: 1px solid var(--sep); }
+/* Twój miesiąc: pasek liczb (.stat-strip z strains.css) w 3 kolumnach, także na telefonie */
+.recap.summary .stat-strip > div { padding-inline: var(--s-3); }
 .recap-top { margin: 0; padding: var(--s-3) var(--s-4); border-top: 1px solid var(--sep); font-size: .9375rem; color: var(--text-2); }
 .recap-top b { color: var(--text); }
-@media (min-width: 640px) {
-  .recap.summary .stat-strip { grid-template-columns: repeat(4, 1fr); }
-  .recap.summary .stat-strip > div:nth-child(odd) { border-left: 1px solid var(--sep); }
-  .recap.summary .stat-strip > div:first-child { border-left: 0; }
-  .recap.summary .stat-strip > div:nth-child(n+3) { border-top: 0; }
-}
+.recap.summary .stat-sub { font-size: var(--fs-sm); color: var(--text-2); }
+.recap.summary .stat-sub b { font-size: 1.25rem; }
 
 .empty .btn { margin-top: var(--s-4); }
 .empty p { margin: 0 auto; max-width: 36ch; }

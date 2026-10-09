@@ -34,8 +34,7 @@ export default function PharmacyCard({ rx, pools: initial }) {
       )}
       {pools.length > 0 ? (
         <>
-          <h3 className="section-label">Do wykupienia</h3>
-          <ul className="pharmacy-pools">
+          <ul className="pharmacy-pools" aria-label="Do wykupienia">
             {pools.map((p) => (
               <li key={p.id} className="pharmacy-pool">
                 <div className="pp-name">

@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
+import Link from 'next/link';
 import Header from '../components/Header';
 import Prescriptions from './Prescriptions';
 import PharmacyCard from './PharmacyCard';
@@ -17,6 +18,7 @@ export default async function Recepty() {
       <Header user={user} />
       <main className="page">
         <h1>Recepty</h1>
+        <p className="muted rx-note">Notatnik recept służy tylko Twojej orientacji, to nie dokument ani rejestr medyczny. <Link href="/pomoc#faq">Więcej</Link></p>
         <div className="stack">
           <PharmacyCard rx={rx.items} pools={pools} />
           <Prescriptions />

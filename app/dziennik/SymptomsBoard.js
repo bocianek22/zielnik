@@ -44,7 +44,7 @@ function CustomManager({ defs, onChange }) {
   );
   return (
     <details className="card sym-custom" open={defs.length > 0 || undefined}>
-      <summary>Własne objawy<span className="muted small"> · {defs.length} z {CUSTOM_MAX}</span></summary>
+      <summary><span className="lr-main">{defs.length === 0 ? 'Dodaj własny objaw' : 'Własne objawy'}<span className="lr-sub">{defs.length} z {CUSTOM_MAX}</span></span><Icon name="chevronRight" size={18} className="lr-chev" /></summary>
       <p className="muted small">Dodaj do {CUSTOM_MAX} własnych objawów w skali 0–10. Pojawią się w formularzu, na wykresie, w obserwacjach i w raporcie dla lekarza. Są prywatne.</p>
       {defs.length > 0 && (
         <ul className="list" aria-label="Własne objawy">
@@ -89,6 +89,7 @@ export default function SymptomsBoard() {
   const [msg, setMsg] = useState(null);
   const [saving, setSaving] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [editing, setEditing] = useState(false);
 
   useEffect(() => { api('/api/symptoms').then((d) => { setData(d); setLoaded(true); }).catch((e) => setMsg({ text: e.message, error: true })); }, []);
   // własne objawy (POM-07) traktujemy jak wbudowane: klucz c<id>, wartości dołączone do wierszy dni
@@ -111,52 +112,18 @@ export default function SymptomsBoard() {
     if (saving) return;
     setSaving(true);
     const custom = Object.fromEntries(defs.map((d) => [d.id, f[`c${d.id}`] ?? '']));
-    try { const d = await api('/api/symptoms', 'PUT', { day, ...f, ...(defs.length ? { custom } : {}) }); setData(d); setMsg(d.noteError ? { text: `Zapisano wartości. ${d.noteError}`, error: true } : { text: 'Zapisano.' }); } catch (err) { setMsg({ text: err.message, error: true }); }
+    try { const d = await api('/api/symptoms', 'PUT', { day, ...f, ...(defs.length ? { custom } : {}) }); setData(d); setMsg(d.noteError ? { text: `Zapisano wartości. ${d.noteError}`, error: true } : { text: 'Zapisano.' }); setEditing(false); } catch (err) { setMsg({ text: err.message, error: true }); }
     setSaving(false);
   }
   async function remove() {
     if (!confirm('Usunąć wpis z tego dnia?')) return;
-    try { setData(await api('/api/symptoms', 'DELETE', { day })); setMsg({ text: 'Usunięto.' }); } catch (err) { setMsg({ text: err.message, error: true }); }
+    try { setData(await api('/api/symptoms', 'DELETE', { day })); setMsg({ text: 'Usunięto.' }); setEditing(false); } catch (err) { setMsg({ text: err.message, error: true }); }
   }
 
+  const folded = loaded && existing && day === todayIso() && !editing;
   return (
     <div className="stack">
       <div className="alert note">Dziennik służy Twojej obserwacji i rozmowie z lekarzem. Dane są prywatne, a średnie z wybranego okresu trafiają do raportu dla lekarza.</div>
-      <form id="sym-form" className="card stack" onSubmit={save}>
-        <div className="sym-day">
-          <div className="field"><label htmlFor="sd">Dzień</label>
-            <input id="sd" className="input" type="date" max={todayIso()} value={day} onChange={(e) => setDay(e.target.value)} /></div>
-          <div className="seg" role="group" aria-label="Szybki wybór dnia">
-            <button type="button" className={day === yesterdayIso() ? 'on' : ''} aria-pressed={day === yesterdayIso()} onClick={() => setDay(yesterdayIso())}>Wczoraj</button>
-            <button type="button" className={day === todayIso() ? 'on' : ''} aria-pressed={day === todayIso()} onClick={() => setDay(todayIso())}>Dziś</button>
-          </div>
-        </div>
-        {existing && <p className="muted small sym-exists">Wpis z tego dnia już istnieje, zapis go nadpisze.</p>}
-        {all.map(({ key: k, label, help, custom }) => {
-          const empty = f[k] === '';
-          return (
-            <div key={k} className={`sym-slider${empty ? ' unset' : ''}`}>
-              <div className="sym-head">
-                <label htmlFor={`sy-${k}`} className={custom ? 'dn' : undefined}>{label}</label>
-                <span className={`sym-val${empty ? ' unset' : ''}`} aria-hidden="true">{empty ? 'Nie wpisano' : f[k]}</span>
-                {!empty && <button type="button" className="btn text small" onClick={() => setF({ ...f, [k]: '' })} aria-label={`Wyczyść: ${label}`}>Wyczyść</button>}
-              </div>
-              <small id={`sy-${k}-help`}>{help}</small>
-              <input id={`sy-${k}`} type="range" min="0" max="10" step="1" value={empty ? 5 : f[k]} aria-describedby={`sy-${k}-help`}
-                aria-valuetext={empty ? 'nie wpisano, przesuń, aby ustawić' : `${f[k]} z 10`}
-                onChange={(e) => setF({ ...f, [k]: Number(e.target.value) })} />
-              <div className="sym-scale" aria-hidden="true"><span>0</span><span>10</span></div>
-            </div>
-          );
-        })}
-        <div className="field"><label htmlFor="sy-note">Notatka (opcjonalnie)</label>
-          <input id="sy-note" className="input" maxLength={500} value={f.note} onChange={(e) => setF({ ...f, note: e.target.value })} />
-          {existing?.noteLocked && !f.note && <small>Zapisana notatka jest zaszyfrowana i chwilowo nieczytelna (brak klucza na serwerze). Zostanie zachowana; wpisany tu nowy tekst ją zastąpi.</small>}</div>
-        {msg?.error && <div className="alert error" role="alert">{msg.text}</div>}
-        <Toast text={msg && !msg.error ? msg.text : ''} onClose={() => setMsg(null)} />
-        <div className="sym-actions"><button className="btn" aria-busy={saving || undefined} disabled={saving}>Zapisz wpis</button>{existing && <button type="button" className="btn danger" onClick={remove}>Usuń wpis</button>}</div>
-      </form>
-      <CustomManager defs={defs} onChange={async (text) => { try { await reload(); setMsg(text ? { text } : null); } catch (e) { setMsg({ text: e.message, error: true }); } }} />
       <h2 className="section-label">Ostatnie 30 dni</h2>
       {loaded && merged.length === 0 && data.usage.length === 0 ? (
         <section className="card empty">
@@ -174,6 +141,52 @@ export default function SymptomsBoard() {
         </ul>
       </section>
       )}
+      <h2 className="section-label">Wpis objawów</h2>
+      {msg?.error && <div className="alert error" role="alert">{msg.text}</div>}
+      <Toast text={msg && !msg.error ? msg.text : ''} onClose={() => setMsg(null)} />
+      {folded ? (
+      <section className="card sym-today" aria-labelledby="sym-today-h">
+        <div className="sym-today-main">
+          <h2 id="sym-today-h">Dziś: zapisano</h2>
+          <p className="muted small">{(() => { const v = all.filter((x) => existing[x.key] != null); return v.length ? v.map((x, i) => <span key={x.key}>{i > 0 && ', '}<span className={x.custom ? 'dn' : undefined}>{x.short}</span> {existing[x.key]}</span>) : 'Tylko notatka.'; })()}</p>
+        </div>
+        <button type="button" className="btn ghost" onClick={() => setEditing(true)}>Zmień</button>
+      </section>
+      ) : (
+        <form id="sym-form" className="card stack" onSubmit={save}>
+          <div className="sym-day">
+            <div className="field"><label htmlFor="sd">Dzień</label>
+              <input id="sd" className="input" type="date" max={todayIso()} value={day} onChange={(e) => setDay(e.target.value)} /></div>
+            <div className="seg" role="group" aria-label="Szybki wybór dnia">
+              <button type="button" className={day === yesterdayIso() ? 'on' : ''} aria-pressed={day === yesterdayIso()} onClick={() => setDay(yesterdayIso())}>Wczoraj</button>
+              <button type="button" className={day === todayIso() ? 'on' : ''} aria-pressed={day === todayIso()} onClick={() => setDay(todayIso())}>Dziś</button>
+            </div>
+          </div>
+          {existing && <p className="muted small sym-exists">Wpis z tego dnia już istnieje, zapis go nadpisze.</p>}
+          {all.map(({ key: k, label, help, custom }) => {
+            const empty = f[k] === '';
+            return (
+              <div key={k} className={`sym-slider${empty ? ' unset' : ''}`}>
+                <div className="sym-head">
+                  <label htmlFor={`sy-${k}`} className={custom ? 'dn' : undefined}>{label}</label>
+                  <span className={`sym-val${empty ? ' unset' : ''}`} aria-hidden="true">{empty ? 'Nie wpisano' : f[k]}</span>
+                  {!empty && <button type="button" className="btn text small" onClick={() => setF({ ...f, [k]: '' })} aria-label={`Wyczyść: ${label}`}>Wyczyść</button>}
+                </div>
+                <small id={`sy-${k}-help`}>{help}</small>
+                <input id={`sy-${k}`} type="range" min="0" max="10" step="1" value={empty ? 5 : f[k]} aria-describedby={`sy-${k}-help`}
+                  aria-valuetext={empty ? 'nie wpisano, przesuń, aby ustawić' : `${f[k]} z 10`}
+                  onChange={(e) => setF({ ...f, [k]: Number(e.target.value) })} />
+                <div className="sym-scale" aria-hidden="true"><span>0</span><span>10</span></div>
+              </div>
+            );
+          })}
+          <div className="field"><label htmlFor="sy-note">Notatka (opcjonalnie)</label>
+            <input id="sy-note" className="input" maxLength={500} value={f.note} onChange={(e) => setF({ ...f, note: e.target.value })} />
+            {existing?.noteLocked && !f.note && <small>Zapisana notatka jest zaszyfrowana i chwilowo nieczytelna (brak klucza na serwerze). Zostanie zachowana; wpisany tu nowy tekst ją zastąpi.</small>}</div>
+              <div className="sym-actions"><button className="btn" aria-busy={saving || undefined} disabled={saving}>Zapisz wpis</button>{existing && <button type="button" className="btn danger" onClick={remove}>Usuń wpis</button>}</div>
+        </form>
+      )}
+      <CustomManager defs={defs} onChange={async (text) => { try { await reload(); setMsg(text ? { text } : null); } catch (e) { setMsg({ text: e.message, error: true }); } }} />
     </div>
   );
 }

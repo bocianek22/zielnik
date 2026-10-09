@@ -16,7 +16,7 @@ import EmailSettings from './EmailSettings';
 export default function ProfileForm({ me, initial, children }) {
   const router = useRouter();
   const [f, setF] = useState({
-    displayName: initial.display_name || '', bio: initial.bio || '', links: [...(initial.links || []), '', '', ''].slice(0, 3),
+    displayName: initial.display_name || '', bio: initial.bio || '', links: (initial.links || []).slice(0, 3),
     profileVisibility: initial.profile_visibility || 'friends',
   });
   const [avatar, setAvatar] = useState(undefined); // undefined = bez zmian, null = usuń, string = nowy
@@ -62,27 +62,44 @@ export default function ProfileForm({ me, initial, children }) {
 
   return (
     <div className="stack">
-      <form className="card stack" onSubmit={save}>
-        <div className="photo-edit profile-id">
-          {shown ? <img className="avatar" src={shown} alt="Awatar" /> : <div className="avatar ph">{me.username[0].toUpperCase()}</div>}
-          <div className="profile-who"><b>{f.displayName || me.username}</b><span className="muted">@{me.username}</span></div>
-          <div className="photo-actions">
-            <label className="btn ghost small file-btn">Zmień awatar<input type="file" accept="image/*" hidden onChange={pick} /></label>
-            {shown && <button type="button" className="btn ghost small" onClick={() => setAvatar(null)}>Usuń awatar</button>}
+      <form className="stack" onSubmit={save}>
+        <h2 className="section-label">Tożsamość</h2>
+        <div className="card stack">
+          <div className="photo-edit profile-id">
+            {shown ? <img className="avatar" src={shown} alt="Awatar" /> : <div className="avatar ph">{me.username[0].toUpperCase()}</div>}
+            <div className="profile-who"><b>{f.displayName || me.username}</b><span className="muted">@{me.username}</span></div>
+            <div className="photo-actions">
+              <label className="btn ghost small file-btn">Zmień awatar<input type="file" accept="image/*" hidden onChange={pick} /></label>
+              {shown && <button type="button" className="btn ghost small" onClick={() => setAvatar(null)}>Usuń awatar</button>}
+            </div>
           </div>
+          <div className="field"><label htmlFor="p-name">Nazwa wyświetlana</label>
+            <input id="p-name" className="input" maxLength={40} value={f.displayName} onChange={(e) => setF({ ...f, displayName: e.target.value })} /></div>
+          <div className="field"><label htmlFor="p-bio">O mnie</label>
+            <textarea id="p-bio" className="input" rows={4} maxLength={500} value={f.bio} onChange={(e) => setF({ ...f, bio: e.target.value })} /></div>
         </div>
-        <div className="field"><label htmlFor="p-name">Nazwa wyświetlana</label>
-          <input id="p-name" className="input" maxLength={40} value={f.displayName} onChange={(e) => setF({ ...f, displayName: e.target.value })} /></div>
-        <div className="field"><label htmlFor="p-bio">O mnie</label>
-          <textarea id="p-bio" className="input" rows={4} maxLength={500} value={f.bio} onChange={(e) => setF({ ...f, bio: e.target.value })} /></div>
-        <div className="field"><span className="label">Linki (do 3, np. media społecznościowe)</span>
+
+        <h2 className="section-label">Widoczność</h2>
+        <div className="card stack">
+          <div className="field"><label htmlFor="p-vis">Kto widzi mój profil</label>
+            <select id="p-vis" className="input vis-select" value={f.profileVisibility} onChange={(e) => setF({ ...f, profileVisibility: e.target.value })}>
+              {VIS.map(([v, label]) => <option key={v} value={v}>{label}</option>)}</select>
+            <small>Dotyczy opisu, awatara, ocen i testów, zgodnie z ich ustawieniami.</small></div>
+        </div>
+
+        <h2 className="section-label">Linki</h2>
+        <div className="card stack">
+          {f.links.length === 0 && <p className="muted">Do 3 linków, np. do mediów społecznościowych.</p>}
           {f.links.map((l, i) => (
-            <input key={i} className="input" type="url" placeholder="https://…" aria-label={`Link ${i + 1}`} value={l}
-              onChange={(e) => setF({ ...f, links: f.links.map((x, j) => (j === i ? e.target.value : x)) })} />))}</div>
-        <div className="field"><label htmlFor="p-vis">Kto widzi mój profil (opis, awatar, oceny i testy zgodnie z ich ustawieniami)</label>
-          <select id="p-vis" className="input vis-select" value={f.profileVisibility} onChange={(e) => setF({ ...f, profileVisibility: e.target.value })}>
-            {VIS.map(([v, label]) => <option key={v} value={v}>{label}</option>)}</select></div>
-        <div className="row">
+            <div key={i} className="link-row">
+              <input className="input" type="url" placeholder="https://…" aria-label={`Link ${i + 1}`} value={l}
+                onChange={(e) => setF({ ...f, links: f.links.map((x, j) => (j === i ? e.target.value : x)) })} />
+              <button type="button" className="btn text small" onClick={() => setF({ ...f, links: f.links.filter((_, j) => j !== i) })} aria-label={`Usuń link ${i + 1}`}>Usuń</button>
+            </div>))}
+          {f.links.length < 3 && <div><button type="button" className="btn ghost small" onClick={() => setF({ ...f, links: [...f.links, ''] })}><Icon name="plus" size={18} />Dodaj link</button></div>}
+        </div>
+
+        <div className="row profile-save">
           <button className="btn" disabled={busy} aria-busy={busy || undefined}>Zapisz profil</button>
           <Link className="btn ghost" href={`/u/${encodeURIComponent(me.username)}`}>Zobacz mój profil</Link>
           <button type="button" className="btn ghost only-mobile" onClick={shareProfile}><Icon name="share" size={18} />Udostępnij</button>

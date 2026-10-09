@@ -13,6 +13,7 @@ export const metadata = { title: 'Pomoc' };
 
 // Pytania i odpowiedzi; {app} to nazwa aplikacji (w trybie dyskretnym „Notatnik”)
 const faq = (app) => [
+  ['Jak działa notatnik recept?', 'Notatnik recept służy tylko Twojej orientacji: ilość wykupioną liczymy z Twoich zapisanych zakupów w okresie ważności recepty (susz w gramach, olej i pen w ml osobno). To nie jest dokument ani rejestr medyczny. Dane są prywatne.'],
   ['Czym jest tryb dyskretny?', `Ustawienie na tym urządzeniu (Mój profil, „Tryb dyskretny”). Karta przeglądarki nazywa się wtedy „Notatnik”, a nazwy pozycji na listach są rozmyte, dopóki ich nie dotkniesz. Ikona i nazwa na ekranie głównym telefonu nie zmieniają się, bo ustawia je system. Szybkie przełączanie: dwa szybkie dotknięcia logo w nagłówku.`],
   ['Gdzie są moje dane i kto je widzi?', `Dane trzymamy na serwerze ${app}. Domyślnie wszystko widzisz tylko Ty. Oceny, opinie i testy możesz udostępnić znajomym lub wszystkim zalogowanym, a stany, zużycie, zakupy i recepty są zawsze prywatne. Zgłoszenia z formularza „Zgłoś uwagę” widzi tylko administrator.`],
   ['Jak pobrać swoje dane?', 'Mój profil, sekcja „Moje dane”: „Pobierz dane (JSON)” zawiera wszystko, co o Tobie przechowujemy (także Twoje zgłoszenia do administratora). Dziennik w CSV otworzysz w Excelu.'],

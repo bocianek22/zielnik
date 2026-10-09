@@ -79,9 +79,21 @@
 .obs-rules ul { margin: 0; padding-left: 1.1em; display: grid; gap: var(--s-2); font-size: var(--fs-sm); color: var(--text-2); max-width: 68ch; }
 
 /* Własne objawy (POM-07) */
-.sym-custom { display: grid; gap: var(--s-3); }
-.sym-custom > summary { cursor: pointer; font-weight: 600; min-height: var(--tap); display: flex; align-items: center; gap: var(--s-1); }
-.sym-custom[open] > summary { margin-bottom: var(--s-1); }
-.sym-custom p { margin: 0; }
+.sym-custom { padding: 0; }
+.sym-custom > summary { cursor: pointer; list-style: none; min-height: 52px; padding: var(--s-3) var(--s-4); display: flex; align-items: center; gap: var(--s-3); font-weight: 600; }
+.sym-custom > summary::-webkit-details-marker { display: none; }
+.sym-custom > summary .lr-main { flex: 1; min-width: 0; }
+.sym-custom > summary .lr-sub { display: block; font-weight: 400; font-size: var(--fs-sm); color: var(--text-2); }
+.sym-custom > summary .lr-chev { flex: none; color: var(--text-3); transition: transform var(--dur-1, .12s) var(--ease, ease); }
+.sym-custom[open] > summary .lr-chev { transform: rotate(90deg); }
+.sym-custom > :not(summary) { margin: 0 var(--s-4) var(--s-4); }
+.sym-custom > ul.list { margin-inline: 0; }
+.sym-custom p { margin-top: 0; }
+.sym-custom[open] { display: grid; gap: var(--s-3); }
+/* Wpis z dziś zapisany: formularz zwinięty do jednego wiersza */
+.sym-today { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-3) var(--s-4); }
+.sym-today h2 { margin: 0; font-size: var(--fs-lg); }
+.sym-today p { margin: 2px 0 0; }
+.sym-today .btn { flex: none; }
 .sym-custom-row { flex-wrap: wrap; }
 .sym-custom-row form { flex: 1 1 100%; }
