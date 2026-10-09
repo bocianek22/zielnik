@@ -1,5 +1,5 @@
 /* Czat grupowy (SPO-2): app/grupy/[id]/GroupChat.js. Karta tonalna obszaru „społeczność” (data-cat="social" z page.js);
-   biała lista jako wyspa, dymki „moje” po prawej w pełnym kolorze obszaru (--c z --on-cat, kontrast >= 5,3:1). */
+   biała lista jako wyspa, dymki „moje” po prawej w tle tonalnym obszaru (pełne kolory tylko na ekranie Dziś, DESIGN-3 sekcja 0). */
 .chat > * + * { margin-top: var(--s-2); }
 .chat-wrap { position: relative; }
 .chat-list { max-height: min(62vh, 520px); min-height: 180px; overflow-y: auto; overscroll-behavior: contain; padding: var(--s-3);
@@ -17,14 +17,14 @@
 .chat-row.mine .chat-main { justify-items: end; }
 .chat-bubble { display: grid; gap: 2px; padding: var(--s-2) var(--s-3); border-radius: var(--r-lg) var(--r-lg) var(--r-lg) var(--r-sm);
   background: var(--surface-2); color: var(--text); max-width: 100%; }
-.chat-row.mine .chat-bubble { background: var(--c, var(--btn)); color: var(--on-cat); border-radius: var(--r-lg) var(--r-lg) var(--r-sm) var(--r-lg); }
+.chat-row.mine .chat-bubble { background: var(--c-soft, var(--accent-soft)); color: var(--text); border-radius: var(--r-lg) var(--r-lg) var(--r-sm) var(--r-lg); }
 .chat-bubble.pending { opacity: .7; }
 .chat-bubble.gone { background: transparent; border: 1px dashed var(--sep-strong); color: var(--text-2); font-style: italic; }
 .chat-name { font-size: var(--fs-xs); font-weight: 700; color: var(--c-ink, var(--accent-text)); overflow-wrap: anywhere; }
 /* treść zawsze jako zwykły tekst (React nie wstawia HTML); linki nie są klikalne */
 .chat-body { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.4; }
 .chat-meta { justify-self: end; font-size: var(--fs-xs); color: var(--text-2); font-variant-numeric: tabular-nums; }
-.chat-row.mine .chat-meta { color: var(--on-cat); }
+.chat-row.mine .chat-meta { color: var(--text-2); }
 .chat-edit { display: grid; gap: var(--s-2); min-width: min(60vw, 260px); }
 .chat-edit .row { display: flex; gap: var(--s-2); }
 

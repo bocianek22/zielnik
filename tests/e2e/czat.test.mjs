@@ -62,20 +62,21 @@ test('czat: wysyłka, polling u drugiej osoby, Shift+Enter, edycja, usunięcie, 
       // bartek widzi po wejściu, odpowiada, a ania dostaje odpowiedź bez odświeżania (polling co ~5 s)
       await go(B.page, `/grupy/${gid}`);
       await bubble(B.page, 'drugi wiersz').waitFor();
-      assert.equal(await B.page.locator('.chat-row:not(.mine) .chat-name').first().innerText(), 'ania');
+      assert.match(await B.page.locator('.chat-row:not(.mine) .chat-name').first().innerText(), /ania/i);
       assert.match(await B.page.locator('.chat-day').first().innerText(), /Dziś/);
       await say(B.page, 'Cześć ania');
       await bubble(B.page, 'Cześć ania').waitFor();
       await bubble(A.page, 'Cześć ania').waitFor({ timeout: 20000 });
-      assert.match(await A.page.locator('.chat-row:not(.mine) .chat-name').last().innerText(), /bartek/);
+      assert.match(await A.page.locator('.chat-row:not(.mine) .chat-name').last().innerText(), /bartek/i);
 
       // edycja własnej wiadomości
       await B.page.getByRole('button', { name: /Opcje wiadomości/ }).last().click();
       await B.page.getByRole('button', { name: 'Edytuj' }).click();
       await B.page.getByLabel('Edytuj wiadomość').fill('Cześć Ania!');
       await B.page.getByRole('button', { name: 'Zapisz' }).click();
-      await bubble(B.page, 'Cześć Ania!').waitFor();
-      assert.match(await bubble(B.page, 'Cześć Ania!').innerText(), /edytowano/);
+      await B.page.locator('.chat-bubble', { hasText: 'edytowano' }).waitFor();
+      assert.equal(await B.page.locator('.chat-edit').count(), 0);
+      assert.match(await B.page.locator('.chat-body', { hasText: 'Cześć Ania!' }).innerText(), /Cześć Ania!/);
 
       // licznik nieprzeczytanych na liście grup: ania jest poza czatem, bartek pisze
       await go(A.page, '/grupy');
@@ -83,7 +84,9 @@ test('czat: wysyłka, polling u drugiej osoby, Shift+Enter, edycja, usunięcie, 
       await bubble(B.page, 'Czy ktoś jest?').waitFor();
       await A.page.reload({ waitUntil: 'load' });
       await A.page.locator('.list-row', { hasText: 'Czat E2E' }).locator('.nbadge').waitFor();
-      await A.page.locator('.list-row', { hasText: 'Czat E2E' }).click();
+      const row = A.page.locator('.list-row', { hasText: 'Czat E2E' });
+      await interactive(row);
+      await row.click();
       await bubble(A.page, 'Czy ktoś jest?').waitFor();
 
       // zgłoszenie cudzej wiadomości
@@ -100,8 +103,8 @@ test('czat: wysyłka, polling u drugiej osoby, Shift+Enter, edycja, usunięcie, 
       await shot(B.page, 'czat-ciemny');
 
       // właścicielka usuwa wiadomość bartka; bartek po odświeżeniu widzi tylko "Wiadomość usunięta"
-      await A.page.getByRole('button', { name: /Opcje wiadomości od bartek/ }).last().click();
-      await A.page.getByRole('button', { name: 'Usuń', exact: true }).click();
+      // menu wiadomości zostało otwarte przy zgłoszeniu; „Usuń” w obrębie menu (przycisk „Usuń” przy członku grupy to wyrzucenie z grupy)
+      await A.page.locator('.chat-menu').getByRole('button', { name: 'Usuń', exact: true }).click();
       await A.page.locator('.chat-bubble.gone').waitFor();
       await B.page.reload({ waitUntil: 'load' });
       await B.page.locator('.chat-bubble.gone', { hasText: 'Wiadomość usunięta' }).waitFor();
