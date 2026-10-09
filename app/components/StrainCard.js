@@ -258,7 +258,7 @@ export default function StrainCard({ strain, meId, hidePrice = false, mates, low
           {avg && <div className="score soft" title="Średnia ocen użytkowników">
             <b>{dec(avg)}</b><small>średnia ({rated.length})</small>
           </div>}
-          {mine && <p className="score-stock" aria-hidden="true">Mam {dec(Math.round((Number(mine.current) || 0) * 100) / 100)} {unit}</p>}
+          {Number(mine?.current) > 0 && <p className="score-stock" aria-hidden="true">Mam {dec(Math.round((Number(mine.current) || 0) * 100) / 100)} {unit}</p>}
         </div>
       </header>
 

@@ -47,7 +47,8 @@
   .filters-foot .more summary { min-height: var(--tap); display: inline-flex; align-items: center; padding: 0 var(--s-3); font-size: var(--fs-sm); font-weight: 600; color: var(--text-2); }
   .filters-foot .more-menu { left: auto; right: 0; }
 }
-.filters-foot .more summary { min-height: var(--tap); display: inline-flex; align-items: center; }
+.filters-foot .more summary { min-height: var(--tap); display: inline-flex; align-items: center; color: var(--text-2); }
+.filters-foot .more summary:hover, .filters-foot .more[open] summary { color: var(--text); background: var(--hover-bg); }
 @media (max-width: 760px) {
   .add-btn { display: none; } /* na telefonie nową odmianę dodaje się przyciskiem „+” */
   .filters-panel { display: none; background: var(--surface); border: 1px solid var(--sep); border-radius: var(--r-lg); padding: var(--s-4); }

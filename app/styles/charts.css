@@ -25,7 +25,7 @@
 .fc-axisline { stroke: var(--chart-axis); stroke-width: 1; }
 .fc-band { fill: var(--chart-band); }
 .fc-line { stroke: var(--chart-data); stroke-width: 2; stroke-linecap: round; fill: none; }
-.fc-rx { stroke: var(--chart-axis); stroke-width: 1; }
+.fc-rx { stroke: var(--text-3); stroke-width: 1; }
 .fc-dot { position: absolute; left: 0; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: var(--chart-data); box-shadow: 0 0 0 2px var(--surface); }
 .fc-axis { position: relative; margin: 6px 5px 0; font-size: var(--fs-xs); color: var(--text-3); font-variant-numeric: tabular-nums; line-height: 16px; }
 .fc-lbl { position: absolute; white-space: nowrap; }

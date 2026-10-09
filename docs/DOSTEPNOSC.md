@@ -16,7 +16,7 @@ Zakres: UX-2 w `ROADMAP.md`, POM-21 i POM-22 w `docs/POMYSLY.md`. Stan z fali 2 
 - Napis w konsoli (CSP blokowało preload skryptu z `next/dynamic` bez nonce) na `/strains/[id]`, `/wheel`, `/rankings`: komponenty importowane statycznie (kilka KB).
 
 ## Wykresy (tekstowa alternatywa)
-Panel „Dziś” (opis i `aria-live`), `UsageChart` (tabela `sr-only`, nawigacja strzałkami), wykres objawów (kreska, kształt, tabela, 0.33.0), historia (opis `aria-label`), radar odczuć (tabela, nowość).
+Panel „Dziś” (opis i `aria-live`), wykresy z `charts/` (`Scrub`: tabela `sr-only`, strzałki, Home/End, Escape), wykres objawów (kreska, kształt, tabela, 0.33.0), historia (opis `aria-label`), radar odczuć (tabela, nowość).
 
 ## Zostaje ręcznie (telefon)
 - TalkBack (Android) i VoiceOver (iOS): kolejność czytania w arkuszu „Więcej”, blokadzie PIN i formularzu odmiany; ogłaszanie komunikatów po zapisie („Cofnij”); suwaki objawów i odczuć.

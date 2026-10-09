@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { api } from '@/lib/api';
 import { SYMPTOMS, customMeta, CUSTOM_MAX, CUSTOM_NAME_MAX } from '@/lib/symptoms';
 import Icon from '../components/Icon';
@@ -112,7 +112,7 @@ export default function SymptomsBoard() {
     if (saving) return;
     setSaving(true);
     const custom = Object.fromEntries(defs.map((d) => [d.id, f[`c${d.id}`] ?? '']));
-    try { const d = await api('/api/symptoms', 'PUT', { day, ...f, ...(defs.length ? { custom } : {}) }); setData(d); setMsg(d.noteError ? { text: `Zapisano wartości. ${d.noteError}`, error: true } : { text: 'Zapisano.' }); setEditing(false); } catch (err) { setMsg({ text: err.message, error: true }); }
+    try { const d = await api('/api/symptoms', 'PUT', { day, ...f, ...(defs.length ? { custom } : {}) }); setData(d); setMsg(d.noteError ? { text: `Zapisano wartości. ${d.noteError}`, error: true } : { text: 'Zapisano.' }); if (day === todayIso()) focusNext.current = 'sym-today-h'; setEditing(false); } catch (err) { setMsg({ text: err.message, error: true }); }
     setSaving(false);
   }
   async function remove() {
@@ -121,6 +121,14 @@ export default function SymptomsBoard() {
   }
 
   const folded = loaded && existing && day === todayIso() && !editing;
+  // fokus nie może zginąć, gdy zwijanie/rozwijanie odmontowuje element z fokusem (klawiatura, czytnik ekranu)
+  const focusNext = useRef(null);
+  useEffect(() => {
+    const t = focusNext.current;
+    if (!t) return;
+    focusNext.current = null;
+    document.getElementById(t)?.focus();
+  }, [folded]);
   return (
     <div className="stack">
       <div className="alert note">Dziennik służy Twojej obserwacji i rozmowie z lekarzem. Dane są prywatne, a średnie z wybranego okresu trafiają do raportu dla lekarza.</div>
@@ -147,10 +155,10 @@ export default function SymptomsBoard() {
       {folded ? (
       <section className="card sym-today" aria-labelledby="sym-today-h">
         <div className="sym-today-main">
-          <h2 id="sym-today-h">Dziś: zapisano</h2>
+          <h2 id="sym-today-h" tabIndex={-1}>Dziś: zapisano</h2>
           <p className="muted small">{(() => { const v = all.filter((x) => existing[x.key] != null); return v.length ? v.map((x, i) => <span key={x.key}>{i > 0 && ', '}<span className={x.custom ? 'dn' : undefined}>{x.short}</span> {existing[x.key]}</span>) : 'Tylko notatka.'; })()}</p>
         </div>
-        <button type="button" className="btn ghost" onClick={() => setEditing(true)}>Zmień</button>
+        <button type="button" className="btn ghost" onClick={() => { focusNext.current = 'sd'; setEditing(true); }}>Zmień</button>
       </section>
       ) : (
         <form id="sym-form" className="card stack" onSubmit={save}>

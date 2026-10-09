@@ -33,14 +33,16 @@
 .kpi-days-line { margin: 0; font-size: var(--fs-sm); color: var(--text-2); white-space: nowrap; }
 .kpi-days-line b { font-weight: 600; color: var(--text); }
 .today-card.warn .today-stock:not(.ok) .kpi-days-line b { color: var(--warn); }
-.stock-cols .gauge { margin-top: var(--s-3); }
 .stock-notes { border-top: 1px solid var(--sep); }
 .stock-notes > summary { display: flex; align-items: center; justify-content: space-between; min-height: var(--tap); padding: 0 var(--s-4); cursor: pointer; list-style: none; font-size: var(--fs-sm); font-weight: 600; color: var(--accent-text); }
 .stock-notes > summary::-webkit-details-marker { display: none; }
 .stock-notes > summary .icon { color: var(--text-3); transition: transform var(--dur-2) var(--ease); }
 .stock-notes[open] > summary .icon { transform: rotate(180deg); }
-.stock-notes > .today-note { margin: 0 var(--s-4) var(--s-3); }
-.stock-notes > .today-note b { color: var(--text); }
+.stock-notes-unit { padding: 0 var(--s-4) var(--s-3); }
+.stock-notes .today-note { margin: 0; }
+.stock-notes .today-note b { color: var(--text); }
+.stock-notes-unit + .stock-notes-unit { border-top: 1px solid var(--sep); padding-top: var(--s-3); }
+.today-stocks.combo > .today-note { margin: 0 var(--s-4) var(--s-3); }
 /* ostrzeżenie dotyczy tylko jednostki, której zapas się kończy */
 .today-card.warn .today-stock.ok .kpi-mid b { color: var(--text); }
 
@@ -130,7 +132,7 @@
   .today-stocks { grid-column: 1; grid-row: 1; }
   .stock-cols .today-stock { grid-column: auto; grid-row: auto; padding: var(--s-5) var(--s-6); }
   .stock-notes > summary { padding-inline: var(--s-6); }
-  .stock-notes > .today-note { margin-inline: var(--s-6); }
+  .stock-notes-unit, .today-stocks.combo > .today-note { padding-inline: var(--s-6); }
   .stock-cols .kpi-big b { font-size: 2.75rem; }
   .today-quick { grid-column: 1; grid-row: 2; padding-inline: var(--s-6); align-self: end; }
   .today-card .prefs { grid-column: 1 / -1; }

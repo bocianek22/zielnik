@@ -70,8 +70,8 @@ const notesOf = ({ unit, stock, dailyUse, bought, today }) => {
   ].filter(Boolean);
 };
 
-// Dwie jednostki (g i ml): jeden blok z dwiema kolumnami „liczba · dni” i miernikiem; prognozy w zwijanym wierszu pod spodem
-function StockCell({ unit, stock, dailyUse, ok, today, range, rx }) {
+// Dwie jednostki (g i ml): jeden blok z dwiema kolumnami „liczba · dni”; wykresy prognozy (pełna szerokość) i notatki w zwijanym wierszu pod spodem
+function StockCell({ unit, stock, dailyUse, ok }) {
   const daysLeft = daysOf(stock, dailyUse);
   const what = unit === 'ml' ? 'oleju i pena' : 'suszu';
   return (
@@ -79,7 +79,6 @@ function StockCell({ unit, stock, dailyUse, ok, today, range, rx }) {
       <h2 className="kpi-label" id={`today-stock-h-${unit}`}>Zapas {what}</h2>
       <p className="kpi-big"><b>{n2(stock)}</b> {unit}</p>
       <p className="kpi-days-line">starczy na {daysLeft != null ? <b>{daysLeft} {days(daysLeft)}</b> : <b>–</b>}</p>
-      <StockForecast unit={unit} stock={stock} rate={dailyUse} range={range} today={today} rx={rx} what={what} />
     </div>
   );
 }
@@ -120,6 +119,8 @@ export default function TodayPanel({ stock, dailyUse, forecast, bought, low, ser
     return stock[u] > 0 && ((u === 'g' && low > 0 && stock[u] <= low) || (d != null && d < 7));
   };
   const warn = units.some(warnOf);
+  const comboRows = units.length > 1 ? units.map((u) => ({ u, notes: notesOf({ unit: u, stock: stock[u], dailyUse: dailyUse[u], bought: bought[u], today }) }))
+    .filter((r) => r.notes.length > 0 || dailyUse[r.u] > 0) : [];
   const rxOf = (u) => prescriptions.items.find((r) => r.unit === u && r.days_left >= 0); // najbliższa ważna recepta na prognozie
   // POM-38: znacznik „dziś bez zużycia”; dzisiejsze zużycie (serwer zdejmuje wtedy znacznik) zeruje go także tutaj
   const usedToday = Number(series.at(-1).grams) > 0 || Number(series.at(-1).ml) > 0;
@@ -161,16 +162,19 @@ export default function TodayPanel({ stock, dailyUse, forecast, bought, low, ser
         {units.length > 1 ? (
           <div className="today-stocks combo">
             <div className="stock-cols">
-              {units.map((u) => <StockCell key={u} unit={u} stock={stock[u]} dailyUse={dailyUse[u]} ok={warn && !warnOf(u)}
-                today={today} range={forecast?.[u]} rx={rxOf(u)} />)}
+              {units.map((u) => <StockCell key={u} unit={u} stock={stock[u]} dailyUse={dailyUse[u]} ok={warn && !warnOf(u)} />)}
             </div>
-            <details className="stock-notes">
-              <summary>Prognoza i wykupy<Icon name="chevronDown" size={18} /></summary>
-              {units.map((u) => {
-                const notes = notesOf({ unit: u, stock: stock[u], dailyUse: dailyUse[u], bought: bought[u], today });
-                return notes.length > 0 && <p key={u} className="today-note"><b>{u === 'ml' ? 'Olej i pen' : 'Susz'}:</b> {notes.join(' · ')}</p>;
-              })}
-            </details>
+            {comboRows.length > 0 ? (
+              <details className="stock-notes">
+                <summary>Prognoza i wykupy<Icon name="chevronDown" size={18} /></summary>
+                {comboRows.map(({ u, notes }) => (
+                  <div key={u} className="stock-notes-unit">
+                    {dailyUse[u] > 0 && <StockForecast unit={u} stock={stock[u]} rate={dailyUse[u]} range={forecast?.[u]} today={today} rx={rxOf(u)} what={u === 'ml' ? 'oleju i pena' : 'suszu'} />}
+                    {notes.length > 0 && <p className="today-note"><b>{u === 'ml' ? 'Olej i pen' : 'Susz'}:</b> {notes.join(' · ')}</p>}
+                  </div>
+                ))}
+              </details>
+            ) : <p className="today-note">Zapisuj zużycie przyciskiem „Zużyłem”, a policzę, na ile dni starczy zapasu.</p>}
           </div>
         ) : (
           <div className="today-stocks">

@@ -162,7 +162,7 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, st
               <dl className="dscores">
                 <Score label="Ocena końcowa" value={strain.final_rating} />
                 <Score label="Średnia ocen" value={avg} sub={rated.length ? `${rated.length} ${plural(rated.length, 'ocena', 'oceny', 'ocen')}` : 'brak ocen'} />
-                <Score label="Moja ocena" value={mine?.rating} sub={mine ? `Mam ${num(mine.current || 0)} ${unit}` : null} />
+                <Score label="Moja ocena" value={mine?.rating} sub={Number(mine?.current) > 0 ? `Mam ${num(mine.current)} ${unit}` : null} />
               </dl>
             </div>
           </header>

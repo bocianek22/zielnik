@@ -18,7 +18,7 @@ export const weekday = (iso) => WEEKDAYS[new Date(`${iso}T12:00:00Z`).getUTCDay(
 // Przesunięcie dnia ISO o n dni (arytmetyka w UTC o 12:00, bez przesunięć strefy)
 export function addDays(iso, n) {
   const d = new Date(`${iso}T12:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + n);
+  d.setUTCDate(d.getUTCDate() + Math.max(-36500, Math.min(36500, n))); // literówka w zapasie nie może wywrócić panelu (RangeError)
   return d.toISOString().slice(0, 10);
 }
 
