@@ -162,7 +162,7 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, st
               <dl className="dscores">
                 <Score label="Ocena końcowa" value={strain.final_rating} />
                 <Score label="Średnia ocen" value={avg} sub={rated.length ? `${rated.length} ${plural(rated.length, 'ocena', 'oceny', 'ocen')}` : 'brak ocen'} />
-                <Score label="Moja ocena" value={mine?.rating} />
+                <Score label="Moja ocena" value={mine?.rating} sub={mine ? `Mam ${num(mine.current || 0)} ${unit}` : null} />
               </dl>
             </div>
           </header>
@@ -172,32 +172,6 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, st
               {strain.created_by && strain.created_by !== me.id && <ReportButton type="strain" refId={strain.id} label="Zgłoś odmianę" />}
               {photo && <ReportButton type="photo" refId={strain.id} label="Zgłoś zdjęcie" />}
             </div>
-          )}
-
-          {hasComposition && (
-            <section className="card dcomp" aria-labelledby="dcomp-h">
-              <h2 id="dcomp-h">Skład</h2>
-              <div className="dcomp-body">
-              <div>
-              {(strain.thc != null || strain.cbd != null) && (
-                <div className="meters">
-                  {strain.thc != null && <Meter label="THC" value={strain.thc} />}
-                  {strain.cbd != null && <Meter label="CBD" value={strain.cbd} />}
-                  <p className="meter-scale">Skala paska 0–{METER_MAX}%</p>
-                </div>
-              )}
-              {strain.terpenes?.length > 0 && (
-                <div className="dterp">
-                  <h3 className="dlabel">Terpeny</h3>
-                  <div className="chips">{strain.terpenes.map((t) => <Link key={t} href={`/wiedza#t-${t.toLowerCase().split(' ')[0]}`} className="chip dn">{t}</Link>)}</div>
-                </div>
-              )}
-              </div>
-              {facts.length > 0 && (
-                <dl className="facts dfacts">{facts.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
-              )}
-              </div>
-            </section>
           )}
         </>
       )}
@@ -216,11 +190,36 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, st
           }} />}
       </section>
 
-      <Effects strain={strain} meId={me.id} />
-
       <h2 className="section-label">O odmianie</h2>
+      {!editing && hasComposition && (
+        <section className="card dcomp" aria-labelledby="dcomp-h">
+          <h2 id="dcomp-h">Skład</h2>
+          <div className="dcomp-body">
+          <div>
+          {(strain.thc != null || strain.cbd != null) && (
+            <div className="meters">
+              {strain.thc != null && <Meter label="THC" value={strain.thc} />}
+              {strain.cbd != null && <Meter label="CBD" value={strain.cbd} />}
+              <p className="meter-scale">Skala paska 0–{METER_MAX}%</p>
+            </div>
+          )}
+          {strain.terpenes?.length > 0 && (
+            <div className="dterp">
+              <h3 className="dlabel">Terpeny</h3>
+              <div className="chips">{strain.terpenes.map((t) => <Link key={t} href={`/wiedza#t-${t.toLowerCase().split(' ')[0]}`} className="chip dn">{t}</Link>)}</div>
+            </div>
+          )}
+          </div>
+          {facts.length > 0 && (
+            <dl className="facts dfacts">{facts.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
+          )}
+          </div>
+        </section>
+      )}
       <CharacteristicCard strain={strain} hidePrice={me.hidePrices} compact />
       <PharmacyLink producer={strain.producer} name={strain.name} />
+
+      <Effects strain={strain} meId={me.id} />
 
       <h2 className="section-label">Społeczność</h2>
       <section className="card dopinions" aria-labelledby="dop-h">

@@ -62,17 +62,36 @@ function Prescriptions({ items, total }) {
   );
 }
 
-// Zapas i prognoza jednej jednostki; `named`: podpis jednostki, gdy w panelu są dwa bloki (g i ml)
-function StockBlock({ unit, stock, dailyUse, bought, today, named, ok, id }) {
+const notesOf = ({ unit, stock, dailyUse, bought, today }) => {
   const daysLeft = daysOf(stock, dailyUse);
-  const notes = [
+  return [
     dailyUse > 0 && `średnio ${n2(dailyUse)} ${unit} dziennie`,
     daysLeft != null && `do ok. ${longDay(addDays(today, daysLeft))}`,
     bought > 0 && `wykupiono ${n2(bought)} ${unit} w tym miesiącu`,
   ].filter(Boolean);
-  const what = unit === 'ml' ? 'oleju i pena' : named ? 'suszu' : '';
+};
+
+// Dwie jednostki (g i ml): jeden blok z dwiema kolumnami „liczba · dni” i miernikiem; prognozy w zwijanym wierszu pod spodem
+function StockCell({ unit, stock, dailyUse, ok }) {
+  const daysLeft = daysOf(stock, dailyUse);
+  const what = unit === 'ml' ? 'oleju i pena' : 'suszu';
   return (
-    <div className={`today-stock${named ? ` today-stock-${unit}` : ''}${ok ? ' ok' : ''}`}>
+    <div className={`today-stock today-stock-${unit}${ok ? ' ok' : ''}`}>
+      <h2 className="kpi-label" id={`today-stock-h-${unit}`}>Zapas {what}</h2>
+      <p className="kpi-big"><b>{n2(stock)}</b> {unit}</p>
+      <p className="kpi-days-line">starczy na {daysLeft != null ? <b>{daysLeft} {days(daysLeft)}</b> : <b>–</b>}</p>
+      <StockGauge daysLeft={daysLeft} horizon={HORIZON} what={what} />
+    </div>
+  );
+}
+
+// Zapas i prognoza jednej jednostki
+function StockBlock({ unit, stock, dailyUse, bought, today, ok, id }) {
+  const daysLeft = daysOf(stock, dailyUse);
+  const notes = notesOf({ unit, stock, dailyUse, bought, today });
+  const what = unit === 'ml' ? 'oleju i pena' : '';
+  return (
+    <div className={`today-stock${ok ? ' ok' : ''}`}>
       <div className="kpi">
         <div>
           <h2 id={id} className="kpi-label">Zapas{what && ` ${what}`}</h2>
@@ -139,14 +158,27 @@ export default function TodayPanel({ stock, dailyUse, bought, low, series, presc
         </section>
       ) : (
       <section className={`card today-card${warn ? ' warn' : ''}`} aria-labelledby={`today-stock-h-${units[0]}`}>
-        <div className={`today-stocks${units.length > 1 ? ' two' : ''}`}>
-          {units.map((u) => (
-            <StockBlock key={u} id={`today-stock-h-${u}`} unit={u} stock={stock[u]} dailyUse={dailyUse[u]} bought={bought[u]}
-              today={today} named={units.length > 1} ok={warn && !warnOf(u)} />
-          ))}
-        </div>
-
-        <UsageDays series={series} />
+        {units.length > 1 ? (
+          <div className="today-stocks combo">
+            <div className="stock-cols">
+              {units.map((u) => <StockCell key={u} unit={u} stock={stock[u]} dailyUse={dailyUse[u]} ok={warn && !warnOf(u)} />)}
+            </div>
+            <details className="stock-notes">
+              <summary>Prognoza i wykupy<Icon name="chevronDown" size={18} /></summary>
+              {units.map((u) => {
+                const notes = notesOf({ unit: u, stock: stock[u], dailyUse: dailyUse[u], bought: bought[u], today });
+                return notes.length > 0 && <p key={u} className="today-note"><b>{u === 'ml' ? 'Olej i pen' : 'Susz'}:</b> {notes.join(' · ')}</p>;
+              })}
+            </details>
+          </div>
+        ) : (
+          <div className="today-stocks">
+            {units.map((u) => (
+              <StockBlock key={u} id={`today-stock-h-${u}`} unit={u} stock={stock[u]} dailyUse={dailyUse[u]} bought={bought[u]}
+                today={today} ok={warn && !warnOf(u)} />
+            ))}
+          </div>
+        )}
 
         {quick && (
           <div className="today-quick">
@@ -161,6 +193,8 @@ export default function TodayPanel({ stock, dailyUse, bought, low, series, presc
 
         {/* POM-38: tylko gdy dziś nie zapisano zużycia (zapis „Zużyłem” zdejmuje znacznik na serwerze) */}
         {!usedToday && <NoUseToday day={today} on={noUseOn} setOn={setNoUseOn} />}
+
+        <UsageDays series={series} />
 
         {settings}
       </section>

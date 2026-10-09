@@ -239,7 +239,7 @@ export default function StrainCard({ strain, meId, hidePrice = false, mates, low
           <p className="strain-meta">
             <span className="dn">{strain.producer}</span>
             {strain.kind && <span className={`kind kind-${strain.kind}`}><i className="kind-dot" aria-hidden="true" />{cap(strain.kind)}</span>}
-            <span>{cap(strain.type)}</span>
+            {strain.type?.toLowerCase() !== strain.kind && <span>{cap(strain.type)}</span>}
             {strain.form && strain.form !== 'susz' && <span>{formLabel(strain.form)}</span>}
           </p>
           {facts.length > 0 && <p className="strain-facts">{facts.map((f) => <span key={f}>{f}</span>)}</p>}
@@ -258,6 +258,7 @@ export default function StrainCard({ strain, meId, hidePrice = false, mates, low
           {avg && <div className="score soft" title="Średnia ocen użytkowników">
             <b>{dec(avg)}</b><small>średnia ({rated.length})</small>
           </div>}
+          {mine && <p className="score-stock" aria-hidden="true">Mam {dec(Math.round((Number(mine.current) || 0) * 100) / 100)} {unit}</p>}
         </div>
       </header>
 

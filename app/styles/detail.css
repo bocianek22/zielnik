@@ -109,7 +109,7 @@
   .detail-page { padding-bottom: var(--s-6); margin-top: calc(-1 * var(--s-3)); }
   /* zdjęcie i blok koloru od krawędzi do krawędzi ekranu (margines strony to --s-4) */
   .dhero-media, .dhero.no-photo .dhero-head { margin-inline: calc(-1 * var(--s-4)); }
-  .dhero.no-photo .dhero-head { border-radius: 0; border-inline: 0; padding: var(--s-8) var(--s-4) var(--s-5); min-height: 150px; }
+  .dhero.no-photo .dhero-head { border-radius: 0; border-inline: 0; padding: var(--s-6) var(--s-4) var(--s-5); min-height: 120px; }
   .dhero-body { margin-top: var(--s-4); }
   .dhero h1 { font-size: 2rem; }
   .dscores dd b { font-size: 1.875rem; }
