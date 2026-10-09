@@ -76,6 +76,9 @@ scenario('Wykres zużycia 14 dni: strzałki zmieniają odczyt, Escape wraca do d
   assert.doesNotMatch(await text(read), /^(Dziś|Wczoraj)/, 'Home wybiera pierwszy dzień');
   await page.keyboard.press('Escape');
   assert.match(await text(read), /^Dziś/);
+  // przy dwóch jednostkach prognozy są w zwijanym wierszu „Prognoza i wykupy”
+  const notes = page.locator('details.stock-notes');
+  if (await notes.count()) await notes.locator('summary').click();
   assert.match(await text(page.locator('.fc-note').first()), /Przy obecnym tempie zapisów/);
 }, withSession);
 

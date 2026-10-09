@@ -8,6 +8,22 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.53.0] - 2026-10
+UI 2.0, etapy A1, A2, A3, B2, B3 (`docs/UI-2.md`), po przeglądzie Opus.
+### Dodano
+- **Moduł wykresów `app/components/charts/`:** inline SVG bez nowych zależności (`Frame`, `Bars`, `Scrub` ze strzałkami, Home/End i Escape, `Empty`, tabela dla czytnika), reguły w `app/styles/charts.css`.
+- **Paleta `--chart-1…7` i tokeny pomocnicze** (`--chart-data`, `--chart-ref`, `--chart-band`, `--chart-grid`, `--chart-axis`) sprawdzone pod kątem daltonizmu i kontrastu w obu motywach (`tests/theme.test.js`); sekcja „Wykresy” w `docs/DESIGN.md`.
+- **Prognoza zapasu (Dziś):** linia spadku zapasu z pasmem od najwolniejszego do najszybszego tygodnia z ostatnich 4, data końca i kreska ważności recepty; podpis „przy obecnym tempie zapisów”, bez pasma przy mniej niż 14 dniach zapisów (`lib/forecast.js`, `dailyUse().forecast`; `daysLeft` widżetu bez zmian).
+- **Słupki 14 dni:** wartość przy najwyższym, linia średniej, przesuwanie palcem i strzałkami z odczytem `aria-live`.
+- **Dziennik:** małe wykresy objawów (po jednym na objaw), wygładzenie tylko przy wystarczającej liczbie wpisów, osobny panel zużycia, na komputerze „Osobno / Razem”.
+### Zmieniono
+- **Dziś:** przy dwóch jednostkach jeden blok zapasu z dwiema kolumnami, prognozy w zwijanym wierszu „Prognoza i wykupy”; „Zużyłem” na pierwszym ekranie telefonu.
+- **Lista i szczegóły odmiany:** stan pod oceną (tylko gdy jest zapas), meta w jednej linii, bez szarego pudełka, Eksport/Import CSV w „Więcej”, nowa kolejność sekcji szczegółów.
+- **Dziennik, historia, recepty, profil:** wykres nad formularzem i zwinięty wpis z dziś (fokus wraca na nagłówek lub pole daty), pasek trzech liczb w historii, krótsza uwaga w receptach i jedna karta „W aptece”, profil w sekcjach z „Dodaj link”.
+### Naprawiono (przegląd)
+- „Więcej” w filtrach był na telefonie niewidoczny w jasnym motywie.
+- Prognoza: pierwszy tydzień nie liczy dzisiejszego dnia przed wpisem; skrajny zapas nie wywraca panelu (`addDays`).
+
 ## [0.52.0] - 2026-10
 Pierwsze wydanie fali 6 (UI 2.0 i nowość w każdym wydaniu, `docs/PLAN-PAZDZIERNIK.md`, projekt `docs/UI-2.md`).
 ### Dodano
