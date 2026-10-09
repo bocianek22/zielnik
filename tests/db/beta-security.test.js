@@ -169,6 +169,7 @@ const SET_NULL = {
   'strain_proposals.decided_by': 'decyzja admina: pole techniczne',
   'invites.created_by': 'zaproszenie zostaje (kod i limit), bez autora',
   'groups.owner_id': 'grupa zostaje bez właściciela (członkowie kasują się osobno)',
+  'group_messages.deleted_by': 'wiadomość usunięta przez moderatora zostaje jako „Wiadomość usunięta”, bez wskazania kto',
   'reports.reporter_id': 'zgłoszenie moderacyjne zostaje, bez zgłaszającego',
 };
 
@@ -222,7 +223,7 @@ test('usunięcie konta (samodzielne i przez admina) nie zostawia wierszy z jego 
 const EXPORT_KEY = {
   users: 'profile', strains: 'strainsCreated', strain_photos: 'strainPhotosAdded', user_strain: 'entries', user_pool: 'remainingToBuy',
   usage_log: 'usage', purchases: 'purchases', strain_tests: 'tests', strain_edits: 'strainEdits', strain_proposals: 'strainProposals',
-  friendships: 'friends', groups: 'groups', group_members: 'groups', prescriptions: 'prescriptions', symptom_log: 'symptoms',
+  friendships: 'friends', groups: 'groups', group_members: 'groups', group_messages: 'groupMessages', prescriptions: 'prescriptions', symptom_log: 'symptoms',
   symptom_custom: 'customSymptoms', symptom_values: 'customSymptomValues', doctor_notes: 'doctorNotes', beta_feedback: 'feedback', consent_log: 'consentLog', no_use_days: 'noUseDays',
   blocks: 'blocked', reports: 'reportsFiled', push_subscriptions: 'pushNotifications', push_prefs: 'pushNotifications', sessions: 'sessions',
 };

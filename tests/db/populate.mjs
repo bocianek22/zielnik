@@ -28,6 +28,8 @@ export async function populate(q, { v, o, a }) {
   await q`INSERT INTO blocks (blocker, blocked) VALUES (${v}, ${a})`;
   await q`INSERT INTO blocks (blocker, blocked) VALUES (${a}, ${v})`;
   await q`INSERT INTO group_members (group_id, user_id, role, status) VALUES (${grp.id}, ${v}, 'owner', 'active')`;
+  await q`INSERT INTO group_messages (group_id, user_id, body, deleted_by) VALUES (${grp.id}, ${v}, 'wiadomość czatu', NULL)`;
+  await q`INSERT INTO group_messages (group_id, user_id, body, deleted_at, deleted_by) VALUES (${grp.id}, ${o}, '', now(), ${v})`;
   await q`INSERT INTO invites (code, created_by, max_uses) VALUES (${`INV-${v}`}, ${v}, 1)`;
   await q`INSERT INTO reports (reporter_id, target_user_id, type, reason) VALUES (${v}, ${o}, 'user', 'spam')`;
   await q`INSERT INTO reports (reporter_id, target_user_id, type, reason) VALUES (${o}, ${v}, 'user', 'spam')`;

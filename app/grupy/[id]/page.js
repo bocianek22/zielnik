@@ -45,8 +45,10 @@ export default async function GroupPage({ params }) {
           {g.description && <p className="group-desc">{g.description}</p>}
         </header>
 
-        <h2 className="section-label" id="czat">Czat</h2>
-        <GroupChat groupId={g.id} />
+        <section className="card tint chat-card" data-cat="social" aria-labelledby="czat">
+          <div className="sec-head"><span className="ic-dot sm" aria-hidden="true"><Icon name="group" size={18} /></span><h2 id="czat">Czat</h2></div>
+          <GroupChat groupId={g.id} />
+        </section>
 
         <h2 className="section-label">Zaproś do grupy</h2>
         <GroupActions groupId={g.id} isOwner={g.role === 'owner'} />
