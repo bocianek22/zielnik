@@ -49,7 +49,7 @@ Spokojny, ciepły i kolorowy przez tła, a nie przez nasycenie. Kremowe tło, bi
 - **Ikony.** W kółkach 36–44 px: `--cat-x-soft` z ikoną `--cat-x` na białej karcie albo pełne `--cat-x` z ikoną `--surface` na karcie tonalnej. Szybkie kafle na Dziś: Objawy, Recepty, Odmiany, Raport.
 - **Nawigacja.** Dolny pasek: Dziś, Odmiany, „+” (środek, nie zasłania treści), Dziennik, Więcej. Aktywna zakładka ma pigułkę w kolorze kategorii, na przykład fioletową dla Dziennika. Górny pasek jest jasny, w kolorze tła.
 - **Przyciski.** Główny ma 48 px, promień 14 i kolor `--btn`. Drugorzędny jest biały z ramką. „Zużyłem” na liście odmian to miękki przycisk w odcieniu zapasu.
-- **Chipy.** Pigułki 36–44 px. Wybrany chip ma pełny kolor kategorii ekranu. Znaczniki danych (THC, CBD, cena) mają tło `--surface-2`.
+- **Chipy.** Pigułki 44 px (cel dotykowy). Wybrany chip ma pełny kolor kategorii ekranu. Znaczniki danych (THC, CBD, cena) mają tło `--surface-2`.
 - **Puste stany i mikroilustracje.** Proste SVG z kształtów: słoik, linia trendu w ramce, koła. Kolor kategorii na tle `--cat-x-soft`. Bez liści i bez postaci.
 - **Ciemny motyw.** Tła tonalne to ciemne odcienie kategorii (`#1b3124`, `#272240`...), a ikony i teksty kategorii są jasne. Przycisk główny dostaje osobny token `--btn` `#2f7a4e` z białym tekstem, więc przestaje świecić na miętowo.
 
@@ -88,7 +88,7 @@ Pięć zdań: B najmocniej odpowiada na „nic nie przyciąga uwagi”, bo hero 
 Uzasadnienie:
 - Testerzy zgłaszają jednocześnie „za mało koloru” i „przytłaczająca”. A dodaje kolor tłami i ikonami, a nie wielkimi nasyconymi plamami, więc rozwiązuje oba problemy naraz. B rozwiązuje pierwszy kosztem ryzyka drugiego.
 - Ton: dorośli pacjenci i dane o zdrowiu. Kremowe tło, Fraunces i pastelowe sekcje są bliższe aptece i dziennikowi niż fintechowi. Wiarygodność ma większą wagę niż efekt „wow”.
-- Koszt: A korzysta z obecnych komponentów (karta, `.list`, `.section-label`, ikony) i dodaje dwa warianty: kartę tonalną i kółko ikony. Krój pisma się nie zmienia. Jedyna zmiana poza CSS to jasny górny pasek (patrz ryzyka).
+- Koszt: A korzysta z obecnych komponentów (karta, `.list`, `.section-label`, ikony) i dodaje dwa warianty: kartę tonalną i kółko ikony. Krój pisma się nie zmienia. Poza CSS zmieniają się: jasny górny pasek (sprzężony z paskiem stanu, patrz ryzyka), nowy układ dolnego paska z „+” (`navItems.js`, `BottomNav.js`) i ewentualnie trasa listy odmian. Ten sam układ nawigacji dotyczy też B.
 - Ciemny motyw A (ciemne tła tonalne i osobny `--btn`) jest spokojniejszy niż obecny i niż B.
 
 Jeśli właściciel woli mocniejszy efekt, B jest gotowy i również przechodzi kontrast. Można też wziąć z B tylko hero na ekranie Dziś (gradient od `--bar`), a resztę z A.
@@ -198,8 +198,12 @@ Wszystkie 194 pary przechodzą: tekst 4,5:1, ikony i elementy graficzne 3:1. Naj
 | `--danger` na `--danger-soft` | 5,59 | 7,59 | 4,82 | 7,92 |
 | `--on-hero-2` na `--hero-3` (podpisy w hero) | n/d | n/d | 4,51 | 5,92 |
 | `--on-bar` na `--bar` | 14,33 | 15,28 | 10,77 | 10,77 |
+| biały na drugorzędnym przycisku hero (`rgba(0,0,0,.18)` na `--hero-3`) | n/d | n/d | 7,48 | 10,17 |
+| biały na drugorzędnym przycisku hero dziennika (to samo na `--cat-journal`) | n/d | n/d | 9,09 | ≥ 9 |
 
-Skrypt kontroli (do przeniesienia do `tests/theme.test.js` w etapie 0): luminancja względna sRGB, pary `tekst/tło` z listy wyżej dla każdej kategorii w obu motywach. Wykresy: `--chart-*` na `--cat-*-soft` nie są dozwolone (seria leży zawsze na `--surface`), a w A seria z jedną kategorią może użyć `--cat-x` (≥ 3:1 do `--surface`: min. 5,26 jasny, 7,62 ciemny).
+Uwaga: półprzezroczysta biel (`rgba(255,255,255,.14)`) na `--hero-3` daje tylko 4,27:1 dla 16 px, więc przyciski i pola na hero przyciemniamy, a nie rozjaśniamy.
+
+Skrypt kontroli: `docs/design3/kontrast.mjs` z wartościami w `docs/design3/tokens.mjs` (`node docs/design3/kontrast.mjs`, z `--md` wypisuje wszystkie pary). Liczy luminancję względną sRGB dla par `tekst/tło` z listy wyżej, dla każdej kategorii w obu motywach. W etapie 0 przenieść go do `tests/theme.test.js` (czytając wartości z `globals.css`). Wykresy: `--chart-*` na `--cat-*-soft` nie są dozwolone (seria leży zawsze na `--surface`), a w A seria z jedną kategorią może użyć `--cat-x` (≥ 3:1 do `--surface`: min. 5,26 jasny, 7,62 ciemny).
 
 ## 6. Nowe zasady (zastępują punkty 3–5 w DESIGN.md)
 
@@ -218,7 +222,7 @@ Skrypt kontroli (do przeniesienia do `tests/theme.test.js` w etapie 0): luminanc
 Opis dotyczy rekomendacji (A z elementami B). Dla czystego B etap 0 dochodzi do hero i pierścienia, a S1 do S3 wyglądają tak samo.
 
 ### Etap 0: tokeny i komponenty bazowe (jeden agent, przed resztą)
-Pliki: `app/globals.css`, `app/components/Icon.js`, `app/styles/nav.css`, `app/components/BottomNav.js`, `app/components/navItems.js`, `app/components/Header.js`, `app/layout.js` (`themeColor`), `mobile/capacitor.config.js`, `tests/theme.test.js`, `docs/DESIGN.md`.
+Pliki: `app/globals.css`, `app/components/Icon.js`, `app/styles/nav.css`, `app/components/BottomNav.js` (dolny pasek i arkusz „Więcej” `nav.sheet`), `app/components/navItems.js`, `app/components/Header.js`, `app/components/TopNav.js`, `app/layout.js` (`themeColor`), `mobile/capacitor.config.js`, `app/styles/platform.css` i `auth.css` (tylko przepięcie z `--bar`), `tests/theme.test.js`, `tests/e2e/zielnik.test.mjs` (tylko scenariusze nawigacji), `docs/DESIGN.md`.
 - Tokeny z sekcji 5 w trzech blokach. Aliasy starych nazw. Nowy test: pary kontrastu `--cat-*` w obu motywach i obecność `--cat-*`, `--btn`, `--on-btn` w trzech blokach. Paleta `--chart-*` bez zmian.
 - Komponenty CSS:
   - `.card` z cieniem i promieniem 22
@@ -230,18 +234,18 @@ Pliki: `app/globals.css`, `app/components/Icon.js`, `app/styles/nav.css`, `app/c
   - `.chip.on` w kolorze kategorii (`--chip-on` ustawiane na ekranie)
   - `.big-num`
 - `Icon.js`: nowe ikony `jar`, `drop`, `home`, `cart`, `zap`, `smile`, `moon` (już jest), `wave`, `flask`, `bell` (ścieżki w `docs/design3/*.html`).
-- Nawigacja: dolny pasek Dziś, Odmiany, „+”, Dziennik, Więcej z kolorową pigułką aktywnej zakładki (pole `cat` w `navItems.js`). „+” w pasku zamiast pływającego `.fab`. Jasny górny pasek (`--bar` = `--bg`).
+- Nawigacja: dolny pasek Dziś, Odmiany, „+”, Dziennik, Więcej z kolorową pigułką aktywnej zakładki (pole `cat` w `navItems.js`). „+” w pasku zamiast pływającego `.fab`. Jasny górny pasek (`--bar` = `--bg`). Arkusz „Więcej” z kółkami ikon w kolorach grup też należy do etapu 0, bo żyje w `BottomNav.js` i `nav.css`.
 - **Decyzja właściciela przed etapem 0:** nowy podział zakładek (Katalog, Szukaj i Znajomi przechodzą do Odmian i do „Więcej”) i to, czy lista odmian zostaje pod Dziś na `/`, czy dostaje własną trasę (np. `/odmiany`). Wpływa na S1 i S2.
 
 ### Etap 1: trzy równoległe strumienie (rozłączne pliki)
 Każdy strumień zmienia tylko swoje pliki. Globalnego CSS nie zmienia; brakujący komponent bazowy zgłasza w raporcie.
 
-**S1: Dziś, nawigacja, arkusz „Więcej”, onboarding**
+**S1: Dziś i onboarding** (nawigacja i arkusz „Więcej” są już po etapie 0)
 - Pliki:
   - `app/page.js`
   - `app/components/TodayBoard.js`, `TodayPanel.js`, `HomeStore.js`, `QuickActions.js`, `SymptomsQuick.js`, `NoUseToday.js`
-  - `app/components/MoreMenu.js`, `Onboarding.js`, `WhatsNew.js`
-  - `app/components/charts/StockForecast.js` (tylko opakowanie, bez kolorów serii)
+  - `app/components/MoreMenu.js` (menu „Więcej” na desktopie), `Onboarding.js`, `WhatsNew.js`
+  - `app/components/charts/StockForecast.js`, `UsageDays.js` (tylko opakowanie, bez kolorów serii; reguły w `home.css`)
   - `app/styles/home.css`, `app/styles/system.css`
 - Dziś według `a-dzis.png`:
   - karta tonalna zapasu z miernikiem dni
@@ -250,7 +254,6 @@ Każdy strumień zmienia tylko swoje pliki. Globalnego CSS nie zmienia; brakują
   - karta recept z odliczaniem w kwadracie
   - karta tonalna „Jak się dziś czujesz?”
   - lista „Do zrobienia”
-- Arkusz „Więcej”: kółka ikon w kolorach grup.
 
 **S2: odmiany**
 - Pliki:
@@ -273,7 +276,7 @@ Każdy strumień zmienia tylko swoje pliki. Globalnego CSS nie zmienia; brakują
   - `app/dziennik/*`, `app/historia/*`, `app/recepty/*`, `app/raport/*`, `app/profil/*`, `app/obserwacje/*`
   - `app/components/RxPicker.js`, `PharmacyLink.js`
   - `app/components/charts/SymptomsChart.js`, `UsageWeeks.js`, `WeeklyBars.js`, `PeriodCompare.js` (tylko opakowanie i nagłówki)
-  - `app/styles/diary.css`, `history.css`, `profile.css`, `charts.css` (bez kolorów serii), `content.css`
+  - `app/styles/diary.css`, `history.css`, `profile.css`, `charts.css` (jedyny właściciel; S1 nie zmienia `charts.css`, tylko `home.css`), `content.css`
 - Dziennik według `a-dziennik.png`: karta tonalna „Dziś” z suwakami w fiolecie, małe wykresy w kartach 2×2 z trendem w pigułce, notka prywatności neutralna.
 - Recepty: niebieska kategoria, kwadraty dni.
 - Historia: zielona kategoria.
@@ -295,7 +298,7 @@ Każdy strumień zmienia tylko swoje pliki. Globalnego CSS nie zmienia; brakują
   - `.onb`, `.consent-gate`, `.lock-setup`, `.report-sheet`, `.proposal-box`, `.proposal-item`
   - `nav.sheet a`, `details.stock-notes`, `details.terp summary`, `.dn`
 
-  Strumienie zachowują te klasy (mogą dokładać nowe). Zmiana zakładek dolnego paska wymaga aktualizacji testów, które klikają „Odmiany” albo „Więcej” (S1 je poprawia).
+  Strumienie zachowują te klasy (mogą dokładać nowe) i nie zmieniają `tests/e2e/zielnik.test.mjs`, bo to jeden plik i trzy strumienie wchodziłyby sobie w drogę. Scenariusze nawigacji (zakładki, arkusz „Więcej”) poprawia etap 0, a pozostałe, jeśli trzeba, QA w etapie 2.
 - **`tests/theme.test.js`:** każdy nowy kolor musi być w trzech blokach. Paleta wykresów jest przypięta, więc jej zmiana wymaga ponownej walidacji (skill dataviz) i aktualizacji testu oraz `docs/UI-2.md`.
 - **Pasek stanu:** jasny górny pasek w A wymaga zmiany `themeColor` w `app/layout.js` (tablica z `media` dla jasnego i ciemnego), `mobile/capacitor.config.js` (`StatusBar.style` przełączany w `NativeShell` zależnie od motywu, `backgroundColor`) i przebudowy aplikacji Android. Ekran blokady (`.native-lock`, `html[data-applock]` w `platform.css`) i logowanie (`.auth-art`, `.auth-mark` w `auth.css`) używają `--bar` jako tła: przed zmianą dodać `--brand-deep: #1d3b27` (z `--on-brand-deep`) i przepiąć te reguły. Kierunek B tego ryzyka nie ma.
 - **Budżet Lighthouse:** cienie na wielu kartach i inline SVG ilustracji to więcej malowania (TBT) i większy HTML. Ilustracje dzielić jako komponenty, nie wklejać w każdej karcie.
