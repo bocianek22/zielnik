@@ -4,14 +4,17 @@ import { revertOf } from '@/lib/offline-queue';
 import { hasQueued, wasOptimistic } from '@/lib/offline-client';
 import useQueueEvents from './useQueueEvents';
 
-// Wspólny stan ekranu głównego: panel „Dziś” (renderowany od razu, z lekkich danych) i lista odmian (strumieniowana
-// w Suspense, wczytuje się później). Panel nie czeka na listę; zapisy z jednej strony widzi druga.
+// Wspólny stan panelu „Dziś” (strona główna) i listy odmian (/odmiany, strumieniowana w Suspense). Każda strona ma
+// własną instancję; panel i lista nie są już na jednej stronie, ale zapisy i próg „Kończy się” idą tą samą drogą.
 const Ctx = createContext(null);
 export const useHome = () => useContext(Ctx);
 
 const unitOf = (form) => (form === 'olej' || form === 'pen' ? 'ml' : 'g');
 
-export default function HomeStore({ children, bought, series: initialSeries, summary }) {
+// Bez danych panelu (strona /odmiany): zera, lista sama przekazuje sumy przez sync()
+const NO_SUMMARY = { recent: [], stock: { g: 0, ml: 0 }, remaining: { g: 0, ml: 0 }, count: 0 };
+
+export default function HomeStore({ children, bought = { grams: 0, ml: 0 }, series: initialSeries = [], summary = NO_SUMMARY }) {
   const [boughtU, setBoughtU] = useState({ g: bought.grams, ml: bought.ml || 0 });
   const [series, setSeries] = useState(initialSeries);
   const [recent, setRecent] = useState(summary.recent);       // [{ id, name, form, current }], ostatnio używane pierwsze

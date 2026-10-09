@@ -36,7 +36,7 @@
 .usage-head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s-3); }
 .usage-sel { margin: 0; font-size: var(--fs-sm); color: var(--text-2); white-space: nowrap; }
 .usage-unit { margin: var(--s-2) 0 var(--s-1); }
-.usage-sel b { font-family: var(--font-display), Georgia, serif; font-size: var(--fs-xl); font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums lining-nums; margin-left: 2px; }
+.usage-sel b { font-family: var(--font-display), system-ui, sans-serif; font-size: var(--fs-xl); font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums lining-nums; margin-left: 2px; }
 .usage-scrub { position: relative; height: 80px; margin-top: var(--s-3); touch-action: pan-y; cursor: crosshair; border-radius: var(--r-sm); -webkit-tap-highlight-color: transparent; }
 .usage-scrub:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 .usage-svg { display: block; width: 100%; height: 80px; overflow: visible; }
@@ -70,7 +70,7 @@
 .meter { position: relative; height: 10px; border-radius: var(--r-pill); background: var(--surface-2); overflow: hidden; }
 .meter-fill { position: absolute; inset: 0 auto 0 0; border-radius: inherit; background: var(--chart-data); }
 .meter-fill.meter-cbd { background: var(--chart-ref); }
-.meter-val { text-align: right; font-family: var(--font-display), Georgia, serif; font-size: 1.375rem; font-weight: 600; font-variant-numeric: tabular-nums lining-nums; }
+.meter-val { text-align: right; font-family: var(--font-display), system-ui, sans-serif; font-size: 1.375rem; font-weight: 600; font-variant-numeric: tabular-nums lining-nums; }
 .meter-scale { margin: 0; font-size: var(--fs-xs); color: var(--text-3); text-align: right; }
 /* wykres zużycia tygodniowego (słupki SVG, jedna seria: bez legendy, tytuł ją nazywa) */
 .uchart-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-1) var(--s-3); flex-wrap: wrap; }
@@ -111,7 +111,7 @@
 .sp-id { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--s-2); min-width: 0; }
 .sp-id b { font-size: var(--fs-md, 1rem); font-weight: 600; }
 .sp-id span { font-size: var(--fs-xs); color: var(--text-3); }
-.sp-val { font-family: var(--font-display), Georgia, serif; font-size: 1.25rem; font-weight: 600; font-variant-numeric: tabular-nums lining-nums; min-width: 2ch; text-align: right; }
+.sp-val { font-family: var(--font-display), system-ui, sans-serif; font-size: 1.25rem; font-weight: 600; font-variant-numeric: tabular-nums lining-nums; min-width: 2ch; text-align: right; }
 .sp-plot { position: relative; height: 72px; }
 .sp-plot.sp-use { height: 56px; }
 .sym-chart { display: block; width: 100%; height: 72px; overflow: visible; }
@@ -159,7 +159,7 @@
 .wk { padding: var(--s-4); }
 .wk-head { display: flex; justify-content: flex-end; }
 .wk-read { margin: 0; font-size: var(--fs-sm); color: var(--text-2); white-space: nowrap; }
-.wk-read b { font-family: var(--font-display), Georgia, serif; font-size: var(--fs-xl); font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums lining-nums; margin-left: 2px; }
+.wk-read b { font-family: var(--font-display), system-ui, sans-serif; font-size: var(--fs-xl); font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums lining-nums; margin-left: 2px; }
 .wk-unit { margin: 0 0 var(--s-2); }
 .wk-unit button, .pc-seg button { min-height: 44px; }
 .wk-scrub { position: relative; height: 120px; margin: var(--s-2) 40px 0 0; touch-action: pan-y; cursor: crosshair; border-radius: var(--r-sm); -webkit-tap-highlight-color: transparent; }

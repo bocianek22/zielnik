@@ -61,14 +61,14 @@ export default async function Compare({ searchParams }) {
     <>
       <Header user={user} />
       <main className="page">
-        <Link href="/" className="back"><Icon name="chevronLeft" size={20} />Wszystkie odmiany</Link>
+        <Link href="/odmiany" className="back"><Icon name="chevronLeft" size={20} />Wszystkie odmiany</Link>
         <h1>Porównanie</h1>
         {rows.length < 2 ? (
           <div className="empty">
             <Icon name="list" size={32} />
             <h2>Wybierz odmiany do porównania</h2>
             <p>Zaznacz na liście co najmniej dwie odmiany (pole „Porównaj”) i otwórz porównanie.</p>
-            <Link className="btn" href="/">Wróć do odmian</Link>
+            <Link className="btn" href="/odmiany">Wróć do odmian</Link>
           </div>
         ) : (
           <div className="card cmp-board" style={{ '--n': rows.length }}>

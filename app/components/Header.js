@@ -32,7 +32,8 @@ export default function Header({ user }) {
         <nav className="nav" aria-label="Główna nawigacja">
           <TopNav items={plain(navItems('main', admin))} />
           <MoreMenu badge={admin ? <NavBadge kind="admin" /> : null}>
-            {navItems('more', admin).map((i) => <Link key={i.href} href={i.href}>{i.label}{i.badge && <NavBadge kind={i.badge} />}</Link>)}
+            {navItems('more', admin).map((i) => (i.file ? <a key={i.href} href={i.href}>{i.label}</a>
+              : <Link key={i.href} href={i.href}>{i.label}{i.badge && <NavBadge kind={i.badge} />}</Link>))}
             <hr />
             <ThemeToggle />
             <span className="ver">Zielnik v{VERSION}</span>

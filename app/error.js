@@ -18,7 +18,7 @@ export default function ErrorPage({ error, reset }) {
         <p className="small system-code">Jeśli problem się powtarza, podaj administratorowi kod: <code>{error?.digest || 'brak'}</code></p>
         <div className="system-actions">
           <button className="btn" onClick={reset}>Spróbuj ponownie</button>
-          <a className="btn text" href="/">Wróć do odmian</a>
+          <a className="btn text" href="/">Wróć do panelu „Dziś”</a>
           <a className="btn text" href={here ? `/uwagi?ekran=${encodeURIComponent(here)}` : '/uwagi'}>Zgłoś uwagę</a>
         </div>
       </div>

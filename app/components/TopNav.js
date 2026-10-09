@@ -3,7 +3,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import NavBadge from './NavBadge';
 
-export const isActive = (path, href) => (href === '/' ? path === '/' || path.startsWith('/strains') : path.startsWith(href));
+// „Dziś” tylko na stronie głównej; „Odmiany” obejmują też szczegóły odmiany i porównanie
+export const isActive = (path, href) => (href === '/' ? path === '/'
+  : href === '/odmiany' ? path.startsWith('/odmiany') || path.startsWith('/strains') || path.startsWith('/compare') : path.startsWith(href));
 
 // Linki górnego paska z zaznaczeniem bieżącej strony (Header jest komponentem serwerowym)
 export default function TopNav({ items }) {

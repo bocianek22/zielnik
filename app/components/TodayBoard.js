@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import Icon from './Icon';
 import TodayPanel from './TodayPanel';
 import { useHome } from './HomeStore';
@@ -33,12 +34,9 @@ export default function TodayBoard({ usage = { perDay: 0, perDayMl: 0, cost: 0 }
 
   // POM-20: pusty panel (nic nie mam, nic nie zużyłem) ma jedną akcję: bez własnych odmian „Dodaj odmianę”, z odmianami bez stanu „Wpisz stan”
   const fresh = mine === 0 || (stockU.g + stockU.ml === 0 && recent.length === 0);
-  const onAdd = () => {
-    if (mine === 0) { window.dispatchEvent(new Event('zielnik:new-strain')); return; }
-    const h = document.getElementById('odmiany');
-    h?.scrollIntoView({ block: 'start' });
-    h?.focus({ preventScroll: true });
-  };
+  // lista odmian jest na /odmiany: bez własnych odmian od razu formularz nowej, z odmianami lista (tam „Wpisz stan” w karcie)
+  const router = useRouter();
+  const onAdd = () => router.push(mine === 0 ? '/odmiany?new=1' : '/odmiany');
 
   if (series.length === 0) return null;
   return (

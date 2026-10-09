@@ -17,7 +17,7 @@ before(async () => {
 });
 after(async () => { await browser?.close(); });
 
-const PAGES = ['/', '/dziennik', '/obserwacje', '/raport', '/recepty', '/historia', '/profil', '/katalog', 'STRAIN'];
+const PAGES = ['/', '/odmiany', '/dziennik', '/obserwacje', '/raport', '/recepty', '/historia', '/profil', '/katalog', 'STRAIN'];
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 
 async function open(storageState, theme, big) {
@@ -38,7 +38,7 @@ async function strainPath(page) {
   await go(page, '/katalog');
   const href = await page.locator('a[href^="/strains/"]').first().getAttribute('href').catch(() => null);
   if (href) return href;
-  await go(page, '/');
+  await go(page, '/odmiany');
   return page.locator('a[href^="/strains/"]').first().getAttribute('href');
 }
 
@@ -78,7 +78,7 @@ for (const big of [false, true]) {
     try {
       const min = big ? 56 : 44;
       const bad = [];
-      for (const path of ['/', '/dziennik', '/profil', '/katalog']) {
+      for (const path of ['/', '/odmiany', '/dziennik', '/profil', '/katalog']) {
         await go(page, path);
         const small = await page.evaluate((m) => {
           const out = [];

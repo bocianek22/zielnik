@@ -21,8 +21,8 @@ const people = {
 const HREF = {
   strain: (x) => `/strains/${x.id}`,
   catalog: (x) => `/katalog/${x.id}`,
-  producer: (x) => `/?q=${encodeURIComponent(x.label)}`,
-  flavor: (x) => `/?q=${encodeURIComponent(x.label)}`,
+  producer: (x) => `/odmiany?q=${encodeURIComponent(x.label)}`,
+  flavor: (x) => `/odmiany?q=${encodeURIComponent(x.label)}`,
   article: (x) => `/wiedza#${x.id}`,
   person: (x) => `/u/${encodeURIComponent(x.username)}`,
   group: (x) => `/grupy/${x.id}`,

@@ -35,6 +35,17 @@ const P = {
   alert: <><path d="M12 3 2 20h20z" /><path d="M12 10v4M12 17h.01" /></>,
   trend: <><path d="m3 17 6-6 4 4 8-8" /><path d="M15 7h6v6" /></>,
   calendar: <><rect x="3.5" y="5" width="17" height="15.5" rx="1.5" /><path d="M3.5 10h17M8 3v4M16 3v4" /></>,
+  // Design 3: odmiana to słoik, a nie liść (tryb dyskretny), olej i pen to kropla
+  home: <><path d="M4 10.5 12 4l8 6.5v9A1.5 1.5 0 0 1 18.5 21H15v-6H9v6H5.5A1.5 1.5 0 0 1 4 19.5z" /></>,
+  jar: <><path d="M8 3h8M7 6h10" /><path d="M7 6v12.5A2.5 2.5 0 0 0 9.5 21h5a2.5 2.5 0 0 0 2.5-2.5V6" /><path d="M10 12h4M10 15.5h4" /></>,
+  drop: <><path d="M12 3.5s6 6.4 6 10.5a6 6 0 0 1-12 0c0-4.1 6-10.5 6-10.5z" /></>,
+  cart: <><path d="M3 4h2l2.2 11h10.6L20 7H6.2" /><circle cx="9" cy="19.5" r="1.3" /><circle cx="17" cy="19.5" r="1.3" /></>,
+  zap: <><path d="M13 3 5 13.5h6L10 21l9-11h-6z" /></>,
+  smile: <><circle cx="12" cy="12" r="9" /><path d="M8.5 14.5a4.5 4.5 0 0 0 7 0M9 9.5h.01M15 9.5h.01" /></>,
+  wave: <><path d="M3 9c2.5-2 4.5-2 7 0s4.5 2 7 0 3-1.5 4-1.5M3 15c2.5-2 4.5-2 7 0s4.5 2 7 0 3-1.5 4-1.5" /></>,
+  flask: <><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3" /><path d="M7.5 15h9" /></>,
+  bell: <><path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15z" /><path d="M10 20.5a2 2 0 0 0 4 0" /></>,
+  upload: <><path d="M12 20V9M7 14l5-5 5 5M5 4h14" /></>,
 };
 
 export default function Icon({ name, size = 24, className = '', label }) {

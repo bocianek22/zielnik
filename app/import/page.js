@@ -16,7 +16,7 @@ export default async function ImportPage() {
       <Header user={user} />
       <main className="page">
         <h1>Import</h1>
-        <Link href="/" className="back">← Wszystkie odmiany</Link>
+        <Link href="/odmiany" className="back">← Wszystkie odmiany</Link>
         <ImportForm />
         <RestoreForm />
       </main>

@@ -200,9 +200,9 @@ export default function StrainsBoard({ initialStrains, initialOptions, me }) {
     window.addEventListener('zielnik:new-strain', open);
     const params = new URLSearchParams(window.location.search);
     if (takeNewRequest?.()) open();
-    if (params.get('new') === '1') { open(); window.history.replaceState(null, '', '/'); }
+    if (params.get('new') === '1') { open(); window.history.replaceState(null, '', '/odmiany'); }
     // filtr z podpowiedzi strony /szukaj (producent, terpen, smak)
-    else if (params.get('q')) { setQuery(params.get('q').slice(0, 60)); window.history.replaceState(null, '', '/'); }
+    else if (params.get('q')) { setQuery(params.get('q').slice(0, 60)); window.history.replaceState(null, '', '/odmiany'); }
     return () => window.removeEventListener('zielnik:new-strain', open);
   }, []);
   useEffect(() => { setVisibleLimit(30); }, [query, onlyStock, kindFilter, formFilter, tagFilter, scope, sortKey, dir]);
@@ -288,7 +288,7 @@ export default function StrainsBoard({ initialStrains, initialOptions, me }) {
         <div className="card empty">
           <Icon name="list" size={32} />
           <h2>Zielnik jest jeszcze pusty</h2>
-          <p>Pierwszą odmianę dodasz przyciskiem „Dodaj odmianę” w panelu „Dziś”. Każdy użytkownik dostanie dla niej własne pola: ocenę, ilość, ilość do wykupienia i spostrzeżenia.</p>
+          <p>Pierwszą odmianę dodasz przyciskiem „Dodaj odmianę” powyżej. Każdy użytkownik dostanie dla niej własne pola: ocenę, ilość, ilość do wykupienia i spostrzeżenia.</p>
         </div>
       )}
       {strains.length > 0 && visible.length === 0 && <p className="muted empty-inline">Nic nie pasuje do filtrów.</p>}

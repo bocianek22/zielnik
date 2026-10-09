@@ -9,7 +9,7 @@ export default function NotFound() {
         <h1>Nie znaleziono strony</h1>
         <p>Ta strona nie istnieje albo nie masz do niej dostępu.</p>
         <div className="system-actions">
-          <Link className="btn" href="/">Wróć do odmian</Link>
+          <Link className="btn" href="/">Wróć do panelu „Dziś”</Link>
         </div>
       </div>
     </main>

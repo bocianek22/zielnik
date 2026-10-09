@@ -39,7 +39,7 @@ const serious = async (page) => (await new AxeBuilder({ page }).withTags(TAGS).a
   .map((v) => `${v.id}: ${v.nodes.slice(0, 3).map((n) => n.target.join(' ')).join(' | ')}`);
 
 async function strainPath(page) {
-  await go(page, '/');
+  await go(page, '/odmiany');
   const link = page.locator('a[href^="/strains/"]').first();
   await link.waitFor({ timeout: 15000 });
   return link.getAttribute('href');
@@ -51,7 +51,7 @@ for (const size of SIZES) {
     const found = [];
     try {
       const strain = await strainPath(page);
-      for (const path of ['/', '/katalog', strain, '/dziennik', '/historia', '/raport', '/profil', '/recepty', '/obserwacje']) {
+      for (const path of ['/', '/odmiany', '/katalog', strain, '/dziennik', '/historia', '/raport', '/profil', '/recepty', '/obserwacje']) {
         await go(page, path);
         await page.locator('main').first().waitFor();
         await page.waitForLoadState('networkidle').catch(() => {});

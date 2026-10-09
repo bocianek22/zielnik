@@ -123,7 +123,7 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, st
   return (
     <div className="stack detail-page">
       <div className="detail-bar">
-        <Link href="/" className="back"><Icon name="chevronLeft" size={20} />Wszystkie odmiany</Link>
+        <Link href="/odmiany" className="back"><Icon name="chevronLeft" size={20} />Wszystkie odmiany</Link>
         {!editing && <button type="button" className="btn text" aria-label="Edytuj odmianę" onClick={() => setEditing(true)}><Icon name="edit" size={18} />Edytuj</button>}
       </div>
 
@@ -131,7 +131,7 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, st
 
       {editing ? (
         <StrainForm strain={strain} options={opts} tastes={tastes} canDelete={canDelete} proposing={proposing} hidePrice={me.hidePrices} onOptionsChange={setOpts}
-          onDone={() => { setEditing(false); router.refresh(); }} onDeleted={() => router.push('/')}
+          onDone={() => { setEditing(false); router.refresh(); }} onDeleted={() => router.push('/odmiany')}
           onCancel={() => setEditing(false)} />
       ) : (
         <>

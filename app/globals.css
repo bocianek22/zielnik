@@ -4,43 +4,73 @@
 /* ===== Tokeny: tryb jasny ===== */
 :root {
   /* powierzchnie */
-  --bg: #f4f5f1;
+  --bg: #edf1f4;
   --surface: #ffffff;
-  --surface-2: #eef0ea;
-  --surface-3: #e3e7de;
+  --surface-2: #f2f5f7;
+  --surface-3: #e5ebef;
   --field-bg: #ffffff;
-  --sep: #e0e3da;
-  --sep-strong: #c8cdc1;
+  --sep: #e0e6ea;
+  --sep-strong: #c3cdd4;
   /* tekst */
-  --text: #18211b;
-  --text-2: #566158;
-  --text-3: #67716a;
-  /* jeden akcent: zieleń */
-  --accent: #2f6b45;
-  --accent-hover: #255838;
+  --text: #0f1b1f;
+  --text-2: #475760;
+  --text-3: #5b6b73;
+  /* marka: szmaragd (akcja główna to --btn, stan „wybrane” to --accent-soft) */
+  --accent: #0f6b52;
+  --accent-hover: #0b5a45;
   --on-accent: #ffffff;
-  --accent-text: #2a6340;
-  --accent-soft: #e2eee5;
-  --on-accent-soft: #1d4a2f;
-  --ring: rgba(47, 107, 69, .35);
+  --accent-text: #0f6b52;
+  --accent-soft: #d9f0e7;
+  --on-accent-soft: #0a4a39;
+  --ring: rgba(15, 107, 82, .35);
   /* pasek marki (górny pasek, ekran blokady); sprzężony z kolorem paska stanu w mobile/ i themeColor */
   --bar: #1d3b27;
   --on-bar: #eef1e8;
   --on-bar-2: rgba(238, 241, 232, .72);
   --bar-mark: #a7cf8a;
   /* stany */
-  --warn: #7a5200;
-  --warn-soft: #fbf3e0;
-  --warn-line: #ecdcb0;
+  --warn: #b43c0a;
+  --warn-soft: #ffe9dc;
+  --warn-line: #f5c8ad;
   --danger: #b0392c;
   --danger-soft: #fbeae7;
   --danger-line: #efc6bf;
-  --ok: #2b7445;
-  --ok-soft: #e4f1e7;
+  --ok: #0f7a55;
+  --ok-soft: #dcf3ea;
   /* rodzaj odmiany (tylko jako znacznik danych, nie dekoracja) */
   --kind-indica: #74589b;
   --kind-sativa: #94600c;
   --kind-hybryda: #2c7d63;
+  /* Design 3 (docs/DESIGN-3.md, „Decyzja”): przycisk główny, hero (gradient od --bar), kolory obszarów */
+  --btn: #0f6b52;
+  --btn-hover: #0b5a45;
+  --on-btn: #ffffff;
+  --hero-2: #0f6450;
+  --hero-3: #0e7563;
+  --on-hero: #ffffff;
+  --on-hero-2: #d3ece3;
+  --hero-btn-2: rgba(0, 0, 0, .18);
+  --on-cat: #ffffff;
+  --cat-stock: #0f7a55;
+  --cat-stock-soft: #dcf3ea;
+  --cat-stock-ink: #0a5a3f;
+  --cat-journal: #6a32d1;
+  --cat-journal-soft: #ede5fd;
+  --cat-journal-ink: #4f22a3;
+  --cat-rx: #1f56d6;
+  --cat-rx-soft: #e2eaff;
+  --cat-rx-ink: #1a43a6;
+  --cat-strain: #0b6f82;
+  --cat-strain-soft: #d8f0f5;
+  --cat-strain-ink: #08525f;
+  --cat-social: #c0266b;
+  --cat-social-soft: #fde2ee;
+  --cat-social-ink: #931a50;
+  --cat-learn: #8f5a00;
+  --cat-learn-soft: #fbedd2;
+  --cat-learn-ink: #6b4300;
+  --card-line: rgba(15, 30, 40, .05);
+  --shadow-card: 0 1px 3px rgba(15, 30, 40, .07), 0 6px 20px rgba(15, 30, 40, .06);
   /* wykresy (docs/UI-2.md, sekcja 2): jedna seria danych, seria porównawcza, pasmo, siatka, skala kolejności, kategorie */
   --chart-data: #2f7d4a;
   --chart-data-soft: color-mix(in srgb, var(--chart-data) 38%, var(--surface));
@@ -62,10 +92,10 @@
   --chart-7: #5546b0;
   /* cienie: tylko dla warstw nad treścią (arkusz, menu, przycisk +) */
   --shadow-1: 0 1px 2px rgba(20, 30, 22, .06);
-  --shadow-2: 0 8px 28px rgba(20, 30, 22, .16);
-  --scrim: rgba(12, 18, 14, .4);
-  --hover-bg: rgba(20, 30, 22, .05);
-  --press-bg: rgba(20, 30, 22, .09);
+  --shadow-2: 0 8px 28px rgba(15, 30, 40, .16);
+  --scrim: rgba(10, 18, 22, .45);
+  --hover-bg: rgba(15, 30, 40, .05);
+  --press-bg: rgba(15, 30, 40, .09);
 
   /* typografia: skala 12/14/16/17/20/24/30 */
   --fs-xs: .75rem;
@@ -80,7 +110,9 @@
   /* odstępy: siatka 4 px */
   --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 20px; --s-6: 24px; --s-8: 32px; --s-10: 40px; --s-12: 48px;
   /* promienie */
-  --r-sm: 6px; --r-md: 10px; --r-lg: 14px; --r-xl: 20px; --r-pill: 999px;
+  --r-sm: 6px; --r-md: 12px; --r-lg: 18px; --r-xl: 24px; --r-pill: 999px;
+  /* jeden krój (Figtree): tytuły i liczby to grubszy Figtree, dawne użycia --font-display dostają go automatycznie */
+  --font-display: var(--font-body);
   /* ruch */
   --dur-1: 120ms; --dur-2: 200ms; --ease: cubic-bezier(.2, 0, 0, 1);
   /* wymiary */
@@ -107,38 +139,68 @@
 
 /* ===== Tokeny: tryb ciemny. Oba bloki muszą być identyczne (pilnuje tests/theme.test.js) ===== */
 :root[data-theme="dark"] {
-  --bg: #0f1411;
-  --surface: #171d19;
-  --surface-2: #1f2721;
-  --surface-3: #29332c;
-  --field-bg: #131916;
-  --sep: #28312b;
-  --sep-strong: #3b463e;
-  --text: #e7ece5;
-  --text-2: #a5afa6;
-  --text-3: #8b958c;
-  --accent: #86c597;
-  --accent-hover: #9dd3ab;
-  --on-accent: #0c1a10;
-  --accent-text: #8fcfa0;
-  --accent-soft: #1d3325;
-  --on-accent-soft: #b4e0bf;
-  --ring: rgba(134, 197, 151, .4);
+  --bg: #0b1114;
+  --surface: #141c20;
+  --surface-2: #1b252a;
+  --surface-3: #243037;
+  --field-bg: #10181c;
+  --sep: #223038;
+  --sep-strong: #36464f;
+  --text: #e8eef1;
+  --text-2: #a4b2b9;
+  --text-3: #87969d;
+  --accent: #4fd1a5;
+  --accent-hover: #6fdcb7;
+  --on-accent: #05231a;
+  --accent-text: #6fdcb7;
+  --accent-soft: #12322a;
+  --on-accent-soft: #a6ecd3;
+  --ring: rgba(79, 209, 165, .4);
   --bar: #1d3b27;
   --on-bar: #eef1e8;
   --on-bar-2: rgba(238, 241, 232, .72);
   --bar-mark: #a7cf8a;
-  --warn: #f0c674;
-  --warn-soft: #2a2214;
-  --warn-line: #4a3c1c;
+  --warn: #ffa66b;
+  --warn-soft: #38200f;
+  --warn-line: #5c3517;
   --danger: #f2a093;
   --danger-soft: #331c18;
   --danger-line: #5a2c25;
-  --ok: #8fd3a5;
-  --ok-soft: #19301f;
+  --ok: #5fd6a8;
+  --ok-soft: #123128;
   --kind-indica: #b9a0db;
   --kind-sativa: #e2b364;
   --kind-hybryda: #72c9a8;
+  /* Design 3 (docs/DESIGN-3.md, „Decyzja”): przycisk główny, hero (gradient od --bar), kolory obszarów */
+  --btn: #0f7a5c;
+  --btn-hover: #12896a;
+  --on-btn: #ffffff;
+  --hero-2: #0f4a3c;
+  --hero-3: #0d5a4d;
+  --on-hero: #ffffff;
+  --on-hero-2: #c4e3d8;
+  --hero-btn-2: rgba(0, 0, 0, .22);
+  --on-cat: #ffffff;
+  --cat-stock: #11694c;
+  --cat-stock-soft: #123128;
+  --cat-stock-ink: #5fd6a8;
+  --cat-journal: #5530a3;
+  --cat-journal-soft: #251a3f;
+  --cat-journal-ink: #b9a0ff;
+  --cat-rx: #2449a6;
+  --cat-rx-soft: #16233f;
+  --cat-rx-ink: #93b4ff;
+  --cat-strain: #0d5f6f;
+  --cat-strain-soft: #0f2c33;
+  --cat-strain-ink: #62cde0;
+  --cat-social: #9e2459;
+  --cat-social-soft: #36172a;
+  --cat-social-ink: #ff93c2;
+  --cat-learn: #7a4e05;
+  --cat-learn-soft: #33260c;
+  --cat-learn-ink: #f2bd63;
+  --card-line: rgba(255, 255, 255, .05);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, .4), 0 6px 20px rgba(0, 0, 0, .3);
   /* wykresy (docs/UI-2.md, sekcja 2): jedna seria danych, seria porównawcza, pasmo, siatka, skala kolejności, kategorie */
   --chart-data: #86c597;
   --chart-data-soft: color-mix(in srgb, var(--chart-data) 38%, var(--surface));
@@ -168,38 +230,68 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0f1411;
-    --surface: #171d19;
-    --surface-2: #1f2721;
-    --surface-3: #29332c;
-    --field-bg: #131916;
-    --sep: #28312b;
-    --sep-strong: #3b463e;
-    --text: #e7ece5;
-    --text-2: #a5afa6;
-    --text-3: #8b958c;
-    --accent: #86c597;
-    --accent-hover: #9dd3ab;
-    --on-accent: #0c1a10;
-    --accent-text: #8fcfa0;
-    --accent-soft: #1d3325;
-    --on-accent-soft: #b4e0bf;
-    --ring: rgba(134, 197, 151, .4);
+    --bg: #0b1114;
+    --surface: #141c20;
+    --surface-2: #1b252a;
+    --surface-3: #243037;
+    --field-bg: #10181c;
+    --sep: #223038;
+    --sep-strong: #36464f;
+    --text: #e8eef1;
+    --text-2: #a4b2b9;
+    --text-3: #87969d;
+    --accent: #4fd1a5;
+    --accent-hover: #6fdcb7;
+    --on-accent: #05231a;
+    --accent-text: #6fdcb7;
+    --accent-soft: #12322a;
+    --on-accent-soft: #a6ecd3;
+    --ring: rgba(79, 209, 165, .4);
     --bar: #1d3b27;
     --on-bar: #eef1e8;
     --on-bar-2: rgba(238, 241, 232, .72);
     --bar-mark: #a7cf8a;
-    --warn: #f0c674;
-    --warn-soft: #2a2214;
-    --warn-line: #4a3c1c;
+    --warn: #ffa66b;
+    --warn-soft: #38200f;
+    --warn-line: #5c3517;
     --danger: #f2a093;
     --danger-soft: #331c18;
     --danger-line: #5a2c25;
-    --ok: #8fd3a5;
-    --ok-soft: #19301f;
+    --ok: #5fd6a8;
+    --ok-soft: #123128;
     --kind-indica: #b9a0db;
     --kind-sativa: #e2b364;
     --kind-hybryda: #72c9a8;
+    /* Design 3 (docs/DESIGN-3.md, „Decyzja”): przycisk główny, hero (gradient od --bar), kolory obszarów */
+    --btn: #0f7a5c;
+    --btn-hover: #12896a;
+    --on-btn: #ffffff;
+    --hero-2: #0f4a3c;
+    --hero-3: #0d5a4d;
+    --on-hero: #ffffff;
+    --on-hero-2: #c4e3d8;
+    --hero-btn-2: rgba(0, 0, 0, .22);
+    --on-cat: #ffffff;
+    --cat-stock: #11694c;
+    --cat-stock-soft: #123128;
+    --cat-stock-ink: #5fd6a8;
+    --cat-journal: #5530a3;
+    --cat-journal-soft: #251a3f;
+    --cat-journal-ink: #b9a0ff;
+    --cat-rx: #2449a6;
+    --cat-rx-soft: #16233f;
+    --cat-rx-ink: #93b4ff;
+    --cat-strain: #0d5f6f;
+    --cat-strain-soft: #0f2c33;
+    --cat-strain-ink: #62cde0;
+    --cat-social: #9e2459;
+    --cat-social-soft: #36172a;
+    --cat-social-ink: #ff93c2;
+    --cat-learn: #7a4e05;
+    --cat-learn-soft: #33260c;
+    --cat-learn-ink: #f2bd63;
+    --card-line: rgba(255, 255, 255, .05);
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, .4), 0 6px 20px rgba(0, 0, 0, .3);
     /* wykresy (docs/UI-2.md, sekcja 2): jedna seria danych, seria porównawcza, pasmo, siatka, skala kolejności, kategorie */
     --chart-data: #86c597;
     --chart-data-soft: color-mix(in srgb, var(--chart-data) 38%, var(--surface));
@@ -243,8 +335,8 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
-h1, h2, h3 { font-family: var(--font-display), Georgia, serif; font-weight: 600; letter-spacing: -.012em; line-height: var(--lh-tight); margin: 0 0 var(--s-3); color: var(--text); }
-h1 { font-size: var(--fs-3xl); }
+h1, h2, h3 { font-family: var(--font-display), system-ui, sans-serif; font-weight: 700; letter-spacing: -.015em; line-height: var(--lh-tight); margin: 0 0 var(--s-3); color: var(--text); }
+h1 { font-size: var(--fs-3xl); font-weight: 800; letter-spacing: -.02em; }
 h2 { font-size: var(--fs-xl); }
 h3 { font-size: var(--fs-lg); }
 p { margin: 0 0 var(--s-3); }
@@ -274,18 +366,19 @@ main, .card, .stack > *, .row > *, .toolbar > * { min-width: 0; }
   h1 { font-size: 1.75rem; }
 }
 
-/* sekcja/karta: płaska powierzchnia z cienką ramką, bez cienia */
-.card { background: var(--surface); border: 1px solid var(--sep); border-radius: var(--r-lg); padding: var(--s-5); }
+/* sekcja/karta: powierzchnia z miękkim cieniem, odcina się od tła (Design 3); linie tylko wewnątrz kart */
+.card { background: var(--surface); border: 1px solid var(--card-line); border-radius: var(--r-lg); padding: var(--s-5); box-shadow: var(--shadow-card); }
+.card .card, .card .list { box-shadow: none; border-color: var(--sep); } /* karta w karcie bez podwójnego cienia */
 .card.narrow { max-width: 460px; }
 .card > h2:first-child, .card > header:first-child h2 { margin-bottom: var(--s-3); }
 @media (max-width: 760px) { .card { padding: var(--s-4); } }
 
 /* etykieta sekcji nad grupą (styl ustawień systemowych) */
-.section-label { font-family: var(--font-body), system-ui, sans-serif; font-size: var(--fs-sm); font-weight: 600; color: var(--text-2); letter-spacing: .01em; margin: var(--s-6) var(--s-1) var(--s-2); }
+.section-label { font-family: var(--font-body), system-ui, sans-serif; font-size: var(--fs-sm); font-weight: 700; color: var(--text-2); letter-spacing: .01em; margin: var(--s-6) var(--s-1) var(--s-2); }
 .section-label:first-child { margin-top: 0; }
 
 /* ===== Listy w stylu natywnym ===== */
-.list { list-style: none; margin: 0; padding: 0; background: var(--surface); border: 1px solid var(--sep); border-radius: var(--r-lg); overflow: hidden; }
+.list { list-style: none; margin: 0; padding: 0; background: var(--surface); border: 1px solid var(--card-line); border-radius: var(--r-lg); overflow: hidden; box-shadow: var(--shadow-card); }
 .list > li + li, .list > .list-row + .list-row { border-top: 1px solid var(--sep); }
 .list-row { display: flex; align-items: center; gap: var(--s-3); min-height: 52px; padding: var(--s-3) var(--s-4); color: inherit; text-decoration: none; background: none; border: 0; width: 100%; font: inherit; text-align: left; }
 a.list-row, button.list-row { cursor: pointer; }
@@ -338,14 +431,17 @@ input.switch:disabled { opacity: .5; cursor: default; }
 
 /* ===== Przyciski: główny (.btn), drugorzędny (.btn.ghost), tekstowy (.btn.text), niebezpieczny (.btn.danger) ===== */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2); min-height: var(--tap); padding: 0 var(--s-4);
-  background: var(--accent); color: var(--on-accent); border: 1px solid var(--accent); border-radius: var(--r-md);
-  font: inherit; font-size: .9375rem; font-weight: 600; line-height: 1.2; text-decoration: none; cursor: pointer; white-space: nowrap;
+  background: var(--btn); color: var(--on-btn); border: 1px solid var(--btn); border-radius: var(--r-md);
+  font: inherit; font-size: .9375rem; font-weight: 700; line-height: 1.2; text-decoration: none; cursor: pointer; white-space: nowrap;
   transition: background var(--dur-1) var(--ease), border-color var(--dur-1) var(--ease); }
-.btn:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+.btn:hover { background: var(--btn-hover); border-color: var(--btn-hover); }
 .btn:disabled { opacity: .55; cursor: default; }
 .btn .icon { width: 20px; height: 20px; }
 .btn.small { min-height: 36px; padding: 0 var(--s-3); font-size: var(--fs-sm); }
 .btn.ghost { background: var(--surface); color: var(--accent-text); border-color: var(--sep-strong); }
+/* miękki: tło obszaru (data-cat) albo marki; akcja drugorzędna z kolorem, np. „Zużyłem” na karcie */
+.btn.soft { background: var(--c-soft, var(--accent-soft)); color: var(--c-ink, var(--on-accent-soft)); border-color: transparent; }
+.btn.soft:hover { background: var(--c-soft, var(--accent-soft)); filter: brightness(.97); }
 .btn.ghost:hover { background: var(--hover-bg); }
 .btn.text { background: transparent; border-color: transparent; color: var(--accent-text); padding-inline: var(--s-2); }
 .btn.text:hover { background: var(--hover-bg); }
@@ -395,16 +491,80 @@ a.chip.static:hover { background: var(--surface-3); color: var(--text); }
 
 /* przełącznik segmentowy */
 .seg { display: flex; flex-wrap: wrap; max-width: 100%; padding: 2px; background: var(--surface-2); border-radius: var(--r-md); gap: 2px; width: fit-content; }
-.seg button { flex: 1 1 auto; border: 0; background: transparent; min-height: 36px; padding: 0 var(--s-4); border-radius: 8px; font: inherit; font-size: var(--fs-sm); font-weight: 600; color: var(--text-2); cursor: pointer; }
-.seg button.on { background: var(--surface); color: var(--text); box-shadow: var(--shadow-1), 0 0 0 1px var(--sep); }
-:root[data-theme="dark"] .seg button.on { background: var(--surface-3); box-shadow: 0 0 0 1px var(--sep-strong); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .seg button.on { background: var(--surface-3); box-shadow: 0 0 0 1px var(--sep-strong); } }
+.seg button, .seg a { flex: 1 1 auto; display: inline-grid; place-items: center; text-decoration: none; border: 0; background: transparent; min-height: 36px; padding: 0 var(--s-4); border-radius: 8px; font: inherit; font-size: var(--fs-sm); font-weight: 600; color: var(--text-2); cursor: pointer; }
+.seg button.on, .seg a.on { background: var(--surface); color: var(--text); box-shadow: var(--shadow-1), 0 0 0 1px var(--sep); }
+:root[data-theme="dark"] :is(.seg button.on, .seg a.on) { background: var(--surface-3); box-shadow: 0 0 0 1px var(--sep-strong); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) :is(.seg button.on, .seg a.on) { background: var(--surface-3); box-shadow: 0 0 0 1px var(--sep-strong); } }
 @media (max-width: 480px) {
-  .seg button { padding: 0 var(--s-3); }
+  .seg button, .seg a { padding: 0 var(--s-3); }
   /* pełna szerokość; gdy opcje się nie mieszczą (wąski ekran, duża czcionka systemowa), segmenty się zawijają */
   .seg:not(.admin-tabs) { width: 100%; flex-wrap: wrap; }
-  .seg:not(.admin-tabs) button { flex: 1 1 auto; white-space: nowrap; }
+  .seg:not(.admin-tabs) :is(button, a) { flex: 1 1 auto; white-space: nowrap; }
 }
+
+/* ===== Design 3: obszary, ikony w kółkach, karty tonalne, kafle, hero (docs/DESIGN-3.md) ===== */
+/* data-cat="…" na elemencie ustawia kolory obszaru dla niego i jego dzieci: --c (wypełnienie z --on-cat),
+   --c-soft (tło tonalne), --c-ink (tekst i ikona na tle tonalnym i na powierzchni) */
+[data-cat="stock"] { --c: var(--cat-stock); --c-soft: var(--cat-stock-soft); --c-ink: var(--cat-stock-ink); }
+[data-cat="journal"] { --c: var(--cat-journal); --c-soft: var(--cat-journal-soft); --c-ink: var(--cat-journal-ink); }
+[data-cat="rx"] { --c: var(--cat-rx); --c-soft: var(--cat-rx-soft); --c-ink: var(--cat-rx-ink); }
+[data-cat="strain"] { --c: var(--cat-strain); --c-soft: var(--cat-strain-soft); --c-ink: var(--cat-strain-ink); }
+[data-cat="social"] { --c: var(--cat-social); --c-soft: var(--cat-social-soft); --c-ink: var(--cat-social-ink); }
+[data-cat="learn"] { --c: var(--cat-learn); --c-soft: var(--cat-learn-soft); --c-ink: var(--cat-learn-ink); }
+
+/* ikona w kółku (44 px, .sm 36 px) albo w zaokrąglonym kwadracie (.sq); bez obszaru neutralna */
+.ic-dot { display: inline-grid; place-items: center; flex: none; width: 44px; height: 44px; border-radius: 50%; background: var(--c-soft, var(--surface-2)); color: var(--c-ink, var(--text-2)); }
+.ic-dot.sm { width: 36px; height: 36px; }
+.ic-dot.sq { border-radius: 12px; }
+.ic-dot.solid { background: var(--c, var(--btn)); color: var(--on-cat); }
+.ic-dot .icon { color: inherit; }
+
+/* nagłówek sekcji w karcie: kółko z ikoną, tytuł, akcja po prawej */
+.sec-head { display: flex; align-items: center; gap: var(--s-3); margin-bottom: var(--s-3); }
+.sec-head > h2, .sec-head > h3 { flex: 1; min-width: 0; margin: 0; font-size: var(--fs-lg); }
+.sec-head > a, .sec-head > .btn.text { flex: none; }
+
+/* karta tonalna: sekcja z tematem (obszar), bez cienia; białe „wyspy” w środku to .card albo .tile */
+.card.tint, .tint { background: var(--c-soft, var(--accent-soft)); border-color: transparent; box-shadow: none; }
+.tint .sec-head > h2, .tint .sec-head > h3 { color: var(--text); }
+
+/* kafel: szybka akcja (ikona w kółku i podpis) albo liczba (KPI); .solid = pełny kolor obszaru (oszczędnie, patrz zasady) */
+.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-3); }
+.tile { display: grid; justify-items: center; align-content: start; gap: 6px; min-height: var(--tap); padding: var(--s-3) var(--s-1); border-radius: var(--r-lg);
+  background: var(--surface); border: 1px solid var(--card-line); box-shadow: var(--shadow-card); color: var(--text); text-decoration: none; font-size: var(--fs-sm); font-weight: 600; text-align: center; }
+a.tile:hover { background: var(--hover-bg); }
+.kpi-tile { display: flex; flex-direction: column; gap: 4px; min-height: 112px; padding: var(--s-4); border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--card-line); box-shadow: var(--shadow-card); color: var(--text); text-decoration: none; }
+.kpi-tile .kt-label { display: flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); font-weight: 700; color: var(--c-ink, var(--text-2)); }
+.kpi-tile .kt-value { margin-top: auto; font-size: 2rem; font-weight: 800; line-height: 1; letter-spacing: -.02em; font-variant-numeric: tabular-nums lining-nums; }
+.kpi-tile .kt-value small { font-size: .9375rem; font-weight: 700; letter-spacing: 0; margin-left: 2px; }
+.kpi-tile .kt-sub { font-size: var(--fs-sm); color: var(--text-2); }
+.kpi-tile.solid { background: var(--c, var(--btn)); border-color: transparent; color: var(--on-cat); }
+.kpi-tile.solid .kt-label, .kpi-tile.solid .kt-sub { color: var(--on-cat); }
+.kpi-tile.solid .ic-dot { background: var(--hero-btn-2); color: var(--on-cat); }
+
+/* duża liczba (stan, ocena): Figtree 800, cyfry tabelaryczne */
+.big-num { font-size: 3rem; font-weight: 800; line-height: 1; letter-spacing: -.03em; font-variant-numeric: tabular-nums lining-nums; }
+.big-num small { font-size: 1.25rem; font-weight: 700; letter-spacing: 0; margin-left: 4px; }
+
+/* hero: nagłówek ekranu z gradientem od koloru paska (na telefonie łączy się z górnym paskiem, pasek stanu bez zmian) */
+.hero { background: linear-gradient(165deg, var(--bar) 0%, var(--hero-2) 60%, var(--hero-3) 100%); color: var(--on-hero);
+  border-radius: var(--r-xl); padding: var(--s-5); margin-bottom: var(--s-4); }
+.hero h1, .hero h2 { color: var(--on-hero); }
+.hero .muted, .hero .hero-sub { color: var(--on-hero-2); }
+.hero .btn { background: var(--on-hero); color: var(--hero-2); border-color: var(--on-hero); }
+.hero .btn.ghost { background: var(--hero-btn-2); color: var(--on-hero); border-color: var(--on-hero-2); }
+.hero :focus-visible { outline-color: var(--on-hero); }
+@media (max-width: 760px) {
+  .hero { margin: calc(var(--s-5) * -1) calc(var(--s-4) * -1) var(--s-4); border-radius: 0 0 var(--r-xl) var(--r-xl); padding: var(--s-2) var(--s-4) var(--s-6); }
+}
+
+/* nagłówek ekranu z akcją po prawej */
+.page-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); margin-bottom: var(--s-3); }
+.page-head h1 { margin: 0; }
+.seg.seg-links { margin-bottom: var(--s-4); }
+
+/* chip wybrany w obszarze ekranu (np. filtry na liście odmian w kolorze odmian) */
+[data-cat] .chip.on, .chip.on[data-cat] { background: var(--c-soft); color: var(--c-ink); border-color: var(--c-ink); }
 
 /* ===== Tabele ===== */
 .table, .cmp { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
@@ -440,7 +600,7 @@ a.chip.static:hover { background: var(--surface-3); color: var(--text); }
 
 /* ===== Dotyk: cele ≥ 44 px, pola 16 px (bez powiększania w iOS) ===== */
 @media (pointer: coarse) {
-  .btn, .chip, .seg button, .linklike, select.input, input.input, textarea.input { min-height: var(--tap); }
+  .btn, .chip, .seg button, .seg a, .linklike, select.input, input.input, textarea.input { min-height: var(--tap); }
   .chips.small .chip, .chip.tag { min-height: 0; }
   .btn.small { min-height: var(--tap); }
   .chips.small .use-chip { min-height: 40px; padding: 0 12px; }

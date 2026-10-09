@@ -4,7 +4,7 @@
 /* ===== Górny pasek (kolor marki, sprzężony z paskiem stanu Androida i themeColor) ===== */
 .topbar { background: var(--bar); color: var(--on-bar); }
 .topbar-in { max-width: var(--page-max); margin: 0 auto; min-height: 56px; padding: 0 var(--s-5); display: flex; align-items: center; gap: var(--s-6); }
-.brand { display: inline-flex; align-items: center; gap: 10px; min-height: var(--tap); color: inherit; text-decoration: none; font-family: var(--font-display), Georgia, serif; font-size: var(--fs-xl); font-weight: 600; letter-spacing: -.01em; }
+.brand { display: inline-flex; align-items: center; gap: 10px; min-height: var(--tap); color: inherit; text-decoration: none; font-family: var(--font-display), system-ui, sans-serif; font-size: var(--fs-xl); font-weight: 800; letter-spacing: -.02em; }
 .brand svg { color: var(--bar-mark); }
 .nav { display: flex; gap: 2px; align-items: center; }
 .nav a, .more summary { display: inline-flex; align-items: center; min-height: 36px; padding: 0 12px; border-radius: var(--r-md); color: var(--on-bar-2); text-decoration: none; font-size: .9375rem; font-weight: 500; transition: background var(--dur-1) var(--ease), color var(--dur-1) var(--ease); }
@@ -58,15 +58,16 @@ a.who-name:hover { color: var(--on-bar); }
   .topbar-in { padding: 0 var(--s-2) 0 var(--s-4); min-height: 52px; }
   .topbar .nav, .who-name, .who .btn { display: none; }
   .who-mobile { display: inline-grid; }
-  body { padding-bottom: calc(var(--bottomnav-h) + 88px + env(safe-area-inset-bottom)); }
+  body { padding-bottom: calc(var(--bottomnav-h) + 24px + env(safe-area-inset-bottom)); }
 
   .bottomnav { display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
     background: var(--surface); color: var(--text-2); border-top: 1px solid var(--sep); padding: 0 4px env(safe-area-inset-bottom); }
   .bottomnav a, .bottomnav button { display: grid; justify-items: center; align-content: center; gap: 2px; height: var(--bottomnav-h); padding: 0 2px;
     color: inherit; text-decoration: none; background: none; border: 0; font: inherit; font-size: .6875rem; font-weight: 500; letter-spacing: .01em; position: relative; cursor: pointer; }
   .bottomnav .bn-ic { display: grid; place-items: center; width: 56px; height: 28px; border-radius: var(--r-pill); transition: background var(--dur-2) var(--ease); }
-  .bottomnav .on { color: var(--accent-text); font-weight: 600; }
-  .bottomnav .on .bn-ic { background: var(--accent-soft); color: var(--on-accent-soft); }
+  /* aktywna zakładka w kolorze swojego obszaru (data-cat z navItems.js) */
+  .bottomnav .on { color: var(--c-ink, var(--accent-text)); font-weight: 700; }
+  .bottomnav .on .bn-ic { background: var(--c-soft, var(--accent-soft)); color: var(--c-ink, var(--on-accent-soft)); }
   .bottomnav .nbadge { position: absolute; top: 4px; left: calc(50% + 8px); margin: 0; }
 
   .sheet-backdrop { display: block; position: fixed; inset: 0; background: var(--scrim); z-index: 44; }
@@ -77,18 +78,22 @@ a.who-name:hover { color: var(--on-bar); }
   .sheet .section-label { margin-top: var(--s-4); }
   .sheet .list a { color: var(--text); }
   /* linie między wierszami zaczynają się od tekstu, nie od ikony (jak w ustawieniach systemowych) */
-  .sheet .list > .list-row + .list-row { border-top: 0; background-image: linear-gradient(var(--sep), var(--sep)); background-size: calc(100% - 52px) 1px; background-position: right top; background-repeat: no-repeat; }
+  .sheet .list > .list-row + .list-row { border-top: 0; background-image: linear-gradient(var(--sep), var(--sep)); background-size: calc(100% - 64px) 1px; background-position: right top; background-repeat: no-repeat; }
   .sheet .list > .list-row[aria-current="page"] .lr-main { font-weight: 600; }
   .sheet .list .nbadge { margin-left: auto; }
   .sheet .list .nbadge + .lr-chev { margin-left: 0; }
   .sheet .logout { color: var(--danger); }
   .sheet .logout .icon { color: var(--danger); }
+  .sheet .logout .ic-dot { background: var(--danger-soft); }
   .sheet .ver { text-align: center; margin-top: var(--s-3); }
 
-  .fab { display: grid; place-items: center; position: fixed; right: 16px; bottom: calc(var(--bottomnav-h) + 16px + env(safe-area-inset-bottom)); z-index: 46;
-    width: 56px; height: 56px; border-radius: 16px; border: 0; background: var(--accent); color: var(--on-accent); box-shadow: var(--shadow-2); cursor: pointer; }
-  .fab .icon { width: 26px; height: 26px; }
-  .fab-menu { display: block; position: fixed; right: 16px; left: auto; bottom: calc(var(--bottomnav-h) + 84px + env(safe-area-inset-bottom)); z-index: 46; min-width: 240px;
+  /* „+” w środku dolnego paska (nie zasłania treści), gradient marki jak hero */
+  .bottomnav .bn-add { display: grid; place-items: center; }
+  .bottomnav .fab { display: grid; place-items: center; width: 56px; height: 56px; margin-top: -20px; padding: 0; border-radius: 50%;
+    border: 4px solid var(--surface); background: linear-gradient(160deg, var(--hero-2), var(--hero-3)); color: var(--on-hero); box-shadow: var(--shadow-2); }
+  .bottomnav .fab .icon { width: 26px; height: 26px; }
+  .bottomnav .fab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .fab-menu { display: block; position: fixed; left: var(--s-4); right: var(--s-4); margin: 0 auto; max-width: 320px; bottom: calc(var(--bottomnav-h) + 16px + env(safe-area-inset-bottom)); z-index: 46;
     box-shadow: var(--shadow-2); animation: sheet-in var(--dur-2) var(--ease); }
   .fab-menu .list-row { min-height: 48px; }
 }

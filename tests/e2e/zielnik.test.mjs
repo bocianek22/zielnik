@@ -69,6 +69,8 @@ scenario('Wykres zużycia 14 dni: strzałki zmieniają odczyt, Escape wraca do d
   await go(page, '/');
   const read = page.locator('.usage-sel');
   assert.match(await text(read), /^Dziś/);
+  // strona „Dziś” bez listy odmian ładuje się szybciej niż wyspa wykresu: klawiatura dopiero po jej hydratacji
+  await interactive(page.locator('.usage-scrub'));
   await page.locator('.usage-scrub').focus();
   await page.keyboard.press('ArrowLeft');
   assert.match(await text(read), /^Wczoraj/, 'strzałka w lewo wybiera wczoraj');
@@ -83,7 +85,7 @@ scenario('Wykres zużycia 14 dni: strzałki zmieniają odczyt, Escape wraca do d
 }, withSession);
 
 scenario('"Wykupiłem" na karcie odmiany (i Cofnij)', async (page) => {
-  await go(page, '/');
+  await go(page, '/odmiany');
   const btn = page.getByRole('button', { name: 'Wykupiłem: Lemon Skunk' });
   const card = page.locator('.quick').filter({ has: btn });
   await btn.click();
@@ -270,7 +272,7 @@ scenario('tryb dyskretny: nazwy rozmyte, tytuł "Notatnik"',async (page) => {
   await go(page, '/profil');
   await page.getByRole('switch', { name: 'Tryb dyskretny' }).check();
   await page.waitForFunction(() => document.title === 'Notatnik' || document.documentElement.hasAttribute('data-discreet'));
-  await go(page, '/');
+  await go(page, '/odmiany');
   await page.waitForSelector('.dn');
   const blurs = await page.$$eval('.dn', (els) => els.map((e) => getComputedStyle(e).filter));
   assert.ok(blurs.length > 0 && blurs.every((f) => /blur/.test(f)), `nazwy rozmyte: ${blurs.slice(0, 3)}`);
@@ -281,7 +283,7 @@ scenario('tryb dyskretny: nazwy rozmyte, tytuł "Notatnik"',async (page) => {
   // wyłączenie przywraca widok
   await go(page, '/profil');
   await page.getByRole('switch', { name: 'Tryb dyskretny' }).uncheck();
-  await go(page, '/');
+  await go(page, '/odmiany');
   await page.waitForSelector('.dn');
   assert.ok((await page.$$eval('.dn', (els) => els.map((e) => getComputedStyle(e).filter))).every((f) => !/blur/.test(f)));
 }, withSession);

@@ -1,11 +1,11 @@
-/* Strona główna: nagłówek „Dziś” i panel „Dziś” (zapas, prognoza, zużycie z 14 dni, szybkie „Zużyłem”, recepty).
-   Komponenty: app/page.js, app/components/TodayPanel.js (lista odmian pod panelem: strains.css) */
+/* Strona główna: nagłówek „Dziś” (hero z gradientem, globals.css) i panel „Dziś” (zapas, prognoza, zużycie z 14 dni, szybkie „Zużyłem”, recepty).
+   Komponenty: app/page.js, app/components/TodayPanel.js. Lista odmian jest na /odmiany (strains.css). */
 
 .home-head { margin-bottom: var(--s-4); }
 .home-head h1 { margin: 0; }
 .home-date { margin: 0 0 2px; font-size: var(--fs-sm); font-weight: 600; color: var(--text-2); }
 .home-date::first-letter { text-transform: uppercase; }
-.home-section { margin: var(--s-4) 0 calc(var(--s-1) * -1); }
+.home-head.hero .home-date { color: var(--on-hero-2); }
 
 .today { display: grid; gap: var(--s-4); }
 .today-card { padding: 0; overflow: hidden; }
@@ -17,7 +17,7 @@
 .kpi > div { min-width: 0; }
 .kpi-label { margin: 0; font-family: var(--font-body), system-ui, sans-serif; font-size: var(--fs-sm); font-weight: 600; color: var(--text-2); letter-spacing: .01em; line-height: 1.4; }
 .kpi-big, .kpi-mid { margin: 0; color: var(--text-2); white-space: nowrap; font-size: var(--fs-lg); }
-.kpi-big b, .kpi-mid b { font-family: var(--font-display), Georgia, serif; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums lining-nums; letter-spacing: -.02em; }
+.kpi-big b, .kpi-mid b { font-family: var(--font-display), system-ui, sans-serif; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums lining-nums; letter-spacing: -.02em; }
 .kpi-big b { font-size: 3rem; line-height: 1.05; }
 .kpi-days { text-align: right; }
 .kpi-mid b { font-size: 1.875rem; line-height: 1.1; }
@@ -68,7 +68,7 @@
 .trx:first-child { padding-top: var(--s-1); }
 .trx + .trx { border-top: 1px solid var(--sep); }
 .trx-count { display: grid; justify-items: center; text-align: center; padding-top: 2px; }
-.trx-count b { font-family: var(--font-display), Georgia, serif; font-size: 1.75rem; font-weight: 600; line-height: 1; color: var(--text); font-variant-numeric: tabular-nums lining-nums; }
+.trx-count b { font-family: var(--font-display), system-ui, sans-serif; font-size: 1.75rem; font-weight: 600; line-height: 1; color: var(--text); font-variant-numeric: tabular-nums lining-nums; }
 .trx-count span { margin-top: 3px; font-size: var(--fs-xs); color: var(--text-2); white-space: nowrap; }
 .trx.soon .trx-count b { color: var(--warn); }
 .trx.expired .trx-count b { color: var(--text-3); }
@@ -88,7 +88,7 @@
 .tsym-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-2); }
 .tsym-label { font-weight: 600; }
 .tsym-val { font-size: var(--fs-sm); color: var(--text-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.tsym-val b { font-family: var(--font-display), Georgia, serif; font-size: var(--fs-xl); font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums lining-nums; }
+.tsym-val b { font-family: var(--font-display), system-ui, sans-serif; font-size: var(--fs-xl); font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums lining-nums; }
 .tsym-val.unset { color: var(--text-3); }
 .tsym-btns { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
 .tsym-btns button { min-height: var(--tap); min-width: 0; padding: 0; border: 1px solid var(--sep); border-radius: var(--r-md); background: var(--surface-2); color: var(--text);

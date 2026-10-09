@@ -42,7 +42,7 @@
 .dscores > div + div { padding-left: var(--s-3); border-left: 1px solid var(--sep); }
 .dscores dt { font-size: var(--fs-xs); font-weight: 600; color: var(--text-2); letter-spacing: .01em; }
 .dscores dd { margin: 0; color: var(--text-2); }
-.dscores dd b { font-family: var(--font-display), Georgia, serif; font-size: 2.25rem; line-height: 1.15; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums lining-nums; letter-spacing: -.02em; }
+.dscores dd b { font-family: var(--font-display), system-ui, sans-serif; font-size: 2.25rem; line-height: 1.15; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums lining-nums; letter-spacing: -.02em; }
 .dscores dd small { font-size: var(--fs-sm); margin-left: 2px; }
 .dscores .dscore-sub { font-size: var(--fs-xs); }
 
@@ -61,7 +61,7 @@
 .mystats-grid > div:nth-child(n+3) { border-top: 1px solid var(--sep); }
 .mystats-grid dt { font-size: var(--fs-xs); font-weight: 600; color: var(--text-2); }
 .mystats-grid dd { margin: 0; color: var(--text-2); }
-.mystats-grid dd b { font-family: var(--font-display), Georgia, serif; font-size: 1.75rem; line-height: 1.2; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums lining-nums; letter-spacing: -.01em; }
+.mystats-grid dd b { font-family: var(--font-display), system-ui, sans-serif; font-size: 1.75rem; line-height: 1.2; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums lining-nums; letter-spacing: -.01em; }
 .mystats-grid dd b.txt { font-size: 1.375rem; line-height: 1.53; }
 .mystats-grid .sub { font-size: var(--fs-xs); }
 @media (min-width: 761px) {
@@ -79,7 +79,7 @@
 .op-who { display: inline-flex; align-items: center; min-height: var(--tap); font-weight: 600; color: var(--text); text-decoration: none; overflow-wrap: anywhere; }
 .op-who:hover { text-decoration: underline; }
 .op-rating { color: var(--text-2); font-size: var(--fs-sm); white-space: nowrap; }
-.op-rating b { font-family: var(--font-display), Georgia, serif; font-size: var(--fs-xl); color: var(--text); font-variant-numeric: tabular-nums lining-nums; margin-right: 1px; }
+.op-rating b { font-family: var(--font-display), system-ui, sans-serif; font-size: var(--fs-xl); color: var(--text); font-variant-numeric: tabular-nums lining-nums; margin-right: 1px; }
 .op-note { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 
 /* mój wpis: sekcja ma już tytuł, więc „Twoje pola” tylko dla czytnika ekranu; stan zapisu zostaje widoczny */

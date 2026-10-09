@@ -20,7 +20,7 @@ function Empty({ icon, title, text }) {
       <Icon name={icon} size={32} />
       <h2>{title}</h2>
       <p>{text}</p>
-      <Link className="btn ghost" href="/">Przejdź do odmian</Link>
+      <Link className="btn ghost" href="/odmiany">Przejdź do odmian</Link>
     </div>
   );
 }

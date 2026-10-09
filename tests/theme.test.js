@@ -47,3 +47,36 @@ test('tokeny pomocnicze wykresów są w trzech blokach', () => {
     for (const k of ['--chart-data-soft', '--chart-band', '--chart-grid', '--chart-axis', '--chart-zero']) assert.ok(b[k], `${k} w ${re}`);
   }
 });
+
+// Design 3 (docs/DESIGN-3.md, „Decyzja”): kontrast WCAG 2.1 par tekst/tło w obu motywach, także kolorów obszarów (--cat-*)
+const lum = (hex) => {
+  const n = parseInt(hex.slice(1), 16);
+  return [n >> 16, (n >> 8) & 255, n & 255].map((c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; })
+    .reduce((s, c, i) => s + c * [0.2126, 0.7152, 0.0722][i], 0);
+};
+const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+const CATS = ['stock', 'journal', 'rx', 'strain', 'social', 'learn'];
+const PAIRS = [
+  ['--text', '--bg', 4.5], ['--text-2', '--bg', 4.5], ['--text-3', '--bg', 4.5], ['--text-2', '--surface', 4.5], ['--text-3', '--surface', 4.5],
+  ['--text-2', '--surface-2', 4.5], ['--on-btn', '--btn', 4.5], ['--on-accent', '--accent', 4.5], ['--on-accent-soft', '--accent-soft', 4.5],
+  ['--accent-text', '--surface', 4.5], ['--accent-text', '--bg', 4.5], ['--accent', '--bg', 3], ['--on-bar', '--bar', 4.5],
+  ['--warn', '--warn-soft', 4.5], ['--warn', '--surface', 4.5], ['--danger', '--danger-soft', 4.5],
+  ['--on-hero', '--hero-2', 4.5], ['--on-hero', '--hero-3', 4.5], ['--on-hero-2', '--hero-3', 4.5], ['--on-hero-2', '--bar', 4.5],
+  ...CATS.flatMap((c) => [[`--cat-${c}-ink`, `--cat-${c}-soft`, 4.5], ['--text', `--cat-${c}-soft`, 4.5], ['--text-2', `--cat-${c}-soft`, 4.5],
+    [`--cat-${c}-ink`, '--surface', 4.5], ['--on-cat', `--cat-${c}`, 4.5]]),
+];
+
+test('kontrast par tekst/tło (WCAG AA) w obu motywach', () => {
+  const light = block(/:root\s*\{([^}]*)\}/);
+  const dark = block(/:root\[data-theme="dark"\]\s*\{([^}]*)\}/);
+  const bad = [];
+  for (const [name, b] of [['jasny', light], ['ciemny', dark]]) {
+    for (const [f, bg, min] of PAIRS) {
+      assert.match(b[f] || '', /^#[0-9a-f]{6}$/i, `${f} (${name}) jako #rrggbb`);
+      assert.match(b[bg] || '', /^#[0-9a-f]{6}$/i, `${bg} (${name}) jako #rrggbb`);
+      const r = ratio(b[f], b[bg]);
+      if (r < min) bad.push(`${name}: ${f} na ${bg} = ${r.toFixed(2)} < ${min}`);
+    }
+  }
+  assert.deepEqual(bad, []);
+});
