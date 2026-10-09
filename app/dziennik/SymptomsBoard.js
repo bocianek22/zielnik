@@ -4,6 +4,7 @@ import { api } from '@/lib/api';
 import { SYMPTOMS, customMeta, CUSTOM_MAX, CUSTOM_NAME_MAX } from '@/lib/symptoms';
 import Icon from '../components/Icon';
 import Toast from '../components/Toast';
+import SecHead from '../components/SecHead';
 import SymptomsChart from '../components/charts/SymptomsChart';
 import { addDays } from '../components/charts/fmt';
 
@@ -42,7 +43,7 @@ function CustomManager({ defs, onChange }) {
     </select>
   );
   return (
-    <details className="card sym-custom" open={defs.length > 0 || undefined}>
+    <details className="card sym-custom" data-cat="journal" open={defs.length > 0 || undefined}>
       <summary><span className="lr-main">{defs.length === 0 ? 'Dodaj własny objaw' : 'Własne objawy'}<span className="lr-sub">{defs.length} z {CUSTOM_MAX}</span></span><Icon name="chevronRight" size={18} className="lr-chev" /></summary>
       <p className="muted small">Dodaj do {CUSTOM_MAX} własnych objawów w skali 0–10. Pojawią się w formularzu, na wykresie, w obserwacjach i w raporcie dla lekarza. Są prywatne.</p>
       {defs.length > 0 && (
@@ -130,8 +131,8 @@ export default function SymptomsBoard() {
   }, [folded]);
   return (
     <div className="stack">
-      <div className="alert note">Dziennik służy Twojej obserwacji i rozmowie z lekarzem. Dane są prywatne, a średnie z wybranego okresu trafiają do raportu dla lekarza.</div>
-      <h2 className="section-label">Ostatnie 30 dni</h2>
+      <p className="priv-note"><Icon name="info" size={20} />Dziennik służy Twojej obserwacji i rozmowie z lekarzem. Dane są prywatne, a średnie z wybranego okresu trafiają do raportu dla lekarza.</p>
+      <SecHead cat="journal" icon="chart">Ostatnie 30 dni</SecHead>
       {loaded && merged.length === 0 && data.usage.length === 0 ? (
         <section className="card empty">
           <Icon name="pulse" size={32} />
@@ -143,23 +144,32 @@ export default function SymptomsBoard() {
         // przed pobraniem danych: miejsce zarezerwowane, bez fałszywego „brak wpisów” i bez skoku układu
         <section className="card sym-skel" aria-busy="true" aria-label="Wczytywanie wykresu" />
       ) : (
-      <section className="card">
+      <section className="card" data-cat="journal">
         <SymptomsChart rows={merged} usage={data.usage} all={all} end={todayIso()} />
       </section>
       )}
-      <h2 className="section-label">Wpis objawów</h2>
+      <SecHead cat="journal" icon="edit">Wpis objawów</SecHead>
       {msg?.error && <div className="alert error" role="alert">{msg.text}</div>}
       <Toast text={msg && !msg.error ? msg.text : ''} onClose={() => setMsg(null)} />
       {folded ? (
-      <section className="card sym-today" aria-labelledby="sym-today-h">
-        <div className="sym-today-main">
+      <section className="card tint sym-today" data-cat="journal" aria-labelledby="sym-today-h">
+        <div className="sym-today-head">
+          <span className="ic-dot sm"><Icon name="check" size={20} /></span>
           <h2 id="sym-today-h" tabIndex={-1}>Dziś: zapisano</h2>
-          <p className="muted small">{(() => { const v = all.filter((x) => existing[x.key] != null); return v.length ? v.map((x, i) => <span key={x.key}>{i > 0 && ', '}<span className={x.custom ? 'dn' : undefined}>{x.short}</span> {existing[x.key]}</span>) : 'Tylko notatka.'; })()}</p>
+          <button type="button" className="btn soft" onClick={() => { focusNext.current = 'sd'; setEditing(true); }}>Zmień</button>
         </div>
-        <button type="button" className="btn ghost" onClick={() => { focusNext.current = 'sd'; setEditing(true); }}>Zmień</button>
+        {(() => {
+          const v = all.filter((x) => existing[x.key] != null);
+          if (!v.length) return <p className="small">Tylko notatka.</p>;
+          return (
+            <ul className="sym-tiles">
+              {v.map((x) => <li key={x.key}><b>{existing[x.key]}</b><span className={x.custom ? 'dn' : undefined}>{x.short}</span></li>)}
+            </ul>
+          );
+        })()}
       </section>
       ) : (
-        <form id="sym-form" className="card stack" onSubmit={save}>
+        <form id="sym-form" className="card stack" data-cat="journal" onSubmit={save}>
           <div className="sym-day">
             <div className="field"><label htmlFor="sd">Dzień</label>
               <input id="sd" className="input" type="date" max={todayIso()} value={day} onChange={(e) => setDay(e.target.value)} /></div>

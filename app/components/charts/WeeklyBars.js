@@ -1,4 +1,5 @@
 'use client';
+import SecHead from '../SecHead';
 import { useState } from 'react';
 import Frame from './Frame';
 import Bars from './Bars';
@@ -40,7 +41,7 @@ export default function WeeklyBars({ weekly, empty }) {
 
   return (
     <>
-      <h2 className="section-label">Zużycie tygodniowe, ostatnie {n} tygodni</h2>
+      <SecHead cat="stock" icon="chart">Zużycie tygodniowe, ostatnie {n} tygodni</SecHead>
       <Frame className="card wk" headClass="wk-head" readClass="wk-read"
         read={i == null
           ? <><span>średnio na tydzień</span> <b>{num(total / n, 1)} {unit}</b></>

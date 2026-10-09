@@ -1,4 +1,5 @@
 'use client';
+import SecHead from '../SecHead';
 import { useState } from 'react';
 import Frame from './Frame';
 import HBars from './HBars';
@@ -80,7 +81,7 @@ export default function PeriodCompare({ compare }) {
 
   return (
     <>
-      <h2 className="section-label">Porównanie okresów</h2>
+      <SecHead cat="stock" icon="trend">Porównanie okresów</SecHead>
       <Frame className="card pc"
         table={empty ? null : (
           <table>
