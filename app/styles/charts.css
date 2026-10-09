@@ -155,6 +155,7 @@
   .sp-end { background: CanvasText; }
   .sym-chart .sp-ubar path { fill: CanvasText; }
 
+}
 /* A4: słupki tygodniowe w Historii (charts/WeeklyBars.js) i porównanie okresów (charts/PeriodCompare.js, HBars.js) */
 .wk { padding: var(--s-4); }
 .wk-head { display: flex; justify-content: flex-end; }
