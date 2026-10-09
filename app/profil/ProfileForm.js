@@ -9,6 +9,7 @@ import { clearDeviceData } from '../components/deviceData';
 import { storedFcm, widgetClear } from '../components/native/bridge';
 import { VIS } from '@/lib/visibility';
 import Icon from '../components/Icon';
+import Toast from '../components/Toast';
 import Sessions from './Sessions';
 import EmailSettings from './EmailSettings';
 
@@ -82,10 +83,10 @@ export default function ProfileForm({ me, initial, children }) {
           <select id="p-vis" className="input vis-select" value={f.profileVisibility} onChange={(e) => setF({ ...f, profileVisibility: e.target.value })}>
             {VIS.map(([v, label]) => <option key={v} value={v}>{label}</option>)}</select></div>
         <div className="row">
-          <button className="btn" disabled={busy}>Zapisz profil</button>
+          <button className="btn" disabled={busy} aria-busy={busy || undefined}>Zapisz profil</button>
           <Link className="btn ghost" href={`/u/${encodeURIComponent(me.username)}`}>Zobacz mój profil</Link>
           <button type="button" className="btn ghost only-mobile" onClick={shareProfile}><Icon name="share" size={18} />Udostępnij</button>
-          <span role="status" className="muted">{msg}</span>
+          <Toast text={msg} tone={/^(Zapisano|Skopiowano)/.test(msg) ? 'ok' : 'warn'} onClose={() => setMsg('')} duration={/^(Zapisano|Skopiowano)/.test(msg) ? 4000 : 10000} />
         </div>
       </form>
 

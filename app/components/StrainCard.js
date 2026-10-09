@@ -182,7 +182,7 @@ export function OwnEntry({ strainId, strainName = '', form = 'susz', entry, onSa
           <button type="button" className="btn small" onClick={consume}>Zużyj</button>
         </div>
         <div className="chips small">{qv.use.map((v) => <button key={v} type="button" className="chip use-chip" onClick={() => setUse(dec(v))}>{dec(v)} {unit}</button>)}</div>
-        <SaveNote note={useQs.note} undoing={useQs.undoing} onUndo={() => undoWith(useQs, 'used')} className="pool-note" />
+        <SaveNote note={useQs.note} undoing={useQs.undoing} onUndo={() => undoWith(useQs, 'used')} />
       </div>
       <div className="entry-field buy">
         <label htmlFor={`${id}-b`}>Wykupiłem ({unit})</label>
@@ -192,7 +192,7 @@ export function OwnEntry({ strainId, strainName = '', form = 'susz', entry, onSa
           <button type="button" className="btn small" onClick={buy}>Dodaj zakup</button>
         </div>
         <RxPicker id={`${id}-rx`} list={rxList} value={rx} onChange={setRx} />
-        <SaveNote note={buyQs.note} undoing={buyQs.undoing} onUndo={() => undoWith(buyQs, 'bought')} className="pool-note" />
+        <SaveNote note={buyQs.note} undoing={buyQs.undoing} onUndo={() => undoWith(buyQs, 'bought')} />
       </div>
     </div>
   );
