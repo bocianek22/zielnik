@@ -56,7 +56,7 @@ export default function StrainHistory({ strainId, isAdmin, hidePrice = false }) 
 
   return (
     <details className="card hist-details" onToggle={(e) => { if (e.currentTarget.open && items === null) load(); }}>
-      <summary>Historia zmian <Icon name="chevronDown" size={20} /></summary>
+      <summary data-cat="learn"><span className="ic-dot sm"><Icon name="clock" size={20} /></span><span className="hist-title">Historia zmian</span><Icon name="chevronDown" size={20} /></summary>
       {error && <p className="alert error" role="alert">{error}</p>}
       {items === null && !error && <p className="muted">Wczytuję…</p>}
       {items?.length === 0 && <p className="muted">Nikt jeszcze nie zmieniał danych tej odmiany.</p>}

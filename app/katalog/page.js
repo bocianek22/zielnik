@@ -4,6 +4,7 @@ import { strainIndex } from '@/lib/strains';
 import { listCatalog } from '@/lib/catalog';
 import Header from '../components/Header';
 import CatalogBoard from './CatalogBoard';
+import StrainsNav from '../odmiany/StrainsNav';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,7 +18,8 @@ export default async function Katalog() {
     <>
       <Header user={user} />
       <main className="page">
-        <h1>Katalog odmian w Polsce</h1>
+        <header className="page-head"><h1>Katalog odmian w Polsce</h1></header>
+        <StrainsNav current="katalog" />
         <CatalogBoard items={items} owned={owned} isAdmin={user.is_admin} />
       </main>
     </>

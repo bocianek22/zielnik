@@ -11,6 +11,7 @@ import HomeStore from '../components/HomeStore';
 import Skeleton from '../components/Skeleton';
 import Icon from '../components/Icon';
 import WidgetSync from './WidgetSync';
+import StrainsNav from './StrainsNav';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,11 +41,7 @@ export default async function Strains() {
           <h1 id="odmiany" tabIndex={-1}>Odmiany</h1>
           <Link href="/szukaj" className="icon-btn" aria-label="Szukaj wszędzie: odmiany, osoby, wiedza"><Icon name="search" /></Link>
         </header>
-        <nav className="seg seg-links" aria-label="Widok odmian">
-          <Link href="/odmiany" className="on" aria-current="page">Moje</Link>
-          <Link href="/katalog">Katalog</Link>
-          <Link href="/rankings">Rankingi</Link>
-        </nav>
+        <StrainsNav current="moje" />
         <HomeStore>
           <WidgetSync dailyUse={{ g: usage.perDay || 0, ml: usage.perDayMl || 0 }} today={today} />
           <Suspense fallback={<Skeleton rows={6} />}>

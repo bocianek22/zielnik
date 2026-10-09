@@ -211,8 +211,21 @@ export default function StrainsBoard({ initialStrains, initialOptions, me }) {
   const canDelete = (s) => me.isAdmin || s.created_by === me.id;
   const done = () => refresh().catch((e) => setError(e.message));
 
+  // trzy liczby nad listą: moje odmiany, te w domu, średnia z moich ocen
+  const myList = strains.filter((s) => isMine(s, mine(s), me.id));
+  const atHome = myList.filter((s) => Number(mine(s).current) > 0).length;
+  const myRatings = myList.map((s) => mine(s).rating).filter((r) => r != null && r !== '').map(Number);
+  const myAvg = myRatings.length ? myRatings.reduce((a, b) => a + b, 0) / myRatings.length : null;
+
   return (
     <>
+      {strains.length > 0 && (
+        <div className="strain-kpis" role="group" aria-label="Podsumowanie moich odmian">
+          <div className="kpi-tile" data-cat="strain"><span className="kt-label">Odmiany</span><b className="kt-value">{myList.length}</b></div>
+          <div className="kpi-tile" data-cat="stock"><span className="kt-label">W domu</span><b className="kt-value">{atHome}</b></div>
+          <div className="kpi-tile" data-cat="learn"><span className="kt-label">Śr. ocena</span><b className="kt-value">{myAvg == null ? '–' : String(Math.round(myAvg * 10) / 10).replace('.', ',')}</b></div>
+        </div>
+      )}
       <div className="toolbar">
         <SearchSuggest value={query} onChange={setQuery} groups={suggestGroups} onPick={pickSuggestion} historyKey="zielnik.odmiany.ostatnie"
           onEnter={() => document.activeElement?.blur?.()}
@@ -293,12 +306,14 @@ export default function StrainsBoard({ initialStrains, initialOptions, me }) {
       )}
       {strains.length > 0 && visible.length === 0 && <p className="muted empty-inline">Nic nie pasuje do filtrów.</p>}
 
+      {visible.length > 0 && <div className="card strain-list">
       {visible.slice(0, visibleLimit).map((s) => (formFor === s.id ? (
         <FormSheet key={s.id}><StrainForm strain={s} options={options} tastes={tastes} canDelete={canDelete(s)} proposing={!me.isAdmin && s.created_by !== me.id} hidePrice={me.hidePrices}
           onOptionsChange={setOptions} onDone={done} onCancel={() => setFormFor(null)} /></FormSheet>
       ) : (
         <StrainCard key={s.id} strain={s} meId={me.id} hidePrice={me.hidePrices} mates={matesOf(s)} low={low} cmpOn={cmp.includes(s.id)} onCmp={() => setCmp((c) => (c.includes(s.id) ? c.filter((x) => x !== s.id) : [...c, s.id].slice(-3)))} onEdit={() => setFormFor(s.id)} onEntrySaved={entrySaved} />
       )))}
+      </div>}
       {visible.length > visibleLimit && <button className="btn ghost block" onClick={() => setVisibleLimit((l) => l + 30)}>Pokaż więcej ({visible.length - visibleLimit})</button>}
     </>
   );

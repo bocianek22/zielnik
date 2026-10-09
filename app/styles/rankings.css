@@ -19,7 +19,7 @@
 .rk-list { padding: 0; }
 .rk-row { gap: var(--s-3); align-items: center; }
 .rk-pos { flex: none; width: 28px; text-align: center; font-family: var(--font-display), system-ui, sans-serif; font-size: var(--fs-lg); font-weight: 600; color: var(--text-3); font-variant-numeric: tabular-nums lining-nums; }
-.rk-row.top .rk-pos { color: var(--accent-text); }
+
 .rk-name { display: block; font-family: var(--font-display), system-ui, sans-serif; font-size: var(--fs-lg); font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; }
 .rk-row .lr-sub { overflow-wrap: anywhere; }
 .rk-pts { flex: none; display: grid; justify-items: end; text-align: right; }
@@ -46,3 +46,8 @@
 .wheel-again { margin-top: var(--s-3); width: 100%; }
 @media (max-width: 760px) { .wheel-wrap { grid-template-columns: 1fr; gap: var(--s-5); } }
 @media (min-width: 761px) { .wheel-again { width: auto; } }
+
+/* Design 3: pierwsze trzy miejsca w kółku w kolorze obszaru, punkty grubo */
+.rk-row.top .rk-pos { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--cat-learn-soft); color: var(--cat-learn-ink); }
+.rk-pts b { font-weight: 800; }
+.rk-name { font-weight: 700; }

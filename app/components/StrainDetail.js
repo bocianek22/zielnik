@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { OwnEntry, dec } from './StrainCard';
 import Icon from './Icon';
+import SecHead from './SecHead';
 import StrainForm from './StrainForm';
 import Tests from './Tests';
 import ReportButton from './ReportButton';
@@ -30,12 +31,31 @@ const num = (n, d = 2) => Number(n).toLocaleString('pl-PL', { maximumFractionDig
 const plural = (n, one, few, many) => (n === 1 ? one : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? few : many);
 const METER_MAX = 30; // jedna skala dla THC i CBD, żeby paski dało się porównać
 
-function Score({ label, value, sub }) {
+// ilustracja zamiast pustego prostokąta, gdy odmiana nie ma zdjęcia: słoik z szyszkami albo butelka (olej, pen); tylko dekoracja
+function Jar({ drop }) {
   return (
-    <div>
-      <dt>{label}</dt>
-      <dd><b>{value == null ? '–' : dec(Number(value).toFixed(1))}</b>{value != null && <small>/10</small>}</dd>
-      {sub && <dd className="dscore-sub">{sub}</dd>}
+    <svg className="dhero-art" viewBox="0 0 120 140" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+      {drop ? (
+        <>
+          <path d="M48 12h24M52 12v14M68 12v14" /><path d="M40 40a8 8 0 0 1 8-8h24a8 8 0 0 1 8 8v78a10 10 0 0 1-10 10H50a10 10 0 0 1-10-10z" />
+          <path d="M40 66h40M40 100h40" /><path d="M60 74c6 8 9 12 9 17a9 9 0 0 1-18 0c0-5 3-9 9-17z" />
+        </>
+      ) : (
+        <>
+          <path d="M34 14h52M32 28h56" /><path d="M32 28v84a14 14 0 0 0 14 14h28a14 14 0 0 0 14-14V28" />
+          <path d="M44 64h32M44 82h32" /><circle cx="52" cy="104" r="6" /><circle cx="68" cy="106" r="5" /><circle cx="60" cy="95" r="5" />
+        </>
+      )}
+    </svg>
+  );
+}
+
+function Score({ label, value, sub, solid }) {
+  return (
+    <div className={`kpi-tile${solid ? ' solid' : ''}`} data-cat="strain">
+      <dt className="kt-label">{label}</dt>
+      <dd className="kt-value">{value == null ? '–' : dec(Number(value).toFixed(1))}{value != null && <small>/10</small>}</dd>
+      <dd className="kt-sub">{sub || '\u00a0'}</dd>
     </div>
   );
 }
@@ -67,7 +87,7 @@ function MyStats({ stats, unit }) {
   const [last, lastSub] = lastUseText(stats);
   return (
     <section className="card mystats" aria-labelledby="mystats-h">
-      <h2 id="mystats-h">Moje statystyki</h2>
+      <SecHead cat="journal" icon="chart" id="mystats-h">Moje statystyki</SecHead>
       {empty ? (
         <p className="muted">Nie masz jeszcze zapisanych zużyć ani zakupów tej odmiany. Zapiszesz je niżej, w sekcji „Mój wpis”.</p>
       ) : (
@@ -118,16 +138,16 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, st
     strain.expires_on && ['Ważne do', formatDay(strain.expires_on)],
     strain.price_per_g != null && !me.hidePrices && ['Cena', `${dec(strain.price_per_g)} zł/${unit}`],
   ].filter(Boolean);
+  const heroFacts = [strain.thc != null && `THC ${dec(strain.thc)}%`, strain.cbd != null && `CBD ${dec(strain.cbd)}%`, strain.price_per_g != null && !me.hidePrices && `${dec(strain.price_per_g)} zł/${unit}`].filter(Boolean);
   const hasComposition = strain.thc != null || strain.cbd != null || strain.terpenes?.length > 0 || facts.length > 0;
 
   return (
     <div className="stack detail-page">
-      <div className="detail-bar">
-        <Link href="/odmiany" className="back"><Icon name="chevronLeft" size={20} />Wszystkie odmiany</Link>
-        {!editing && <button type="button" className="btn text" aria-label="Edytuj odmianę" onClick={() => setEditing(true)}><Icon name="edit" size={18} />Edytuj</button>}
-      </div>
-
-      {!editing && <StrainProposals proposals={proposals} onChange={() => router.refresh()} />}
+      {editing && (
+        <div className="detail-bar">
+          <Link href="/odmiany" className="back"><Icon name="chevronLeft" size={20} />Wszystkie odmiany</Link>
+        </div>
+      )}
 
       {editing ? (
         <StrainForm strain={strain} options={opts} tastes={tastes} canDelete={canDelete} proposing={proposing} hidePrice={me.hidePrices} onOptionsChange={setOpts}
@@ -135,37 +155,39 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, st
           onCancel={() => setEditing(false)} />
       ) : (
         <>
-          <header className={`dhero ${kind}${photo ? ' has-photo' : ' no-photo'}`}>
+          <header className={`hero dhero ${kind}${photo ? ' has-photo' : ' no-photo'}`} data-cat="strain">
+            {!photo && <Jar drop={unit === 'ml'} />}
+            <div className="detail-bar">
+              <Link href="/odmiany" className="back"><Icon name="chevronLeft" size={20} />Odmiany</Link>
+              <button type="button" className="btn ghost small" aria-label="Edytuj odmianę" onClick={() => setEditing(true)}><Icon name="edit" size={18} />Edytuj</button>
+            </div>
+            <div className="dhero-head">
+              <p className="dhero-chips">
+                {strain.kind
+                  ? <span className={`hchip kind-${strain.kind}`}><i className="kind-dot" aria-hidden="true" />{cap(strain.kind)}</span>
+                  : <span className="hchip">Rodzaj nieznany</span>}
+                {meta.map((m) => <span key={m} className="hchip">{m}</span>)}
+                {ex?.expired && <span className="hchip warn">Po terminie</span>}
+                {ex?.soon && <span className="hchip warn">Ważne jeszcze {ex.days} {plural(ex.days, 'dzień', 'dni', 'dni')}</span>}
+              </p>
+              <h1 className="dn">{strain.name}</h1>
+              <p className="dhero-producer"><span className="dn">{strain.producer}</span>{strain.batch && <> · partia {strain.batch}</>}</p>
+              {heroFacts.length > 0 && <p className="dhero-chips">{heroFacts.map((f) => <span key={f} className="hchip strong">{f}</span>)}</p>}
+            </div>
             {photo && (
               <div className="dhero-media">
                 <Lightbox className="dhero-img dn-img" src={photo} alt={`Zdjęcie: ${strain.name}`} attr={strain.photo_attr} />
                 <PhotoCredit attr={strain.photo_attr} />
               </div>
             )}
-            <div className="dhero-body">
-              <div className="dhero-head">
-                <p className="dhero-eyebrow">
-                  {strain.kind
-                    ? <span className={`kind kind-${strain.kind}`}><i className="kind-dot" aria-hidden="true" />{cap(strain.kind)}</span>
-                    : <span>Rodzaj nieznany</span>}
-                  {meta.map((m) => <span key={m}>{m}</span>)}
-                </p>
-                <h1 className="dn">{strain.name}</h1>
-                <p className="dhero-producer dn">{strain.producer}</p>
-                {(ex?.expired || ex?.soon) && (
-                  <p className="dhero-status">
-                    {ex.expired && <span className="badge low">Po terminie</span>}
-                    {ex.soon && <span className="badge low">Ważne jeszcze {ex.days} {plural(ex.days, 'dzień', 'dni', 'dni')}</span>}
-                  </p>
-                )}
-              </div>
-              <dl className="dscores">
-                <Score label="Ocena końcowa" value={strain.final_rating} />
-                <Score label="Średnia ocen" value={avg} sub={rated.length ? `${rated.length} ${plural(rated.length, 'ocena', 'oceny', 'ocen')}` : 'brak ocen'} />
-                <Score label="Moja ocena" value={mine?.rating} sub={Number(mine?.current) > 0 ? `Mam ${num(mine.current)} ${unit}` : null} />
-              </dl>
-            </div>
           </header>
+          <dl className="dscores">
+            <Score label="Końcowa" value={strain.final_rating} />
+            <Score label="Średnia" value={avg} sub={rated.length ? `${rated.length} ${plural(rated.length, 'ocena', 'oceny', 'ocen')}` : 'brak ocen'} />
+            <Score label="Moja" value={mine?.rating} solid sub={Number(mine?.current) > 0 ? `Mam ${num(mine.current)} ${unit}` : null} />
+          </dl>
+
+          <StrainProposals proposals={proposals} onChange={() => router.refresh()} />
 
           {((strain.created_by && strain.created_by !== me.id) || photo) && (
             <div className="row">
@@ -176,11 +198,10 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, st
         </>
       )}
 
-      <h2 className="section-label">Mój dziennik</h2>
       <MyStats stats={stats} unit={unit} />
 
       <section className="card dmine" aria-labelledby="dmine-h">
-        <h2 id="dmine-h">Mój wpis</h2>
+        <SecHead cat="stock" icon="jar" id="dmine-h">Mój wpis</SecHead>
         {mine && <OwnEntry strainId={strain.id} strainName={strain.name} form={strain.form} entry={mine} mates={mates} hidePrice={me.hidePrices}
           onSaved={(x) => {
             if (!x || 'rating' in x) return;
@@ -190,10 +211,9 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, st
           }} />}
       </section>
 
-      <h2 className="section-label">O odmianie</h2>
       {!editing && hasComposition && (
         <section className="card dcomp" aria-labelledby="dcomp-h">
-          <h2 id="dcomp-h">Skład</h2>
+          <SecHead cat="strain" icon="flask" id="dcomp-h">Skład</SecHead>
           <div className="dcomp-body">
           <div>
           {(strain.thc != null || strain.cbd != null) && (
@@ -221,9 +241,8 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, st
 
       <Effects strain={strain} meId={me.id} />
 
-      <h2 className="section-label">Społeczność</h2>
       <section className="card dopinions" aria-labelledby="dop-h">
-        <h2 id="dop-h">Opinie innych</h2>
+        <SecHead cat="social" icon="users" id="dop-h">Opinie innych</SecHead>
         {others.length ? (
           <ul className="opinions">
             {others.map((e) => (
