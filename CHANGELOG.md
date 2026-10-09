@@ -8,6 +8,20 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.52.0] - 2026-10
+Pierwsze wydanie fali 6 (UI 2.0 i nowość w każdym wydaniu, `docs/PLAN-PAZDZIERNIK.md`, projekt `docs/UI-2.md`).
+### Dodano
+- **Przywracanie z kopii (POM-41):** na „Import” (link w profilu przy eksporcie) można wgrać plik JSON z „Pobierz dane (JSON)”, także na nowe konto.
+  - Najpierw podgląd: ile pozycji z każdej sekcji zostanie dodanych, pominiętych albo odrzuconych; potem „Importuj”.
+  - Przywracane: wpisy odmian (oceny, stany, odczucia, notatki), „do wykupienia”, zużycie, zakupy (z powiązaniem recepty), recepty, testy bez zdjęć, dziennik samopoczucia, własne objawy, „Do omówienia”, dni bez zużycia, ustawienia przypomnień.
+  - Wszystko prywatne, w jednej transakcji, idempotentnie (ten sam plik można wgrać ponownie, istniejące wiersze nie są nadpisywane). Odmiany spoza katalogu są pomijane z informacją.
+  - Nie są przenoszone: znajomi, grupy, zgody, sesje, zgłoszenia, zdjęcia i dane innych osób. Notatki są szyfrowane na nowym koncie (gdy działa szyfrowanie).
+  - `POST /api/account/import`: limit 4 MB, podgląd 30/h, zapis 5/h, limity wierszy na konto; `jsonBody(req, maxBytes)` zwraca 413 przy zbyt dużej treści.
+- **Potwierdzenia zapisu (UI 2.0, etap B1):** wspólny komponent `Toast` z opcjonalnym „Cofnij” przy zużyciu, wykupie, objawach i profilu; `aria-busy` na przyciskach zapisu; ikona `trend`.
+### Zmieniono
+- Eksport JSON: `usage`, `purchases` i `tests` zawierają producenta, a daty recept to tekst `RRRR-MM-DD` (wcześniej północ w strefie serwera).
+- Dokumenty: projekt interfejsu `docs/UI-2.md`, lista usług do zakupu `docs/ZAKUPY.md`.
+
 ## [0.51.0] - 2026-10
 Poprawki z przeglądu gotowości do 1.0 (`docs/PRZEGLAD-1.0.md`).
 ### Bezpieczeństwo
