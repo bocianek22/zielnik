@@ -162,14 +162,14 @@
 .wk-read b { font-family: var(--font-display), Georgia, serif; font-size: var(--fs-xl); font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums lining-nums; margin-left: 2px; }
 .wk-unit { margin: 0 0 var(--s-2); }
 .wk-unit button, .pc-seg button { min-height: 44px; }
-.wk-scrub { position: relative; height: 120px; margin-top: var(--s-2); touch-action: pan-y; cursor: crosshair; border-radius: var(--r-sm); -webkit-tap-highlight-color: transparent; }
+.wk-scrub { position: relative; height: 120px; margin: var(--s-2) 40px 0 0; touch-action: pan-y; cursor: crosshair; border-radius: var(--r-sm); -webkit-tap-highlight-color: transparent; }
 .wk-scrub:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 .wk-svg { display: block; width: 100%; height: 120px; overflow: visible; }
 .wk-svg * { vector-effect: non-scaling-stroke; }
 .wk-svg .ubar path { vector-effect: none; }
 .wk-scrub[data-sel] .ubar:not(.on) path { fill-opacity: .38; }
 .wk-scrub[data-sel] .ubar.on .ubar-zero { fill: var(--text-3); }
-.wk-axis { position: relative; height: 16px; margin-top: 6px; font-size: var(--fs-xs); color: var(--text-3); font-variant-numeric: tabular-nums; line-height: 16px; }
+.wk-axis { position: relative; height: 16px; margin: 6px 40px 0 0; font-size: var(--fs-xs); color: var(--text-3); font-variant-numeric: tabular-nums; line-height: 16px; }
 .wk-axis > .strong { color: var(--text-2); font-weight: 600; }
 .wk-none { margin: var(--s-2) 0 0; font-size: var(--fs-sm); color: var(--text-2); }
 
@@ -202,3 +202,5 @@
   .hb-bar.data, .pc-legend i.data { background: CanvasText; }
   .hb-bar.ref, .pc-legend i.ref { background: GrayText; }
 }
+/* podpisy siatki słupków tygodniowych stoją w osobnym pasie po prawej, nie na słupkach */
+.wk-scrub .usage-tick { right: -40px; width: 36px; text-align: left; }
