@@ -39,3 +39,22 @@
   .cmp-line dt { grid-column: auto; font-size: var(--fs-sm); }
   .cmp-line dd { margin: 0; }
 }
+
+/* ===== Potwierdzenie zapisu: components/Toast.js ===== */
+/* Nad dolnym paskiem i przyciskiem „+” (telefon), w rogu na szerokim ekranie. Pusty obszar role="status" zostaje w DOM, ale nie jest widoczny. */
+.toast { position: fixed; z-index: 60; left: var(--s-4); right: var(--s-4); bottom: calc(var(--bottomnav-h) + 84px + env(safe-area-inset-bottom));
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); max-width: 420px; margin: 0 auto; padding: var(--s-2) var(--s-2) var(--s-2) var(--s-4);
+  background: var(--surface); color: var(--text); border: 1px solid var(--sep); border-radius: var(--r-lg); box-shadow: var(--shadow-2); animation: toast-in .18s ease-out; }
+.toast[data-empty] { display: none; }
+.toast-text { margin: 0; flex: 1 1 auto; min-width: 0; font-size: var(--fs-sm); line-height: 1.35; font-weight: 600; color: var(--ok); }
+.toast-text:empty { display: none; }
+.toast.warn .toast-text { color: var(--danger); }
+.toast.queued .toast-text { color: var(--warn); }
+.toast .undo-btn { flex: none; min-height: var(--tap); }
+@media (min-width: 761px) { .toast { left: auto; right: var(--s-6); bottom: var(--s-6); margin: 0; } }
+html.native-app .toast { bottom: calc(var(--bottomnav-h) + 84px + max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px))); }
+@keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .toast { animation: none; } }
+
+/* Przycisk w trakcie zapisu (aria-busy): kursor postępu, szerokość bez zmian */
+.btn[aria-busy="true"] { cursor: progress; }

@@ -4,6 +4,7 @@ import { api } from '@/lib/api';
 import { newRequestId } from '@/lib/ids';
 import { saveOrQueue, removeQueued } from '@/lib/offline-client';
 import useQueueEvents from './useQueueEvents';
+import Toast, { TOAST_MS } from './Toast';
 
 const UNDO_MS = 8000; // tyle widać „Cofnij” (serwer pozwala cofnąć wpis przez 10 minut)
 const QUEUED_MS = 30000; // „czeka na wysłanie” z „Cofnij” (potem licznik w nagłówku)
@@ -33,7 +34,7 @@ export function useQuickSave(strainId) {
   function show(text, warn = false, undo = null) {
     clearTimeout(timer.current);
     setNote({ text, warn, undo });
-    timer.current = setTimeout(() => { if (mounted.current) setNote(null); }, undo?.queued ? QUEUED_MS : undo ? UNDO_MS : 10000);
+    timer.current = setTimeout(() => { if (mounted.current) setNote(null); }, undo?.queued ? QUEUED_MS : undo ? UNDO_MS : TOAST_MS);
   }
 
   // meta: { name, unit } do etykiety w panelu kolejki oraz { delta, poolDelta }: o ile interfejs od razu zmienił
@@ -74,15 +75,7 @@ export function useQuickSave(strainId) {
 }
 
 // Komunikat po zapisie z przyciskiem „Cofnij” (przycisk poza obszarem role="status", żeby czytnik nie czytał go w kółko)
-export function SaveNote({ note, undoing, onUndo, className = 'quick-msg' }) {
-  return (
-    <div className="save-note">
-      <p className={`${className}${note?.warn ? ' warn' : ''}${note?.undo?.queued ? ' queued' : ''}`} role="status" aria-live="polite">{note?.text || ''}</p>
-      {note?.undo && (
-        <button type="button" className="btn small ghost undo-btn" disabled={undoing} onClick={onUndo}>
-          {undoing ? 'Cofam…' : 'Cofnij'}
-        </button>
-      )}
-    </div>
-  );
+export function SaveNote({ note, undoing, onUndo }) {
+  const tone = note?.warn ? 'warn' : note?.undo?.queued ? 'queued' : 'ok';
+  return <Toast text={note?.text} tone={tone} action={note?.undo ? { label: 'Cofnij', busyLabel: 'Cofam…', busy: undoing, onClick: onUndo } : null} />;
 }

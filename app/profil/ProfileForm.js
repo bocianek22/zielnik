@@ -9,6 +9,7 @@ import { clearDeviceData } from '../components/deviceData';
 import { storedFcm, widgetClear } from '../components/native/bridge';
 import { VIS } from '@/lib/visibility';
 import Icon from '../components/Icon';
+import Toast from '../components/Toast';
 import Sessions from './Sessions';
 import EmailSettings from './EmailSettings';
 
@@ -82,10 +83,10 @@ export default function ProfileForm({ me, initial, children }) {
           <select id="p-vis" className="input vis-select" value={f.profileVisibility} onChange={(e) => setF({ ...f, profileVisibility: e.target.value })}>
             {VIS.map(([v, label]) => <option key={v} value={v}>{label}</option>)}</select></div>
         <div className="row">
-          <button className="btn" disabled={busy}>Zapisz profil</button>
+          <button className="btn" disabled={busy} aria-busy={busy || undefined}>Zapisz profil</button>
           <Link className="btn ghost" href={`/u/${encodeURIComponent(me.username)}`}>Zobacz mój profil</Link>
           <button type="button" className="btn ghost only-mobile" onClick={shareProfile}><Icon name="share" size={18} />Udostępnij</button>
-          <span role="status" className="muted">{msg}</span>
+          <Toast text={msg} tone={/^(Zapisano|Skopiowano)/.test(msg) ? 'ok' : 'warn'} onClose={() => setMsg('')} duration={/^(Zapisano|Skopiowano)/.test(msg) ? 4000 : 10000} />
         </div>
       </form>
 
@@ -100,6 +101,7 @@ export default function ProfileForm({ me, initial, children }) {
           <a className="list-row" href="/api/account/export"><Icon name="download" /><span className="lr-main">Pobierz dane (JSON)</span></a>
           <a className="list-row" href="/api/account/export?photos=1"><Icon name="download" /><span className="lr-main">Pobierz ze zdjęciami</span></a>
           <a className="list-row" href="/api/export"><Icon name="download" /><span className="lr-main">Moje odmiany (CSV)</span></a>
+          <Link className="list-row" href="/import#kopia"><Icon name="download" /><span className="lr-main">Przywróć z kopii (plik JSON)</span></Link>
           <a className="list-row" href={`/api/account/export/csv${csvFrom || csvTo ? `?${new URLSearchParams({ ...(csvFrom && { od: csvFrom }), ...(csvTo && { do: csvTo }) })}` : ''}`}>
             <Icon name="download" /><span className="lr-main">Dziennik (CSV: objawy, zużycie, zakupy)</span>
           </a>

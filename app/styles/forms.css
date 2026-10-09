@@ -56,6 +56,8 @@
 .import-help a { color: var(--accent-text); font-weight: 600; }
 .import-run { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); flex-wrap: wrap; }
 .import-form .alert { margin-top: var(--s-4); }
+.import-sum { margin: 0; padding-left: var(--s-4); display: grid; gap: var(--s-1); }
+.import-form .alert p { margin: 0 0 var(--s-2); }
 .import-form .flip { transform: rotate(180deg); }
 
 /* ===== Zmiana hasła ===== */
@@ -74,3 +76,4 @@
 /* podpowiedź postaci w formularzu nowej odmiany („Extractum …” → olej) */
 .form-hint p { margin: 0 0 var(--s-2); }
 .form-hint .row { gap: var(--s-2); }
+.file-btn:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }

@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { api } from '@/lib/api';
 import { SYMPTOMS, customMeta, CUSTOM_MAX, CUSTOM_NAME_MAX } from '@/lib/symptoms';
 import Icon from '../components/Icon';
+import Toast from '../components/Toast';
 
 // Dzień w czasie polskim, a nie UTC (po północy toISOString dawało wczoraj). Do zamiany na todayPL z lib/date.js.
 const dayPL = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Warsaw', year: 'numeric', month: '2-digit', day: '2-digit' });
@@ -155,6 +156,7 @@ export default function SymptomsBoard() {
   const [day, setDay] = useState(todayIso());
   const [f, setF] = useState({ pain: '', sleep: '', anxiety: '', mood: '', note: '' });
   const [msg, setMsg] = useState(null);
+  const [saving, setSaving] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => { api('/api/symptoms').then((d) => { setData(d); setLoaded(true); }).catch((e) => setMsg({ text: e.message, error: true })); }, []);
@@ -175,8 +177,11 @@ export default function SymptomsBoard() {
 
   async function save(e) {
     e.preventDefault();
+    if (saving) return;
+    setSaving(true);
     const custom = Object.fromEntries(defs.map((d) => [d.id, f[`c${d.id}`] ?? '']));
     try { const d = await api('/api/symptoms', 'PUT', { day, ...f, ...(defs.length ? { custom } : {}) }); setData(d); setMsg(d.noteError ? { text: `Zapisano wartości. ${d.noteError}`, error: true } : { text: 'Zapisano.' }); } catch (err) { setMsg({ text: err.message, error: true }); }
+    setSaving(false);
   }
   async function remove() {
     if (!confirm('Usunąć wpis z tego dnia?')) return;
@@ -216,8 +221,9 @@ export default function SymptomsBoard() {
         <div className="field"><label htmlFor="sy-note">Notatka (opcjonalnie)</label>
           <input id="sy-note" className="input" maxLength={500} value={f.note} onChange={(e) => setF({ ...f, note: e.target.value })} />
           {existing?.noteLocked && !f.note && <small>Zapisana notatka jest zaszyfrowana i chwilowo nieczytelna (brak klucza na serwerze). Zostanie zachowana; wpisany tu nowy tekst ją zastąpi.</small>}</div>
-        {msg && <div className={`alert ${msg.error ? 'error' : 'ok'}`} role={msg.error ? 'alert' : 'status'}>{msg.text}</div>}
-        <div className="sym-actions"><button className="btn">Zapisz wpis</button>{existing && <button type="button" className="btn danger" onClick={remove}>Usuń wpis</button>}</div>
+        {msg?.error && <div className="alert error" role="alert">{msg.text}</div>}
+        <Toast text={msg && !msg.error ? msg.text : ''} onClose={() => setMsg(null)} />
+        <div className="sym-actions"><button className="btn" aria-busy={saving || undefined} disabled={saving}>Zapisz wpis</button>{existing && <button type="button" className="btn danger" onClick={remove}>Usuń wpis</button>}</div>
       </form>
       <CustomManager defs={defs} onChange={async (text) => { try { await reload(); setMsg(text ? { text } : null); } catch (e) { setMsg({ text: e.message, error: true }); } }} />
       <h2 className="section-label">Ostatnie 30 dni</h2>

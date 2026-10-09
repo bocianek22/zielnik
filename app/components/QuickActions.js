@@ -124,7 +124,7 @@ export default function QuickActions({ strainId, name, form = 'susz', current, r
             <input id={`${id}-g`} ref={input} className="input" type="text" inputMode="decimal" autoComplete="off" enterKeyHint="done"
               placeholder={m.ph} value={val} aria-invalid={!!err} aria-describedby={err ? `${id}-e` : undefined}
               onChange={(e) => { setVal(e.target.value); setErr(''); }} />
-            <button type="submit" className="btn small" disabled={busy}>{busy ? 'Zapisuję…' : m.save}</button>
+            <button type="submit" className="btn small" disabled={busy} aria-busy={busy || undefined}>{busy ? 'Zapisuję…' : m.save}</button>
             <button type="button" className="btn small ghost" onClick={close}>Anuluj</button>
           </div>
           {mode === 'use' && (

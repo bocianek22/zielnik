@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
 import Header from '../components/Header';
 import ImportForm from './ImportForm';
+import RestoreForm from './RestoreForm';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,9 +15,10 @@ export default async function ImportPage() {
     <>
       <Header user={user} />
       <main className="page">
-        <h1>Import z CSV</h1>
+        <h1>Import</h1>
         <Link href="/" className="back">← Wszystkie odmiany</Link>
         <ImportForm />
+        <RestoreForm />
       </main>
     </>
   );

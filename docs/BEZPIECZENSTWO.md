@@ -58,6 +58,7 @@ Waga: K = krytyczna, W = wysoka, Ś = średnia, N = niska. Status: ✅ naprawion
 | `account/email/verify` | POST | — + 20 na 15 min na IP; token jednorazowy związany z adresem | KON-1 |
 | `account` | DELETE | U + hasło + limit | OK |
 | `account/export` | GET | U, tylko własne wiersze | OK po #8 i #9 |
+| `account/import` | POST | U, zapis tylko na własne konto; identyfikatory z pliku mapowane w pamięci, widoczność `me`; limit 4 MB, podgląd 30/h, zapis 5/h, limity wierszy na konto | OK (0.52.0, przegląd Opus) |
 | `account/sessions` | GET, DELETE | U; DELETE (wyloguj inne) + limit 30 na 15 min | OK po #26 |
 | `account/sessions/[id]` | DELETE | U, `sid` sprawdzany wzorcem `SID_RE` zamiast `intId` (identyfikator tekstowy), tylko własna aktywna sesja (inaczej 404) + limit | OK po #26 |
 | `export` | GET | U, `listStrains` z `can_see` | OK |

@@ -52,8 +52,9 @@ Tryb awaryjny (rozmowa bez dostępu do repozytorium):
 - Wybór bramki płatności i platformy wpłat (`DONATE_URL`), decyzja o `PREMIUM_ENFORCED`.
 - Źródło danych do katalogu (`CATALOG_FEED_URL`), plan Vercel Pro przy działalności komercyjnej.
 
-## 6. Następne kroki (aktualne dla wersji 0.51.0)
+## 6. Następne kroki (aktualne dla wersji 0.52.0)
 Pełna lista z uzasadnieniem: `docs/PRZEGLAD-2026-10.md`; aplikacje natywne: `docs/APLIKACJE-NATYWNE.md`; system projektowy: `docs/DESIGN.md`. Praca z podziałem na subagentów (`.claude/agents/`): koordynator scala gałęzie, uruchamia kontrole, zleca przegląd (reviewer) i prowadzi CHANGELOG/wersję. Przebieg pracy nocnej: `docs/PLAN-NOC.md`.
+1. **UI 2.0 i nowości (0.52.0):** etapy A1-A5 i B2-B4 wg `docs/UI-2.md`, kolejka nowości w `docs/PLAN-PAZDZIERNIK.md` (fale 6+). Zakupy i konfiguracja właściciela: `docs/ZAKUPY.md`. Ręcznie na telefonie: „Przywróć z kopii” (eksport z jednego konta, podgląd i import na drugim, ponowny import nic nie dubluje), położenie potwierdzeń nad dolnym paskiem w APK, z klawiaturą i w „Większy tekst”, TalkBack przy „Cofnij”.
 1. **Przed otwartą betą (0.51.0):** decyzje właściciela z `docs/PRZEGLAD-1.0.md` (rejestracja otwarta czy zaproszenia, regiony UE, Vercel Pro, TOTP admina, Next 16, retencja, prawnik). Pobieranie kopii w panelu admina wymaga teraz ponownego hasła.
 1. **Szyfrowanie notatek (0.50.0), decyzje właściciela:**
    - Kiedy włączyć (`DATA_ENCRYPTION_KEY` po zapisaniu dwóch kopii klucza, potem `node scripts/encrypt-notes.mjs --dry-run`, następnie bez `--dry-run`).

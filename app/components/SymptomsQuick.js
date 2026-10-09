@@ -5,6 +5,7 @@ import { saveOrQueue, hasQueued } from '@/lib/offline-client';
 import useQueueEvents from './useQueueEvents';
 import { SYMPTOMS, QUICK_STEPS, customMeta } from '@/lib/symptoms';
 import Icon from './Icon';
+import Toast from './Toast';
 
 // Szybki wpis objawów w panelu „Dziś” (POM-04): cztery wymiary, pięć stopni, zapis po każdym dotknięciu.
 // PUT /api/symptoms nadpisuje cały wiersz dnia, więc zawsze wysyłamy wszystkie wymiary i dotychczasową notatkę.
@@ -147,7 +148,8 @@ export default function SymptomsQuick({ day, initial }) {
           )}
         </div>
       )}
-      <p className={`tsym-status${status?.error ? ' error' : status?.queued ? ' queued' : !open ? ' sr-only' : ''}`} role="status">{status?.text}</p>
+      <Toast text={status?.text === 'Zapisywanie…' ? '' : status?.text} tone={status?.error ? 'warn' : status?.queued ? 'queued' : 'ok'}
+        onClose={() => setStatus(null)} duration={status?.error || status?.queued ? 0 : undefined} />
     </section>
   );
 }

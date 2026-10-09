@@ -55,7 +55,7 @@ export default function ImportForm() {
 
   return (
     <div className="import-form">
-      <h2 className="section-label">Plik</h2>
+      <h2 className="section-label">Import odmian z pliku CSV</h2>
       <div className="card stack">
       <p className="import-help">Wybierz plik CSV z kolumnami takimi jak w <a href="/api/export">eksporcie</a> (wystarczy „Odmiana”, „Producent” i „Typ”; reszta jest opcjonalna). Odmiany, które już masz (ta sama nazwa i producent), zostaną pominięte. Twoje oceny, stany i „Do wykupienia” zapiszą się na Twoim koncie.</p>
       <label className="btn ghost block file-btn"><Icon name="download" size={20} className="flip" />Wybierz plik CSV<input type="file" accept=".csv,text/csv" hidden onChange={pick} /></label>
