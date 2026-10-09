@@ -27,7 +27,9 @@ function client() {
   };
 }
 const must = (r, what) => { if (r.status >= 400) console.log('BŁĄD', what, r.status, JSON.stringify(r.json)); return r.json; };
-const day = (ago) => new Date(Date.now() - ago * 864e5).toISOString().slice(0, 10);
+// dzień w czasie polskim, jak w aplikacji (UTC po 22:00 dawało wczoraj i „dziś” w danych nie było dzisiaj)
+const plDay = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Warsaw', year: 'numeric', month: '2-digit', day: '2-digit' });
+const day = (ago) => plDay.format(new Date(Date.now() - ago * 864e5));
 
 // admin: pierwsze logowanie hasłem startowym, potem zmiana (inaczej konto wymusza zmianę hasła)
 const boc = client();
