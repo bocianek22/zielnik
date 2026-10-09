@@ -162,7 +162,8 @@ test('alertPath: nieznane segmenty (przyszły slug, token, nazwa) są maskowane,
   const walk = (dir) => {
     for (const e of readdirSync(dir, { withFileTypes: true })) {
       if (!e.isDirectory()) continue;
-      if (!e.name.startsWith('[') && !['components', 'styles'].includes(e.name) && !alerts.ROUTE_SEGMENTS.has(e.name)) missing.push(e.name);
+      if (['components', 'styles'].includes(e.name)) continue; // bez katalogów komponentów (np. components/charts): to nie trasy
+      if (!e.name.startsWith('[') && !alerts.ROUTE_SEGMENTS.has(e.name)) missing.push(e.name);
       walk(`${dir}/${e.name}`);
     }
   };

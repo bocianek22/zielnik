@@ -42,7 +42,7 @@ export default function TodayBoard({ usage = { perDay: 0, perDayMl: 0, cost: 0 }
 
   if (series.length === 0) return null;
   return (
-      <TodayPanel stock={stockU} dailyUse={{ g: dailyUse, ml: usage.perDayMl || 0 }} bought={boughtU} low={low} series={series} prescriptions={prescriptions} symptoms={symptoms} noUse={noUse}
+      <TodayPanel stock={stockU} dailyUse={{ g: dailyUse, ml: usage.perDayMl || 0 }} forecast={usage.forecast} bought={boughtU} low={low} series={series} prescriptions={prescriptions} symptoms={symptoms} noUse={noUse}
         quick={quick} onUsed={onUsed} fresh={fresh} hasOwn={mine > 0} onAdd={onAdd} settings={(
           <details className="prefs">
             <summary>Szczegóły i ustawienia <Icon name="chevronDown" size={18} /></summary>

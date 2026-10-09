@@ -65,6 +65,20 @@ scenario('"Zużyłem" i "Cofnij" w panelu "Dziś"', async (page) => {
   assert.ok(Math.abs((await stock()) - before) < 1e-6, 'po cofnięciu stan wraca');
 }, withSession);
 
+scenario('Wykres zużycia 14 dni: strzałki zmieniają odczyt, Escape wraca do dziś; prognoza zapasu ma podpis o tempie zapisów', async (page) => {
+  await go(page, '/');
+  const read = page.locator('.usage-sel');
+  assert.match(await text(read), /^Dziś/);
+  await page.locator('.usage-scrub').focus();
+  await page.keyboard.press('ArrowLeft');
+  assert.match(await text(read), /^Wczoraj/, 'strzałka w lewo wybiera wczoraj');
+  await page.keyboard.press('Home');
+  assert.doesNotMatch(await text(read), /^(Dziś|Wczoraj)/, 'Home wybiera pierwszy dzień');
+  await page.keyboard.press('Escape');
+  assert.match(await text(read), /^Dziś/);
+  assert.match(await text(page.locator('.fc-note').first()), /Przy obecnym tempie zapisów/);
+}, withSession);
+
 scenario('"Wykupiłem" na karcie odmiany (i Cofnij)', async (page) => {
   await go(page, '/');
   const btn = page.getByRole('button', { name: 'Wykupiłem: Lemon Skunk' });

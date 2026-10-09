@@ -8,7 +8,7 @@ export default function Scrub({ n, sel, onSel, className, label, children }) {
     onSel(Math.min(n - 1, Math.max(0, Math.floor(((e.clientX - r.left) / r.width) * n))));
   };
   const onKey = (e) => {
-    const from = sel ?? n;
+    const from = sel ?? n - 1;
     if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
       e.preventDefault();
       onSel(Math.min(n - 1, Math.max(0, from + (e.key === 'ArrowLeft' ? -1 : 1))));
@@ -17,7 +17,7 @@ export default function Scrub({ n, sel, onSel, className, label, children }) {
     else if (e.key === 'Escape') onSel(null);
   };
   return (
-    <div className={className} tabIndex={0} role="img" aria-label={label}
+    <div className={className} tabIndex={0} role="img" aria-label={label} data-sel={sel ?? undefined}
       onPointerDown={pick} onPointerMove={pick}
       onPointerLeave={(e) => { if (e.pointerType === 'mouse') onSel(null); }} onKeyDown={onKey}>
       {children}

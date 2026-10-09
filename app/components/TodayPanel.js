@@ -6,7 +6,7 @@ import NoUseToday from './NoUseToday';
 import Icon from './Icon';
 import SymptomsQuick from './SymptomsQuick';
 import UsageDays from './charts/UsageDays';
-import StockGauge from './charts/StockGauge';
+import StockForecast from './charts/StockForecast';
 import { addDays, longDay, num as n2, plural } from './charts/fmt';
 import { unitOf } from '@/lib/units';
 import { shortcutAction, withoutUseParam } from '@/lib/shortcuts';
@@ -16,7 +16,6 @@ import { daysLeft as daysOf } from '@/lib/widget';
 // Daty liczy z dni z serwera (czas polski), a nie z zegara przeglądarki, żeby serwer i klient renderowały to samo.
 // Gramy (susz) i ml (olej, pen) nigdy się nie sumują: osobny zapas i prognoza, wykres z przełącznikiem jednostki.
 
-const HORIZON = 30; // pełny miernik = zapas na 30 dni
 const days = (n) => plural(n, 'dzień', 'dni');
 
 function Prescriptions({ items, total }) {
@@ -72,7 +71,7 @@ const notesOf = ({ unit, stock, dailyUse, bought, today }) => {
 };
 
 // Dwie jednostki (g i ml): jeden blok z dwiema kolumnami „liczba · dni” i miernikiem; prognozy w zwijanym wierszu pod spodem
-function StockCell({ unit, stock, dailyUse, ok }) {
+function StockCell({ unit, stock, dailyUse, ok, today, range, rx }) {
   const daysLeft = daysOf(stock, dailyUse);
   const what = unit === 'ml' ? 'oleju i pena' : 'suszu';
   return (
@@ -80,13 +79,13 @@ function StockCell({ unit, stock, dailyUse, ok }) {
       <h2 className="kpi-label" id={`today-stock-h-${unit}`}>Zapas {what}</h2>
       <p className="kpi-big"><b>{n2(stock)}</b> {unit}</p>
       <p className="kpi-days-line">starczy na {daysLeft != null ? <b>{daysLeft} {days(daysLeft)}</b> : <b>–</b>}</p>
-      <StockGauge daysLeft={daysLeft} horizon={HORIZON} what={what} />
+      <StockForecast unit={unit} stock={stock} rate={dailyUse} range={range} today={today} rx={rx} what={what} />
     </div>
   );
 }
 
 // Zapas i prognoza jednej jednostki
-function StockBlock({ unit, stock, dailyUse, bought, today, ok, id }) {
+function StockBlock({ unit, stock, dailyUse, bought, today, ok, id, range, rx }) {
   const daysLeft = daysOf(stock, dailyUse);
   const notes = notesOf({ unit, stock, dailyUse, bought, today });
   const what = unit === 'ml' ? 'oleju i pena' : '';
@@ -102,7 +101,7 @@ function StockBlock({ unit, stock, dailyUse, bought, today, ok, id }) {
           <p className="kpi-mid">{daysLeft != null ? <><b>{daysLeft}</b> {days(daysLeft)}</> : <b>–</b>}</p>
         </div>
       </div>
-      <StockGauge daysLeft={daysLeft} horizon={HORIZON} what={what} />
+      <StockForecast unit={unit} stock={stock} rate={dailyUse} range={range} today={today} rx={rx} what={what} />
       <p className="today-note">
         {notes.length > 0 ? notes.join(' · ') : stock > 0 ? 'Zapisuj zużycie przyciskiem „Zużyłem”, a policzę, na ile dni starczy zapasu.' : 'Brak zapasu. Wpisz stan w karcie odmiany albo zapisz wykup.'}
       </p>
@@ -111,7 +110,7 @@ function StockBlock({ unit, stock, dailyUse, bought, today, ok, id }) {
 }
 
 // stock, dailyUse, bought: { g, ml }; low: próg „Kończy się” w gramach (tylko susz)
-export default function TodayPanel({ stock, dailyUse, bought, low, series, prescriptions, symptoms, noUse = false, quick, onUsed, settings, fresh, hasOwn = false, onAdd }) {
+export default function TodayPanel({ stock, dailyUse, forecast, bought, low, series, prescriptions, symptoms, noUse = false, quick, onUsed, settings, fresh, hasOwn = false, onAdd }) {
   const today = series.at(-1).day;
   const hasMl = stock.ml > 0 || dailyUse.ml > 0;
   const hasG = !hasMl || stock.g > 0 || dailyUse.g > 0;
@@ -121,6 +120,7 @@ export default function TodayPanel({ stock, dailyUse, bought, low, series, presc
     return stock[u] > 0 && ((u === 'g' && low > 0 && stock[u] <= low) || (d != null && d < 7));
   };
   const warn = units.some(warnOf);
+  const rxOf = (u) => prescriptions.items.find((r) => r.unit === u && r.days_left >= 0); // najbliższa ważna recepta na prognozie
   // POM-38: znacznik „dziś bez zużycia”; dzisiejsze zużycie (serwer zdejmuje wtedy znacznik) zeruje go także tutaj
   const usedToday = Number(series.at(-1).grams) > 0 || Number(series.at(-1).ml) > 0;
   const [noUseOn, setNoUseOn] = useState(noUse);
@@ -161,7 +161,8 @@ export default function TodayPanel({ stock, dailyUse, bought, low, series, presc
         {units.length > 1 ? (
           <div className="today-stocks combo">
             <div className="stock-cols">
-              {units.map((u) => <StockCell key={u} unit={u} stock={stock[u]} dailyUse={dailyUse[u]} ok={warn && !warnOf(u)} />)}
+              {units.map((u) => <StockCell key={u} unit={u} stock={stock[u]} dailyUse={dailyUse[u]} ok={warn && !warnOf(u)}
+                today={today} range={forecast?.[u]} rx={rxOf(u)} />)}
             </div>
             <details className="stock-notes">
               <summary>Prognoza i wykupy<Icon name="chevronDown" size={18} /></summary>
@@ -175,7 +176,7 @@ export default function TodayPanel({ stock, dailyUse, bought, low, series, presc
           <div className="today-stocks">
             {units.map((u) => (
               <StockBlock key={u} id={`today-stock-h-${u}`} unit={u} stock={stock[u]} dailyUse={dailyUse[u]} bought={bought[u]}
-                today={today} ok={warn && !warnOf(u)} />
+                today={today} ok={warn && !warnOf(u)} range={forecast?.[u]} rx={rxOf(u)} />
             ))}
           </div>
         )}

@@ -87,3 +87,12 @@ test('fmt: plural', () => {
   const w = (n) => plural(n, 'wpis', 'wpisy', 'wpisów');
   assert.deepEqual([1, 2, 4, 5, 12, 14, 22, 25, 112].map(w), ['wpis', 'wpisy', 'wpisy', 'wpisów', 'wpisów', 'wpisów', 'wpisy', 'wpisów', 'wpisów']);
 });
+
+test('layoutLabels: strony zakotwiczenia, rzędy przy nachodzeniu i pomijanie przy jednym rzędzie', async () => {
+  const { layoutLabels } = await import('../app/components/charts/labels.js');
+  const two = layoutLabels([{ key: 'a', text: 'dziś', x: 0 }, { key: 'b', text: 'ok. 11.10', x: 20 }], 326);
+  assert.deepEqual(two.map((l) => [l.key, l.row, l.side]), [['a', 0, 'l'], ['b', 1, 'l']]);
+  assert.equal(layoutLabels([{ key: 'r', text: 'ok. 11.10', x: 326 }], 326)[0].side, 'r');
+  const one = layoutLabels([{ key: 'a', text: 'dziś', x: 0, prio: 2 }, { key: 'm', text: '06.10', x: 15, prio: 1 }, { key: 'z', text: '29.09', x: 200 }], 326, { rows: 1 });
+  assert.deepEqual(one.map((l) => l.key), ['a', 'z']);
+});
