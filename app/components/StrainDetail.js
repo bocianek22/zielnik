@@ -15,7 +15,7 @@ import PharmacyLink from './PharmacyLink';
 import Lightbox, { PhotoCredit } from './Lightbox';
 import StrainHistory from './StrainHistory';
 import StrainProposals from './StrainProposals';
-import UsageChart from './UsageChart';
+import UsageWeeks from './charts/UsageWeeks';
 import { expiryInfo } from '@/lib/expiry';
 import { formLabel } from '@/lib/forms';
 import { formatDay } from '@/lib/date';
@@ -78,7 +78,7 @@ function MyStats({ stats, unit }) {
             <div><dt>Średnio dziennie</dt><dd><b>{stats.perDay == null ? '–' : num(stats.perDay)}</b>{stats.perDay != null && ` ${unit}`}</dd><dd className="sub">w ostatnich 12 tyg.</dd></div>
             <div><dt>Ostatnie użycie</dt><dd><b className="txt">{last}</b></dd><dd className="sub">{lastSub}</dd></div>
           </dl>
-          <UsageChart weeks={stats.weeks} unit={unit} />
+          <UsageWeeks weeks={stats.weeks} unit={unit} />
         </>
       )}
     </section>

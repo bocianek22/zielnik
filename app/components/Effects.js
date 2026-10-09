@@ -28,8 +28,8 @@ function Radar({ avg, mine }) {
           </g>
         );
       })}
-      <polygon className="radar-avg" points={poly(avg)} fill="var(--kind-sativa)" fillOpacity=".3" stroke="var(--kind-sativa)" strokeWidth="2" />
-      <polygon className="radar-me" points={poly(mine)} fill="var(--accent)" fillOpacity=".18" stroke="var(--accent)" strokeWidth="2" strokeDasharray="5 3" />
+      <polygon className="radar-avg" points={poly(avg)} fill="var(--chart-ref)" fillOpacity=".3" stroke="var(--chart-ref)" strokeWidth="2" />
+      <polygon className="radar-me" points={poly(mine)} fill="var(--chart-data)" fillOpacity=".18" stroke="var(--chart-data)" strokeWidth="2" strokeDasharray="5 3" />
     </svg>
     <div className="sr-only"><table>
       <caption>Skala odczuć, 0–10</caption>

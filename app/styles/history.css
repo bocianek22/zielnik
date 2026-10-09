@@ -17,14 +17,6 @@
   .recap.summary .stat-strip > div:nth-child(n+3) { border-top: 0; }
 }
 
-/* Wykres słupkowy */
-.usage-chart { padding-bottom: var(--s-3); }
-.bars { width: 100%; max-width: 520px; height: auto; display: block; margin: 0 auto; }
-.bars text { font-family: var(--font-body), system-ui, sans-serif; font-variant-numeric: tabular-nums lining-nums; }
-.bars .axis { stroke: var(--sep-strong); stroke-width: 1; }
-.bars .bar { fill: var(--accent); }
-.bars .val { fill: var(--text); font-size: 12px; font-weight: 600; }
-.bars .tick { fill: var(--text-2); font-size: 11px; }
 .empty .btn { margin-top: var(--s-4); }
 .empty p { margin: 0 auto; max-width: 36ch; }
 

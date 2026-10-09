@@ -64,7 +64,7 @@ Dawne nazwy (`--paper`, `--card`, `--card-alt`, `--line`, `--ink`, `--muted`, `-
 - **Sekcje:** `.card` to płaska powierzchnia z linią 1 px i promieniem 14, bez cienia. Nad grupą kart stawiaj `.section-label` (14 px, `--text-2`), jak w ustawieniach systemowych (zobacz `/profil`, arkusz „Więcej”).
 - **Nagłówek ekranu:** `h1` w `.page` (opcjonalnie `.page-head` z akcją po prawej). Powrót: `.back` z ikoną `chevronLeft`.
 - **Pasek liczb** (`.stat-strip`): 2–3 kluczowe liczby w jednej karcie z pionowymi liniami (historia, raport, admin). Nie rób osobnego kafla dla każdej liczby.
-- **Panel „Dziś”** (strona główna, `TodayPanel.js`, `app/styles/home.css`): jedna duża liczba (zapas, Fraunces 48 px) i prognoza, miernik dni względem 30 dni, wykres zużycia z 14 dni (słupki inline SVG w `--chart-4`, wybrany dzień pełnym kolorem, pozostałe przygaszone, oś tylko `dd.mm` i „dziś”), szybkie „Zużyłem” i karta recept z odliczaniem. Kolor `--warn` tylko przy zapasie poniżej progu lub < 7 dni i przy recepcie wygasającej w ciągu 7 dni.
+- **Panel „Dziś”** (strona główna, `TodayPanel.js`, `app/styles/home.css`): jedna duża liczba (zapas, Fraunces 48 px) i prognoza, miernik dni względem 30 dni, wykres zużycia z 14 dni (słupki inline SVG w `--chart-data`, wybrany dzień pełnym kolorem, pozostałe przygaszone, oś tylko `dd.mm` i „dziś”), szybkie „Zużyłem” i karta recept z odliczaniem. Kolor `--warn` tylko przy zapasie poniżej progu lub < 7 dni i przy recepcie wygasającej w ciągu 7 dni.
 - **Nawigacja:** górny pasek (`--bar`, na telefonie znak marki i ikona profilu), dolny pasek (powierzchnia, 5 zakładek, aktywna z wskaźnikiem `--accent-soft`), arkusz „Więcej” (grupy „Dziennik”, „Odkrywaj”, „Konto”). Pozycje menu definiuje się tylko w `app/components/navItems.js` (pole `icon`, `sheet` = grupa).
 - **Arkusze:** wysuwane od dołu, tło `--bg`, uchwyt 36×4 px, `--scrim` pod spodem, Escape zamyka. Formularz odmiany na telefonie otwiera się jako pełnoekranowy arkusz (`.strain-form` + `.mobile-form-bar`).
 - **Przełącznik segmentowy** (`.seg`): 2–4 wzajemnie wykluczające się widoki. Przy większej liczbie opcji użyj `select` albo chipów.
@@ -72,6 +72,16 @@ Dawne nazwy (`--paper`, `--card`, `--card-alt`, `--line`, `--ink`, `--muted`, `-
 - **Plakietki** (`.badge`), oszczędnie: tylko stan (`.badge.low` dla ostrzeżeń) i rola. Pierwsza litera jest automatycznie wielka, reszta zostaje bez zmian. Nie dawaj plakietki zwykłej informacji typu „Haze”; to zwykły tekst w linii meta z separatorem „·”.
 - **Puste stany** (`.empty`): ikona 32 px w `--text-3`, tytuł, jedno zdanie wyjaśnienia i jedna akcja.
 - **Komunikaty** (`.alert.note | .error | .ok`) wyświetlaj nad treścią, której dotyczą, bez ikon emoji.
+
+## Wykresy
+
+Wszystkie wykresy są w `app/components/charts/` (inline SVG, bez zależności), reguły w `app/styles/charts.css`, plan i uzasadnienia w `docs/UI-2.md`. Ekran dostaje wykres jedną linią (`<UsageDays />`, `<WeeklyBars />`, `<SymptomsChart />`, `<UsageWeeks />`, `<StockGauge />`), nie rysuje własnego SVG.
+
+- **Moduł.** `scale.js` (skala, „ładne” podziałki, ścieżka słupka, wygładzanie) i `fmt.js` (liczby po polsku, daty z łańcuchów ISO) to czyste funkcje z testami w `tests/charts.test.js`. `Frame` (figure: tytuł, odczyt `aria-live`, oś X w HTML, tabela `.sr-only`), `Bars`, `Scrub` (wyspa klienta: wybór palcem i klawiaturą), `Empty` (brak danych, mało danych).
+- **Kolor.** Wykres bierze kolor wyłącznie z tokenów, w obu motywach: `--chart-data` (jedna seria), `--chart-ref` (porównanie), `--chart-band`, `--chart-grid`, `--chart-axis`, `--chart-zero`, `--seq-1…4` (rosnąca ilość, jeden odcień), `--chart-1…7` (kategorie, tylko gdy seria jest tematem, najwyżej 3 naraz). Paletę sprawdza walidator (skill dataviz) i `tests/theme.test.js`; zmiana wartości wymaga nowej walidacji. `--accent` i `--kind-*` nie są kolorami serii.
+- **Reguły.** Jedna oś Y na wykres (dwie wielkości to dwa wykresy). Liczba tylko przy wybranym, maksymalnym albo ostatnim punkcie. Tekst zawsze w `--text-2` / `--text-3`, nigdy w kolorze serii. Siatka i osie 1 px. Każda wartość jest też w tabeli `.sr-only` (w opakowaniu, żeby nie poszerzała strony), wykres ma `role="img"` z opisem. Wysokość stała w CSS, podpisy osi w HTML (zero CLS, tekst 12 px bez skalowania).
+- **Zachowane na potrzeby testów:** klasy `svg.sym-chart` (E2E szuka jej w stanie pustym), `.ubar`, `.usage-chart`, `.uchart-plot`.
+- **Tryb dyskretny.** Wykresy nie pokazują nazw odmian. Jeśli nowy wykres je pokaże, nazwa idzie w `.dn`.
 
 ## Ikony
 

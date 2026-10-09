@@ -1,0 +1,83 @@
+/* Wykresy (app/components/charts/*): wszystkie reguły wykresów w jednym miejscu. Kolory tylko przez tokeny --chart-* i --seq-* (globals.css).
+   Import po ekranach (layout.js), żeby kolejność kaskady została taka jak przed wydzieleniem. */
+:where(figure.chart-frame) { margin: 0; }
+
+/* Wykres słupkowy (Historia) */
+.usage-chart { padding-bottom: var(--s-3); }
+.bars { width: 100%; max-width: 520px; height: auto; display: block; margin: 0 auto; }
+.bars text { font-family: var(--font-body), system-ui, sans-serif; font-variant-numeric: tabular-nums lining-nums; }
+.bars .axis { stroke: var(--chart-axis); stroke-width: 1; }
+.bars .bar { fill: var(--chart-data); }
+.bars .val { fill: var(--text); font-size: 12px; font-weight: 600; }
+.bars .tick { fill: var(--text-2); font-size: 11px; }
+
+/* Wykres objawów (Dziennik) */
+.sym-chart { width: 100%; max-width: 640px; height: auto; display: block; margin: 0 auto; }
+.sym-chart text { font-family: var(--font-body), system-ui, sans-serif; font-variant-numeric: tabular-nums lining-nums; fill: var(--text-2); font-size: 11px; }
+.sym-chart .grid { stroke: var(--chart-grid); stroke-width: 1; }
+.sym-chart .use { fill: var(--sep-strong); }
+
+/* miernik: zapas w dniach względem 30 dni, podziałka 7 i 14 dni */
+.gauge { position: relative; height: 8px; margin-top: var(--s-4); border-radius: 4px; background: var(--surface-2); overflow: hidden; }
+.gauge > span { display: block; height: 100%; background: var(--accent); border-radius: 4px; transition: width var(--dur-2) var(--ease); }
+.gauge > i { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--surface); }
+.today-card.warn .gauge > span { background: var(--warn); }
+.gauge-scale { position: relative; height: 16px; margin-top: 4px; font-size: var(--fs-xs); color: var(--text-3); font-variant-numeric: tabular-nums; line-height: 16px; }
+.gauge-scale > span, .usage-axis > span { position: absolute; left: 0; top: 0; white-space: nowrap; }
+.gauge-scale > .mid, .usage-axis > .mid { transform: translateX(-50%); }
+.gauge-scale > .end, .usage-axis > .end { left: auto; right: 0; }
+.today-card.warn .today-stock.ok .gauge > span { background: var(--accent); }
+/* ===== Zużycie z 14 dni ===== */
+.usage { padding: var(--s-4) var(--s-5); border-top: 1px solid var(--sep); }
+.usage-head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s-3); }
+.usage-sel { margin: 0; font-size: var(--fs-sm); color: var(--text-2); white-space: nowrap; }
+.usage-unit { margin: var(--s-2) 0 var(--s-1); }
+.usage-sel b { font-family: var(--font-display), Georgia, serif; font-size: var(--fs-xl); font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums lining-nums; margin-left: 2px; }
+.usage-chart { display: block; width: 100%; height: auto; max-height: 132px; margin-top: var(--s-3); overflow: visible; }
+.ubar { cursor: pointer; }
+.ubar path { fill: var(--chart-data); fill-opacity: .38; transition: fill-opacity var(--dur-1) var(--ease); }
+.ubar.on path { fill-opacity: 1; }
+.ubar-zero { fill: var(--chart-zero); }
+.ubar.on .ubar-zero { fill: var(--text-3); }
+@media (hover: hover) { .ubar:hover path { fill-opacity: .7; } .ubar.on:hover path { fill-opacity: 1; } }
+.usage-axis { position: relative; height: 16px; margin-top: 6px; font-size: var(--fs-xs); color: var(--text-3); font-variant-numeric: tabular-nums; line-height: 16px; }
+.usage-axis > .end { color: var(--text-2); font-weight: 600; }
+.usage-empty { margin: var(--s-2) 0 0; font-size: var(--fs-sm); color: var(--text-2); }
+@media (max-width: 760px) { .usage { padding-inline: var(--s-4); } }
+@media (min-width: 900px) {
+  .usage { grid-column: 2; grid-row: 1 / span 2; border-top: 0; border-left: 1px solid var(--sep); padding: var(--s-5) var(--s-6); }
+}
+
+/* Miernik odczuć i THC/CBD (szczegóły odmiany) */
+.meter-row { display: grid; grid-template-columns: 44px 1fr 64px; align-items: center; gap: var(--s-3); }
+.meter-lbl { font-weight: 600; font-size: var(--fs-sm); color: var(--text-2); }
+.meter { position: relative; height: 10px; border-radius: var(--r-pill); background: var(--surface-2); overflow: hidden; }
+.meter-fill { position: absolute; inset: 0 auto 0 0; border-radius: inherit; background: var(--chart-data); }
+.meter-fill.meter-cbd { background: var(--chart-ref); }
+.meter-val { text-align: right; font-family: var(--font-display), Georgia, serif; font-size: 1.375rem; font-weight: 600; font-variant-numeric: tabular-nums lining-nums; }
+.meter-scale { margin: 0; font-size: var(--fs-xs); color: var(--text-3); text-align: right; }
+/* wykres zużycia tygodniowego (słupki SVG, jedna seria: bez legendy, tytuł ją nazywa) */
+.uchart-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-1) var(--s-3); flex-wrap: wrap; }
+.uchart-head .dlabel { margin: 0; }
+.uchart-read { margin: 0; font-size: var(--fs-sm); color: var(--text-2); font-variant-numeric: tabular-nums; }
+.uchart-read b { color: var(--text); font-weight: 600; margin-right: 4px; }
+.uchart-plot { position: relative; height: 148px; margin-top: var(--s-6); touch-action: pan-y; cursor: crosshair; border-radius: var(--r-sm); }
+.uchart-plot:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.uchart-plot svg { display: block; overflow: visible; }
+.uchart-bar rect { fill: var(--chart-data); transition: fill var(--dur-1) var(--ease); }
+.uchart-bar.dim rect { fill: color-mix(in srgb, var(--chart-data) 35%, var(--surface)); }
+.uchart-base { stroke: var(--chart-axis); stroke-width: 1; }
+.uchart-grid { stroke: var(--chart-grid); stroke-width: 1; stroke-dasharray: 2 3; }
+.uchart-max { position: absolute; right: 0; top: 8%; transform: translateY(-120%); font-size: var(--fs-xs); color: var(--text-3); font-variant-numeric: tabular-nums; }
+.uchart-x { display: grid; grid-template-columns: repeat(12, 1fr); margin-top: 6px; font-size: var(--fs-xs); color: var(--text-2); font-variant-numeric: tabular-nums; }
+.uchart-x span { white-space: nowrap; text-align: left; }
+.uchart-x span:last-child { text-align: right; }
+.radar { width: 280px; max-width: 100%; height: auto; }
+.radar .radar-avg { fill: color-mix(in srgb, var(--chart-ref) 16%, transparent); stroke: var(--chart-ref); }
+.radar .radar-me { fill: color-mix(in srgb, var(--chart-data) 22%, transparent); stroke: var(--chart-data); }
+.legend { text-align: center; font-size: var(--fs-sm); color: var(--text-2); }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin: 0 4px 0 10px; vertical-align: 0; }
+.dot.avg { background: var(--chart-ref); } .dot.me { background: var(--chart-data); }
+@media (max-width: 360px) {
+  .meter-row { grid-template-columns: 40px 1fr 56px; gap: var(--s-2); }
+}
