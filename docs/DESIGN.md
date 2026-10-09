@@ -2,13 +2,23 @@
 
 Krótki przewodnik dla każdego, kto zmienia wygląd aplikacji. Kod: tokeny i komponenty bazowe w `app/globals.css`, style ekranów w `app/styles/*.css` (kolejność importu w `app/layout.js`), ikony w `app/components/Icon.js`.
 
+Od 9.10.2026 obowiązuje **Design 3** (kierunek B „Dashboard zdrowia” z elementami A): diagnoza, makiety, finalne tokeny z kontrastem i plan strumieni są w `docs/DESIGN-3.md` (sekcja 0). Zasady 3–5 poniżej zastąpiły dawne „hierarchia zamiast ozdobników”, „jeden akcent” i „listy zamiast kart”.
+
 ## Zasady
 
 1. **Spokojnie i rzetelnie.** Odbiorcy to dorośli pacjenci, a dane dotyczą zdrowia. Ton jak w aplikacji apteki albo dzienniku zdrowia, bez „stonerskiej” estetyki i marketingu.
 2. **Telefon przede wszystkim.** Ok. 90% użyć to telefon, w tym natywna powłoka Android (`html.native-app`). Projektuj najpierw na 390 px, potem sprawdź 320 px i 1280 px.
-3. **Hierarchia zamiast ozdobników.** Ważność pokazuje rozmiar, grubość i kolor tekstu. Nie dodawaj ramki, cienia ani tła tylko po to, żeby coś „wyróżnić”.
-4. **Jeden akcent.** Zieleń (`--accent`) oznacza akcję albo stan „wybrane”. Kolor stanu (ostrzeżenie, błąd) pojawia się tylko wtedy, gdy coś wymaga uwagi. Kolory rodzaju odmiany (indica, sativa, hybryda) służą jako znacznik danych: kropka przy nazwie, chip filtra. Nie używaj ich jako dekoracji.
-5. **Listy jak w systemie.** Powtarzalne pozycje układaj jako wiersze z cienką linią (`.list`, `.facts`, `.people`, `.rank-list`), a nie jako osobne karty z ramką.
+3. **Kolor oznacza obszar.** Sześć obszarów ma własny kolor (`data-cat`):
+   - zapas i zużycie: `stock`
+   - dziennik i objawy: `journal`
+   - recepty: `rx`
+   - odmiany: `strain`
+   - społeczność: `social`
+   - wiedza i raport: `learn`
+
+   Kolor pojawia się w ikonie sekcji (`.ic-dot`), tle karty z tematem (`.card.tint`), aktywnej zakładce i wybranym chipie. Ikona i tekst na tle tonalnym mają zawsze kolor `--cat-*-ink`. Pełne wypełnienie (`.solid`, `--cat-*` z `--on-cat`) jest tylko w hero i w najwyżej dwóch kaflach KPI na ekranie „Dziś”. Na pozostałych ekranach jedyną pełną plamą koloru jest hero albo przycisk główny.
+4. **Jedna rzecz najważniejsza na ekranie.** Każdy ekran ma jednego „bohatera”: hero z gradientem od `--bar` albo kartę tonalną z jedną dużą liczbą (`.big-num`, Figtree 800). Akcja główna ma zawsze kolor `--btn`, niezależnie od obszaru. Kolor stanu (`--warn`, `--danger`) pojawia się tylko wtedy, gdy jest powód; informacja ma neutralne tło (`--surface-2`). Kolory rodzaju odmiany (`--kind-*`) to nadal znacznik danych (kropka, miniatura, chip filtra), a nie kolor obszaru.
+5. **Warstwy zamiast linii.** Karty i listy mają miękki cień (`--shadow-card`) i promień 18, więc odcinają się od tła. Linie zostają wewnątrz kart (wiersze `.list`, `.facts`). Karta w karcie nie ma drugiego cienia. Powtarzalne pozycje to nadal wiersze w jednej karcie, nie osobne karty.
 6. **Każdy stan ma wygląd.** Każdy ekran ma stan pusty (`.empty` z ikoną, zdaniem wyjaśnienia i jedną akcją), stan ładowania (szkielet `Skeleton`) i stan błędu (`.alert.error` z `role="alert"`).
 7. **Dostępność.** Kontrast tekstu co najmniej 4,5:1 (WCAG AA) w obu motywach. Cele dotykowe mają co najmniej 44 px, a pola tekstowe czcionkę 16 px. Fokus z klawiatury musi być widoczny. Ruch szanuje `prefers-reduced-motion`.
 
@@ -20,52 +30,61 @@ Kolory definiujemy wyłącznie jako zmienne CSS. W JSX i nowym CSS nie wpisuj wa
 
 | Token | Jasny | Ciemny | Użycie |
 |---|---|---|---|
-| `--bg` | #f4f5f1 | #0f1411 | tło strony |
-| `--surface` | #ffffff | #171d19 | karty, listy, dolny pasek |
-| `--surface-2` | #eef0ea | #1f2721 | wypełnienia: tor przełącznika, pola w karcie, znaczniki |
-| `--surface-3` | #e3e7de | #29332c | wciśnięcie, zaznaczony segment (ciemny) |
-| `--field-bg` | #ffffff | #131916 | tło pól formularza |
-| `--sep` / `--sep-strong` | #e0e3da / #c8cdc1 | #28312b / #3b463e | linie / ramki pól i przycisków drugorzędnych |
-| `--text` | #18211b | #e7ece5 | tekst główny |
-| `--text-2` | #566158 | #a5afa6 | tekst drugorzędny, etykiety (6,5:1 / 7,6:1) |
-| `--text-3` | #67716a | #8b958c | podpowiedzi, placeholder, chevrony (min. 4,6:1) |
-| `--accent` / `--on-accent` | #2f6b45 / #fff | #86c597 / #0c1a10 | przycisk główny, zaznaczenie (6,3:1 / 8,9:1) |
-| `--accent-text` | #2a6340 | #8fcfa0 | linki, przyciski tekstowe |
-| `--accent-soft` / `--on-accent-soft` | #e2eee5 / #1d4a2f | #1d3325 / #b4e0bf | wybrany chip, aktywna zakładka |
+| `--bg` | #edf1f4 | #0b1114 | tło strony |
+| `--surface` | #ffffff | #141c20 | karty, listy, dolny pasek |
+| `--surface-2` | #f2f5f7 | #1b252a | wypełnienia: tor przełącznika, pola w karcie, znaczniki |
+| `--surface-3` | #e5ebef | #243037 | wciśnięcie, zaznaczony segment (ciemny) |
+| `--field-bg` | #ffffff | #10181c | tło pól formularza |
+| `--sep` / `--sep-strong` | #e0e6ea / #c3cdd4 | #223038 / #36464f | linie / ramki pól i przycisków drugorzędnych |
+| `--text` | #0f1b1f | #e8eef1 | tekst główny |
+| `--text-2` | #475760 | #a4b2b9 | tekst drugorzędny, etykiety (6,6:1 / 8,7:1 na tle) |
+| `--text-3` | #5b6b73 | #87969d | podpowiedzi, placeholder, chevrony (min. 4,87:1) |
+| `--accent` / `--on-accent` | #0f6b52 / #fff | #4fd1a5 / #05231a | zaznaczenie, przełącznik, fokus (nie przycisk główny) |
+| `--btn` / `--on-btn` | #0f6b52 / #fff | #0f7a5c / #fff | przycisk główny (6,5:1 / 5,3:1) |
+| `--accent-text` | #0f6b52 | #6fdcb7 | linki, przyciski tekstowe |
+| `--accent-soft` / `--on-accent-soft` | #d9f0e7 / #0a4a39 | #12322a / #a6ecd3 | wybrany chip, aktywna zakładka bez obszaru |
 | `--bar` / `--on-bar` | #1d3b27 / #eef1e8 | bez zmian | górny pasek i ekran blokady; **sprzężony** z paskiem stanu (`mobile/capacitor.config.js`, `themeColor` w `app/layout.js`), nie zmieniaj go osobno |
 | `--warn`, `--warn-soft`, `--warn-line` | | | ostrzeżenia: recepta wygasa, „Kończy się”, termin ważności |
 | `--danger`, `--danger-soft`, `--danger-line` | | | błędy i akcje nieodwracalne |
 | `--ok`, `--ok-soft` | | | potwierdzenia zapisu |
 | `--kind-indica`, `--kind-sativa`, `--kind-hybryda` | | | znacznik rodzaju odmiany |
+| `--cat-<obszar>`, `-soft`, `-ink`, `--on-cat` | | | kolory obszarów (`stock`, `journal`, `rx`, `strain`, `social`, `learn`): wypełnienie z `--on-cat`, tło tonalne, tusz; wartości w `docs/DESIGN-3.md` |
+| `--hero-2`, `--hero-3`, `--on-hero`, `--on-hero-2`, `--hero-btn-2` | | | hero: gradient `--bar` → `--hero-2` → `--hero-3`, tekst, podpisy, przycisk drugorzędny |
+| `--shadow-card`, `--card-line` | | | cień i linia kart |
 | `--scrim`, `--hover-bg`, `--press-bg` | | | zasłona pod arkuszem, najechanie, wciśnięcie |
 
 Dawne nazwy (`--paper`, `--card`, `--card-alt`, `--line`, `--ink`, `--muted`, `--hemp`, `--hemp-deep`, `--leaf`, `--resin`, `--lilac`, `--input-bg`, `--shadow`) są aliasami nowych tokenów. Zostają dla zgodności z istniejącym kodem, ale w nowym kodzie ich nie używaj. Uwaga: `--hemp-deep` oznacza teraz wyłącznie kolor paska (`--bar`), a nie kolor tekstu.
 
 ### Typografia
 
-- **Fraunces** (`--font-display`): tytuły ekranów (`h1`), tytuły sekcji w kartach (`h2`), nazwy odmian i duże liczby (oceny, zapas). Liczby zawsze z `font-variant-numeric: tabular-nums lining-nums`.
-- **Figtree** (`--font-body`): cały pozostały tekst, w tym etykiety, przyciski i nagłówki sekcji ustawień.
+- **Jeden krój: Figtree** (`--font-body`). `--font-display` wskazuje na ten sam krój (Fraunces wypadł w Design 3), więc tytuły i liczby różnią się tylko grubością: `h1` i duże liczby 800, `h2`/`h3` i przyciski 700, tekst 400–500. Liczby zawsze z `font-variant-numeric: tabular-nums lining-nums`.
 - **Skala:** 12 (`--fs-xs`, podpisy pod liczbami, plakietki), 14 (`--fs-sm`, etykiety pól, tekst pomocniczy), 16 (`--fs-md`, tekst), 17 (`--fs-lg`, tytuły w ustawieniach, `h3`), 20 (`--fs-xl`, `h2`), 24 (`--fs-2xl`), 30 (`--fs-3xl`, `h1` na desktopie; na telefonie 28).
-- Interlinia 1,5 dla tekstu i 1,2 dla nagłówków. Grubość 600 dla nagłówków i przycisków, 500 dla wartości w listach.
+- Interlinia 1,5 dla tekstu i 1,2 dla nagłówków. Grubość 700 dla nagłówków i przycisków, 800 dla `h1` i dużych liczb, 500 dla wartości w listach.
 
 ### Odstępy, promienie, cienie, ruch
 
 - **Odstępy** w siatce 4 px: `--s-1` 4, `--s-2` 8, `--s-3` 12, `--s-4` 16, `--s-5` 20, `--s-6` 24, `--s-8` 32, `--s-10` 40, `--s-12` 48. Margines boczny strony to 16 px na telefonie i 20 px na desktopie. Odstęp między kartami: 16 px.
-- **Promienie:** `--r-sm` 6 (plakietki, znaczniki), `--r-md` 10 (przyciski, pola), `--r-lg` 14 (karty, listy), `--r-xl` 20 (górne rogi arkusza), `--r-pill` (chipy filtrów, wskaźnik zakładki).
-- **Cienie** mają tylko warstwy nad treścią: arkusz, menu, przycisk „+” (`--shadow-2`) i zaznaczony segment (`--shadow-1`). Karty cienia nie mają.
+- **Promienie:** `--r-sm` 6 (plakietki, znaczniki), `--r-md` 12 (przyciski, pola), `--r-lg` 18 (karty, listy, kafle), `--r-xl` 24 (hero, górne rogi arkusza), `--r-pill` (chipy filtrów, wskaźnik zakładki).
+- **Cienie:** karty, listy i kafle mają `--shadow-card` (miękki, w ciemnym motywie z linią `--card-line`). Warstwy nad treścią (arkusz, menu, „+”) mają `--shadow-2`, zaznaczony segment `--shadow-1`. Karta tonalna (`.tint`) nie ma cienia.
 - **Ruch:** `--dur-1` 120 ms (kolor, tło) i `--dur-2` 200 ms (wysunięcie arkusza, obrót chevrona), krzywa `--ease`. Przy `prefers-reduced-motion: reduce` animacje i przejścia są wyłączone globalnie.
 
 ## Komponenty
 
-- **Przyciski** (`.btn`, wysokość 44): główny `.btn` to wypełnienie akcentem, jeden na ekran lub sekcję. Drugorzędny `.btn.ghost` ma tło powierzchni i ramkę `--sep-strong`. Tekstowy `.btn.text` nie ma tła; używaj go do akcji w stopce karty i w paskach. Niebezpieczny `.btn.danger` służy do usuwania. `.btn.small` (36 px na desktopie, 44 px przy dotyku) to wersja do gęstych miejsc. `.btn.block` zajmuje pełną szerokość. Ikona w przycisku ma 18–20 px i stoi przed tekstem.
+- **Przyciski** (`.btn`, wysokość 44): główny `.btn` to wypełnienie `--btn` (w ciemnym motywie ciemny szmaragd z białym tekstem, nie mięta), jeden na ekran lub sekcję. Miękki `.btn.soft` ma tło obszaru (`--c-soft`) i służy do akcji z kolorem, np. „Zużyłem” na karcie. Na hero `.btn` jest biały, a `.btn.ghost` przyciemniony (`--hero-btn-2`). Drugorzędny `.btn.ghost` ma tło powierzchni i ramkę `--sep-strong`. Tekstowy `.btn.text` nie ma tła; używaj go do akcji w stopce karty i w paskach. Niebezpieczny `.btn.danger` służy do usuwania. `.btn.small` (36 px na desktopie, 44 px przy dotyku) to wersja do gęstych miejsc. `.btn.block` zajmuje pełną szerokość. Ikona w przycisku ma 18–20 px i stoi przed tekstem.
 - **Pola** (`.field` > `label` + `.input`): etykieta nad polem (14 px, 600). Pole ma wysokość 44 i promień 10, a fokus to ramka akcentu z pierścieniem `--ring`. Błąd pola: `.field-err` pod polem i `aria-invalid`. Dla wartości liczbowych zawsze `inputMode`.
 - **Przełącznik** (`input.switch` w `.switch-row`, `role="switch"`): ustawienia włącz/wyłącz. Zwykły `.check` zostaje dla zgód i filtrów.
 - **Listy** (`.list` > `.list-row`): wiersz ma co najmniej 52 px; ikona 24 px w `--text-2`, potem `.lr-main` (tytuł i opcjonalny `.lr-sub`), `.lr-value` (wartość) i `.lr-chev` (chevron dla nawigacji). **Lista faktów** (`dl.facts`) układa etykietę po lewej i wartość po prawej, liczby w `tabular-nums`.
-- **Sekcje:** `.card` to płaska powierzchnia z linią 1 px i promieniem 14, bez cienia. Nad grupą kart stawiaj `.section-label` (14 px, `--text-2`), jak w ustawieniach systemowych (zobacz `/profil`, arkusz „Więcej”).
-- **Nagłówek ekranu:** `h1` w `.page` (opcjonalnie `.page-head` z akcją po prawej). Powrót: `.back` z ikoną `chevronLeft`.
+- **Sekcje:** `.card` to powierzchnia z cieniem `--shadow-card` i promieniem 18. Sekcja z tematem to `.card.tint` z `data-cat` (tło `--cat-*-soft`), a jej nagłówek to `.sec-head` (kółko `.ic-dot`, `h2`, akcja). Nad grupą kart stawiaj `.section-label` (14 px, 700, `--text-2`).
+- **Obszary i kafle (Design 3):** `data-cat` ustawia `--c`, `--c-soft` i `--c-ink`. `.ic-dot` to ikona w kółku (`.sm`, `.sq`, `.solid`). `.tiles` i `.tile` to szybkie kafle z ikoną w kółku. `.kpi-tile` (`.kt-label`, `.kt-value`, `.kt-sub`) to liczba w kaflu, a jego wariant `.solid` stosuj oszczędnie (patrz zasada 3). `.big-num` to duża liczba. `.hero` to nagłówek z gradientem od `--bar`; na telefonie ma pełną szerokość i łączy się z górnym paskiem.
+- **Nagłówek ekranu:** `h1` w `.page` (opcjonalnie `.page-head` z akcją po prawej albo `.hero`). Powrót: `.back` z ikoną `chevronLeft`. Przełącznik widoków jako linki: `.seg.seg-links` z `a.on` (np. Moje / Katalog / Rankingi).
 - **Pasek liczb** (`.stat-strip`): 2–3 kluczowe liczby w jednej karcie z pionowymi liniami (historia, raport, admin). Nie rób osobnego kafla dla każdej liczby.
 - **Panel „Dziś”** (strona główna, `TodayPanel.js`, `app/styles/home.css`): jedna duża liczba (zapas, Fraunces 48 px) i prognoza, miernik dni względem 30 dni, wykres zużycia z 14 dni (słupki inline SVG w `--chart-data`, wybrany dzień pełnym kolorem, pozostałe przygaszone, oś tylko `dd.mm` i „dziś”), szybkie „Zużyłem” i karta recept z odliczaniem. Kolor `--warn` tylko przy zapasie poniżej progu lub < 7 dni i przy recepcie wygasającej w ciągu 7 dni.
-- **Nawigacja:** górny pasek (`--bar`, na telefonie znak marki i ikona profilu), dolny pasek (powierzchnia, 5 zakładek, aktywna z wskaźnikiem `--accent-soft`), arkusz „Więcej” (grupy „Dziennik”, „Odkrywaj”, „Konto”). Pozycje menu definiuje się tylko w `app/components/navItems.js` (pole `icon`, `sheet` = grupa).
+- **Nawigacja:**
+  - Górny pasek (`--bar`, na telefonie znak marki i ikona profilu; desktop: Dziś, Odmiany, Dziennik objawów, Recepty, Katalog, Szukaj, Znajomi).
+  - Dolny pasek: Dziś, Odmiany, „+” w środku (`.fab`, menu dodawania), Dziennik, Więcej. Aktywna zakładka ma kolor swojego obszaru (`data-cat`). Na „Więcej” jest plakietka zaproszeń.
+  - Arkusz „Więcej”: grupy „Dziennik”, „Odkrywaj”, „Społeczność”, „Konto”, ikony w kółkach w kolorach obszarów, Eksport i Import CSV w „Konto”.
+  - Pozycje menu definiuje się tylko w `app/components/navItems.js` (pola `icon`, `cat`, `short`, `file`, `sheet` = grupa).
+  - Strona główna `/` to tylko panel „Dziś”, a lista odmian jest na `/odmiany`.
 - **Arkusze:** wysuwane od dołu, tło `--bg`, uchwyt 36×4 px, `--scrim` pod spodem, Escape zamyka. Formularz odmiany na telefonie otwiera się jako pełnoekranowy arkusz (`.strain-form` + `.mobile-form-bar`).
 - **Przełącznik segmentowy** (`.seg`): 2–4 wzajemnie wykluczające się widoki. Przy większej liczbie opcji użyj `select` albo chipów.
 - **Chipy** (`.chip`): filtry wielokrotnego wyboru; wybrany ma `.on`. Małe znaczniki (`.chips.small .chip`, `.chip.tag`) to nieinteraktywne etykiety, na przykład terpeny i tagi efektów.
@@ -85,7 +104,7 @@ Wszystkie wykresy są w `app/components/charts/` (inline SVG, bez zależności),
 
 ## Ikony
 
-Używamy jednego zestawu liniowego z `app/components/Icon.js`: siatka 24 px, kreska 1,75, zaokrąglone końce, kolor z `currentColor`. Nową ikonę dopisz tam w tym samym stylu. Nie używaj emoji ani znaków („×”, „▾”, „+”) w roli ikon, nie mieszaj bibliotek. Liść marki (`Leaf`) pojawia się tylko jako znak marki w górnym pasku i na ekranie logowania, bo tryb dyskretny go ukrywa. Nie używaj go jako ikony funkcji.
+Używamy jednego zestawu liniowego z `app/components/Icon.js`: siatka 24 px, kreska 1,75, zaokrąglone końce, kolor z `currentColor`. Nową ikonę dopisz tam w tym samym stylu. Nie używaj emoji ani znaków („×”, „▾”, „+”) w roli ikon, nie mieszaj bibliotek. Liść marki (`Leaf`) pojawia się tylko jako znak marki w górnym pasku i na ekranie logowania, bo tryb dyskretny go ukrywa. Nie używaj go jako ikony funkcji. Odmiana to słoik (`jar`), olej i pen to kropla (`drop`), Dziś to dom (`home`). Ikona sekcji stoi w kółku `.ic-dot` w kolorze obszaru. Mikroilustracje (puste stany, brak zdjęcia) rysuj z prostych kształtów w kolorach obszarów, bez liści i postaci.
 
 ## Treść
 

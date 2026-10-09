@@ -1,6 +1,6 @@
 # Design 3: więcej koloru i wyraźna hierarchia
 
-Odpowiedź na uwagi pierwszych testerów bety: aplikacja jest za mało kolorowa i przytłaczająca, nic się nie wyróżnia, wszystko zlewa się w całość, przez co trudno się w niej odnaleźć i nie chce się z niej korzystać. Ten dokument zawiera diagnozę obecnego wyglądu (wersja 0.53.0), dwa kierunki z makietami, rekomendację, nowe zasady i plan wdrożenia na agentów. Zastępuje sekcję „Zasady” w `docs/DESIGN.md`, gdy właściciel wybierze kierunek. Do tego czasu w kodzie aplikacji nic się nie zmienia.
+Odpowiedź na uwagi pierwszych testerów bety: aplikacja jest za mało kolorowa i przytłaczająca, nic się nie wyróżnia, wszystko zlewa się w całość, przez co trudno się w niej odnaleźć i nie chce się z niej korzystać. Ten dokument zawiera diagnozę obecnego wyglądu (wersja 0.53.0), dwa kierunki z makietami, rekomendację, nowe zasady i plan wdrożenia na agentów. **Decyzja 9.10: kierunek B z elementami A (sekcja 0).** Zasady z sekcji 0 i 6 zastąpiły „jeden akcent” i „hierarchię zamiast ozdobników” w `docs/DESIGN.md`.
 
 Makiety są w `docs/design3/`: pliki HTML (samodzielne, inline CSS, fonty z `docs/design3/fonts/`) i PNG (390 px, dpr 2, pełna strona).
 
@@ -13,6 +13,199 @@ Makiety są w `docs/design3/`: pliki HTML (samodzielne, inline CSS, fonty z `doc
 | Dziennik objawów | `a-dziennik.png` | `b-dziennik.png` |
 | Tryb dyskretny | `a-dzis-dyskretny.png`, `a-odmiany-dyskretny.png` | (te same reguły) |
 | Porównanie obecny, A, B | `porownanie.png` (Dziś, jasny), `porownanie-ciemny.png`, `porownanie-odmiany.png` | |
+
+## 0. Decyzja (9.10): kierunek B z elementami A
+
+Właściciel wybrał po konsultacji z testerem **kierunek B „Dashboard zdrowia”**. Najbardziej podobała się strona główna B. Bierzemy z niej:
+- nowy dolny pasek Dziś / Odmiany / „+” / Dziennik / Więcej (Katalog i Rankingi jako przełącznik na ekranie Odmian, Szukaj i Znajomi w „Więcej”);
+- osobny ekran `/odmiany` (strona główna to tylko panel „Dziś”).
+
+Sekcje 4 (rekomendacja A) i 7 (plan pod A) zostają jako historia; obowiązuje ta sekcja.
+
+### Co bierzemy z A i dlaczego
+
+Testerzy pisali jednocześnie „za mało koloru” i „przytłaczająca”. B daje kolor i punkt skupienia, a elementy A pilnują, żeby kolor nie zaczął przytłaczać. Bierzemy cztery rzeczy:
+1. **Kolory obszarów** z sześcioma rolami (zapas i zużycie, dziennik i objawy, recepty, odmiany, społeczność, wiedza i raport) i trójką odcieni na obszar: wypełnienie, tło tonalne, tusz. Kolor mówi, gdzie się jest.
+2. **Tła tonalne sekcji na ekranach drugiego poziomu** (dziennik, recepty, historia, szczegóły odmiany) zamiast pełnych kafli. Sekcja z tematem dostaje `--cat-*-soft`, ikony i podpisy `--cat-*-ink`.
+3. **Szybkie kafle z ikonami w kolorowych kółkach** (`.tile` + `.ic-dot`) na Dziś i w arkuszu „Więcej”.
+4. **Mniej pełnych kafli niż w makiecie B.** Pełne kolory (`.kpi-tile.solid`, `.ic-dot.solid`) są tylko na ekranie Dziś: w hero i w najwyżej dwóch kaflach KPI naraz (np. recepta i nastrój). Na pozostałych ekranach jedyną pełną plamą koloru jest hero albo przycisk główny.
+
+Typografia jest z B: **jeden krój, Figtree.** Tytuły mają 700, `h1` i duże liczby 800, cyfry tabelaryczne. Fraunces wypada. `--font-display` wskazuje na Figtree, więc wszystkie dawne użycia zmieniają się same. To też o jeden plik fontu mniej na starcie (Lighthouse).
+
+### Finalne tokeny (w `app/globals.css`, wszystkie trzy bloki)
+
+Paleta wykresów (`--chart-*`, `--seq-*`) i rodzaje odmian (`--kind-*`) są bez zmian. `--bar` też zostaje bez zmian, więc pasek stanu, `themeColor` i Capacitor się nie zmieniają: hero zaczyna gradient od `var(--bar)`.
+
+```css
+/* jasny (:root) */
+--bg: #edf1f4; --surface: #ffffff; --surface-2: #f2f5f7; --surface-3: #e5ebef; --field-bg: #ffffff;
+--sep: #e0e6ea; --sep-strong: #c3cdd4; --card-line: rgba(15, 30, 40, .05);
+--text: #0f1b1f; --text-2: #475760; --text-3: #5b6b73;
+--accent: #0f6b52; --accent-hover: #0b5a45; --on-accent: #ffffff; --accent-text: #0f6b52; --accent-soft: #d9f0e7; --on-accent-soft: #0a4a39;
+--btn: #0f6b52; --btn-hover: #0b5a45; --on-btn: #ffffff;
+--bar: #1d3b27; --hero-2: #0f6450; --hero-3: #0e7563; --on-hero: #ffffff; --on-hero-2: #d3ece3; --hero-btn-2: rgba(0, 0, 0, .18);
+--on-cat: #ffffff;
+--cat-stock: #0f7a55;   --cat-stock-soft: #dcf3ea;   --cat-stock-ink: #0a5a3f;
+--cat-journal: #6a32d1; --cat-journal-soft: #ede5fd; --cat-journal-ink: #4f22a3;
+--cat-rx: #1f56d6;      --cat-rx-soft: #e2eaff;      --cat-rx-ink: #1a43a6;
+--cat-strain: #0b6f82;  --cat-strain-soft: #d8f0f5;  --cat-strain-ink: #08525f;
+--cat-social: #c0266b;  --cat-social-soft: #fde2ee;  --cat-social-ink: #931a50;
+--cat-learn: #8f5a00;   --cat-learn-soft: #fbedd2;   --cat-learn-ink: #6b4300;
+--warn: #b43c0a; --warn-soft: #ffe9dc; --warn-line: #f5c8ad; --ok: #0f7a55; --ok-soft: #dcf3ea;
+--shadow-card: 0 1px 3px rgba(15, 30, 40, .07), 0 6px 20px rgba(15, 30, 40, .06);
+
+/* ciemny (:root[data-theme="dark"] i @media prefers-color-scheme: dark, identyczne) */
+--bg: #0b1114; --surface: #141c20; --surface-2: #1b252a; --surface-3: #243037; --field-bg: #10181c;
+--sep: #223038; --sep-strong: #36464f; --card-line: rgba(255, 255, 255, .05);
+--text: #e8eef1; --text-2: #a4b2b9; --text-3: #87969d;
+--accent: #4fd1a5; --accent-hover: #6fdcb7; --on-accent: #05231a; --accent-text: #6fdcb7; --accent-soft: #12322a; --on-accent-soft: #a6ecd3;
+--btn: #0f7a5c; --btn-hover: #12896a; --on-btn: #ffffff;   /* przycisk główny nie świeci na miętowo */
+--bar: #1d3b27; --hero-2: #0f4a3c; --hero-3: #0d5a4d; --on-hero: #ffffff; --on-hero-2: #c4e3d8; --hero-btn-2: rgba(0, 0, 0, .22);
+--on-cat: #ffffff;
+--cat-stock: #11694c;   --cat-stock-soft: #123128;   --cat-stock-ink: #5fd6a8;
+--cat-journal: #5530a3; --cat-journal-soft: #251a3f; --cat-journal-ink: #b9a0ff;
+--cat-rx: #2449a6;      --cat-rx-soft: #16233f;      --cat-rx-ink: #93b4ff;
+--cat-strain: #0d5f6f;  --cat-strain-soft: #0f2c33;  --cat-strain-ink: #62cde0;
+--cat-social: #9e2459;  --cat-social-soft: #36172a;  --cat-social-ink: #ff93c2;
+--cat-learn: #7a4e05;   --cat-learn-soft: #33260c;   --cat-learn-ink: #f2bd63;
+--warn: #ffa66b; --warn-soft: #38200f; --warn-line: #5c3517; --ok: #5fd6a8; --ok-soft: #123128;
+--shadow-card: 0 1px 2px rgba(0, 0, 0, .4), 0 6px 20px rgba(0, 0, 0, .3);
+
+/* bez kolorów, tylko w :root */
+--r-md: 12px; --r-lg: 18px; --r-xl: 24px; --font-display: var(--font-body);
+```
+
+Znaczenie ról:
+- `--cat-x` to **wypełnienie** z tekstem `--on-cat` (pełny kafel, kółko `.solid`).
+- `--cat-x-soft` to tło tonalne.
+- `--cat-x-ink` to tekst i ikona na tle tonalnym i na powierzchni.
+
+Ikona na `--cat-x-soft` jest zawsze w `--cat-x-ink`, nigdy w `--cat-x`: w ciemnym motywie `--cat-x` na `--cat-x-soft` daje tylko 2,3–2,8:1.
+
+### Kontrast finalnych tokenów
+
+Wynik `node docs/design3/kontrast-final.mjs`. Wszystkie 100 par (po 50 w każdym motywie, w tym 30 par obszarów) pilnuje test `kontrast par tekst/tło` w `tests/theme.test.js`. Pliki `docs/design3/tokens.mjs` i `kontrast.mjs` dotyczą makiet i są nieaktualne.
+
+| Para | Jasny | Ciemny |
+|---|---|---|
+| tekst główny na tle | 15,45 | 16,23 |
+| `--text-3` na tle (najsłabszy tekst) | 4,87 | 6,23 |
+| `--text-2` na `--surface-2` | 6,85 | 7,17 |
+| `--on-btn` na `--btn` (przycisk główny) | 6,47 | 5,30 |
+| `--accent-text` na tle (linki) | 5,70 | 11,41 |
+| `--accent` na tle (fokus, 3:1) | 5,70 | 9,96 |
+| `--on-hero-2` na `--hero-3` (podpisy w hero) | 4,51 | 5,92 |
+| biały na przycisku drugorzędnym hero (`--hero-btn-2` na `--hero-3`) | 7,48 | 10,75 |
+| min. `--cat-*-ink` na `--cat-*-soft` | 6,90 | 7,34 |
+| min. `--text-2` na `--cat-*-soft` | 6,15 | 6,45 |
+| min. `--cat-*-ink` na `--surface` | 8,24 | 7,84 |
+| min. `--on-cat` na `--cat-*` (pełny kafel) | 5,34 | 6,67 |
+| `--warn` na `--warn-soft` | 5,00 | 7,90 |
+| `--danger` na `--danger-soft` | 5,20 | 7,75 |
+
+Na hero nie używamy półprzezroczystej bieli (`rgba(255,255,255,.14)` na `--hero-3` daje 4,27:1). Przyciski drugorzędne są przyciemnione: `--hero-btn-2`.
+
+### Etap 0: zrobione (gałąź etapu 0)
+
+**Komponenty bazowe w `app/globals.css`, do użycia w S1–S3 bez zmian w `globals.css`:**
+- `data-cat="stock|journal|rx|strain|social|learn"` na dowolnym elemencie ustawia `--c`, `--c-soft` i `--c-ink` dla niego i jego dzieci.
+- `.ic-dot` (kółko 44 px; `.sm` 36 px; `.sq` jako zaokrąglony kwadrat; `.solid` w pełnym kolorze).
+- `.sec-head` (kółko, `h2`, akcja).
+- `.card.tint` (karta tonalna).
+- `.tiles` i `.tile` (szybkie kafle).
+- `.kpi-tile` z `.kt-label`, `.kt-value`, `.kt-sub` (wariant `.solid` oszczędnie).
+- `.big-num`.
+- `.hero` (gradient od `--bar`; na telefonie pełna szerokość pod górnym paskiem; `.hero .btn` jest biały, `.hero .btn.ghost` przyciemniony).
+- `.page-head`.
+- `.btn.soft` (tło obszaru).
+- `.seg` także z linkami (`.seg a.on`).
+- `[data-cat] .chip.on`.
+
+**Zmiany w istniejących klasach:**
+- `.card` i `.list` mają cień `--shadow-card` i promień 18; karta w karcie jest bez cienia.
+- `.btn` używa `--btn` i grubości 700.
+- `h1`–`h3` mają Figtree 700/800.
+
+**Nawigacja:**
+- `navItems.js`: pole `cat`, `short`, `file`; grupy arkusza Dziennik, Odkrywaj, Społeczność, Konto; Eksport i Import CSV są w „Konto”.
+- Dolny pasek: Dziś, Odmiany, „+” (klasa `.fab` w środku paska, menu dodawania), Dziennik, Więcej. Na „Więcej” jest plakietka zaproszeń (`NavBadge kind="social"`).
+- Aktywna zakładka ma kolor swojego obszaru.
+- Arkusz „Więcej” ma ikony w kółkach w kolorach obszarów.
+- Desktop: górny pasek Dziś, Odmiany, Dziennik objawów, Recepty, Katalog, Szukaj, Znajomi.
+
+**Trasy:**
+- `/` to tylko panel „Dziś” z hero. Stare adresy `/?new=1` i `/?q=` przekierowują na `/odmiany`.
+- `/odmiany` to lista (`StrainsBoard` w `HomeStore` bez danych panelu) z przełącznikiem Moje / Katalog / Rankingi i ikoną wyszukiwania.
+- Linki „Wszystkie odmiany” i „Przejdź do odmian” prowadzą na `/odmiany`.
+- Skrót manifestu „Nowa odmiana” to `/odmiany?new=1`.
+- Skróty APK (`SHORTCUT_PATHS`: `/?zuzylem=1`, `/#objawy`, `/raport`) bez zmian: wskazują panel „Dziś”, więc APK nie trzeba przebudowywać.
+
+### Etap 1 pod B: trzy równoległe strumienie
+
+Wspólne zasady dla S1–S3:
+- Nie zmieniaj `app/globals.css`, `app/styles/nav.css`, `navItems.js`, `BottomNav.js`, `Header.js` ani `tests/e2e/zielnik.test.mjs`. Brakujący komponent bazowy opisz w raporcie.
+- Zachowaj klasy z listy ryzyk (sekcja 7) i `.dn` przy nazwach odmian.
+- Kolory tylko przez tokeny, cele 44 px.
+- Pełne kolory obszaru tylko tam, gdzie mówi zlecenie.
+
+**S1: panel „Dziś”** (makieta `docs/design3/b-dzis.png`)
+- Pliki:
+  - `app/page.js` (tylko wnętrze hero)
+  - `app/components/TodayBoard.js`, `TodayPanel.js`, `QuickActions.js`, `SymptomsQuick.js`, `NoUseToday.js`, `Onboarding.js`, `WhatsNew.js`
+  - `app/components/charts/StockForecast.js`, `UsageDays.js` (tylko opakowanie)
+  - `app/styles/home.css`, `app/styles/system.css`
+- Zakres:
+  - Hero z zapasem: liczba `.big-num` biała, pierścień dni zapasu (inline SVG), „Zużyłem” jako `.hero .btn`, „Wykupiłem” jako `.hero .btn.ghost`.
+  - Pod hero siatka 2×2 `.kpi-tile`: recepta (`.solid`, `data-cat="rx"`), nastrój z dziennika (`.solid`, `data-cat="journal"`), dziś zużyto i „Kończy się” (`--warn`, tylko gdy jest powód).
+  - Karta wykresu 14 dni z `.sec-head`.
+  - Lista „Do zrobienia” z `.ic-dot.sq`.
+  - Zachowaj: `.today`, `.today-quick`, `.tq-stock`, `.quick-btn`, `.use-chip`, `.quick-msg`, `.undo-btn`, `.usage-sel`, `.usage-scrub`, `details.stock-notes`, `.fc-note`, `#objawy`, `.no-use`, `.kpi-big`, `.trx`, `.home-date`, `section.empty` z jednym przyciskiem „Dodaj odmianę”.
+
+**S2: odmiany** (makiety `b-odmiany.png`, `b-odmiana.png`)
+- Pliki:
+  - `app/odmiany/*`
+  - `app/components/StrainsBoard.js`, `StrainCard.js`, `StrainDetail.js`, `CharacteristicCard.js`, `Effects.js`, `StrainHistory.js`, `StrainProposals.js`, `Tests.js`, `StrainForm.js`
+  - `app/strains/[id]/*`, `app/katalog/*`, `app/compare/page.js`, `app/rankings/*`, `app/wheel/*`
+  - `app/styles/strains.css`, `detail.css`, `catalog.css`, `rankings.css`, `proposals.css`, `forms.css`
+- Lista:
+  - nad listą trzy liczby (odmiany, w domu, średnia ocena);
+  - wiersze w jednej karcie: kwadrat w kolorze rodzaju z ikoną `jar`/`drop` (nie inicjały, bo zdradzałyby nazwę);
+  - ocena 800 po prawej;
+  - pigułka stanu (`.btn.soft` „Zużyłem” w `data-cat="stock"`).
+- „Porównaj” i „Edytuj” przenieść do szczegółów albo do menu karty.
+- Szczegóły:
+  - hero z nazwą (`.dn`) i chipami;
+  - trzy kafle ocen (jeden `.solid` dla „Moja”);
+  - karty z `.sec-head` i `.ic-dot` w kolorach obszarów;
+  - zamiast pustego prostokąta zdjęcia ilustracja słoika.
+- Katalog i rankingi z tym samym przełącznikiem `.seg-links` co `/odmiany`.
+- Zachowaj: `.quick`, `.quick-stock`, przyciski „Wykupiłem: <nazwa>”, `a[href^="/strains/"]`, `.proposal-box`, `.proposal-item`, `details.terp`, `.dn`, „Edytuj odmianę”.
+
+**S3: dziennik, historia, recepty, raport, profil, obserwacje** (makieta `b-dziennik.png`)
+- Pliki:
+  - `app/dziennik/*`, `app/historia/*`, `app/recepty/*`, `app/raport/*`, `app/profil/*`, `app/obserwacje/*`
+  - `app/components/RxPicker.js`, `PharmacyLink.js`
+  - `app/components/charts/SymptomsChart.js`, `UsageWeeks.js`, `WeeklyBars.js`, `PeriodCompare.js` (opakowanie)
+  - `app/styles/diary.css`, `history.css`, `profile.css`, `charts.css` (jedyny właściciel), `content.css`, `screens.css`
+- Każdy ekran ma kartę tonalną albo hero w kolorze obszaru (`.card.tint` / `.hero` z `data-cat`; pełny kolor tylko w hero):
+  - dziennik: fioletowy (`journal`)
+  - recepty: niebieski (`rx`)
+  - historia: zielony (`stock`)
+  - raport: ochra (`learn`)
+  - profil: neutralny z `.ic-dot` przy sekcjach
+- Dziennik:
+  - wpis z dziś w karcie tonalnej;
+  - małe wykresy w wierszach z trendem w pigułce;
+  - notka o prywatności neutralna (`--surface-2`), nie `.alert.note`.
+- Wykresy biorą kolory tylko z `--chart-*`, a seria leży zawsze na `--surface`.
+- Zachowaj: `.sym-custom`, `svg.sym-chart`, `.pharmacy`, `.pharmacy-rx`, `.pharmacy-pool`, `.doctor-notes`, `.dn-list`, `.report-notes`, `.report-sheet`, `.lock-setup`, `section[aria-labelledby=remind-h]`, `#remind-*`, `.fb-row`, `.trx`, `.badge`.
+
+### Etap 2: QA
+- `npm run test:e2e` (axe w obu motywach, 44 px, druk, 320/1280 px).
+- `scripts/dev/shots.mjs` 390 jasny/ciemny + `--discreet` dla `/`, `/odmiany`, `/strains/1`, `/dziennik`, `/historia`, `/recepty`, `/raport`, `/profil` i arkusza „Więcej”.
+- Ręcznie na telefonie: pasek stanu (bez zmian, kolor `--bar`), duży tekst, wydruk raportu.
+- Lighthouse `/` i `/login` w budżecie.
+- Po etapie 1 usunąć nieużywane style (`.home-section`, stare `.fab` w `platform.css`) i zaktualizować `docs/DESIGN.md` o komponenty ekranów.
 
 ## 1. Diagnoza: skąd bierze się „szarość”
 
@@ -78,7 +271,7 @@ Mocniejszy, chłodniejszy i bardziej „produktowy”. Na Dziś i w szczegółac
 
 Pięć zdań: B najmocniej odpowiada na „nic nie przyciąga uwagi”, bo hero z gradientem i pełne kafle KPI od razu pokazują stan zapasu, receptę i samopoczucie. Ekran wygląda jak nowoczesna aplikacja zdrowotna (Apple Health, aplikacje banków) i jest bardzo czytelny w skanowaniu. Gradient zaczyna się kolorem obecnego paska, więc nie trzeba zmieniać paska stanu ani konfiguracji Capacitora. Ryzykiem jest ciężar wizualny: przy wielu pełnych kaflach ekran może znów stać się „przytłaczający”, tym razem kolorem, a ton zbliża się do fintechu bardziej niż do apteki. Wdrożenie jest droższe, bo hero nachodzące na kafle, pierścień i nowa typografia liczb to nowe komponenty, a zmiana kroju (bez Fraunces) dotyka wszystkich ekranów.
 
-## 4. Rekomendacja
+## 4. Rekomendacja (przed decyzją; nieaktualna, patrz sekcja 0)
 
 **Kierunek A z trzema elementami z B:**
 1. Lista „Do zrobienia” na Dziś (wykup z recepty, objawy dnia, raport) jako karta z kolorowymi ikonami.
@@ -217,7 +410,7 @@ Skrypt kontroli: `docs/design3/kontrast.mjs` z wartościami w `docs/design3/toke
 8. **Bez konopi poza znakiem marki.** Odmiana ma ikonę słoika (`jar`), olej kropli (`drop`). Mikroilustracje rysujemy z prostych kształtów i kolorów kategorii, bez liści, postaci i stocków. Inicjały odmiany (kierunek B) są nazwą, więc dostają `.dn`.
 9. **Zostaje bez zmian:** cele 44 px, pola 16 px, `prefers-reduced-motion`, zasady treści, liczby z przecinkiem, wykresy z tokenów `--chart-*`.
 
-## 7. Plan wdrożenia (po wyborze kierunku)
+## 7. Plan wdrożenia pod kierunek A (nieaktualny; plan pod B w sekcji 0, ryzyka poniżej obowiązują)
 
 Opis dotyczy rekomendacji (A z elementami B). Dla czystego B etap 0 dochodzi do hero i pierścienia, a S1 do S3 wyglądają tak samo.
 
