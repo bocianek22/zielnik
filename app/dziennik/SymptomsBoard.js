@@ -139,6 +139,9 @@ export default function SymptomsBoard() {
           <p>Zapisz, jak się dziś czujesz. Po kilku dniach zobaczysz tu przebieg bólu, snu, lęku i nastroju.</p>
           <button type="button" className="btn" onClick={() => { const f = document.getElementById('sym-form'); f?.scrollIntoView({ block: 'start' }); f?.querySelector('input')?.focus({ preventScroll: true }); }}>Wpisz stan</button>
         </section>
+      ) : !loaded ? (
+        // przed pobraniem danych: miejsce zarezerwowane, bez fałszywego „brak wpisów” i bez skoku układu
+        <section className="card sym-skel" aria-busy="true" aria-label="Wczytywanie wykresu" />
       ) : (
       <section className="card">
         <SymptomsChart rows={merged} usage={data.usage} all={all} end={todayIso()} />

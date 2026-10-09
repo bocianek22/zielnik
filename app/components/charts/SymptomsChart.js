@@ -1,5 +1,5 @@
 'use client';
-import { Fragment, useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import Frame from './Frame';
 import Bars from './Bars';
 import Scrub from './Scrub';
@@ -7,7 +7,7 @@ import Empty from './Empty';
 import { layoutLabels } from './labels';
 import { niceTicks } from './scale';
 import { rolling, segments } from './trend';
-import { addDays, ddmm, longDay, num, weekday } from './fmt';
+import { addDays, ddmm, longDay, num, plural, weekday } from './fmt';
 
 // Dziennik: objawy z 30 dni jako małe wykresy, po jednym na objaw (każdy z własnym `svg.sym-chart`; E2E szuka tej klasy i w stanie
 // pustym jej nie ma), oraz osobny panel zużycia na własnej skali. Nie ma wspólnej osi Y ani nakładki zużycia na objawy.
@@ -18,6 +18,7 @@ const N = 30, W = 326, WIN = 7, MIN = 4;
 const px = (i) => ((i + 0.5) * W) / N;
 const pct = (i) => `${((i + 0.5) / N) * 100}%`;
 const dn = (s) => (s.custom ? 'dn' : undefined); // własne nazwy objawów w trybie dyskretnym
+const wpisy = (n) => `${n} ${plural(n, 'wpis', 'wpisy', 'wpisów')}`;
 
 const polyline = (pts) => pts.map(([x, y], k) => `${k ? 'L' : 'M'}${x.toFixed(1)},${y.toFixed(1)}`).join('');
 const dots = (pts) => pts.map(([x, y]) => `M${x.toFixed(1)},${y.toFixed(1)}h.01`).join('');
@@ -29,12 +30,14 @@ function bandPath(seg, y) {
 }
 
 function useWide(onNarrow) {
+  const cb = useRef(onNarrow);
+  useEffect(() => { cb.current = onNarrow; });
   useEffect(() => {
     const mq = window.matchMedia('(min-width: 900px)');
-    const f = () => { if (!mq.matches) onNarrow(); };
+    const f = () => { if (!mq.matches) cb.current(); };
     mq.addEventListener('change', f);
     return () => mq.removeEventListener('change', f);
-  }, [onNarrow]);
+  }, []);
 }
 
 function Axis({ xs }) {
@@ -53,7 +56,7 @@ function Panel({ s, d, sel }) {
   const H = 72, y = (v) => 70 - 6.8 * v;
   const at = sel ?? d.last;
   const v = at != null && at >= 0 ? d.vals[at] : null;
-  const label = `${s.label}, 30 dni, skala 0–10: ${d.count} ${d.count === 1 ? 'wpis' : 'wpisów'}${d.lastTrend ? `, ostatnio ${d.vals[d.last]}, zakres z 7 dni ${num(d.lastTrend.lo, 1)}–${num(d.lastTrend.hi, 1)}` : d.last != null ? `, ostatnio ${d.vals[d.last]}` : ''}`;
+  const label = `${s.label}, 30 dni, skala 0–10: ${wpisy(d.count)}${d.lastTrend ? `, ostatnio ${d.vals[d.last]}, zakres z 7 dni ${num(d.lastTrend.lo, 1)}–${num(d.lastTrend.hi, 1)}` : d.last != null ? `, ostatnio ${d.vals[d.last]}` : ''}`;
   return (
     <div className="sp-panel">
       <div className="sp-head">
@@ -111,13 +114,15 @@ function UsagePanel({ xs, use, sel }) {
 }
 
 // widok „Razem” (komputer): wszystkie objawy na jednej skali 0–10, wyróżniony w --chart-data, reszta w --chart-ref
-function Together({ list, data, focus, setFocus, sel, setSel, xs }) {
+function Together({ list, data, focus, setFocus, sel, setSel }) {
   const H = 200, y = (v) => 192 - 18.4 * v;
   const have = list.filter((s) => data[s.key].count > 0);
   const f = have.find((s) => s.key === focus) ?? have[0];
   const endY = (s) => { const d = data[s.key], g = d.segs.at(-1); return g ? y(g.at(-1).mean) : y(d.vals[d.last]); };
-  let prev = -Infinity;
-  const ends = have.map((s) => ({ s, y: endY(s) })).sort((a, b) => a.y - b.y).map((e) => { prev = Math.max(e.y, prev + 17); return { ...e, top: prev }; });
+  // podpisy końców linii: w dół bez nachodzenia, potem od dołu w granicach wykresu (H - 8)
+  const ends = have.map((s) => ({ s, y: endY(s) })).sort((a, b) => a.y - b.y);
+  for (let k = 0; k < ends.length; k++) ends[k].top = Math.max(ends[k].y, k ? ends[k - 1].top + 17 : -Infinity);
+  for (let k = ends.length - 1; k >= 0; k--) ends[k].top = Math.min(ends[k].top, k < ends.length - 1 ? ends[k + 1].top - 17 : H - 8);
   const fd = data[f.key], at = sel ?? fd.last, fv = at != null ? fd.vals[at] : null;
   const line = (s, cls) => {
     const d = data[s.key];
@@ -128,14 +133,14 @@ function Together({ list, data, focus, setFocus, sel, setSel, xs }) {
   return (
     <div>
       <div className="sp-focus" role="group" aria-label="Wyróżniony objaw">
-        {have.map((s) => <button key={s.key} type="button" className={`chip${s.key === f.key ? ' on' : ''}`} aria-pressed={s.key === f.key} onClick={() => setFocus(s.key)}><span className={dn(s)}>{s.label}</span></button>)}
+        {have.map((s) => <button key={s.key} type="button" className={`chip${s.key === f.key ? ' on' : ''}${s.custom ? ' dn' : ''}`} aria-pressed={s.key === f.key} onClick={() => setFocus(s.key)}>{s.label}</button>)}
       </div>
       <div className="sp-tog">
         <div className="sp-yticks" aria-hidden="true">{[0, 5, 10].map((v) => <span key={v} style={{ top: y(v) }}>{v}</span>)}</div>
         <Scrub className="sp-scrub sp-together" n={N} sel={sel} onSel={setSel} role="group"
           label="Objawy z 30 dni na jednej skali 0–10. Strzałkami wybierzesz dzień.">
           <svg className="sym-chart sp-svg" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img"
-            aria-label={`Objawy razem, 30 dni, skala 0–10. Wyróżniony: ${f.label}, ${fd.count} ${fd.count === 1 ? 'wpis' : 'wpisów'}.`}>
+            aria-label={`Objawy razem, 30 dni, skala 0–10. Wyróżniony: ${f.label}, ${wpisy(fd.count)}.`}>
             {[0, 5, 10].map((v) => <line key={v} className={v ? 'sp-grid' : 'sp-base'} x1="0" x2={W} y1={y(v) + (v ? 0 : 0.5)} y2={y(v) + (v ? 0 : 0.5)} />)}
             {sel != null && <line className="sp-cross" x1={px(sel)} x2={px(sel)} y1="0" y2="192" />}
             {have.filter((s) => s !== f).map((s) => line(s, 'sp-ref'))}
@@ -146,7 +151,7 @@ function Together({ list, data, focus, setFocus, sel, setSel, xs }) {
           {fv != null && <i className="sp-end" style={{ left: pct(at), top: y(fv) }} aria-hidden="true" />}
         </Scrub>
         <div className="sp-ends" aria-hidden="true">
-          {ends.map(({ s, top }) => <span key={s.key} className={`${dn(s) ?? ''}${s === f ? ' on' : ''}`.trim() || undefined} style={{ top: top - 8 }}>{s.label}</span>)}
+          {ends.map(({ s, top }) => <span key={s.key} className={`${s.custom ? 'dn-img' : ''}${s === f ? ' on' : ''}`.trim() || undefined} style={{ top: top - 8 }}>{s.label}</span>)}
         </div>
       </div>
     </div>
@@ -228,7 +233,7 @@ export default function SymptomsChart({ rows, usage, all, end }) {
         </Scrub>
       )}
       <p className="sp-cap">
-        {hasSym ? 'Kropki to wpisy. Linia to średnia z 7 dni, liczona tylko wtedy, gdy w tych 7 dniach są co najmniej 4 wpisy; pasmo to zakres z 7 dni (od najniższego do najwyższego wpisu). Linia nie łączy dni oddzielonych przerwą dłuższą niż 3 dni. ' : ''}
+        {hasSym ? 'Kropki to wpisy. Linia to średnia z 7 dni, liczona tylko wtedy, gdy w tych 7 dniach są co najmniej 4 wpisy; pasmo to zakres z 7 dni (od najniższego do najwyższego wpisu). Linia nie łączy dni, między którymi są co najmniej 3 dni bez wpisu. ' : ''}
         Zużycie ma własną skalę i jest osobno.
       </p>
     </Frame>

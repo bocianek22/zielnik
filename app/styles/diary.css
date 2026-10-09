@@ -93,3 +93,4 @@
 .sym-today .btn { flex: none; }
 .sym-custom-row { flex-wrap: wrap; }
 .sym-custom-row form { flex: 1 1 100%; }
+.sym-skel { min-height: 520px; background: linear-gradient(var(--surface-2), var(--surface-2)) var(--s-4) var(--s-4) / calc(100% - 2 * var(--s-4)) 60% no-repeat, var(--surface); }
