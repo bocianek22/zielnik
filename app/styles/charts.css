@@ -11,12 +11,6 @@
 .bars .val { fill: var(--text); font-size: 12px; font-weight: 600; }
 .bars .tick { fill: var(--text-2); font-size: 11px; }
 
-/* Wykres objawów (Dziennik) */
-.sym-chart { width: 100%; max-width: 640px; height: auto; display: block; margin: 0 auto; }
-.sym-chart text { font-family: var(--font-body), system-ui, sans-serif; font-variant-numeric: tabular-nums lining-nums; fill: var(--text-2); font-size: 11px; }
-.sym-chart .grid { stroke: var(--chart-grid); stroke-width: 1; }
-.sym-chart .use { fill: var(--sep-strong); }
-
 /* Prognoza zapasu (charts/StockForecast.js): linia spadku, pasmo zakresu, kreska recepty; podpisy osi w HTML */
 .forecast { margin-top: var(--s-4); }
 .fc-plot { position: relative; height: 96px; margin-inline: 5px; }
@@ -102,4 +96,62 @@
 .dot.avg { background: var(--chart-ref); } .dot.me { background: var(--chart-data); }
 @media (max-width: 360px) {
   .meter-row { grid-template-columns: 40px 1fr 56px; gap: var(--s-2); }
+}
+
+/* A3: dziennik, małe wykresy objawów (charts/SymptomsChart.js). Każdy panel to svg.sym-chart o stałej wysokości; podpisy osi w HTML */
+.sp-readhead { margin-bottom: var(--s-2); }
+.sp-read { margin: 0; font-size: var(--fs-sm); color: var(--text-2); font-variant-numeric: tabular-nums; min-height: 2.8em; }
+.sp-read b { color: var(--text); font-weight: 600; }
+.sp-mode { display: none; margin-bottom: var(--s-3); }
+.sp-scrub { touch-action: pan-y; cursor: crosshair; border-radius: var(--r-sm); -webkit-tap-highlight-color: transparent; }
+.sp-scrub:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.sp-panel { padding: var(--s-3) 0; border-top: 1px solid var(--sep); }
+.sp-scrub > .sp-panel:first-child { border-top: 0; padding-top: 0; }
+.sp-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-3); margin-bottom: var(--s-2); }
+.sp-id { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--s-2); min-width: 0; }
+.sp-id b { font-size: var(--fs-md, 1rem); font-weight: 600; }
+.sp-id span { font-size: var(--fs-xs); color: var(--text-3); }
+.sp-val { font-family: var(--font-display), Georgia, serif; font-size: 1.25rem; font-weight: 600; font-variant-numeric: tabular-nums lining-nums; min-width: 2ch; text-align: right; }
+.sp-plot { position: relative; height: 72px; }
+.sp-plot.sp-use { height: 56px; }
+.sym-chart { display: block; width: 100%; height: 72px; overflow: visible; }
+.sp-use .sym-chart { height: 56px; }
+.sp-together .sym-chart { height: 200px; }
+.sym-chart * { vector-effect: non-scaling-stroke; }
+.sym-chart .sp-ubar path { vector-effect: none; fill: var(--chart-data); }
+.sp-grid { stroke: var(--chart-grid); stroke-width: 1; }
+.sp-base { stroke: var(--chart-axis); stroke-width: 1; }
+.sp-cross { stroke: var(--chart-axis); stroke-width: 1; }
+.sp-band { fill: var(--chart-band); stroke: none; }
+.sp-raw { stroke: var(--chart-ref); stroke-width: 4; stroke-linecap: round; fill: none; }
+.sp-line { stroke: var(--chart-data); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+.sp-ref { stroke: var(--chart-ref); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+.sp-refdot { stroke: var(--chart-ref); stroke-width: 4; stroke-linecap: round; fill: none; }
+.sp-scrub[data-sel] .sp-ubar:not(.on) path { fill-opacity: .38; }
+.sp-end { position: absolute; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: var(--chart-data); box-shadow: 0 0 0 2px var(--surface); pointer-events: none; }
+.sp-none { margin: 0; padding: var(--s-2) 0; font-size: var(--fs-sm); color: var(--text-2); }
+.sp-fewnote, .chart-note { margin: 0 0 var(--s-2); font-size: var(--fs-xs); color: var(--text-2); line-height: 1.4; }
+.sp-axis { position: relative; height: 16px; margin-top: var(--s-2); font-size: var(--fs-xs); color: var(--text-3); font-variant-numeric: tabular-nums; line-height: 16px; }
+.sp-lbl { position: absolute; white-space: nowrap; }
+.sp-lbl.l { left: 0; } .sp-lbl.r { right: 0; } .sp-lbl.c { transform: translateX(-50%); }
+.sp-lbl.strong { color: var(--text-2); font-weight: 600; }
+.sp-cap { margin: var(--s-3) 0 0; font-size: var(--fs-xs); color: var(--text-3); line-height: 1.45; }
+.sp-focus { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-bottom: var(--s-3); }
+.sp-focus .chip { min-height: var(--tap); }
+.sp-tog { display: grid; grid-template-columns: 20px minmax(0, 1fr) 84px; align-items: start; }
+.sp-yticks, .sp-ends { position: relative; height: 200px; font-size: var(--fs-xs); color: var(--text-3); font-variant-numeric: tabular-nums; line-height: 16px; }
+.sp-yticks span { position: absolute; left: 0; transform: translateY(-50%); }
+.sp-ends span { position: absolute; left: 8px; right: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-2); }
+.sp-ends span.on { color: var(--text); font-weight: 600; }
+.sp-together { position: relative; height: 200px; }
+.sp-usewrap { margin-top: var(--s-4); }
+@media (min-width: 900px) {
+  .sp-mode { display: inline-flex; }
+  .sp-usewrap { margin-left: 20px; margin-right: 84px; }
+}
+@media (forced-colors: active) {
+  .sp-line, .sp-ref, .sp-raw, .sp-refdot, .sp-cross { stroke: CanvasText; }
+  .sp-band { fill: Canvas; stroke: CanvasText; stroke-width: 1; }
+  .sp-end { background: CanvasText; }
+  .sym-chart .sp-ubar path { fill: CanvasText; }
 }

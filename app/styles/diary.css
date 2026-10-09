@@ -1,9 +1,5 @@
 /* Dziennik objawów (app/dziennik) i recepty (app/recepty) */
 
-.sym-legend { list-style: none; margin: var(--s-3) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s-1) var(--s-4); font-size: var(--fs-sm); color: var(--text-2); }
-.sym-legend li { display: inline-flex; align-items: center; gap: 6px; }
-.sym-swatch { flex: none; overflow: visible; }
-.sym-legend i.bar { width: 10px; height: 10px; border-radius: 2px; background: var(--sep-strong); }
 
 /* Formularz wpisu */
 .sym-day { display: flex; gap: var(--s-3); flex-wrap: wrap; align-items: flex-end; }

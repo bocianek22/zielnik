@@ -5,7 +5,6 @@ import { SYMPTOMS, customMeta, CUSTOM_MAX, CUSTOM_NAME_MAX } from '@/lib/symptom
 import Icon from '../components/Icon';
 import Toast from '../components/Toast';
 import SymptomsChart from '../components/charts/SymptomsChart';
-import { Swatch } from '../components/charts/Marker';
 import { addDays } from '../components/charts/fmt';
 
 // Dzień w czasie polskim, a nie UTC (po północy toISOString dawało wczoraj). Do zamiany na todayPL z lib/date.js.
@@ -143,10 +142,6 @@ export default function SymptomsBoard() {
       ) : (
       <section className="card">
         <SymptomsChart rows={merged} usage={data.usage} all={all} end={todayIso()} />
-        <ul className="sym-legend" aria-label="Legenda wykresu">
-          {all.map((s) => <li key={s.key}><Swatch s={s} /><span className={s.custom ? 'dn' : undefined}>{s.label}</span></li>)}
-          <li><i className="bar" aria-hidden="true" />Zużycie (słupki)</li>
-        </ul>
       </section>
       )}
       <h2 className="section-label">Wpis objawów</h2>

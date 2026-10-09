@@ -1,8 +1,9 @@
 'use client';
 // Wyspa klienta: owija wykres i obsługuje wybór przedziału palcem/myszą (najbliższy przedział) oraz klawiaturą
 // (←/→, Home/End, Escape). Stan (`sel`, `onSel`) trzyma wywołujący, bo odczyt stoi w nagłówku wykresu (Frame), nie w dymku.
+// `role="group"` zamiast `img`, gdy w środku są własne wykresy z opisami (obraz zasłaniałby dzieci czytnikowi ekranu).
 // `touch-action: pan-y` (CSS wywołującego) zostawia pionowe przewijanie strony; na myszy wyjście kursora czyści wybór.
-export default function Scrub({ n, sel, onSel, className, label, children }) {
+export default function Scrub({ n, sel, onSel, className, label, role = 'img', children }) {
   const pick = (e) => {
     const r = e.currentTarget.getBoundingClientRect();
     onSel(Math.min(n - 1, Math.max(0, Math.floor(((e.clientX - r.left) / r.width) * n))));
@@ -17,7 +18,7 @@ export default function Scrub({ n, sel, onSel, className, label, children }) {
     else if (e.key === 'Escape') onSel(null);
   };
   return (
-    <div className={className} tabIndex={0} role="img" aria-label={label} data-sel={sel ?? undefined}
+    <div className={className} tabIndex={0} role={role} aria-label={label} data-sel={sel ?? undefined}
       onPointerDown={pick} onPointerMove={pick}
       onPointerLeave={(e) => { if (e.pointerType === 'mouse') onSel(null); }} onKeyDown={onKey}>
       {children}
