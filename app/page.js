@@ -6,7 +6,7 @@ import { noUseToday } from '@/lib/no-use';
 import { onboardingOpen } from '@/lib/onboarding';
 import Header from './components/Header';
 import HomeStore from './components/HomeStore';
-import TodayBoard from './components/TodayBoard';
+import TodayBoard, { TodayHero } from './components/TodayBoard';
 import Onboarding from './components/Onboarding';
 
 export const dynamic = 'force-dynamic';
@@ -43,11 +43,12 @@ export default async function Home({ searchParams }) {
     <>
       <Header user={user} />
       <main className="page home">
-        <header className="home-head hero">
-          <p className="home-date">{date}</p>
-          <h1>Dziś</h1>
-        </header>
         <HomeStore bought={bought} series={series} summary={summary}>
+          <header className="home-head hero">
+            <p className="home-date">{date}</p>
+            <h1>Dziś</h1>
+            <TodayHero usage={daily} />
+          </header>
           <TodayBoard usage={daily} bought={bought} prescriptions={prescriptions} symptoms={symptoms} noUse={noUse} />
         </HomeStore>
       </main>
