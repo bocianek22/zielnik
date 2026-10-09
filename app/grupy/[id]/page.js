@@ -7,6 +7,7 @@ import Header from '../../components/Header';
 import Avatar from '../../components/Avatar';
 import Icon from '../../components/Icon';
 import GroupActions from './GroupActions';
+import GroupChat from './GroupChat';
 import osob, { ocen } from '../osob';
 
 export const dynamic = 'force-dynamic';
@@ -43,6 +44,9 @@ export default async function GroupPage({ params }) {
           <p className="muted">{osob(active)}{g.role === 'owner' ? ' · jesteś właścicielem' : ''}</p>
           {g.description && <p className="group-desc">{g.description}</p>}
         </header>
+
+        <h2 className="section-label" id="czat">Czat</h2>
+        <GroupChat groupId={g.id} />
 
         <h2 className="section-label">Zaproś do grupy</h2>
         <GroupActions groupId={g.id} isOwner={g.role === 'owner'} />
