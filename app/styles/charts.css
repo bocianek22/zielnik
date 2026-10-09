@@ -154,7 +154,6 @@
   .sp-band { fill: Canvas; stroke: CanvasText; stroke-width: 1; }
   .sp-end { background: CanvasText; }
   .sym-chart .sp-ubar path { fill: CanvasText; }
-
 }
 /* A4: słupki tygodniowe w Historii (charts/WeeklyBars.js) i porównanie okresów (charts/PeriodCompare.js, HBars.js) */
 .wk { padding: var(--s-4); }
