@@ -3,10 +3,11 @@ import { sql } from '@/lib/db';
 import { requireUser, bad, safe, intId, jsonBody } from '@/lib/guard';
 import { hit } from '@/lib/ratelimit';
 
-const TYPES = ['user', 'test', 'strain', 'photo'];
+const TYPES = ['user', 'test', 'strain', 'photo', 'message'];
 const REASONS = { spam: 'Spam', ad: 'Reklama lub sprzedaż', abuse: 'Nękanie lub wyzwiska', privacy: 'Naruszenie prywatności', other: 'Inne' };
 
-// { type: 'user' | 'test' | 'strain' | 'photo', userId?, ref?, reason, note? }
+// { type: 'user' | 'test' | 'strain' | 'photo' | 'message', userId?, ref?, reason, note? }
+// message: ref = id wiadomości z czatu grupy, w której zgłaszający jest aktywnym członkiem (zgłaszany jest autor wiadomości);
 // user: userId = zgłaszany profil; test: userId = autor testu, ref = id testu;
 // strain / photo: ref = id odmiany (zgłaszany jest autor odmiany albo osoba, która dodała wspólne zdjęcie; userId z żądania ignorujemy).
 export const POST = safe(async (req) => {
@@ -28,6 +29,16 @@ export const POST = safe(async (req) => {
     // pokazałby adminowi cudzą prywatną notatkę, a „usuń treść” skasowałoby test kogoś innego.
     const [ok] = await sql()`SELECT 1 AS x FROM strain_tests WHERE id = ${refId} AND user_id = ${target} AND can_see(${user.id}::int, user_id, visibility)`;
     if (!ok) return bad('Nie znaleziono zgłaszanej treści.', 404);
+    ref = refId;
+  } else if (b.type === 'message') {
+    if (!refId) return bad('Nieprawidłowe zgłoszenie.');
+    // wiadomość musi być z grupy zgłaszającego (aktywny członek), nieusunięta i widoczna (blokady); obcy dostaje 404
+    const [msg] = await sql()`SELECT m.user_id FROM group_messages m
+      JOIN group_members gm ON gm.group_id = m.group_id AND gm.user_id = ${user.id}::int AND gm.status = 'active'
+      WHERE m.id = ${refId}::int AND m.deleted_at IS NULL AND can_see(${user.id}::int, m.user_id, 'all')`;
+    if (!msg) return bad('Nie znaleziono zgłaszanej treści.', 404);
+    if (msg.user_id === user.id) return bad('To Twoja własna treść. Możesz ją edytować lub usunąć.');
+    target = msg.user_id;
     ref = refId;
   } else {
     if (!refId) return bad('Nieprawidłowe zgłoszenie.');

@@ -59,6 +59,7 @@ export default function GroupsBoard() {
             <Link href={`/grupy/${g.id}`} className="list-row">
               <Icon name="group" />
               <span className="lr-main person-link"><span className="person-name">{g.name}</span><span className="lr-sub">{osob(g.members)}{g.role === 'owner' ? ' · Właściciel' : ''}</span></span>
+              {g.unread > 0 && <span className="nbadge" aria-label={`Nieprzeczytane wiadomości: ${g.unread}${g.unread >= 100 ? ' lub więcej' : ''}`}>{g.unread >= 100 ? '99+' : g.unread}</span>}
               <Icon name="chevronRight" size={20} className="lr-chev" />
             </Link>
           </li>))}</ul>)}

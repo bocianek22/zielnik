@@ -14,7 +14,10 @@ export const POST = safe(async (req, { params }) => {
 
   if (b.action === 'accept') {
     if (m.status !== 'invited') return bad('Brak zaproszenia.');
-    await q`UPDATE group_members SET status = 'active' WHERE group_id = ${gid} AND user_id = ${user.id}`;
+    // historia sprzed dołączenia nie liczy się jako nieprzeczytana
+    await q`UPDATE group_members SET status = 'active',
+              last_read_message_id = (SELECT COALESCE(max(id), 0) FROM group_messages WHERE group_id = ${gid}::int)
+            WHERE group_id = ${gid} AND user_id = ${user.id}`;
     return NextResponse.json({ ok: true });
   }
   if (b.action === 'leave') {

@@ -4,7 +4,10 @@ import { requireUser, bad, safe, jsonBody } from '@/lib/guard';
 
 const list = (me) => sql()`
   SELECT g.id, g.name, g.description, gm.status, gm.role,
-         (SELECT count(*)::int FROM group_members m WHERE m.group_id = g.id AND m.status = 'active') AS members
+         (SELECT count(*)::int FROM group_members m WHERE m.group_id = g.id AND m.status = 'active') AS members,
+         CASE WHEN gm.status = 'active' THEN (SELECT count(*)::int FROM (
+           SELECT 1 FROM group_messages cm WHERE cm.group_id = g.id AND cm.id > gm.last_read_message_id AND cm.user_id <> ${me}::int
+             AND cm.deleted_at IS NULL AND can_see(${me}::int, cm.user_id, 'all') LIMIT 100) c) ELSE 0 END AS unread
   FROM groups g JOIN group_members gm ON gm.group_id = g.id AND gm.user_id = ${me}::int
   ORDER BY (gm.status = 'invited') DESC, lower(g.name)`;
 

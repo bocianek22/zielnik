@@ -48,7 +48,7 @@ Bieżąca wersja: **0.50.0** (zamknięta beta, rejestracja z zaproszeniem). Stan
 
 ## 4. Społeczność
 - **SPO-1 (P1, M)** Komentarze pod opiniami i testami.
-- **SPO-2 (P1, M)** Czat grupowy w grupach (bez czatów prywatnych 1 na 1).
+- **SPO-2 (P1, M)** Czat grupowy w grupach (bez czatów prywatnych 1 na 1). Zrobione w kodzie (do wydania): wiadomości szyfrowane, edycja 15 min, usuwanie, zgłaszanie, licznik nieprzeczytanych, polling; role moderatora dojdą z SPO-3.
 - **SPO-3 (P2, S)** Role w grupie (moderator, gość) i poziom widoczności „grupa”.
 - **SPO-4 (P2, S)** Reakcje „przydatne” (bez publicznych rankingów użytkowników).
 - **SPO-5 (P2, M)** Obserwowanie profili za zgodą.

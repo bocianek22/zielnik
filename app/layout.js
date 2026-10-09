@@ -20,6 +20,7 @@ import './styles/home.css';
 import './styles/charts.css';
 import './styles/platform.css';
 import './styles/proposals.css';
+import './styles/chat.css';
 import { cookies, headers } from 'next/headers';
 import { isNativeApp } from '@/lib/client';
 import RegisterSW from './components/RegisterSW';
