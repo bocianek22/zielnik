@@ -1,0 +1,157 @@
+/* Wykresy (app/components/charts/*): wszystkie reguły wykresów w jednym miejscu. Kolory tylko przez tokeny --chart-* i --seq-* (globals.css).
+   Import po ekranach (layout.js), żeby kolejność kaskady została taka jak przed wydzieleniem. */
+:where(figure.chart-frame) { margin: 0; }
+
+/* Wykres słupkowy (Historia) */
+.usage-chart { padding-bottom: var(--s-3); }
+.bars { width: 100%; max-width: 520px; height: auto; display: block; margin: 0 auto; }
+.bars text { font-family: var(--font-body), system-ui, sans-serif; font-variant-numeric: tabular-nums lining-nums; }
+.bars .axis { stroke: var(--chart-axis); stroke-width: 1; }
+.bars .bar { fill: var(--chart-data); }
+.bars .val { fill: var(--text); font-size: 12px; font-weight: 600; }
+.bars .tick { fill: var(--text-2); font-size: 11px; }
+
+/* Prognoza zapasu (charts/StockForecast.js): linia spadku, pasmo zakresu, kreska recepty; podpisy osi w HTML */
+.forecast { margin-top: var(--s-4); }
+.fc-plot { position: relative; height: 96px; margin-inline: 5px; }
+.fc-plot svg { display: block; width: 100%; height: 96px; overflow: visible; }
+.fc-plot svg * { vector-effect: non-scaling-stroke; }
+.fc-axisline { stroke: var(--chart-axis); stroke-width: 1; }
+.fc-band { fill: var(--chart-band); }
+.fc-line { stroke: var(--chart-data); stroke-width: 2; stroke-linecap: round; fill: none; }
+.fc-rx { stroke: var(--text-3); stroke-width: 1; }
+.fc-dot { position: absolute; left: 0; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: var(--chart-data); box-shadow: 0 0 0 2px var(--surface); }
+.fc-axis { position: relative; margin: 6px 5px 0; font-size: var(--fs-xs); color: var(--text-3); font-variant-numeric: tabular-nums; line-height: 16px; }
+.fc-lbl { position: absolute; white-space: nowrap; }
+.fc-lbl.l { left: 0; } .fc-lbl.r { right: 0; } .fc-lbl.c { transform: translateX(-50%); }
+.fc-lbl.strong { color: var(--text); font-weight: 600; }
+.fc-note { margin: var(--s-2) 0 0; font-size: var(--fs-xs); color: var(--text-2); line-height: 1.4; }
+@media (forced-colors: active) {
+  .fc-line, .fc-rx, .fc-axisline { stroke: CanvasText; }
+  .fc-band { fill: Canvas; stroke: CanvasText; stroke-width: 1; }
+  .fc-dot { background: CanvasText; }
+}
+/* ===== Zużycie z 14 dni ===== */
+.usage { padding: var(--s-4) var(--s-5); border-top: 1px solid var(--sep); }
+.usage-head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s-3); }
+.usage-sel { margin: 0; font-size: var(--fs-sm); color: var(--text-2); white-space: nowrap; }
+.usage-unit { margin: var(--s-2) 0 var(--s-1); }
+.usage-sel b { font-family: var(--font-display), Georgia, serif; font-size: var(--fs-xl); font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums lining-nums; margin-left: 2px; }
+.usage-scrub { position: relative; height: 80px; margin-top: var(--s-3); touch-action: pan-y; cursor: crosshair; border-radius: var(--r-sm); -webkit-tap-highlight-color: transparent; }
+.usage-scrub:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.usage-svg { display: block; width: 100%; height: 80px; overflow: visible; }
+.usage-svg * { vector-effect: non-scaling-stroke; }
+.usage-svg .ubar path { vector-effect: none; }
+.usage-grid { stroke: var(--chart-grid); stroke-width: 1; }
+.usage-base { stroke: var(--chart-axis); stroke-width: 1; }
+.ubar path { fill: var(--chart-data); transition: fill-opacity var(--dur-1) var(--ease); }
+.ubar-zero { fill: var(--chart-zero); }
+/* bladość tylko podczas przesuwania: niewybrane słupki słabną, wybrany ma pełny kolor */
+.usage-scrub[data-sel] .ubar:not(.on) path { fill-opacity: .38; }
+.usage-scrub[data-sel] .ubar.on .ubar-zero { fill: var(--text-3); }
+.usage-avg { position: absolute; left: 0; right: 0; height: 0; border-top: 1px solid var(--chart-ref); pointer-events: none; }
+.usage-peak, .usage-tick { position: absolute; pointer-events: none; font-size: var(--fs-xs); font-variant-numeric: tabular-nums lining-nums; line-height: 14px; white-space: nowrap; }
+.usage-peak { transform: translate(-50%, -100%); margin-top: -2px; color: var(--text); font-weight: 600; }
+.usage-tick { right: 0; transform: translateY(-100%); color: var(--text-3); }
+.usage-axis { position: relative; height: 16px; margin-top: 6px; font-size: var(--fs-xs); color: var(--text-3); font-variant-numeric: tabular-nums; line-height: 16px; }
+.usage-axis > .strong { color: var(--text-2); font-weight: 600; }
+.usage-key { display: flex; align-items: center; gap: var(--s-2); margin: var(--s-1) 0 0; font-size: var(--fs-xs); color: var(--text-2); }
+.usage-key i { width: 14px; border-top: 1px solid var(--chart-ref); }
+.usage-empty { margin: var(--s-2) 0 0; font-size: var(--fs-sm); color: var(--text-2); }
+@media (forced-colors: active) { .ubar path { fill: CanvasText; } .usage-avg, .usage-key i { border-color: CanvasText; } }
+@media (max-width: 760px) { .usage { padding-inline: var(--s-4); } }
+@media (min-width: 900px) {
+  .usage { grid-column: 2; grid-row: 1 / span 2; border-top: 0; border-left: 1px solid var(--sep); padding: var(--s-5) var(--s-6); }
+}
+
+/* Miernik odczuć i THC/CBD (szczegóły odmiany) */
+.meter-row { display: grid; grid-template-columns: 44px 1fr 64px; align-items: center; gap: var(--s-3); }
+.meter-lbl { font-weight: 600; font-size: var(--fs-sm); color: var(--text-2); }
+.meter { position: relative; height: 10px; border-radius: var(--r-pill); background: var(--surface-2); overflow: hidden; }
+.meter-fill { position: absolute; inset: 0 auto 0 0; border-radius: inherit; background: var(--chart-data); }
+.meter-fill.meter-cbd { background: var(--chart-ref); }
+.meter-val { text-align: right; font-family: var(--font-display), Georgia, serif; font-size: 1.375rem; font-weight: 600; font-variant-numeric: tabular-nums lining-nums; }
+.meter-scale { margin: 0; font-size: var(--fs-xs); color: var(--text-3); text-align: right; }
+/* wykres zużycia tygodniowego (słupki SVG, jedna seria: bez legendy, tytuł ją nazywa) */
+.uchart-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-1) var(--s-3); flex-wrap: wrap; }
+.uchart-head .dlabel { margin: 0; }
+.uchart-read { margin: 0; font-size: var(--fs-sm); color: var(--text-2); font-variant-numeric: tabular-nums; }
+.uchart-read b { color: var(--text); font-weight: 600; margin-right: 4px; }
+.uchart-plot { position: relative; height: 148px; margin-top: var(--s-6); touch-action: pan-y; cursor: crosshair; border-radius: var(--r-sm); }
+.uchart-plot:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.uchart-plot svg { display: block; overflow: visible; }
+.uchart-bar rect { fill: var(--chart-data); transition: fill var(--dur-1) var(--ease); }
+.uchart-bar.dim rect { fill: color-mix(in srgb, var(--chart-data) 35%, var(--surface)); }
+.uchart-base { stroke: var(--chart-axis); stroke-width: 1; }
+.uchart-grid { stroke: var(--chart-grid); stroke-width: 1; stroke-dasharray: 2 3; }
+.uchart-max { position: absolute; right: 0; top: 8%; transform: translateY(-120%); font-size: var(--fs-xs); color: var(--text-3); font-variant-numeric: tabular-nums; }
+.uchart-x { display: grid; grid-template-columns: repeat(12, 1fr); margin-top: 6px; font-size: var(--fs-xs); color: var(--text-2); font-variant-numeric: tabular-nums; }
+.uchart-x span { white-space: nowrap; text-align: left; }
+.uchart-x span:last-child { text-align: right; }
+.radar { width: 280px; max-width: 100%; height: auto; }
+.radar .radar-avg { fill: color-mix(in srgb, var(--chart-ref) 16%, transparent); stroke: var(--chart-ref); }
+.radar .radar-me { fill: color-mix(in srgb, var(--chart-data) 22%, transparent); stroke: var(--chart-data); }
+.legend { text-align: center; font-size: var(--fs-sm); color: var(--text-2); }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin: 0 4px 0 10px; vertical-align: 0; }
+.dot.avg { background: var(--chart-ref); } .dot.me { background: var(--chart-data); }
+@media (max-width: 360px) {
+  .meter-row { grid-template-columns: 40px 1fr 56px; gap: var(--s-2); }
+}
+
+/* A3: dziennik, małe wykresy objawów (charts/SymptomsChart.js). Każdy panel to svg.sym-chart o stałej wysokości; podpisy osi w HTML */
+.sp-readhead { margin-bottom: var(--s-2); }
+.sp-read { margin: 0; font-size: var(--fs-sm); color: var(--text-2); font-variant-numeric: tabular-nums; min-height: 2.8em; }
+.sp-read b { color: var(--text); font-weight: 600; }
+.sp-mode { display: none; margin-bottom: var(--s-3); }
+.sp-scrub { touch-action: pan-y; cursor: crosshair; border-radius: var(--r-sm); -webkit-tap-highlight-color: transparent; }
+.sp-scrub:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.sp-panel { padding: var(--s-3) 0; border-top: 1px solid var(--sep); }
+.sp-scrub > .sp-panel:first-child { border-top: 0; padding-top: 0; }
+.sp-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-3); margin-bottom: var(--s-2); }
+.sp-id { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--s-2); min-width: 0; }
+.sp-id b { font-size: var(--fs-md, 1rem); font-weight: 600; }
+.sp-id span { font-size: var(--fs-xs); color: var(--text-3); }
+.sp-val { font-family: var(--font-display), Georgia, serif; font-size: 1.25rem; font-weight: 600; font-variant-numeric: tabular-nums lining-nums; min-width: 2ch; text-align: right; }
+.sp-plot { position: relative; height: 72px; }
+.sp-plot.sp-use { height: 56px; }
+.sym-chart { display: block; width: 100%; height: 72px; overflow: visible; }
+.sp-use .sym-chart { height: 56px; }
+.sp-together .sym-chart { height: 200px; }
+.sym-chart * { vector-effect: non-scaling-stroke; }
+.sym-chart .sp-ubar path { vector-effect: none; fill: var(--chart-data); }
+.sp-grid { stroke: var(--chart-grid); stroke-width: 1; }
+.sp-base { stroke: var(--chart-axis); stroke-width: 1; }
+.sp-cross { stroke: var(--chart-axis); stroke-width: 1; }
+.sp-band { fill: var(--chart-band); stroke: none; }
+.sp-raw { stroke: var(--chart-ref); stroke-width: 4; stroke-linecap: round; fill: none; }
+.sp-line { stroke: var(--chart-data); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+.sp-ref { stroke: var(--chart-ref); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+.sp-refdot { stroke: var(--chart-ref); stroke-width: 4; stroke-linecap: round; fill: none; }
+.sp-scrub[data-sel] .sp-ubar:not(.on) path { fill-opacity: .38; }
+.sp-end { position: absolute; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: var(--chart-data); box-shadow: 0 0 0 2px var(--surface); pointer-events: none; }
+.sp-none { margin: 0; padding: var(--s-2) 0; font-size: var(--fs-sm); color: var(--text-2); }
+.sp-fewnote, .chart-note { margin: 0 0 var(--s-2); font-size: var(--fs-xs); color: var(--text-2); line-height: 1.4; }
+.sp-axis { position: relative; height: 16px; margin-top: var(--s-2); font-size: var(--fs-xs); color: var(--text-3); font-variant-numeric: tabular-nums; line-height: 16px; }
+.sp-lbl { position: absolute; white-space: nowrap; }
+.sp-lbl.l { left: 0; } .sp-lbl.r { right: 0; } .sp-lbl.c { transform: translateX(-50%); }
+.sp-lbl.strong { color: var(--text-2); font-weight: 600; }
+.sp-cap { margin: var(--s-3) 0 0; font-size: var(--fs-xs); color: var(--text-3); line-height: 1.45; }
+.sp-focus { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-bottom: var(--s-3); }
+.sp-focus .chip { min-height: var(--tap); }
+.sp-tog { display: grid; grid-template-columns: 20px minmax(0, 1fr) 84px; align-items: start; }
+.sp-yticks, .sp-ends { position: relative; height: 200px; font-size: var(--fs-xs); color: var(--text-3); font-variant-numeric: tabular-nums; line-height: 16px; }
+.sp-yticks span { position: absolute; left: 0; transform: translateY(-50%); }
+.sp-ends span { position: absolute; left: 8px; right: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-2); }
+.sp-ends span.on { color: var(--text); font-weight: 600; }
+.sp-together { position: relative; height: 200px; }
+.sp-usewrap { margin-top: var(--s-4); }
+@media (min-width: 900px) {
+  .sp-mode { display: inline-flex; }
+  .sp-usewrap { margin-left: 20px; margin-right: 84px; }
+}
+@media (forced-colors: active) {
+  .sp-line, .sp-ref, .sp-raw, .sp-refdot, .sp-cross { stroke: CanvasText; }
+  .sp-band { fill: Canvas; stroke: CanvasText; stroke-width: 1; }
+  .sp-end { background: CanvasText; }
+  .sym-chart .sp-ubar path { fill: CanvasText; }
+}

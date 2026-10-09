@@ -5,6 +5,9 @@ import QuickActions from './QuickActions';
 import NoUseToday from './NoUseToday';
 import Icon from './Icon';
 import SymptomsQuick from './SymptomsQuick';
+import UsageDays from './charts/UsageDays';
+import StockForecast from './charts/StockForecast';
+import { addDays, longDay, num as n2, plural } from './charts/fmt';
 import { unitOf } from '@/lib/units';
 import { shortcutAction, withoutUseParam } from '@/lib/shortcuts';
 import { daysLeft as daysOf } from '@/lib/widget';
@@ -13,77 +16,7 @@ import { daysLeft as daysOf } from '@/lib/widget';
 // Daty liczy z dni z serwera (czas polski), a nie z zegara przeglądarki, żeby serwer i klient renderowały to samo.
 // Gramy (susz) i ml (olej, pen) nigdy się nie sumują: osobny zapas i prognoza, wykres z przełącznikiem jednostki.
 
-const HORIZON = 30; // pełny miernik = zapas na 30 dni
-const WD = ['niedz.', 'pon.', 'wt.', 'śr.', 'czw.', 'pt.', 'sob.'];
-const n2 = (x) => Number(Number(x).toFixed(2)).toLocaleString('pl-PL');
-const days = (n) => (n === 1 ? 'dzień' : 'dni');
-const utc = (day) => new Date(`${day}T12:00:00Z`);
-const ddmm = (day) => `${day.slice(8, 10)}.${day.slice(5, 7)}`;
-const longDate = (d) => d.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', timeZone: 'UTC' });
-const addDays = (day, n) => { const d = utc(day); d.setUTCDate(d.getUTCDate() + n); return d; };
-const UNIT_NAME = { g: 'Susz', ml: 'Olej i pen' };
-
-// słupek z zaokrągloną górą (4 px), zakotwiczony do linii bazowej
-function barPath(x, w, h, base) {
-  const r = Math.min(4, h, w / 2);
-  const y = base - h;
-  return `M${x},${base}V${y + r}Q${x},${y} ${x + r},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${base}Z`;
-}
-
-function UsageChart({ series: raw }) {
-  const sumOf = (k) => raw.reduce((a, d) => a + (Number(d[k]) || 0), 0);
-  const hasMl = sumOf('ml') > 0;
-  // domyślnie gramy; same wpisy w ml (bez suszu) od razu pokazują ml
-  const [pick, setPick] = useState(null);
-  const unit = pick ?? (hasMl && !(sumOf('grams') > 0) ? 'ml' : 'g');
-  const key = unit === 'ml' ? 'ml' : 'grams';
-  const series = raw.map((d) => ({ day: d.day, grams: Number(d[key]) || 0 }));
-  const last = series.length - 1;
-  const [sel, setSel] = useState(last);
-  const i = Math.min(sel, last);
-  const max = Math.max(...series.map((d) => d.grams), 0);
-  const total = series.reduce((a, d) => a + d.grams, 0);
-  const W = 280, H = 76, slot = W / series.length, bw = slot - 6;
-  const label = (k) => (k === last ? 'Dziś' : k === last - 1 ? 'Wczoraj' : `${WD[utc(series[k].day).getUTCDay()]} ${ddmm(series[k].day)}`);
-  const spoken = (d, k) => `${k === last ? 'dziś' : longDate(utc(d.day))}: ${n2(d.grams)} ${unit}`;
-
-  return (
-    <div className="usage">
-      <div className="usage-head">
-        <h3 className="today-h">Zużycie, 14 dni</h3>
-        <p className="usage-sel" aria-live="polite"><span>{label(i)}</span> <b>{n2(series[i].grams)} {unit}</b></p>
-      </div>
-      {hasMl && (
-        <div className="seg usage-unit" role="group" aria-label="Jednostka wykresu">
-          {['g', 'ml'].map((u) => (
-            <button key={u} type="button" aria-pressed={unit === u} className={unit === u ? 'on' : ''} onClick={() => setPick(u)}>{UNIT_NAME[u]} ({u})</button>
-          ))}
-        </div>
-      )}
-      <svg className="usage-chart" viewBox={`0 0 ${W} ${H}`} role="img"
-        aria-label={`Zużycie ${unit === 'ml' ? 'oleju i pena' : 'suszu'} z ostatnich 14 dni: razem ${n2(total)} ${unit}, dziś ${n2(series[last].grams)} ${unit}`}>
-        {series.map((d, k) => {
-          const x = k * slot + 3;
-          const h = max > 0 && d.grams > 0 ? Math.max(3, (d.grams / max) * (H - 2)) : 0;
-          return (
-            <g key={d.day} className={`ubar${k === i ? ' on' : ''}${k === last ? ' is-today' : ''}`} onClick={() => setSel(k)}>
-              <title>{spoken(d, k)}</title>
-              <rect x={k * slot} y="0" width={slot} height={H} fill="transparent" />
-              {h > 0 ? <path d={barPath(x, bw, h, H)} /> : <rect className="ubar-zero" x={x} y={H - 2} width={bw} height="2" rx="1" />}
-            </g>
-          );
-        })}
-      </svg>
-      <div className="usage-axis" aria-hidden="true">
-        <span>{ddmm(series[0].day)}</span>
-        {last >= 7 && <span className="mid" style={{ left: `${((last - 7 + 0.5) / series.length) * 100}%` }}>{ddmm(series[last - 7].day)}</span>}
-        <span className="end">dziś</span>
-      </div>
-      {max === 0 && <p className="usage-empty">W ostatnich 14 dniach nie zapisano zużycia{hasMl ? (unit === 'ml' ? ' oleju ani pena' : ' suszu') : ''}.</p>}
-      <ul className="sr-only">{series.map((d, k) => <li key={d.day}>{spoken(d, k)}</li>)}</ul>
-    </div>
-  );
-}
+const days = (n) => plural(n, 'dzień', 'dni');
 
 function Prescriptions({ items, total }) {
   const shown = items.slice(0, 3);
@@ -115,8 +48,8 @@ function Prescriptions({ items, total }) {
                 </p>
                 <p className="trx-sub">
                   {expired
-                    ? <>Niewykorzystane <b>{n2(r.remaining)} {u}</b>, ważna była do {longDate(utc(r.valid_until))}</>
-                    : <>Do wykupienia <b>{n2(r.remaining)} {u}</b> z {n2(r.grams)} {u}, ważna do {longDate(utc(r.valid_until))}</>}
+                    ? <>Niewykorzystane <b>{n2(r.remaining)} {u}</b>, ważna była do {longDay(r.valid_until)}</>
+                    : <>Do wykupienia <b>{n2(r.remaining)} {u}</b> z {n2(r.grams)} {u}, ważna do {longDay(r.valid_until)}</>}
                 </p>
                 {!expired && <div className="trx-bar" aria-hidden="true"><span style={{ width: `${pct}%` }} /></div>}
               </div>
@@ -128,18 +61,35 @@ function Prescriptions({ items, total }) {
   );
 }
 
-// Zapas i prognoza jednej jednostki; `named`: podpis jednostki, gdy w panelu są dwa bloki (g i ml)
-function StockBlock({ unit, stock, dailyUse, bought, today, named, ok, id }) {
+const notesOf = ({ unit, stock, dailyUse, bought, today }) => {
   const daysLeft = daysOf(stock, dailyUse);
-  const pct = daysLeft != null ? Math.min(daysLeft / HORIZON, 1) * 100 : 0;
-  const notes = [
+  return [
     dailyUse > 0 && `średnio ${n2(dailyUse)} ${unit} dziennie`,
-    daysLeft != null && `do ok. ${longDate(addDays(today, daysLeft))}`,
+    daysLeft != null && `do ok. ${longDay(addDays(today, daysLeft))}`,
     bought > 0 && `wykupiono ${n2(bought)} ${unit} w tym miesiącu`,
   ].filter(Boolean);
-  const what = unit === 'ml' ? 'oleju i pena' : named ? 'suszu' : '';
+};
+
+// Dwie jednostki (g i ml): jeden blok z dwiema kolumnami „liczba · dni”; wykresy prognozy (pełna szerokość) i notatki w zwijanym wierszu pod spodem
+function StockCell({ unit, stock, dailyUse, ok }) {
+  const daysLeft = daysOf(stock, dailyUse);
+  const what = unit === 'ml' ? 'oleju i pena' : 'suszu';
   return (
-    <div className={`today-stock${named ? ` today-stock-${unit}` : ''}${ok ? ' ok' : ''}`}>
+    <div className={`today-stock today-stock-${unit}${ok ? ' ok' : ''}`}>
+      <h2 className="kpi-label" id={`today-stock-h-${unit}`}>Zapas {what}</h2>
+      <p className="kpi-big"><b>{n2(stock)}</b> {unit}</p>
+      <p className="kpi-days-line">starczy na {daysLeft != null ? <b>{daysLeft} {days(daysLeft)}</b> : <b>–</b>}</p>
+    </div>
+  );
+}
+
+// Zapas i prognoza jednej jednostki
+function StockBlock({ unit, stock, dailyUse, bought, today, ok, id, range, rx }) {
+  const daysLeft = daysOf(stock, dailyUse);
+  const notes = notesOf({ unit, stock, dailyUse, bought, today });
+  const what = unit === 'ml' ? 'oleju i pena' : '';
+  return (
+    <div className={`today-stock${ok ? ' ok' : ''}`}>
       <div className="kpi">
         <div>
           <h2 id={id} className="kpi-label">Zapas{what && ` ${what}`}</h2>
@@ -150,17 +100,7 @@ function StockBlock({ unit, stock, dailyUse, bought, today, named, ok, id }) {
           <p className="kpi-mid">{daysLeft != null ? <><b>{daysLeft}</b> {days(daysLeft)}</> : <b>–</b>}</p>
         </div>
       </div>
-      {daysLeft != null ? (
-        <div className="gauge" role="meter" aria-label={`Zapas${what && ` ${what}`} w dniach (pełny pasek: 30 dni)`} aria-valuemin={0} aria-valuemax={HORIZON}
-          aria-valuenow={Math.min(daysLeft, HORIZON)} aria-valuetext={`${daysLeft} ${days(daysLeft)}`}>
-          <span style={{ width: `${pct}%` }} />
-          <i style={{ left: `${(7 / HORIZON) * 100}%` }} /><i style={{ left: `${(14 / HORIZON) * 100}%` }} />
-        </div>
-      ) : (
-        <div className="gauge empty" aria-hidden="true" />
-      )}
-      {daysLeft != null && <div className="gauge-scale" aria-hidden="true"><span>0</span><span className="mid" style={{ left: `${(7 / HORIZON) * 100}%` }}>7</span>
-        <span className="mid" style={{ left: `${(14 / HORIZON) * 100}%` }}>14</span><span className="end">30 dni</span></div>}
+      <StockForecast unit={unit} stock={stock} rate={dailyUse} range={range} today={today} rx={rx} what={what} />
       <p className="today-note">
         {notes.length > 0 ? notes.join(' · ') : stock > 0 ? 'Zapisuj zużycie przyciskiem „Zużyłem”, a policzę, na ile dni starczy zapasu.' : 'Brak zapasu. Wpisz stan w karcie odmiany albo zapisz wykup.'}
       </p>
@@ -169,7 +109,7 @@ function StockBlock({ unit, stock, dailyUse, bought, today, named, ok, id }) {
 }
 
 // stock, dailyUse, bought: { g, ml }; low: próg „Kończy się” w gramach (tylko susz)
-export default function TodayPanel({ stock, dailyUse, bought, low, series, prescriptions, symptoms, noUse = false, quick, onUsed, settings, fresh, hasOwn = false, onAdd }) {
+export default function TodayPanel({ stock, dailyUse, forecast, bought, low, series, prescriptions, symptoms, noUse = false, quick, onUsed, settings, fresh, hasOwn = false, onAdd }) {
   const today = series.at(-1).day;
   const hasMl = stock.ml > 0 || dailyUse.ml > 0;
   const hasG = !hasMl || stock.g > 0 || dailyUse.g > 0;
@@ -179,6 +119,9 @@ export default function TodayPanel({ stock, dailyUse, bought, low, series, presc
     return stock[u] > 0 && ((u === 'g' && low > 0 && stock[u] <= low) || (d != null && d < 7));
   };
   const warn = units.some(warnOf);
+  const comboRows = units.length > 1 ? units.map((u) => ({ u, notes: notesOf({ unit: u, stock: stock[u], dailyUse: dailyUse[u], bought: bought[u], today }) }))
+    .filter((r) => r.notes.length > 0 || dailyUse[r.u] > 0) : [];
+  const rxOf = (u) => prescriptions.items.find((r) => r.unit === u && r.days_left >= 0); // najbliższa ważna recepta na prognozie
   // POM-38: znacznik „dziś bez zużycia”; dzisiejsze zużycie (serwer zdejmuje wtedy znacznik) zeruje go także tutaj
   const usedToday = Number(series.at(-1).grams) > 0 || Number(series.at(-1).ml) > 0;
   const [noUseOn, setNoUseOn] = useState(noUse);
@@ -216,14 +159,31 @@ export default function TodayPanel({ stock, dailyUse, bought, low, series, presc
         </section>
       ) : (
       <section className={`card today-card${warn ? ' warn' : ''}`} aria-labelledby={`today-stock-h-${units[0]}`}>
-        <div className={`today-stocks${units.length > 1 ? ' two' : ''}`}>
-          {units.map((u) => (
-            <StockBlock key={u} id={`today-stock-h-${u}`} unit={u} stock={stock[u]} dailyUse={dailyUse[u]} bought={bought[u]}
-              today={today} named={units.length > 1} ok={warn && !warnOf(u)} />
-          ))}
-        </div>
-
-        <UsageChart series={series} />
+        {units.length > 1 ? (
+          <div className="today-stocks combo">
+            <div className="stock-cols">
+              {units.map((u) => <StockCell key={u} unit={u} stock={stock[u]} dailyUse={dailyUse[u]} ok={warn && !warnOf(u)} />)}
+            </div>
+            {comboRows.length > 0 ? (
+              <details className="stock-notes">
+                <summary>Prognoza i wykupy<Icon name="chevronDown" size={18} /></summary>
+                {comboRows.map(({ u, notes }) => (
+                  <div key={u} className="stock-notes-unit">
+                    {dailyUse[u] > 0 && <StockForecast unit={u} stock={stock[u]} rate={dailyUse[u]} range={forecast?.[u]} today={today} rx={rxOf(u)} what={u === 'ml' ? 'oleju i pena' : 'suszu'} />}
+                    {notes.length > 0 && <p className="today-note"><b>{u === 'ml' ? 'Olej i pen' : 'Susz'}:</b> {notes.join(' · ')}</p>}
+                  </div>
+                ))}
+              </details>
+            ) : <p className="today-note">Zapisuj zużycie przyciskiem „Zużyłem”, a policzę, na ile dni starczy zapasu.</p>}
+          </div>
+        ) : (
+          <div className="today-stocks">
+            {units.map((u) => (
+              <StockBlock key={u} id={`today-stock-h-${u}`} unit={u} stock={stock[u]} dailyUse={dailyUse[u]} bought={bought[u]}
+                today={today} ok={warn && !warnOf(u)} range={forecast?.[u]} rx={rxOf(u)} />
+            ))}
+          </div>
+        )}
 
         {quick && (
           <div className="today-quick">
@@ -238,6 +198,8 @@ export default function TodayPanel({ stock, dailyUse, bought, low, series, presc
 
         {/* POM-38: tylko gdy dziś nie zapisano zużycia (zapis „Zużyłem” zdejmuje znacznik na serwerze) */}
         {!usedToday && <NoUseToday day={today} on={noUseOn} setOn={setNoUseOn} />}
+
+        <UsageDays series={series} />
 
         {settings}
       </section>

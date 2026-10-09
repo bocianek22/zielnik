@@ -49,13 +49,6 @@
 /* ===== Skład: mierniki THC/CBD, terpeny, fakty ===== */
 .dlabel { margin: 0 0 var(--s-2); font-family: var(--font-body), system-ui, sans-serif; font-size: var(--fs-sm); font-weight: 600; color: var(--text-2); letter-spacing: .01em; }
 .meters { display: grid; gap: var(--s-3); margin-bottom: var(--s-5); }
-.meter-row { display: grid; grid-template-columns: 44px 1fr 64px; align-items: center; gap: var(--s-3); }
-.meter-lbl { font-weight: 600; font-size: var(--fs-sm); color: var(--text-2); }
-.meter { position: relative; height: 10px; border-radius: var(--r-pill); background: var(--surface-2); overflow: hidden; }
-.meter-fill { position: absolute; inset: 0 auto 0 0; border-radius: inherit; background: var(--chart-2); }
-.meter-fill.meter-cbd { background: var(--chart-3); }
-.meter-val { text-align: right; font-family: var(--font-display), Georgia, serif; font-size: 1.375rem; font-weight: 600; font-variant-numeric: tabular-nums lining-nums; }
-.meter-scale { margin: 0; font-size: var(--fs-xs); color: var(--text-3); text-align: right; }
 .dterp { margin-bottom: var(--s-4); }
 .dfacts { border-top: 1px solid var(--sep); }
 .dfacts > div:first-child { border-top: 0; }
@@ -77,22 +70,6 @@
   .mystats-grid > div:first-child { padding-left: 0; border-left: 0; }
 }
 
-/* wykres zużycia tygodniowego (słupki SVG, jedna seria: bez legendy, tytuł ją nazywa) */
-.uchart-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-1) var(--s-3); flex-wrap: wrap; }
-.uchart-head .dlabel { margin: 0; }
-.uchart-read { margin: 0; font-size: var(--fs-sm); color: var(--text-2); font-variant-numeric: tabular-nums; }
-.uchart-read b { color: var(--text); font-weight: 600; margin-right: 4px; }
-.uchart-plot { position: relative; height: 148px; margin-top: var(--s-6); touch-action: pan-y; cursor: crosshair; border-radius: var(--r-sm); }
-.uchart-plot:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
-.uchart-plot svg { display: block; overflow: visible; }
-.uchart-bar rect { fill: var(--chart-4); transition: fill var(--dur-1) var(--ease); }
-.uchart-bar.dim rect { fill: color-mix(in srgb, var(--chart-4) 35%, var(--surface)); }
-.uchart-base { stroke: var(--sep-strong); stroke-width: 1; }
-.uchart-grid { stroke: var(--sep); stroke-width: 1; stroke-dasharray: 2 3; }
-.uchart-max { position: absolute; right: 0; top: 8%; transform: translateY(-120%); font-size: var(--fs-xs); color: var(--text-3); font-variant-numeric: tabular-nums; }
-.uchart-x { display: grid; grid-template-columns: repeat(12, 1fr); margin-top: 6px; font-size: var(--fs-xs); color: var(--text-2); font-variant-numeric: tabular-nums; }
-.uchart-x span { white-space: nowrap; text-align: left; }
-.uchart-x span:last-child { text-align: right; }
 
 /* ===== Opinie innych ===== */
 .opinions { list-style: none; margin: 0; padding: 0; }
@@ -132,7 +109,7 @@
   .detail-page { padding-bottom: var(--s-6); margin-top: calc(-1 * var(--s-3)); }
   /* zdjęcie i blok koloru od krawędzi do krawędzi ekranu (margines strony to --s-4) */
   .dhero-media, .dhero.no-photo .dhero-head { margin-inline: calc(-1 * var(--s-4)); }
-  .dhero.no-photo .dhero-head { border-radius: 0; border-inline: 0; padding: var(--s-8) var(--s-4) var(--s-5); min-height: 150px; }
+  .dhero.no-photo .dhero-head { border-radius: 0; border-inline: 0; padding: var(--s-6) var(--s-4) var(--s-5); min-height: 120px; }
   .dhero-body { margin-top: var(--s-4); }
   .dhero h1 { font-size: 2rem; }
   .dscores dd b { font-size: 1.875rem; }
@@ -141,7 +118,6 @@
   .dscores > div { padding-right: var(--s-2); }
   .dscores > div + div { padding-left: var(--s-2); }
   .dscores dd b { font-size: 1.625rem; }
-  .meter-row { grid-template-columns: 40px 1fr 56px; gap: var(--s-2); }
 }
 
 /* opis w karcie charakterystyki */
@@ -175,12 +151,6 @@
 
 /* skala odczuć */
 .effects-body { display: flex; gap: var(--s-6); flex-wrap: wrap; align-items: center; }
-.radar { width: 280px; max-width: 100%; height: auto; }
-.radar .radar-avg { fill: color-mix(in srgb, var(--text-2) 16%, transparent); stroke: var(--text-2); }
-.radar .radar-me { fill: color-mix(in srgb, var(--accent) 22%, transparent); stroke: var(--accent); }
-.legend { text-align: center; font-size: var(--fs-sm); color: var(--text-2); }
-.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin: 0 4px 0 10px; vertical-align: 0; }
-.dot.avg { background: var(--text-2); } .dot.me { background: var(--accent); }
 .sliders { flex: 1 1 260px; display: grid; gap: var(--s-4); }
 .slider { display: grid; gap: 4px; }
 .slider label { display: flex; justify-content: space-between; font-weight: 600; }

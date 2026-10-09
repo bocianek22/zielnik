@@ -32,8 +32,6 @@ export default function Prescriptions() {
 
   return (
     <div className="stack">
-      <div className="alert note">Notatnik recept służy tylko do Twojej orientacji: ilość wykupioną liczymy z Twoich zapisanych zakupów w okresie ważności recepty (susz w gramach, olej i pen w ml osobno). To nie jest dokument ani rejestr medyczny. Dane są prywatne.</div>
-
       {msg && !showForm && <div className="alert error" role="alert">{msg}</div>}
       {list === null ? <p className="muted" aria-busy="true">Ładuję…</p> : list.length === 0 ? (
         <div className="card empty">

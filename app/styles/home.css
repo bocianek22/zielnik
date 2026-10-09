@@ -23,40 +23,29 @@
 .kpi-mid b { font-size: 1.875rem; line-height: 1.1; }
 .today-card.warn .kpi-mid b { color: var(--warn); }
 
-/* miernik: zapas w dniach względem 30 dni, podziałka 7 i 14 dni */
-.gauge { position: relative; height: 8px; margin-top: var(--s-4); border-radius: 4px; background: var(--surface-2); overflow: hidden; }
-.gauge > span { display: block; height: 100%; background: var(--accent); border-radius: 4px; transition: width var(--dur-2) var(--ease); }
-.gauge > i { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--surface); }
-.today-card.warn .gauge > span { background: var(--warn); }
-.gauge-scale { position: relative; height: 16px; margin-top: 4px; font-size: var(--fs-xs); color: var(--text-3); font-variant-numeric: tabular-nums; line-height: 16px; }
-.gauge-scale > span, .usage-axis > span { position: absolute; left: 0; top: 0; white-space: nowrap; }
-.gauge-scale > .mid, .usage-axis > .mid { transform: translateX(-50%); }
-.gauge-scale > .end, .usage-axis > .end { left: auto; right: 0; }
 .today-note { margin: var(--s-3) 0 0; font-size: var(--fs-sm); color: var(--text-2); line-height: 1.45; }
-/* susz (g) i olej/pen (ml): dwa osobne bloki zapasu, bez sumowania jednostek */
-.today-stocks.two .today-stock + .today-stock { border-top: 1px solid var(--sep); }
+/* susz (g) i olej/pen (ml): jeden blok, dwie kolumny „liczba · dni”, bez sumowania jednostek */
+.stock-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.stock-cols .today-stock { padding: var(--s-4) var(--s-4) var(--s-3); min-width: 0; }
+.stock-cols .today-stock + .today-stock { border-left: 1px solid var(--sep); }
+.stock-cols .kpi-big { font-size: var(--fs-md, 1rem); }
+.stock-cols .kpi-big b { font-size: 2.25rem; line-height: 1.1; }
+.kpi-days-line { margin: 0; font-size: var(--fs-sm); color: var(--text-2); white-space: nowrap; }
+.kpi-days-line b { font-weight: 600; color: var(--text); }
+.today-card.warn .today-stock:not(.ok) .kpi-days-line b { color: var(--warn); }
+.stock-notes { border-top: 1px solid var(--sep); }
+.stock-notes > summary { display: flex; align-items: center; justify-content: space-between; min-height: var(--tap); padding: 0 var(--s-4); cursor: pointer; list-style: none; font-size: var(--fs-sm); font-weight: 600; color: var(--accent-text); }
+.stock-notes > summary::-webkit-details-marker { display: none; }
+.stock-notes > summary .icon { color: var(--text-3); transition: transform var(--dur-2) var(--ease); }
+.stock-notes[open] > summary .icon { transform: rotate(180deg); }
+.stock-notes-unit { padding: 0 var(--s-4) var(--s-3); }
+.stock-notes .today-note { margin: 0; }
+.stock-notes .today-note b { color: var(--text); }
+.stock-notes-unit + .stock-notes-unit { border-top: 1px solid var(--sep); padding-top: var(--s-3); }
+.today-stocks.combo > .today-note { margin: 0 var(--s-4) var(--s-3); }
 /* ostrzeżenie dotyczy tylko jednostki, której zapas się kończy */
 .today-card.warn .today-stock.ok .kpi-mid b { color: var(--text); }
-.today-card.warn .today-stock.ok .gauge > span { background: var(--accent); }
-.today-stocks.two .kpi-big b { font-size: 2.25rem; }
-.today-stocks.two .kpi-mid b { font-size: 1.5rem; }
 
-/* ===== Zużycie z 14 dni ===== */
-.usage { padding: var(--s-4) var(--s-5); border-top: 1px solid var(--sep); }
-.usage-head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s-3); }
-.usage-sel { margin: 0; font-size: var(--fs-sm); color: var(--text-2); white-space: nowrap; }
-.usage-unit { margin: var(--s-2) 0 var(--s-1); }
-.usage-sel b { font-family: var(--font-display), Georgia, serif; font-size: var(--fs-xl); font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums lining-nums; margin-left: 2px; }
-.usage-chart { display: block; width: 100%; height: auto; max-height: 132px; margin-top: var(--s-3); overflow: visible; }
-.ubar { cursor: pointer; }
-.ubar path { fill: var(--chart-4); fill-opacity: .38; transition: fill-opacity var(--dur-1) var(--ease); }
-.ubar.on path { fill-opacity: 1; }
-.ubar-zero { fill: var(--sep-strong); }
-.ubar.on .ubar-zero { fill: var(--text-3); }
-@media (hover: hover) { .ubar:hover path { fill-opacity: .7; } .ubar.on:hover path { fill-opacity: 1; } }
-.usage-axis { position: relative; height: 16px; margin-top: 6px; font-size: var(--fs-xs); color: var(--text-3); font-variant-numeric: tabular-nums; line-height: 16px; }
-.usage-axis > .end { color: var(--text-2); font-weight: 600; }
-.usage-empty { margin: var(--s-2) 0 0; font-size: var(--fs-sm); color: var(--text-2); }
 
 /* ===== Szybkie „Zużyłem” ===== */
 .today-quick { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-2) var(--s-3); padding: var(--s-3) var(--s-5); border-top: 1px solid var(--sep); }
@@ -123,7 +112,8 @@
   .tsym-form { padding-inline: var(--s-4); }
   .tsym-done { padding-left: var(--s-4); }
   .tsym-status { padding-inline: var(--s-4); }
-  .today-stock, .usage { padding-inline: var(--s-4); }
+  .today-stock { padding-inline: var(--s-4); }
+  .today-card { padding-bottom: calc(56px + var(--s-4)); } /* „+” (56 px) nie zasłania ostatniego wiersza karty */
   .today-quick, .no-use { padding-inline: var(--s-4); }
   .trx { padding-inline: var(--s-4); }
   .today-card-head { padding-left: var(--s-4); }
@@ -131,6 +121,7 @@
 @media (max-width: 359px) {
   .kpi-big b { font-size: 2.5rem; }
   .kpi-mid b { font-size: 1.625rem; }
+  .stock-cols .kpi-big b { font-size: 1.875rem; }
   .today-quick .quick-btn { min-width: 0; }
 }
 
@@ -139,8 +130,10 @@
   .today-card { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .today-stock { grid-column: 1; grid-row: 1; padding: var(--s-5) var(--s-6); }
   .today-stocks { grid-column: 1; grid-row: 1; }
-  .today-stocks.two .kpi-big b { font-size: 2.5rem; }
-  .usage { grid-column: 2; grid-row: 1 / span 2; border-top: 0; border-left: 1px solid var(--sep); padding: var(--s-5) var(--s-6); }
+  .stock-cols .today-stock { grid-column: auto; grid-row: auto; padding: var(--s-5) var(--s-6); }
+  .stock-notes > summary { padding-inline: var(--s-6); }
+  .stock-notes-unit, .today-stocks.combo > .today-note { padding-inline: var(--s-6); }
+  .stock-cols .kpi-big b { font-size: 2.75rem; }
   .today-quick { grid-column: 1; grid-row: 2; padding-inline: var(--s-6); align-self: end; }
   .today-card .prefs { grid-column: 1 / -1; }
   .kpi-big b { font-size: 3.5rem; }

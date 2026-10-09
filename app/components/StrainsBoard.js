@@ -10,6 +10,7 @@ import { TAG_LIST, strainTags } from '@/lib/effects';
 import StrainCard from './StrainCard';
 import StrainForm from './StrainForm';
 import Icon from './Icon';
+import MoreMenu from './MoreMenu';
 import { useHome } from './HomeStore';
 import SearchSuggest from './SearchSuggest';
 import { matches } from '@/lib/searchMatch';
@@ -271,8 +272,10 @@ export default function StrainsBoard({ initialStrains, initialOptions, me }) {
           </label>
         </div>
         <div className="filters-row filters-foot">
-          <a className="btn text small" href="/api/export"><Icon name="download" size={18} />Eksport CSV</a>
-          <Link className="btn text small" href="/import">Import CSV</Link>
+          <MoreMenu>
+            <a href="/api/export"><span>Eksport CSV</span><Icon name="download" size={18} /></a>
+            <Link href="/import"><span>Import CSV</span><Icon name="chevronRight" size={18} /></Link>
+          </MoreMenu>
         </div>
       </div>
       {error && <div className="alert error" role="alert">{error}</div>}

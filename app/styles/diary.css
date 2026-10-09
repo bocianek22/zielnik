@@ -1,14 +1,5 @@
 /* Dziennik objawów (app/dziennik) i recepty (app/recepty) */
 
-/* Wykres objawów */
-.sym-chart { width: 100%; max-width: 640px; height: auto; display: block; margin: 0 auto; }
-.sym-chart text { font-family: var(--font-body), system-ui, sans-serif; font-variant-numeric: tabular-nums lining-nums; fill: var(--text-2); font-size: 11px; }
-.sym-chart .grid { stroke: var(--sep); stroke-width: 1; }
-.sym-chart .use { fill: var(--sep-strong); }
-.sym-legend { list-style: none; margin: var(--s-3) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s-1) var(--s-4); font-size: var(--fs-sm); color: var(--text-2); }
-.sym-legend li { display: inline-flex; align-items: center; gap: 6px; }
-.sym-swatch { flex: none; overflow: visible; }
-.sym-legend i.bar { width: 10px; height: 10px; border-radius: 2px; background: var(--sep-strong); }
 
 /* Formularz wpisu */
 .sym-day { display: flex; gap: var(--s-3); flex-wrap: wrap; align-items: flex-end; }
@@ -84,9 +75,22 @@
 .obs-rules ul { margin: 0; padding-left: 1.1em; display: grid; gap: var(--s-2); font-size: var(--fs-sm); color: var(--text-2); max-width: 68ch; }
 
 /* Własne objawy (POM-07) */
-.sym-custom { display: grid; gap: var(--s-3); }
-.sym-custom > summary { cursor: pointer; font-weight: 600; min-height: var(--tap); display: flex; align-items: center; gap: var(--s-1); }
-.sym-custom[open] > summary { margin-bottom: var(--s-1); }
-.sym-custom p { margin: 0; }
+.sym-custom { padding: 0; }
+.sym-custom > summary { cursor: pointer; list-style: none; min-height: 52px; padding: var(--s-3) var(--s-4); display: flex; align-items: center; gap: var(--s-3); font-weight: 600; }
+.sym-custom > summary::-webkit-details-marker { display: none; }
+.sym-custom > summary .lr-main { flex: 1; min-width: 0; }
+.sym-custom > summary .lr-sub { display: block; font-weight: 400; font-size: var(--fs-sm); color: var(--text-2); }
+.sym-custom > summary .lr-chev { flex: none; color: var(--text-3); transition: transform var(--dur-1, .12s) var(--ease, ease); }
+.sym-custom[open] > summary .lr-chev { transform: rotate(90deg); }
+.sym-custom > :not(summary) { margin: 0 var(--s-4) var(--s-4); }
+.sym-custom > ul.list { margin-inline: 0; }
+.sym-custom p { margin-top: 0; }
+.sym-custom[open] { display: grid; gap: var(--s-3); }
+/* Wpis z dziś zapisany: formularz zwinięty do jednego wiersza */
+.sym-today { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-3) var(--s-4); }
+.sym-today h2 { margin: 0; font-size: var(--fs-lg); }
+.sym-today p { margin: 2px 0 0; }
+.sym-today .btn { flex: none; }
 .sym-custom-row { flex-wrap: wrap; }
 .sym-custom-row form { flex: 1 1 100%; }
+.sym-skel { min-height: 520px; background: linear-gradient(var(--surface-2), var(--surface-2)) var(--s-4) var(--s-4) / calc(100% - 2 * var(--s-4)) 60% no-repeat, var(--surface); }

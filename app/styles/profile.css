@@ -39,3 +39,9 @@
 @media (max-width: 760px) {
   .settings .row .btn { flex: 1 1 auto; }
 }
+
+/* Linki profilu: wiersz z polem i „Usuń”, nowe pola dodaje „Dodaj link” */
+.link-row { display: flex; align-items: center; gap: var(--s-2); }
+.link-row .input { flex: 1; min-width: 0; }
+.link-row .btn { flex: none; }
+.profile-save { margin-top: var(--s-4); }
