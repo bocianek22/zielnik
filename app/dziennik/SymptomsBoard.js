@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { api } from '@/lib/api';
 import { SYMPTOMS, customMeta, CUSTOM_MAX, CUSTOM_NAME_MAX } from '@/lib/symptoms';
 import Icon from '../components/Icon';
+import DictateButton from '../components/DictateButton';
 import Toast from '../components/Toast';
 import SecHead from '../components/SecHead';
 import SymptomsChart from '../components/charts/SymptomsChart';
@@ -198,6 +199,7 @@ export default function SymptomsBoard() {
           })}
           <div className="field"><label htmlFor="sy-note">Notatka (opcjonalnie)</label>
             <input id="sy-note" className="input" maxLength={500} value={f.note} onChange={(e) => setF({ ...f, note: e.target.value })} />
+            <DictateButton value={f.note} onChange={(note) => setF((p) => ({ ...p, note }))} max={500} />
             {existing?.noteLocked && !f.note && <small>Zapisana notatka jest zaszyfrowana i chwilowo nieczytelna (brak klucza na serwerze). Zostanie zachowana; wpisany tu nowy tekst ją zastąpi.</small>}</div>
               <div className="sym-actions"><button className="btn" aria-busy={saving || undefined} disabled={saving}>Zapisz wpis</button>{existing && <button type="button" className="btn danger" onClick={remove}>Usuń wpis</button>}</div>
         </form>

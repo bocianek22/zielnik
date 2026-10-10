@@ -75,3 +75,25 @@ test('dostawca plików nieeksportowany; aktywność przyjmuje tylko bezpieczne �
   assert.match(main, /SAFE_PATH\.matcher\(path\)\.matches\(\)/);
   assert.ok(!/addJavascriptInterface/.test(main));
 });
+
+// Udostępnianie PDF raportu (SharePlugin + FileProvider): dostęp tylko do podkatalogu cache, bez nowych uprawnień
+test('udostępnianie PDF: provider nieeksportowany z grantUriPermissions, ścieżki tylko cache/share, wtyczka zarejestrowana', () => {
+  const provider = manifest.match(/<provider\b[\s\S]*?<\/provider>/)?.[0] || '';
+  assert.match(provider, /android:name="androidx\.core\.content\.FileProvider"/);
+  assert.match(provider, /android:authorities="\$\{applicationId\}\.fileprovider"/);
+  assert.match(provider, /android:exported="false"/);
+  assert.match(provider, /android:grantUriPermissions="true"/);
+  assert.match(provider, /android:resource="@xml\/file_paths"/);
+  const paths = read('res/xml/file_paths.xml');
+  assert.deepEqual([...paths.matchAll(/<([a-z-]+-path)\b[^>]*path="([^"]*)"/g)].map((m) => [m[1], m[2]]), [['cache-path', 'share/']]);
+  const main = read('java/pl/zielnik/app/MainActivity.java');
+  assert.match(main, /registerPlugin\(SharePlugin\.class\)/);
+  const plugin = read('java/pl/zielnik/app/SharePlugin.java');
+  assert.match(plugin, /@CapacitorPlugin\(name = "ZielnikShare"\)/);
+  assert.match(plugin, /ACTION_SEND/);
+  assert.match(plugin, /"application\/pdf"/);
+  assert.match(plugin, /FLAG_GRANT_READ_URI_PERMISSION/);
+  assert.ok(!/FLAG_GRANT_WRITE_URI_PERMISSION/.test(plugin));
+  const perms = [...manifest.matchAll(/<uses-permission android:name="([^"]+)"/g)].map((m) => m[1]).sort();
+  assert.deepEqual(perms, ['android.permission.INTERNET', 'android.permission.POST_NOTIFICATIONS']);
+});

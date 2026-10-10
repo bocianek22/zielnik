@@ -24,6 +24,7 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(WidgetPlugin.class);
+        registerPlugin(SharePlugin.class);
         registerPlugin(PrintPlugin.class); // przed super.onCreate: tam powstaje most z listą wtyczek
         super.onCreate(savedInstanceState);
         // Wygląd natywny zamiast przeglądarkowego: WebView rysuje własne paski przewijania i poświatę przy

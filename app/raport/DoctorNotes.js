@@ -1,5 +1,6 @@
 'use client';
 import SecHead from '../components/SecHead';
+import DictateButton from '../components/DictateButton';
 import { useState } from 'react';
 import { api } from '@/lib/api';
 import { NOTES_EVENT } from './ReportNotes';
@@ -45,12 +46,15 @@ export default function DoctorNotes({ initial }) {
         </ul>
       )}
       {open.length < MAX ? (
+        <>
         <form className="field-row" onSubmit={add}>
           <label htmlFor="dn-new" className="sr-only">Nowy punkt</label>
           <input id="dn-new" className="input" maxLength={LEN} value={text} onChange={(e) => setText(e.target.value)}
             placeholder="np. zapytać o przedłużenie recepty" />
           <button className="btn small" disabled={busy || !text.trim()}>Dodaj</button>
         </form>
+        <DictateButton value={text} onChange={setText} max={LEN} />
+        </>
       ) : <p className="muted small">To już {MAX} punktów. Odhacz omówione albo usuń niepotrzebne.</p>}
       <p className="muted small">Nieomówione punkty są drukowane w raporcie. Po wizycie odhacz to, co omówione.</p>
       {done.length > 0 && (
