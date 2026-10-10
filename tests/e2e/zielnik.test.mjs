@@ -150,7 +150,9 @@ scenario('Recepty: "W aptece" i "Wykupiłem" zmniejsza resztę na recepcie', asy
   const left = async () => num((await text(card.locator('.pharmacy-rx li', { hasText: ' g zostało' }).first())).match(/([\d,]+) g zostało/)[1]);
   const before = await left();
   const pool = card.locator('.pharmacy-pool').filter({ hasText: 'do wykupienia' }).filter({ hasText: / g do wykupienia/ }).first();
-  await pool.getByRole('button', { name: /^Wykupiłem/ }).click();
+  const buy = pool.getByRole('button', { name: /^Wykupiłem/ });
+  await interactive(buy); // przed hydratacją klik nie otwiera pola ilości
+  await buy.click();
   await pool.getByRole('textbox').fill('1');
   await pool.getByRole('button', { name: 'Zapisz wykup' }).click();
   await pool.locator('.quick-msg', { hasText: 'Zapisano: +1 g' }).waitFor();
@@ -270,8 +272,10 @@ scenario('Profil: przypomnienia (wyłączone domyślnie, wieczorne zablokowane b
 
 scenario('tryb dyskretny: nazwy rozmyte, tytuł "Notatnik"',async (page) => {
   await go(page, '/profil');
-  await page.getByRole('switch', { name: 'Tryb dyskretny' }).check();
-  await page.waitForFunction(() => document.title === 'Notatnik' || document.documentElement.hasAttribute('data-discreet'));
+  const toggle = page.getByRole('switch', { name: 'Tryb dyskretny' });
+  await interactive(toggle); // przed hydratacją klik zaznacza samo pole, a setDiscreet() się nie wykonuje
+  await toggle.check();
+  await page.waitForFunction(() => document.title === 'Notatnik' && document.cookie.includes('zielnik_discreet=1'));
   await go(page, '/odmiany');
   await page.waitForSelector('.dn');
   const blurs = await page.$$eval('.dn', (els) => els.map((e) => getComputedStyle(e).filter));
@@ -282,13 +286,17 @@ scenario('tryb dyskretny: nazwy rozmyte, tytuł "Notatnik"',async (page) => {
   await page.waitForSelector('.dn');
   assert.ok((await page.$$eval('.dn', (els) => els.map((e) => getComputedStyle(e).filter))).every((f) => /blur/.test(f)), 'nazwy rozmyte na „Dziś”');
   await go(page, '/odmiany');
-  await page.waitForSelector('.dn');
-  // dotknięcie odsłania nazwę na chwilę
+  // dotknięcie odsłania nazwę na chwilę; nasłuch DiscreetGuard działa po jego efekcie (oznacza wtedy .dn atrybutem data-dn-labelled).
+  // Dotknięcie przed nim przechodzi linkiem do szczegółów odmiany i test czekał na odsłonięcie na innej stronie
+  await page.waitForSelector('.dn[data-dn-labelled]');
   await page.locator('.dn').first().tap();
   await page.waitForFunction(() => !/blur/.test(getComputedStyle(document.querySelector('.dn')).filter), null, { timeout: 3000 });
   // wyłączenie przywraca widok
   await go(page, '/profil');
-  await page.getByRole('switch', { name: 'Tryb dyskretny' }).uncheck();
+  const off = page.getByRole('switch', { name: 'Tryb dyskretny' });
+  await interactive(off);
+  await off.uncheck();
+  await page.waitForFunction(() => !document.cookie.includes('zielnik_discreet=1'));
   await go(page, '/odmiany');
   await page.waitForSelector('.dn');
   assert.ok((await page.$$eval('.dn', (els) => els.map((e) => getComputedStyle(e).filter))).every((f) => !/blur/.test(f)));

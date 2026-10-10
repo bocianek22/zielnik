@@ -69,7 +69,11 @@ export default async function Raport({ searchParams }) {
   const uLabel = { g: 'susz', ml: 'olej i pen' };
   const both = (o) => units.map((u) => `${nf(o[u], 2)} ${u}`).join(' i ');
   const fx = (o, k) => (o && o[k] != null ? o[k] : null);
-  const meta = (u) => [u.producer, u.thc != null && `THC ${nf(u.thc)}%`, u.cbd != null && `CBD ${nf(u.cbd)}%`, `${dni(u.days)} użycia`].filter(Boolean).join(' · ');
+  // producent zdradza odmianę: w trybie dyskretnym rozmyty jak nazwa (.dn), reszta opisu zostaje czytelna
+  const meta = (u) => {
+    const rest = [u.thc != null && `THC ${nf(u.thc)}%`, u.cbd != null && `CBD ${nf(u.cbd)}%`, `${dni(u.days)} użycia`].filter(Boolean).join(' · ');
+    return u.producer ? <><span className="dn">{u.producer}</span> · {rest}</> : rest;
+  };
   const feelLine = (f) => EFFECTS.map(([k, l]) => (fx(f.effects, k) != null ? `${l} ${nf(fx(f.effects, k))}` : null)).filter(Boolean).join(' · ');
 
   // tydzień po tygodniu

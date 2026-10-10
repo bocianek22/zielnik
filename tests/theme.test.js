@@ -64,6 +64,8 @@ const PAIRS = [
   ['--on-hero', '--hero-2', 4.5], ['--on-hero', '--hero-3', 4.5], ['--on-hero-2', '--hero-3', 4.5], ['--on-hero-2', '--bar', 4.5],
   ...CATS.flatMap((c) => [[`--cat-${c}-ink`, `--cat-${c}-soft`, 4.5], ['--text', `--cat-${c}-soft`, 4.5], ['--text-2', `--cat-${c}-soft`, 4.5],
     [`--cat-${c}-ink`, '--surface', 4.5], ['--on-cat', `--cat-${c}`, 4.5]]),
+  // miniatura odmiany: ikona --on-kind na pełnym kolorze rodzaju (strains.css, .strain-thumb)
+  ...['indica', 'sativa', 'hybryda'].map((k) => ['--on-kind', `--kind-${k}`, 4.5]),
 ];
 
 test('kontrast par tekst/tło (WCAG AA) w obu motywach', () => {
@@ -79,4 +81,23 @@ test('kontrast par tekst/tło (WCAG AA) w obu motywach', () => {
     }
   }
   assert.deepEqual(bad, []);
+});
+
+// Hero obszaru (.hero.cat-hero, globals.css): gradient od --cat-x do --cat-x zmieszanego w 72% z czernią (color-mix w sRGB).
+// Tekst (--on-cat), biały przycisk z tekstem --cat-x i przyciemniony przycisk drugorzędny muszą mieć AA na obu końcach gradientu.
+// --on-hero-2 (podpisy hero „Dziś”) nie nadaje się na hero obszaru (np. 4,29:1 na --cat-stock), dlatego cat-hero przestawia podpisy na --on-cat.
+test('hero obszaru: kontrast --on-cat na obu końcach gradientu w obu motywach', () => {
+  const dark72 = (hex) => '#' + [1, 3, 5].map((i) => Math.round(parseInt(hex.slice(i, i + 2), 16) * 0.72).toString(16).padStart(2, '0')).join('');
+  const bad = [];
+  for (const [name, b] of [['jasny', block(/:root\s*\{([^}]*)\}/)], ['ciemny', block(/:root\[data-theme="dark"\]\s*\{([^}]*)\}/)]]) {
+    for (const c of CATS) {
+      const fill = b[`--cat-${c}`];
+      for (const bg of [fill, dark72(fill)]) {
+        const r = ratio(b['--on-cat'], bg);
+        if (r < 4.5) bad.push(`${name}: --on-cat na ${c} (${bg}) = ${r.toFixed(2)}`);
+      }
+    }
+  }
+  assert.deepEqual(bad, []);
+  assert.match(css, /\.hero\.cat-hero :is\(h1, h2, \.hero-sub, \.hero-lbl, \.muted\) \{ color: var\(--on-cat\); \}/, 'podpisy w hero obszaru w --on-cat');
 });

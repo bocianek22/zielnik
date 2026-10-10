@@ -151,7 +151,7 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, st
 
       {editing ? (
         <StrainForm strain={strain} options={opts} tastes={tastes} canDelete={canDelete} proposing={proposing} hidePrice={me.hidePrices} onOptionsChange={setOpts}
-          onDone={() => { setEditing(false); router.refresh(); }} onDeleted={() => router.push('/odmiany')}
+          onSent={() => router.refresh()} onDone={() => { setEditing(false); router.refresh(); }} onDeleted={() => router.push('/odmiany')}
           onCancel={() => setEditing(false)} />
       ) : (
         <>

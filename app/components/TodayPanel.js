@@ -47,7 +47,7 @@ function Prescriptions({ items, total }) {
           const u = r.unit === 'ml' ? 'ml' : 'g';
           return (
             <li key={r.id} className={`trx${expired ? ' expired' : ''}${soon ? ' soon' : ''}`}>
-              <div className="trx-count" aria-hidden="true">
+              <div className={`day-count sm${expired ? ' past' : soon ? ' soon' : ''}`} aria-hidden="true">
                 <b>{n}</b>
                 <span>{expired ? `${days(n)} temu` : r.days_left === 0 ? 'ost. dzień' : days(n)}</span>
               </div>
@@ -89,7 +89,7 @@ function Tile({ href, cat, solid, warn, icon, label, value, sub }) {
 function Todo({ items }) {
   return (
     <section className="today-todo" aria-labelledby="todo-h">
-      <h2 id="todo-h" className="sec-label">Do zrobienia</h2>
+      <h2 id="todo-h" className="section-label">Do zrobienia</h2>
       <ul className="card todo">
         {items.map((t) => {
           const body = (

@@ -39,7 +39,6 @@ a.who-name:hover { color: var(--on-bar); }
   .oq-panel { position: fixed; top: calc(52px + env(safe-area-inset-top) + 4px); left: var(--s-4); right: var(--s-4); width: auto; max-height: calc(100dvh - 160px); overflow-y: auto; }
 }
 /* komunikat „czeka na wysłanie” przy szybkim zapisie */
-.tsym-status.queued { color: var(--warn); }
 
 /* menu „Więcej” na desktopie */
 .more { position: relative; }

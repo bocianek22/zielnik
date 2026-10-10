@@ -107,7 +107,7 @@ export default function SymptomsQuick({ day, initial, onChange }) {
   return (
     <section className="card tint tsym" data-cat="journal" id="objawy" aria-labelledby="tsym-h">
       <div className="sec-head">
-        <span className="ic-dot solid"><Icon name="pulse" size={22} /></span>
+        <span className="ic-dot"><Icon name="pulse" size={22} /></span>
         <h2 id="tsym-h">Jak się dziś czujesz?</h2>
         <Link className="btn text small" href="/dziennik">Dziennik<Icon name="chevronRight" size={18} /></Link>
       </div>

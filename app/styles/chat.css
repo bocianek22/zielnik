@@ -13,8 +13,12 @@
 
 .chat-row { display: flex; align-items: flex-end; gap: var(--s-2); }
 .chat-row.mine { justify-content: flex-end; }
-.chat-main { min-width: 0; max-width: min(82%, 520px); display: grid; }
-.chat-row.mine .chat-main { justify-items: end; }
+/* dymek i „…” w jednym wierszu (opcje obok dymka, nie pod nim: krótsza lista, awatar przy dymku);
+   otwarte menu albo błąd wysyłki są szersze i zawijają się pod dymek */
+.chat-main { min-width: 0; max-width: min(86%, 560px); display: flex; flex-wrap: wrap; align-items: flex-end; column-gap: 2px; }
+.chat-row.mine .chat-main { flex-direction: row-reverse; }
+.chat-main > .chat-bubble { flex: 0 1 auto; min-width: 0; max-width: calc(100% - var(--tap) - 2px); }
+.chat-main > .chat-actions { flex: 0 0 auto; }
 .chat-bubble { display: grid; gap: 2px; padding: var(--s-2) var(--s-3); border-radius: var(--r-lg) var(--r-lg) var(--r-lg) var(--r-sm);
   background: var(--surface-2); color: var(--text); max-width: 100%; }
 .chat-row.mine .chat-bubble { background: var(--c-soft, var(--accent-soft)); color: var(--text); border-radius: var(--r-lg) var(--r-lg) var(--r-sm) var(--r-lg); }
@@ -30,6 +34,7 @@
 
 .chat-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-1); }
 .chat-more { min-width: var(--tap); min-height: var(--tap); padding: 0; }
+.chat-actions .btn.text.chat-more { color: var(--text-2); }
 .chat-menu { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--s-1); }
 .chat-menu .btn { min-height: var(--tap); }
 .chat-menu .report-form { min-width: min(70vw, 280px); }

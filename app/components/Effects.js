@@ -76,7 +76,7 @@ export default function Effects({ strain, meId }) {
               <input id={`fx-${k}`} type="range" min="0" max="10" step="1" value={mine[k] ?? 5}
                 aria-valuetext={mine[k] == null ? 'nie oceniono, przesuń, aby ustawić' : `${mine[k]} z 10`}
                 onChange={(e) => setMine((p) => ({ ...p, [k]: Number(e.target.value) }))} />
-              {mine[k] != null && <button type="button" className="btn ghost small" onClick={() => setMine((p) => ({ ...p, [k]: null }))}>Wyczyść ocenę</button>}
+              {mine[k] != null && <button type="button" className="btn text small" onClick={() => setMine((p) => ({ ...p, [k]: null }))}>Wyczyść ocenę</button>}
             </div>
           ))}
           <div className="row">

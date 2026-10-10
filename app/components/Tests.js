@@ -88,7 +88,7 @@ export default function Tests({ strainId, initialTests, me }) {
     <section className="card tests">
       <div className="tests-head">
         <SecHead cat="social" icon="flask">Testy</SecHead>
-        {!adding && <button type="button" className="btn small" onClick={() => { setError(''); setEditing(null); setAdding(true); }}><Icon name="plus" size={18} />Dodaj test</button>}
+        {!adding && <button type="button" className="btn small soft" onClick={() => { setError(''); setEditing(null); setAdding(true); }}><Icon name="plus" size={18} />Dodaj test</button>}
       </div>
       {adding && <TestForm key={tests.length} onSubmit={add} onCancel={() => { setAdding(false); setError(''); }} busy={busy} error={editing ? '' : error} />}
       {!adding && !editing && error && <div className="alert error" role="alert">{error}</div>}

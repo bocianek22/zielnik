@@ -35,11 +35,7 @@
 .rx-unit small { display: block; margin-top: 6px; }
 .rx-title small { margin-left: var(--s-2); font-size: var(--fs-sm); font-weight: 500; color: var(--text-2); }
 .rx-state { font-size: var(--fs-sm); color: var(--text-2); }
-/* odliczanie: kafel z liczbą dni w kolorze recept; zostaje tonalny także przy „kończy się” (ostrzega plakietka obok tytułu) */
-.rx-days { flex: none; display: grid; justify-items: center; align-content: center; width: 72px; height: 72px; border-radius: var(--r-lg); background: var(--c-soft); color: var(--c-ink); }
-.rx-days b { font-size: 1.75rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums lining-nums; }
-.rx-days span { font-size: var(--fs-xs); font-weight: 700; }
-.rx-days.soon { background: var(--warn-soft); color: var(--warn); box-shadow: inset 0 0 0 1px var(--warn-line); }
+/* odliczanie dni: .day-count (globals.css); pasek wykupu w kolorze recept */
 .rx-row progress { appearance: none; -webkit-appearance: none; width: 100%; height: 10px; border: 0; border-radius: var(--r-pill); overflow: hidden; background: var(--c-soft); color: var(--c); accent-color: var(--c); }
 .rx-row progress::-webkit-progress-bar { background: var(--c-soft); }
 .rx-row progress::-webkit-progress-value { background: var(--c); border-radius: var(--r-pill); }

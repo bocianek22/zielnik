@@ -100,8 +100,8 @@ export default function Entries({ kind, rows, prescriptions = [] }) {
   const eu = uOf(edit?.row);
   const actions = (r) => (
     <span className="hist-actions">
-      <button type="button" className="btn small ghost" aria-label={`Popraw: ${label(r)}`} onClick={(e) => open(r, false, e)}>Popraw</button>
-      <button type="button" className="btn small ghost" aria-label={`Usuń: ${label(r)}`} onClick={(e) => open(r, true, e)}>Usuń</button>
+      <button type="button" className="btn small text" aria-label={`Popraw: ${label(r)}`} onClick={(e) => open(r, false, e)}>Popraw</button>
+      <button type="button" className="btn small text hist-del" aria-label={`Usuń: ${label(r)}`} onClick={(e) => open(r, true, e)}>Usuń</button>
     </span>
   );
   // opis wpisu zużycia: sposób (jeśli podano) i pora; bez ocen

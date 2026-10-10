@@ -9,7 +9,6 @@
 .stat-strip dt { font-size: var(--fs-xs); font-weight: 600; color: var(--text-2); letter-spacing: .01em; }
 .stat-strip dd { margin: 2px 0 0; font-size: var(--fs-sm); color: var(--text-2); white-space: nowrap; }
 .stat-strip dd b { font-family: var(--font-display), system-ui, sans-serif; font-size: 1.625rem; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums lining-nums; letter-spacing: -.01em; }
-.stat-sub { display: block; font-size: var(--fs-xs); color: var(--text-3); }
 .prefs { border-top: 1px solid var(--sep); }
 .prefs > summary { display: flex; align-items: center; justify-content: space-between; min-height: var(--tap); padding: 0 var(--s-4); cursor: pointer; list-style: none; font-size: var(--fs-sm); font-weight: 600; color: var(--accent-text); }
 .prefs > summary::-webkit-details-marker { display: none; }
@@ -82,10 +81,8 @@
 .kind-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--kind, var(--text-3)); margin-right: 5px; flex: none; }
 .kind-indica { --kind: var(--kind-indica); } .kind-sativa { --kind: var(--kind-sativa); } .kind-hybryda { --kind: var(--kind-hybryda); }
 /* miniatura: kwadrat w kolorze rodzaju z ikoną słoika albo kropli (bez inicjałów, tryb dyskretny) */
-.strain-thumb { --on-kind: #fff; flex: none; width: 56px; height: 56px; border-radius: var(--r-md); display: grid; place-items: center; background: var(--kind, var(--surface-3)); color: var(--on-kind); }
+.strain-thumb { flex: none; width: 56px; height: 56px; border-radius: var(--r-md); display: grid; place-items: center; background: var(--kind, var(--surface-3)); color: var(--on-kind); }
 .k-none .strain-thumb { background: var(--surface-3); color: var(--text-2); }
-:root[data-theme="dark"] .strain-thumb { --on-kind: var(--bg); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .strain-thumb { --on-kind: var(--bg); } }
 .strain.k-indica { --kind: var(--kind-indica); } .strain.k-sativa { --kind: var(--kind-sativa); } .strain.k-hybryda { --kind: var(--kind-hybryda); }
 .scores { display: flex; gap: var(--s-4); flex-shrink: 0; text-align: right; }
 .score { display: grid; justify-items: end; min-width: 48px; }
@@ -149,7 +146,7 @@
 .entry-field { display: grid; gap: 4px; min-width: 0; }
 .entry-field label, .entry-field .lbl { font-size: var(--fs-xs); font-weight: 600; color: var(--text-2); }
 .entry-field b { padding-top: 6px; font-variant-numeric: tabular-nums; }
-.entry-field .notes-text, .entry-field.notes > span:last-child { padding-top: 6px; overflow-wrap: anywhere; }
+.entry-field.notes > span:last-child { padding-top: 6px; overflow-wrap: anywhere; }
 .entry-field .input { padding: 8px 10px; background: var(--field-bg); min-height: var(--tap); font-size: 1rem; }
 .entry-field .btn.small, .use-row .btn { min-height: var(--tap); }
 .entry-field.use, .entry-field.buy, .entry-field.vis, .entry-field.price { grid-column: 1 / -1; }

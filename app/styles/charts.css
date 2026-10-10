@@ -2,15 +2,6 @@
    Import po ekranach (layout.js), żeby kolejność kaskady została taka jak przed wydzieleniem. */
 :where(figure.chart-frame) { margin: 0; }
 
-/* Wykres słupkowy (Historia) */
-.usage-chart { padding-bottom: var(--s-3); }
-.bars { width: 100%; max-width: 520px; height: auto; display: block; margin: 0 auto; }
-.bars text { font-family: var(--font-body), system-ui, sans-serif; font-variant-numeric: tabular-nums lining-nums; }
-.bars .axis { stroke: var(--chart-axis); stroke-width: 1; }
-.bars .bar { fill: var(--chart-data); }
-.bars .val { fill: var(--text); font-size: 12px; font-weight: 600; }
-.bars .tick { fill: var(--text-2); font-size: 11px; }
-
 /* Prognoza zapasu (charts/StockForecast.js): linia spadku, pasmo zakresu, kreska recepty; podpisy osi w HTML */
 .forecast { margin-top: var(--s-4); }
 .fc-plot { position: relative; height: 96px; margin-inline: 5px; }

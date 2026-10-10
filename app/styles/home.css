@@ -28,6 +28,7 @@
 .today-quick { display: grid; gap: var(--s-3); margin-top: var(--s-5); }
 .today-quick .quick-btns, .today-quick-links { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: var(--s-3); }
 .today-quick .btn.quick-btn, .today-quick-links .btn { min-height: 52px; width: 100%; font-size: 1rem; }
+.today-quick .quick-btns .btn.quick-btn:not(.ghost) { background: var(--on-hero); color: var(--hero-2); border-color: var(--on-hero); }
 .today-quick .btn.quick-btn.on { box-shadow: 0 0 0 3px var(--hero-btn-2); }
 .today-quick .quick-stock { display: none; }
 .tq-name { margin: 0; font-size: var(--fs-sm); color: var(--on-hero-2); overflow-wrap: anywhere; }
@@ -49,9 +50,6 @@
 .kpi-tile .kt-sub { overflow-wrap: anywhere; line-height: 1.3; }
 a.kpi-tile:not(.solid):hover { background: var(--surface-2); }
 a.kpi-tile:active { filter: brightness(.96); }
-.kpi-tile.warn { border-color: var(--warn-line); }
-.kpi-tile.warn .kt-label, .kpi-tile.warn .kt-value { color: var(--warn); }
-.kpi-tile.warn .ic-dot, .ic-dot.warn { background: var(--warn-soft); color: var(--warn); }
 
 .today-chart { padding: var(--s-4); }
 .today-chart .usage { padding: 0; border: 0; }
@@ -73,8 +71,8 @@ a.kpi-tile:active { filter: brightness(.96); }
 .stock-notes-unit + .stock-notes-unit { border-top: 1px solid var(--sep); padding-top: var(--s-3); }
 .today-chart .forecast { margin-top: var(--s-2); }
 
-/* „Do zrobienia” */
-.sec-label { margin: 0 0 var(--s-2) var(--s-1); font-family: var(--font-body), system-ui, sans-serif; font-size: var(--fs-xs); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-2); }
+/* „Do zrobienia” (nagłówek: .section-label z globals.css) */
+.today-todo > .section-label { margin-top: 0; }
 .todo { list-style: none; margin: 0; padding: var(--s-1) var(--s-4); }
 .todo li + li { border-top: 1px solid var(--sep); }
 .todo-row { display: flex; align-items: center; gap: var(--s-3); min-height: 64px; padding: var(--s-3) 0; color: var(--text); text-decoration: none; }
@@ -90,15 +88,10 @@ a.kpi-tile:active { filter: brightness(.96); }
 /* ===== Recepty ===== */
 .today-rx { padding: var(--s-4) var(--s-4) var(--s-2); }
 .today-rx .sec-head { margin-bottom: var(--s-1); }
-.today-rx .sec-head .btn.text { color: var(--accent-text); gap: 2px; padding-inline: var(--s-3); }
+.today-rx .sec-head .btn.text { color: var(--c-ink); gap: 2px; padding-inline: var(--s-3); }
 .trx-list { list-style: none; margin: 0; padding: 0; }
-.trx { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: var(--s-3); align-items: start; padding: var(--s-3) 0 var(--s-4); }
+.trx { display: grid; grid-template-columns: 60px minmax(0, 1fr); gap: var(--s-3); align-items: start; padding: var(--s-3) 0 var(--s-4); }
 .trx + .trx { border-top: 1px solid var(--sep); }
-.trx-count { display: grid; justify-items: center; text-align: center; padding-top: 2px; }
-.trx-count b { font-size: 1.75rem; font-weight: 800; line-height: 1; color: var(--c-ink); font-variant-numeric: tabular-nums lining-nums; }
-.trx-count span { margin-top: 3px; font-size: var(--fs-xs); color: var(--text-2); white-space: nowrap; }
-.trx.soon .trx-count b { color: var(--warn); }
-.trx.expired .trx-count b { color: var(--text-2); }
 .trx-title { margin: 0; font-weight: 700; line-height: 1.35; }
 .trx-sub { margin: 2px 0 0; font-size: var(--fs-sm); color: var(--text-2); line-height: 1.45; }
 .trx-sub b { color: var(--text); font-weight: 700; font-variant-numeric: tabular-nums; }
@@ -146,6 +139,11 @@ a.kpi-tile:active { filter: brightness(.96); }
   .hero-main { gap: var(--s-3); }
   .hero-fig .big-num { font-size: 2.75rem; }
   .today-quick .btn.quick-btn, .today-quick-links .btn { padding-inline: var(--s-2); }
+  /* 320 px: kafle KPI bez kółek (kolor obszaru zostaje w podpisie), mniejsze kółko w karcie objawów: podpisy w jednym wierszu */
+  .kpi-tile .kt-label .ic-dot { display: none; }
+  .kpi-tile .kt-label { min-height: 0; }
+  .tsym .sec-head .ic-dot { width: 36px; height: 36px; }
+  .tsym .sec-head .btn.text .icon { display: none; }
 }
 
 /* ===== Komputer: hero w dwóch kolumnach, panel w dwóch kolumnach ===== */
@@ -158,7 +156,7 @@ a.kpi-tile:active { filter: brightness(.96); }
   .hero-fig .big-num { font-size: 4rem; }
   .kpi-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .today:not(.fresh) { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start;
-    grid-template-areas: "kpi kpi" "chart todo" "chart sym" "rx rx" "prefs prefs"; }
+    grid-template-areas: "kpi kpi" "chart todo" "chart sym" "rx rx" "prefs prefs"; grid-template-rows: auto auto 1fr auto auto; }
   .today:not(.fresh) .kpi-grid { grid-area: kpi; }
   .today:not(.fresh) .today-chart { grid-area: chart; }
   .today:not(.fresh) .today-todo { grid-area: todo; }
