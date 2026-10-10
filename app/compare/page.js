@@ -10,6 +10,7 @@ import { strainStats } from '@/lib/strain-stats';
 import { formatDay } from '@/lib/date';
 import Header from '../components/Header';
 import Icon from '../components/Icon';
+import EmptyState from '../components/EmptyState';
 
 export const dynamic = 'force-dynamic';
 
@@ -64,12 +65,9 @@ export default async function Compare({ searchParams }) {
         <Link href="/odmiany" className="back"><Icon name="chevronLeft" size={20} />Wszystkie odmiany</Link>
         <header className="page-head"><h1>Porównanie</h1></header>
         {rows.length < 2 ? (
-          <div className="empty">
-            <Icon name="list" size={32} />
-            <h2>Wybierz odmiany do porównania</h2>
-            <p>Zaznacz na liście co najmniej dwie odmiany (menu „⋯” przy odmianie, pozycja „Porównaj”) i otwórz porównanie.</p>
-            <Link className="btn" href="/odmiany">Wróć do odmian</Link>
-          </div>
+          <EmptyState art="search" cat="strain" card={false} title="Wybierz odmiany do porównania" action={<Link className="btn" href="/odmiany">Wróć do odmian</Link>}>
+            Zaznacz na liście co najmniej dwie odmiany (menu „⋯” przy odmianie, pozycja „Porównaj”) i otwórz porównanie.
+          </EmptyState>
         ) : (
           <div className="card cmp-board" data-cat="strain" style={{ '--n': rows.length }}>
             <div className="cmp-head">

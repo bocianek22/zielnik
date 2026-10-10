@@ -15,9 +15,17 @@ export function PhotoCredit({ attr, className = 'photo-credit' }) {
 }
 
 // Klikalne zdjęcie, które po dotknięciu otwiera się na cały ekran z widocznym przyciskiem zamknięcia
-export default function Lightbox({ src, alt, className, attr }) {
+// fallback: co pokazać, gdy zdjęcie się nie wczytało (uszkodzony plik, brak sieci); bez niego zostaje zwykły obraz
+export default function Lightbox({ src, alt, className, attr, fallback = null }) {
   const [open, setOpen] = useState(false);
+  const [failed, setFailed] = useState(false);
   const box = useRef(null);
+  const img = useRef(null);
+  // błąd mógł wystąpić przed hydratacją (onError się nie wykona): sprawdzamy stan obrazu po montażu
+  useEffect(() => {
+    const el = img.current;
+    setFailed(!!el && el.complete && el.naturalWidth === 0);
+  }, [src]);
   useFocusTrap(box, open, () => setOpen(false));
   useEffect(() => {
     if (!open) return undefined;
@@ -25,10 +33,11 @@ export default function Lightbox({ src, alt, className, attr }) {
     return () => { document.body.style.overflow = ''; };
   }, [open]);
 
+  if (failed && fallback) return fallback;
   return (
     <>
       <button type="button" className="photo-open" onClick={() => setOpen(true)} aria-label={`Powiększ: ${alt}`}>
-        <img className={className} src={src} alt={alt} loading="lazy" />
+        <img ref={img} className={className} src={src} alt={alt} loading="lazy" onError={() => setFailed(true)} />
       </button>
       {open && (
         <div className="lightbox" ref={box} role="dialog" aria-modal="true" aria-label={alt} onClick={() => setOpen(false)}>

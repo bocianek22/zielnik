@@ -177,3 +177,25 @@
 .cmp-board[data-cat] .cmp-head { background: var(--c-soft); border-bottom-color: transparent; }
 .cmp-board[data-cat] .cmp-head a { color: var(--c-ink); font-weight: 700; }
 .cmp-board .cmp-line dd { font-weight: 600; }
+
+/* ===== Design 3.1, S1: zdjęcie w hero najwyżej 200 px, ilustracja przy błędzie, menu zdjęcia ===== */
+.dhero-media { position: relative; }
+.dhero-img { aspect-ratio: 16 / 9; max-height: 200px; }
+.dhero-fallback { display: grid; place-items: center; height: 148px; border-radius: var(--r-lg); background: var(--surface); }
+.photo-menu { position: absolute; top: var(--s-2); right: var(--s-2); }
+.photo-menu > summary { list-style: none; display: grid; place-items: center; width: var(--tap); height: var(--tap); border-radius: 50%; background: var(--hero-2); color: var(--on-hero); cursor: pointer; }
+.photo-menu > summary::-webkit-details-marker { display: none; }
+.photo-menu-list { position: absolute; right: 0; top: calc(100% + 4px); z-index: 5; min-width: 180px; padding: var(--s-1); background: var(--surface); color: var(--text); border: 1px solid var(--sep-strong); border-radius: var(--r-md); box-shadow: var(--shadow-card); }
+.photo-menu-list .btn.text { color: var(--accent-text); }
+
+/* ===== Sekcje zwijane (Fold.js): nagłówek jak .sec-head, strzałka po prawej ===== */
+.fold { padding: 0; }
+.fold > summary { display: flex; align-items: center; gap: var(--s-3); min-height: 60px; padding: var(--s-2) var(--s-4); cursor: pointer; list-style: none; border-radius: var(--r-lg); }
+.fold > summary::-webkit-details-marker { display: none; }
+.fold-title { flex: 1; min-width: 0; font-size: var(--fs-lg); font-weight: 700; }
+.fold-count { display: inline-flex; align-items: center; min-height: 24px; padding: 0 10px; border-radius: var(--r-pill); background: var(--c-soft); color: var(--c-ink); font-size: var(--fs-sm); font-weight: 700; font-variant-numeric: tabular-nums; }
+.fold > summary .chev { flex: none; color: var(--text-3); transition: transform var(--dur-2) var(--ease); }
+.fold[open] > summary .chev { transform: rotate(180deg); }
+.fold-body { padding: 0 var(--s-4) var(--s-4); }
+.dquick { padding: var(--s-2) var(--s-4); }
+.dquick .quick { margin-top: 0; }
