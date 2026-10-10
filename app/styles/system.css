@@ -58,3 +58,20 @@ html.native-app .toast { bottom: calc(var(--bottomnav-h) + 84px + max(env(safe-a
 
 /* Przycisk w trakcie zapisu (aria-busy): kursor postępu, szerokość bez zmian */
 .btn[aria-busy="true"] { cursor: progress; }
+
+/* ===== B4: mikrointerakcje. Wszystko tylko przy prefers-reduced-motion: no-preference (poza tym blokuje je też reguła globalna) ===== */
+@media (prefers-reduced-motion: no-preference) {
+  /* zmieniona liczba (components/Bump.js): tło błyska kolorem tekstu i znika */
+  .bump { border-radius: .15em; animation: bump-flash .9s ease-out; }
+  /* wejście kart ekranu: tylko opacity i transform, wysokości bez zmian (CLS 0). Karty stanów pustych i okna zostają */
+  .page > .card:not(.empty), .page > section.card { animation: card-in .24s var(--ease) both; }
+  /* przejścia między ekranami w przeglądarce (components/WebTransitions.js): samo przenikanie 120 ms; pasek i nawigacja stoją w miejscu */
+  html:not(.native-app).vt-active .topbar { view-transition-name: web-topbar; }
+  html:not(.native-app).vt-active .bottomnav { view-transition-name: web-bottomnav; }
+  html:not(.native-app)::view-transition-old(root) { animation: vt-fade-out .12s ease-in both; }
+  html:not(.native-app)::view-transition-new(root) { animation: vt-fade-in .12s ease-out both; }
+}
+@keyframes bump-flash { from { background-color: color-mix(in srgb, currentColor 30%, transparent); } to { background-color: transparent; } }
+@keyframes card-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
