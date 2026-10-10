@@ -31,7 +31,7 @@ async function say(page, text) {
   const box = page.getByLabel('Wiadomość do grupy');
   await interactive(box);
   await box.fill(text);
-  await box.press('Enter');
+  await page.getByRole('button', { name: 'Wyślij wiadomość' }).click();
 }
 
 test('czat: wysyłka, polling u drugiej osoby, Shift+Enter, edycja, usunięcie, licznik nieprzeczytanych, zgłoszenie',
@@ -43,7 +43,7 @@ test('czat: wysyłka, polling u drugiej osoby, Shift+Enter, edycja, usunięcie, 
       assert.ok(gid, 'grupa założona');
       await pool.query(`INSERT INTO group_members (group_id, user_id, role, status) SELECT $1, id, 'member', 'active' FROM users WHERE username = 'bartek'`, [gid]);
 
-      // ania pisze: Enter wysyła, Shift+Enter dodaje nowy wiersz, HTML i link zostają zwykłym tekstem
+      // ania pisze: na telefonie Enter i Shift+Enter dodają nowy wiersz, wysyła przycisk; HTML i link zostają zwykłym tekstem
       await go(A.page, `/grupy/${gid}`);
       assert.match(await A.page.locator('.chat-rule').innerText(), /Nie udzielamy tu porad medycznych\. Nie oferuj sprzedaży ani wymiany leków\./);
       const box = A.page.getByLabel('Wiadomość do grupy');
@@ -52,7 +52,7 @@ test('czat: wysyłka, polling u drugiej osoby, Shift+Enter, edycja, usunięcie, 
       await box.press('Shift+Enter');
       await box.type('drugi wiersz');
       assert.equal(await box.inputValue(), 'pierwszy\ndrugi wiersz', 'Shift+Enter nie wysyła');
-      await box.press('Enter');
+      await A.page.getByRole('button', { name: 'Wyślij wiadomość' }).click();
       await bubble(A.page, 'drugi wiersz').waitFor();
       await say(A.page, 'Hej <b>bartek</b> https://example.com');
       await bubble(A.page, 'Hej <b>bartek</b>').waitFor();

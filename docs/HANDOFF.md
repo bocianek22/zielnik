@@ -52,8 +52,9 @@ Tryb awaryjny (rozmowa bez dostępu do repozytorium):
 - Wybór bramki płatności i platformy wpłat (`DONATE_URL`), decyzja o `PREMIUM_ENFORCED`.
 - Źródło danych do katalogu (`CATALOG_FEED_URL`), plan Vercel Pro przy działalności komercyjnej.
 
-## 6. Następne kroki (aktualne dla wersji 0.53.0)
+## 6. Następne kroki (aktualne dla wersji 0.54.0)
 Pełna lista z uzasadnieniem: `docs/PRZEGLAD-2026-10.md`; aplikacje natywne: `docs/APLIKACJE-NATYWNE.md`; system projektowy: `docs/DESIGN.md`. Praca z podziałem na subagentów (`.claude/agents/`): koordynator scala gałęzie, uruchamia kontrole, zleca przegląd (reviewer) i prowadzi CHANGELOG/wersję. Przebieg pracy nocnej: `docs/PLAN-NOC.md`.
+1. **Design 3 i czat (0.54.0):** ręcznie na telefonie: pasek stanu w obu motywach (APK), „Większy tekst”, hero i kafle na Dziś (dotyk, notch), menu „+”, `/odmiany` (menu „⋯”, Zużyłem, widżet po zużyciu), czat w grupie z dwóch telefonów (wysyłka przyciskiem, Enter = nowa linia, licznik nieprzeczytanych, zgłoszenie), wydruk raportu, wybór motywu Systemowy. Dalej: A5 (kalendarz, pora przyjęcia), B4 (mikrointerakcje), POM-40 PDF raportu, POM-43 dyktowanie notatek.
 1. **UI 2.0 (0.53.0):** zostały A4 („Mój miesiąc”, POM-42, w toku), A5 (kalendarz, pora przyjęcia, raport) i B4 (typografia liczb, mikrointerakcje). Ręcznie na telefonie: przesuwanie wykresu 14 dni palcem (bez poziomego przewijania strony), „Prognoza i wykupy” przy suszu i oleju, dziennik (zwijanie wpisu z dziś, małe wykresy, TalkBack), profil „Dodaj link”.
 1. **UI 2.0 i nowości (0.52.0):** etapy A1-A5 i B2-B4 wg `docs/UI-2.md`, kolejka nowości w `docs/PLAN-PAZDZIERNIK.md` (fale 6+). Zakupy i konfiguracja właściciela: `docs/ZAKUPY.md`. Ręcznie na telefonie: „Przywróć z kopii” (eksport z jednego konta, podgląd i import na drugim, ponowny import nic nie dubluje), położenie potwierdzeń nad dolnym paskiem w APK, z klawiaturą i w „Większy tekst”, TalkBack przy „Cofnij”.
 1. **Przed otwartą betą (0.51.0):** decyzje właściciela z `docs/PRZEGLAD-1.0.md` (rejestracja otwarta czy zaproszenia, regiony UE, Vercel Pro, TOTP admina, Next 16, retencja, prawnik). Pobieranie kopii w panelu admina wymaga teraz ponownego hasła.
