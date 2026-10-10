@@ -5,6 +5,7 @@ import { KINDS } from '@/lib/kinds';
 import { FORMS } from '@/lib/forms';
 import { TAG_LIST } from '@/lib/effects';
 import Icon from '../components/Icon';
+import EmptyState from '../components/EmptyState';
 import { parseNum, decimalProps } from '../components/num';
 
 function startOf(period) {
@@ -118,12 +119,10 @@ export default function Rankings({ strains, meId }) {
       <p className="rk-hint" aria-live="polite">{hint} {rows.length > 0 && <span className="num">Pozycji: {rows.length}.</span>}</p>
 
       {rows.length === 0 ? (
-        <div className="card empty">
-          <Icon name="chart" size={32} />
-          <h2>Brak ocen</h2>
-          <p>{active ? 'W okresie „' + title.toLowerCase() + '” nic nie pasuje do filtrów.' : 'W okresie „' + title.toLowerCase() + '” nie ma jeszcze ocen.'}</p>
-          {active > 0 && <button type="button" className="btn ghost" onClick={clear}>Wyczyść filtry</button>}
-        </div>
+        <EmptyState art="chart" cat="learn" title="Brak ocen"
+          action={active > 0 ? <button type="button" className="btn ghost" onClick={clear}>Wyczyść filtry</button> : null}>
+          {active ? 'W okresie „' + title.toLowerCase() + '” nic nie pasuje do filtrów.' : 'W okresie „' + title.toLowerCase() + '” nie ma jeszcze ocen.'}
+        </EmptyState>
       ) : (
         <ol className="list rk-list">
           {rows.map((r) => (
