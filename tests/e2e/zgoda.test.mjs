@@ -76,6 +76,8 @@ test('konto ze starą wersją widzi ekran akceptacji, po akceptacji panel', { sk
       await go(page, '/');
       const gate = page.getByRole('dialog', { name: 'Zanim przejdziesz dalej' });
       await gate.waitFor();
+      // inert ustawia efekt ekranu zgody po hydratacji: czekamy na niego, zamiast sprawdzać od razu po pojawieniu się okna
+      await page.waitForFunction(() => document.querySelector('main')?.getAttribute('inert') === '', null, { timeout: 5000 }).catch(() => {});
       assert.equal(await page.locator('main').first().getAttribute('inert'), '', 'treść pod ekranem jest nieaktywna');
       assert.equal(await gate.locator('a[href="/regulamin"]').count(), 1);
       assert.equal(await gate.locator('a[href="/prywatnosc"]').count(), 1);

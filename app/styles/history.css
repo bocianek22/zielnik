@@ -18,8 +18,6 @@
 .recap.summary .stat-strip > div { padding-inline: var(--s-3); }
 .recap-top { margin: 0; padding: var(--s-3) var(--s-4); border-top: 1px solid var(--sep); font-size: .9375rem; color: var(--text-2); }
 .recap-top b { color: var(--text); }
-.recap.summary .stat-sub { font-size: var(--fs-sm); color: var(--text-2); }
-.recap.summary .stat-sub b { font-size: 1.25rem; }
 
 .empty .btn { margin-top: var(--s-4); }
 .empty p { margin: 0 auto; max-width: 36ch; }
@@ -115,10 +113,11 @@
 .hist-entry .btn { margin-top: var(--s-2); margin-left: calc(var(--s-2) * -1); }
 
 /* Korekty wpisów w Historii (Entries.js): jeden edytor nad listą/tabelą, przyciski przy każdym wpisie */
-.hist-actions { display: flex; gap: var(--s-1); margin-top: var(--s-1); }
+.hist-actions { display: flex; gap: var(--s-1); margin: 2px 0 calc(-1 * var(--s-2)) calc(-1 * var(--s-2)); }
+.hist-actions .hist-del { color: var(--text-2); } /* usuwanie i tak wymaga potwierdzenia; czerwień w każdym wierszu przytłaczała listę */
 .hist-actions .btn.small { min-height: var(--tap); }
 .hist-act-cell { width: 1%; white-space: nowrap; }
-.hist-act-cell .hist-actions { margin-top: 0; justify-content: flex-end; }
+.hist-act-cell .hist-actions { margin: 0; justify-content: flex-end; }
 .hist-list .lr-main { display: grid; }
 .list-row.editing, .hist-cmp tr.editing { background: var(--accent-soft); }
 .hist-edit { margin-bottom: var(--s-4); display: grid; gap: var(--s-3); }

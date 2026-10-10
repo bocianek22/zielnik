@@ -15,7 +15,7 @@
 /* ===== Nagłówek odmiany: hero z gradientem (komponent .hero), chipy, ilustracja słoika ===== */
 .dhero { position: relative; overflow: hidden; padding-bottom: var(--s-12); }
 .dhero > * { position: relative; }
-.dhero .detail-bar { margin-inline: calc(-1 * var(--s-2)); }
+.dhero .detail-bar { margin-left: calc(-1 * var(--s-2)); }
 .dhero .back { color: var(--on-hero); margin-left: 0; }
 .dhero .btn.ghost.small { min-height: var(--tap); }
 .dhero-head { display: grid; gap: var(--s-2); margin-top: var(--s-2); max-width: calc(100% - 80px); }
@@ -29,6 +29,7 @@
 .dhero-producer { margin: 0; font-size: var(--fs-lg); color: var(--on-hero-2); overflow-wrap: anywhere; }
 .dhero-art { position: absolute !important; right: var(--s-4); bottom: var(--s-8); width: 84px; height: auto; color: var(--on-hero); opacity: .28; pointer-events: none; }
 .dhero-media { margin-top: var(--s-4); }
+.charcard-note { margin-bottom: var(--s-4); }
 .dhero-media .photo-open { display: block; width: 100%; }
 .dhero-img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: var(--surface-2); border-radius: var(--r-lg); }
 .dhero .photo-credit { color: var(--on-hero-2); opacity: 1; }
@@ -111,7 +112,6 @@
 }
 @media (max-width: 760px) {
   .detail-page { padding-bottom: var(--s-6); }
-  .dhero .detail-bar { margin-inline: calc(-1 * var(--s-2)); }
 }
 @media (max-width: 360px) {
   .dscores { gap: var(--s-2); }

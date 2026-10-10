@@ -64,7 +64,7 @@ export default function Prescriptions() {
                       <h3 className="rx-title">{nf(p.grams)} {u}{p.note && <small>{p.note}</small>}</h3>
                       {state}
                     </div>
-                    {d != null && !done && !expired && <div className={`rx-days${d <= 7 ? ' soon' : ''}`} aria-hidden="true"><b>{d}</b><span>{d === 1 ? 'dzień' : 'dni'}</span></div>}
+                    {d != null && !done && !expired && <div className={`day-count${d <= 7 ? ' soon' : ''}`} aria-hidden="true"><b>{d}</b><span>{d === 1 ? 'dzień' : 'dni'}</span></div>}
                   </div>
                   <progress value={Math.min(p.bought, p.grams)} max={p.grams} aria-label="Wykupiono z przepisanej ilości" />
                   <p className="rx-amount">Wykupiono <b>{nf(p.bought)} {u}</b>, zostało <b>{nf(left)} {u}</b>{expired && !done && ' (niewykorzystane)'}</p>

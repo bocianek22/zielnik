@@ -206,6 +206,7 @@ Wspólne zasady dla S1–S3:
 - Ręcznie na telefonie: pasek stanu (bez zmian, kolor `--bar`), duży tekst, wydruk raportu.
 - Lighthouse `/` i `/login` w budżecie.
 - Po etapie 1 usunąć nieużywane style (`.home-section`, stare `.fab` w `platform.css`) i zaktualizować `docs/DESIGN.md` o komponenty ekranów.
+- Zrobione w QA (10.10): `.hero.cat-hero`, `.hero-top`, `.hero-actions`, `.priv-note`, `.pill-trend`, `.kpi-tile.warn`, `.ic-dot.warn` i licznik dni `.day-count` (dawne `.rx-days` i `.trx-count`) są w `globals.css`; token `--on-kind` w trzech blokach; usunięte nieużywane `.tile`/`.tiles`, `.card.narrow`, `.skel`, `.bars`, `.usage-chart`, `.stat-sub`, `.wall`, `.tsym-status`, `.notes-text`. axe obejmuje też `/grupy` i czat grupy, test celów 44 px także recepty, historię, raport, obserwacje i czat.
 
 ## 1. Diagnoza: skąd bierze się „szarość”
 
