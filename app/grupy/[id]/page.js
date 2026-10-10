@@ -12,6 +12,8 @@ import osob, { ocen } from '../osob';
 
 export const dynamic = 'force-dynamic';
 
+// kogo pokazać z przyciskami: właściciel wszystkich (poza właścicielem), moderator tylko zwykłych członków
+const canManage = (viewerRole, m) => m.role !== 'owner' && (viewerRole === 'owner' || (viewerRole === 'moderator' && m.role === 'member'));
 const dec = (n) => Number(n.toFixed(1)).toLocaleString('pl-PL');
 
 export default async function GroupPage({ params }) {
@@ -41,7 +43,7 @@ export default async function GroupPage({ params }) {
         <Link href="/grupy" className="back"><Icon name="chevronLeft" size={20} />Wszystkie grupy</Link>
         <header className="group-head">
           <h1>{g.name}</h1>
-          <p className="muted">{osob(active)}{g.role === 'owner' ? ' · jesteś właścicielem' : ''}</p>
+          <p className="muted">{osob(active)}{g.role === 'owner' ? ' · jesteś właścicielem' : g.role === 'moderator' ? ' · jesteś moderatorem' : ''}</p>
           {g.description && <p className="group-desc">{g.description}</p>}
         </header>
 
@@ -61,9 +63,12 @@ export default async function GroupPage({ params }) {
               <Avatar name={name} />
               <Link href={`/u/${encodeURIComponent(m.username)}`} className="lr-main person-link">
                 <span className="person-name">{name}</span>
-                <span className="lr-sub">@{m.username}{m.role === 'owner' ? ' · Właściciel' : ''}{m.status === 'invited' ? ' · Zaproszony' : ''}</span>
+                <span className="lr-sub">@{m.username}{m.role === 'owner' ? ' · Właściciel' : m.role === 'moderator' ? ' · Moderator' : ''}{m.status === 'invited' ? ' · Zaproszony' : ''}</span>
               </Link>
-              {g.role === 'owner' && m.id !== me.id && <span className="person-actions"><GroupActions groupId={g.id} kickId={m.id} /></span>}
+              {canManage(g.role, m) && m.id !== me.id && (
+                <span className="person-actions">
+                  <GroupActions groupId={g.id} kickId={m.id} kickName={name} viewerRole={g.role} memberRole={m.status === 'invited' ? 'invited' : m.role} />
+                </span>)}
             </li>);
         })}</ul>
 

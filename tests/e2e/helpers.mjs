@@ -3,6 +3,7 @@
 import { createRequire } from 'node:module';
 import { existsSync, mkdirSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
+import pg from 'pg';
 
 export const BASE = process.env.E2E_BASE || 'http://localhost:4610';
 export const SHOTS = process.env.E2E_SHOTS || 'zrzuty/e2e';
@@ -49,7 +50,17 @@ export async function phone(browser, { storageState, discreet = false } = {}) {
   return { ctx, problems };
 }
 
+// Lokalnie wszystkie logowania mają jeden adres („unknown”), a limit to 30 na 15 min: pełny przebieg go przekracza.
+// Przed logowaniem testowym zerujemy liczniki logowania w bazie testowej (sam limit sprawdzają tests/db).
+let limitsPool;
+async function resetLoginLimits() {
+  if (!process.env.E2E_DB_URL) return;
+  limitsPool ||= new pg.Pool({ connectionString: process.env.E2E_DB_URL, max: 1, allowExitOnIdle: true });
+  await limitsPool.query("DELETE FROM rate_limits WHERE key LIKE 'login-%'");
+}
+
 export async function login(page, user = 'ania') {
+  await resetLoginLimits();
   await page.goto(`${BASE}/login`, { waitUntil: 'load' });
   await page.fill('#u', user);
   await page.fill('#p', user === 'Bocian' ? 'bocian-haslo-1' : `${user}-haslo-1`);

@@ -92,3 +92,46 @@ test('Raport: axe (WCAG AA) w jasnym i ciemnym motywie z przyciskami PDF', async
     } catch (e) { await shot(page, `raport-pdf-axe-${colorScheme}`); throw e; } finally { await ctx.close(); }
   }
 });
+
+// APK (Capacitor): atrapa powłoki z wtyczkami ZielnikShare i ZielnikPrint. „Udostępnij PDF” przekazuje PDF jako base64 do wtyczki.
+const nativeShell = (withShare) => {
+  const calls = (window.__native = { share: [], print: [] });
+  Object.defineProperty(navigator, 'userAgent', { get: () => 'Mozilla/5.0 (Linux; Android 14) ZielnikApp/0.5.0' });
+  window.Capacitor = { isNativePlatform: () => true, Plugins: {
+    ZielnikPrint: { print: async (a) => { calls.print.push(a); } },
+    ...(withShare ? { ZielnikShare: { sharePdf: async (a) => { calls.share.push(a); } } } : {}),
+  } };
+};
+
+test('Raport w APK: „Udostępnij PDF” wysyła poprawny PDF (base64) do wtyczki, obok „Drukuj”', async () => {
+  const { ctx } = await phone(browser);
+  await ctx.addInitScript(nativeShell, true);
+  const page = await ctx.newPage();
+  try {
+    await login(page);
+    await go(page, '/raport');
+    const share = page.getByRole('button', { name: 'Udostępnij PDF' });
+    await share.waitFor({ timeout: 15000 });
+    assert.ok((await share.boundingBox()).height >= 44);
+    assert.equal(await page.getByRole('button', { name: 'Pobierz PDF' }).count(), 0, 'pobieranie nie działa w WebView');
+    await share.click();
+    await page.waitForFunction(() => window.__native.share.length === 1, null, { timeout: 20000 });
+    const arg = await page.evaluate(() => window.__native.share[0]);
+    assert.match(arg.fileName, /^raport-\d{4}-\d{2}-\d{2}\.pdf$/);
+    assert.equal(Buffer.from(arg.base64, 'base64').subarray(0, 5).toString(), '%PDF-');
+    await page.getByRole('button', { name: 'Drukuj' }).click();
+    await page.waitForFunction(() => window.__native.print.length === 1);
+  } catch (e) { await shot(page, 'raport-apk-share'); throw e; } finally { await ctx.close(); }
+});
+
+test('Raport w starszym APK (bez ZielnikShare): zostaje tylko druk', async () => {
+  const { ctx } = await phone(browser);
+  await ctx.addInitScript(nativeShell, false);
+  const page = await ctx.newPage();
+  try {
+    await login(page);
+    await go(page, '/raport');
+    await page.getByRole('button', { name: 'Udostępnij / Zapisz PDF' }).waitFor({ timeout: 15000 });
+    assert.equal(await page.getByRole('button', { name: 'Udostępnij PDF' }).count(), 0);
+  } catch (e) { await shot(page, 'raport-apk-stare'); throw e; } finally { await ctx.close(); }
+});

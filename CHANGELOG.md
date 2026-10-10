@@ -8,6 +8,15 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.56.0] - 2026-10
+### Dodano
+- **PDF raportu w APK:** wtyczka `ZielnikShare.sharePdf` (`SharePlugin.java`): zapis do `cache/share/` (sprzątany przy starcie i przed kolejnym udostępnieniem), FileProvider tylko dla tej ścieżki i zdjęć z aparatu, `ACTION_SEND` z prawem odczytu, bez nowych uprawnień. W APK 0.5.0 przycisk „Udostępnij PDF” obok „Drukuj”; starsze APK bez zmian.
+- **Dyktowanie notatek (POM-43):** `DictateButton` z Web Speech API (`pl-PL`, wyniki na żywo, rozpoznawanie na urządzeniu, gdy dostępne), informacja o dostawcach mowy przy pierwszym użyciu, ukryty w APK i bez API; w dzienniku, „Do omówienia” i opisie testu.
+- **Notatka o partii (POM-32):** przy zakupie numer partii, ważność, ocena „słabiej / jak zwykle / mocniej” i notatka szyfrowana (`purchases.batch_*`, AAD `user_id|id`); `PUT /api/history/purchases/[id]/batch`; w Historii, na karcie odmiany („Partie”), eksporcie JSON/CSV, kopii, imporcie kopii i raporcie (tylko z „Dołącz moje spostrzeżenia”).
+- **Role w grupach (SPO-3):** moderator (nadaje i odbiera właściciel) usuwa wiadomości i zwykłych członków; właściciel przekazuje grupę aktywnemu członkowi (atomowo).
+### Zmieniono
+- `mobile/` 0.5.0 (nowe APK z CI).
+
 ## [0.55.0] - 2026-10
 ### Dodano
 - **Raport jako PDF (POM-40):** „Pobierz PDF” i (telefon z Web Share) „Udostępnij PDF” w raporcie; PDF generowany lokalnie przez `pdf-lib` + `@pdf-lib/fontkit` ładowane po kliknięciu (osobny chunk ok. 176 KB gzip), czcionka Figtree TTF z polskimi znakami w `public/fonts/` (OFL), A4 czarno-biały, nagłówek okresu, „Strona X z Y”, nagłówki tabel na każdej stronie, neutralna nazwa `raport-RRRR-MM-DD.pdf`. Na telefonie plik przygotowywany zawczasu (Safari wymaga świeżego gestu). APK: bez zmian („Udostępnij / Zapisz PDF” przez okno druku). Model raportu liczony na serwerze (`lib/report-pdf-model.js`), układ w czystych funkcjach (`lib/report-pdf-layout.js`); bardzo długa komórka przycinana ze znacznikiem.

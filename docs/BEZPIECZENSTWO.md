@@ -74,6 +74,7 @@ Waga: K = krytyczna, W = wysoka, Ś = średnia, N = niska. Status: ✅ naprawion
 | `tests/[tid]/photo` | GET | U, `can_see` | OK |
 | `strains/[id]/usage`, `purchase` | POST, DELETE | U, `intId`, tylko własne | OK (osobny agent, niżej) |
 | `history/usage/[id]`, `history/purchases/[id]`, `history/purchases/fill` | PATCH, DELETE, POST | U, `intId`, `user_id` w każdym zapytaniu | OK |
+| `history/purchases/[id]/batch` (POM-32) | PUT | U, `intId`, jedno `UPDATE ... WHERE id AND user_id` (cudzy lub brak = 404), 200/h na konto, numer ≤ 40 znaków, data z kalendarza, ocena z listy `weaker\|usual\|stronger`, notatka ≤ 500 znaków szyfrowana jak inne (AAD `purchases.batch_note\|user_id\|id`); dane prywatne, tylko właściciel (bez `can_see`); w raporcie dla lekarza tylko z „Dołącz moje spostrzeżenia” | OK (`tests/db/partie.test.js`) |
 | `strains/suggest` | POST | U + 15 na dobę + cache | OK |
 | `symptoms` | GET, PUT, DELETE | U, tylko własne | OK (uwaga dla osobnego agenta) |
 | `prescriptions` | GET, POST, DELETE | U, tylko własne | OK po #13 |
@@ -81,9 +82,10 @@ Waga: K = krytyczna, W = wysoka, Ś = średnia, N = niska. Status: ✅ naprawion
 | `users/[id]/avatar` | GET | U, `can_see` profilu | OK po #9 |
 | `users/search` | GET | U, z pominięciem blokad | 👤 (lista nazw dla zalogowanych) |
 | `friends`, `blocks`, `groups`, `groups/[id]` | GET, POST | U, członkostwo i rola w każdym zapytaniu | OK po #13 |
+| `groups/[id]` role (SPO-3) | POST `kick`, `mod`, `unmod`, `transfer` | rola owner / moderator / member; uprawnienie wywołującego jest warunkiem samego `DELETE` / `UPDATE` (aktywny członek tej grupy z odpowiednią rolą): `kick` właściciel każdego poza sobą, moderator tylko zwykłych członków (nie właściciela i nie moderatorów); `mod` / `unmod` tylko właściciel i tylko aktywny członek; `transfer` tylko właściciel, aktywnemu członkowi, jedno zapytanie zmienia role obu stron i `groups.owner_id` (limit 10 grup przejmującego); zapraszać może każdy aktywny członek (bez zmian) | OK (`tests/db/grupy-role.test.js`) |
 | `groups/[id]/messages` (SPO-2) | GET, POST | U + aktywny członek grupy (zaproszony bez przyjęcia i obcy: 404), POST 20/min i 300/h na konto, treść 1..2000 znaków, szyfrowana jak notatki (AAD `group_messages.body\|id`), blokady ukrywają wiadomości | OK (`tests/db/czat-grup.test.js`) |
 | czat: zgłoszenia i historia (SPO-2) | – | Zgłoszenie wiadomości zapisuje zaszyfrowaną migawkę treści (`reports.snapshot`, AAD `reports.snapshot\|id`): edycja albo usunięcie przez autora nie zaciera dowodu. Admin widzi tylko zgłoszoną wiadomość; usunięcie przez admina spoza grupy trafia do audytu. Nowi członkowie widzą wcześniejszą historię (informacja w czacie). Polling `after` dokłada świeże wiadomości do 20 id wstecz (id rezerwowane przed zapisem). | OK (`tests/db/czat-grup.test.js`) |
-| `groups/[id]/messages/[mid]` (SPO-2) | PATCH, DELETE | U + członkostwo sprawdzone w tym samym zapytaniu; PATCH: tylko autor, do 15 min, 30/min; DELETE (miękkie, treść znika z bazy): autor, właściciel grupy albo admin aplikacji (admin spoza grupy może tylko usuwać, nie czyta ani nie pisze) | OK |
+| `groups/[id]/messages/[mid]` (SPO-2) | PATCH, DELETE | U + członkostwo sprawdzone w tym samym zapytaniu; PATCH: tylko autor, do 15 min, 30/min; DELETE (miękkie, treść znika z bazy): autor, właściciel grupy, moderator (SPO-3, tylko wiadomości zwykłych członków, jak przy `kick`) albo admin aplikacji (spoza grupy z wpisem w audycie) (admin spoza grupy może tylko usuwać, nie czyta ani nie pisze) | OK |
 | `groups/[id]/read` (SPO-2) | POST | U + aktywny członek; znacznik przeczytania tylko rośnie | OK |
 | `reports` | POST | U (typ `message`: zgłaszający musi być aktywnym członkiem grupy wiadomości; zgłoszenie ujawnia treść wiadomości adminowi) | OK po #3 i #12 |
 | `notifications`, `options`, `catalog` (GET), `import` | GET, POST | U | OK po #12 |
@@ -201,7 +203,7 @@ Wnioski:
 ## Szyfrowanie notatek w bazie (POM-28)
 Projekt i uzasadnienie wyboru: `docs/SZYFROWANIE-NOTATEK.md`. Moduł `lib/data-crypto.js`, przepisanie danych `scripts/encrypt-notes.mjs`.
 
-**Zakres.** Szyfrowane są `symptom_log.note`, `user_strain.notes`, `prescriptions.note`, `strain_tests.note` i `group_messages.body` (czat grup, SPO-2). `doctor_notes.text` zostaje jawne do decyzji właściciela (CHECK 1..200 vs szyfrogram; w kodzie komentarz TODO). Daty, liczby, skale, widoczność i nazwy odmian zostają jawne.
+**Zakres.** Szyfrowane są `symptom_log.note`, `user_strain.notes`, `prescriptions.note`, `strain_tests.note`, `purchases.batch_note` (notatka o partii, POM-32) i `group_messages.body` (czat grup, SPO-2). `doctor_notes.text` zostaje jawne do decyzji właściciela (CHECK 1..200 vs szyfrogram; w kodzie komentarz TODO). Daty, liczby, skale, widoczność i nazwy odmian zostają jawne.
 
 **Model zagrożeń.**
 | Zagrożenie | Efekt |

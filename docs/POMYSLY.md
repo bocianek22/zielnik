@@ -57,7 +57,7 @@ Reguła: brak sprzeczności z zasadami oceny, dane tylko własne, każdy dotyka 
 | POM-29 | Tryb opiekuna (wgląd tylko do odczytu) | 3 | L | P, Pr | ⚖️ | nowy | PAC-15 |
 | POM-30 | Grupy: wspólne pytania i odpowiedzi bez ocen produktów | 2 | M | Pr | ⚖️ | nowy | SPO-8 |
 | POM-31 | Alert powrotu odmiany do katalogu | 3 | M | Pr | ⚖️ | nowy | KAT-7 |
-| POM-32 | Zgłoszenie „ta partia działała inaczej” | 3 | M | – | – | nowy | PAC-1, PAC-2 |
+| POM-32 | Zgłoszenie „ta partia działała inaczej” | 3 | M | – | – | zrobiony w kodzie (do wydania) | PAC-1, PAC-2 |
 | POM-33 | „Zmień PIN” w blokadzie bez jej wyłączania | 3 | S | P | – | zrobiony (0.40.0) | KON-11 |
 | POM-34 | Trasy auth w trybie `safe()` / `requireUser()` (`change-password`) | 2 | S | T | – | zrobiony (0.40.0) | – |
 | POM-35 | Lekki indeks odmian i paginacja listy po stronie serwera | 3 | M | T | POM-23 | zaplanowany (fala 1, `PLAN-PAZDZIERNIK.md`) | PLA-5 |
