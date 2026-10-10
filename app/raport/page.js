@@ -8,13 +8,14 @@ import { EFFECTS } from '@/lib/effects';
 import { SYMPTOMS } from '@/lib/symptoms';
 import Header from '../components/Header';
 import Icon from '../components/Icon';
-import PrintButton from './PrintButton';
+import ReportActions from './ReportActions';
 import VisitPeriod from './VisitPeriod';
 import DoctorNotes from './DoctorNotes';
 import ReportNotes from './ReportNotes';
 import { listNotes } from '@/lib/doctor-notes';
 import { formatDay, todayPL, addDaysIso } from '@/lib/date';
 import { doctorReport, MIN_SYMPTOM_DAYS } from '@/lib/report';
+import { buildReportModel } from '@/lib/report-pdf-model';
 import { METHODS, PERIODS, periodLabel } from '@/lib/usage-meta';
 
 export const dynamic = 'force-dynamic';
@@ -55,9 +56,10 @@ export default async function Raport({ searchParams }) {
   const visit = sp.okres === 'wizyta';
   const notesQs = withNotes ? '&notes=1' : '';
 
-  const [{ usage, weekly, purchases, feel: feelAll, sym, customSym, totals, rx, rxSum, strainSym, whenUsed }, notes] = await Promise.all([
+  const [report, notes] = await Promise.all([
     doctorReport(me.id, from, to), listNotes(me.id),
   ]);
+  const { usage, weekly, purchases, feel: feelAll, sym, customSym, totals, rx, rxSum, strainSym, whenUsed } = report;
   const openNotes = notes.filter((n) => !n.done);
   // bez pustych wierszy: tylko odmiany z oceną, odczuciem albo (gdy dołączone) spostrzeżeniem
   const feel = feelAll.filter((f) => f.rating != null || EFFECTS.some(([k]) => f.effects?.[k] != null) || (withNotes && f.notes));
@@ -128,8 +130,8 @@ export default async function Raport({ searchParams }) {
               <button className="btn ghost">Pokaż raport</button>
             </form>
           </details>
-          <PrintButton from={from} to={to} />
-          <p className="muted small">Na telefonie wybierz w oknie drukowania „Zapisz jako PDF”, a potem udostępnij plik. Na wydruku nazwy odmian są widoczne także w trybie dyskretnym.</p>
+          <ReportActions from={from} to={to} notes={openNotes} model={buildReportModel({ patient: plan?.display_name || me.username, from, to, today, withNotes, report, minSymptomDays: MIN_SYMPTOM_DAYS })} />
+          <p className="muted small">PDF powstaje na tym urządzeniu, dane nie trafiają na zewnętrzny serwer. Nazwa pliku jest neutralna. W PDF i na wydruku nazwy odmian są widoczne także w trybie dyskretnym.</p>
         </div>
 
         <DoctorNotes initial={notes} />
