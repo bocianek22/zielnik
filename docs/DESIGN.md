@@ -10,7 +10,7 @@ Od 10.10.2026 **Design 3.1** dopracowuje wykonanie bez zmiany tożsamości. Opis
 - wypełniona ikona aktywnej zakładki;
 - `.qty`/`.unit` i `.section-title`;
 - `EmptyState` z ilustracją;
-- szkielety w kształcie treści z `LoadingShell`;
+- szkielety w kształcie treści (`Skeleton`, `LoadingShell`);
 - toast z ikoną stanu.
 
 ## Zasady

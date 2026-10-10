@@ -36,7 +36,7 @@ Wniosek: brakuje nie funkcji, tylko szlifu i spójności między ekranami.
 8. **Ładowanie:**
    - szkielet to zawsze lista 4 wierszy, także dla Dziś (hero i kafle) i szczegółów odmiany, a treść przeskakuje po wczytaniu;
    - `app/loading.js` obsługuje wszystkie ekrany bez własnego `loading.js` i pokazywał nagłówek „Dziś” także w drodze do profilu czy dziennika;
-   - górny i dolny pasek znikały na czas wczytywania, bo `Header` renderuje każda strona.
+   - górny i dolny pasek znikają na czas wczytywania, bo `Header` renderuje każda strona (zostaje do punktu 21).
 9. **Toast** wisi 84 px nad paskiem (pozostałość po pływającym „+”), nie ma ikony stanu, a tekst ma kolor sukcesu na białym tle zamiast neutralnego.
 10. **Zdjęcia bez obsługi błędu:** niewczytane zdjęcie to biały prostokąt 270 px z ikoną przeglądarki i altem. W danych testowych plik jest celowo uszkodzony (seed zapisuje 108-bajtowy PNG bez danych), ale ten sam efekt da każde zdjęcie uszkodzone w sieci.
 
@@ -110,7 +110,7 @@ Wpływ to odczucie użytkownika:
 | 5 | Jeden styl nagłówka między kartami: `.section-title` (20/700, `--text`); `.section-label` zostaje dla formularzy i ustawień | P1 (klasa), P2 (użycie) | średni | `globals.css`, ekrany |
 | 6 | Reakcja na dotyk: przyciski, kafle i wiersze lekko się uginają (`:active`, tylko bez „ogranicz ruch”) | P1 | średni | `globals.css` |
 | 7 | Pusty stan z ilustracją SVG w kolorze obszaru (`EmptyState`, `Illustration`) | P1 (komponent), P2 (użycie) | duży | `components/EmptyState.js`, `Illustration.js`, `globals.css` |
-| 8 | Szkielety w kształcie treści (ekran, lista, szczegóły, Dziś); paski zostają na miejscu w czasie wczytywania | P1 | średni | `Skeleton.js`, `LoadingShell.js`, `loading.js` tras, `system.css` |
+| 8 | Szkielety w kształcie treści (ekran, lista, szczegóły, karty); neutralny szkielet zamiast „Dziś” w drodze do innych ekranów | P1 | średni | `Skeleton.js`, `LoadingShell.js`, `loading.js` tras, `system.css` |
 | 9 | Toast: ikona stanu, neutralny tekst, tuż nad paskiem; haptyka zostaje w `installHaptics` (bez podwójnej) | P1 | średni | `Toast.js`, `system.css` |
 | 10 | Haptyka „wybór” przy zmianie zakładki dolnego paska i segmentu | P1 | mały | `native/behaviors.js` |
 | 11 | Lista odmian: wiersz ≤ 96 px (ikona, nazwa, meta, ocena, jedna pigułka „Zużyłem”), reszta w „…” | P2 S1 | duży | `StrainsBoard.js`, `StrainCard.js`, `strains.css` |
@@ -123,6 +123,7 @@ Wpływ to odczucie użytkownika:
 | 18 | Logowanie: zdanie korzyści i ilustracja | P3 | mały | `app/login/*`, `auth.css` |
 | 19 | Przejście „wspólnego elementu” (karta odmiany → hero szczegółów) w View Transitions | P3 | mały | `strains.css`, `detail.css` |
 | 20 | Onboarding w 3 krokach z ilustracjami `Illustration` | P3 | średni | `Onboarding.js` |
+| 21 | Paski nawigacji stoją w miejscu w czasie wczytywania: `Header` w układzie (np. grupa tras `(app)` z `layout.js`) zamiast w każdej stronie | P3 | średni | `app/layout.js`, strony z `Header`, `tests/e2e` |
 
 ### Odrzucone (efekciarstwo albo ryzyko)
 - **Przezroczysty, rozmyty dolny pasek (`backdrop-filter`):**
@@ -140,6 +141,9 @@ Wpływ to odczucie użytkownika:
   - Gdy `h1` ma `.dn` albo zawiera `.dn`, pasek też jest rozmyty w trybie dyskretnym.
   - Ekran może podać krótszą nazwę: `data-short="…"` na `h1`.
   - Stuknięcie przewija do góry.
+  - Na telefonie `--cbar-h` to wysokość paska.
+  - `scroll-padding-top` zostawia pod paskiem miejsce dla kotwic (`/#objawy`) i `scrollIntoView`.
+  - Nowy element `position: sticky; top: 0` na stronie (nie w arkuszu) dostaje na telefonie `top: var(--cbar-h)`.
 - **`.section-title`:** nagłówek między kartami (20/700). `.section-title.sm` ma 17/700.
 - **`.qty` i `.unit`:**
   - `<span class="qty">0,3<span class="unit">g</span></span>` nie łamie się, a jednostka ma 0,55 em i grubość 700;
@@ -149,13 +153,14 @@ Wpływ to odczucie użytkownika:
   - ilustracja w kolorach obszaru (`--c`, `--c-soft`, `--c-ink`), bez liści;
   - dla klienta jest `Illustration` (bez `'use client'`, działa w obu).
 - **`Skeleton`:**
-  - `variant="screen" | "list" | "detail" | "today" | "cards"`;
+  - `variant="screen" | "list" | "detail" | "cards"`;
   - `rows` dla listy;
   - `role="status"` i „Wczytywanie”.
 - **`LoadingShell` (do `loading.js`):**
   - `<LoadingShell title="Odmiany" variant="list" rows={6} />`;
-  - górny pasek z marką i dolny pasek zostają na miejscu w czasie wczytywania;
-  - `app/loading.js` używa neutralnego `screen` (bez tytułu „Dziś”), bo obsługuje wszystkie ekrany bez własnego `loading.js`;
+  - `app/loading.js` używa neutralnego `screen` (bez tytułu „Dziś”), bo obsługuje wszystkie ekrany bez własnego `loading.js`, także strony bez logowania;
+  - bez pasków nawigacji: ich kopia w szkielecie dublowała `.bottomnav`, gdy szkielet i strumieniowana treść były naraz w DOM (E2E w trybie strict), i pokazywała menu na `/login`;
+  - stałe paski to punkt 21 (P3);
   - nowy `loading.js` dla ekranu z długim wczytywaniem dodaje strumień, który jest właścicielem trasy.
 - **`Toast`:**
   - bez zmian w API (`text`, `tone`, `action`, `onClose`, `duration`);
@@ -182,12 +187,13 @@ Wspólne zasady:
   Brakujący element bazowy opisz w raporcie.
 - **Zachowaj klasy E2E** z `docs/DESIGN-3.md` (sekcja 7, „Ryzyka”) i `.dn` przy nazwach odmian.
 - **Kolory tylko z tokenów**, cele 44 px, pola 16 px, polskie teksty w tonie istniejących.
+- **Budżet JS na `/`:** po P1 Lighthouse mierzy 172 z 195 KB (mediana z 3 przebiegów, 10.10). Bez nowych zależności klienckich na Dziś; większe komponenty klienckie tylko na ekranach drugiego poziomu albo przez `next/dynamic`.
 - **Kontrole:** `npm run check && npm run lint && npm test && npm run build`, `npm run test:e2e`, zrzuty 390 px jasny i ciemny oraz `--discreet` zmienionych ekranów. Nie zmieniaj CHANGELOG, wersji, HANDOFF ani whats-new.
 
 ### S1: Dziś, nawigacja, odmiany
 - **Pliki:**
   - `app/page.js`, `app/odmiany/*`, `app/strains/[id]/*`, `app/katalog/*`, `app/rankings/*`, `app/compare/page.js`, `app/wheel/*`, `app/szukaj/*`;
-  - komponenty: `TodayBoard.js`, `TodayPanel.js`, `QuickActions.js`, `SymptomsQuick.js`, `NoUseToday.js`, `Onboarding.js`, `WhatsNew.js`, `BottomNav.js`, `TopNav.js`, `MoreMenu.js`, `navItems.js`, `StrainsBoard.js`, `StrainCard.js`, `StrainDetail.js`, `CharacteristicCard.js`, `Effects.js`, `StrainHistory.js`, `StrainProposals.js`, `Tests.js`, `StrainForm.js`, `Lightbox.js`, `SearchSuggest.js`;
+  - komponenty: `HomeStore.js`, `TodayBoard.js`, `TodayPanel.js`, `QuickActions.js`, `SymptomsQuick.js`, `NoUseToday.js`, `Onboarding.js`, `WhatsNew.js`, `BottomNav.js`, `TopNav.js`, `MoreMenu.js`, `navItems.js`, `StrainsBoard.js`, `StrainCard.js`, `StrainDetail.js`, `CharacteristicCard.js`, `Effects.js`, `StrainHistory.js`, `StrainProposals.js`, `Tests.js`, `StrainForm.js`, `Lightbox.js`, `SearchSuggest.js`;
   - wykresy: `charts/StockForecast.js`, `charts/UsageDays.js` (opakowanie);
   - style: `home.css`, `nav.css`, `strains.css`, `detail.css`, `catalog.css`, `rankings.css`, `proposals.css`, `forms.css`.
 - **Zakres (punkty 11, 12 i 13 z tabeli):**
@@ -212,7 +218,7 @@ Wspólne zasady:
     - na 1280 px kolumny wyrównane.
   - **Puste stany** (`TodayPanel` „Dodaj odmianę”, katalog, rankingi, szukaj, koło) przez `EmptyState`.
   - **Toast w hero:** reguły `.hero .toast .btn*` w `home.css` nadpisują przycisk „Cofnij”; usuń je, żeby „Cofnij” wyglądał wszędzie jak w `system.css`.
-  - **Wczytywanie list:** `odmiany`, `katalog` i `rankings` mają już `LoadingShell`. Brakujące `loading.js` (np. `/szukaj`) dodaj tym samym komponentem.
+  - **Wczytywanie list:** `odmiany`, `katalog`, `rankings` i `strains/[id]` mają już `LoadingShell`. Brakujące `loading.js` (np. `/szukaj`) dodaj tym samym komponentem.
 - **Zachowaj:** klasy z S1 i S2 w `docs/DESIGN-3.md` (etap 1 pod B), `nav.sheet a`, `.bottomnav`, `.fab`, `.fab-menu`.
 
 ### S2: dziennik, historia, recepty, raport, profil, grupy i czat
@@ -255,4 +261,4 @@ Wspólne zasady:
 - **Haptyka:** przy zmianie zakładki lekka, przy zapisie jedna (nie podwójna).
 - **„Ogranicz ruch”:** brak animacji paska, arkusza i ugięć.
 - **Duży tekst (`html.big-ui`):** pasek i jednostki `.qty` się mieszczą.
-- **Wczytywanie na wolnej sieci:** paski stoją w miejscu, szkielet nie miga, a po wczytaniu treść nie skacze.
+- **Wczytywanie na wolnej sieci:** szkielet nie miga, a po wczytaniu treść nie skacze.

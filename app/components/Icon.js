@@ -57,6 +57,7 @@ const F = {
   user: <><circle cx="12" cy="8" r="4" /><path d="M4.5 21a7.5 7.5 0 0 1 15 0z" /></>,
   heart: <path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z" />,
   file: <path d="M14 3H6.5A1.5 1.5 0 0 0 5 4.5v15A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V8z" />,
+  calendar: <><rect x="3.5" y="5" width="17" height="15.5" rx="1.5" /><path d="M8 3v4M16 3v4" fill="none" /></>,
 };
 
 // filled: wariant wypełniony z F, a gdy go nie ma, grubsza kreska (2,25) w tym samym polu

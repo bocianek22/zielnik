@@ -1,6 +1,5 @@
 // Szkielety na czas wczytywania strony, w kształcie docelowej treści (bez przeskoku po wczytaniu):
 //  list   - wiersze .list-row (tytuł, linia meta, liczba po prawej); rows = liczba wierszy
-//  today  - hero „Dziś” i cztery kafle KPI, pod nimi karta
 //  detail - nagłówek (hero) i trzy kafle ocen, pod nimi karty
 //  cards  - karty z nagłówkiem sekcji i kilkoma liniami
 //  screen - neutralny nagłówek ekranu (hero obszaru) i dwie karty: domyślny szkielet app/loading.js dla wszystkich ekranów
@@ -18,12 +17,11 @@ function Cards({ n = 2 }) {
 
 export default function Skeleton({ rows = 4, variant = 'list' }) {
   let body;
-  if (variant === 'today' || variant === 'detail') {
-    const tiles = variant === 'today' ? 4 : 3;
+  if (variant === 'detail') {
     body = (
       <>
-        <div className={`skel-hero${variant === 'detail' ? ' detail' : ''}`} />
-        <div className={`skel-kpis n${tiles}`}>{Array.from({ length: tiles }).map((_, i) => <div key={i} className="skel-kpi" />)}</div>
+        <div className="skel-hero detail" />
+        <div className="skel-kpis">{[0, 1, 2].map((i) => <div key={i} className="skel-kpi" />)}</div>
         <Cards n={2} />
       </>
     );

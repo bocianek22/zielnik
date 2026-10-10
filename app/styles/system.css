@@ -25,17 +25,13 @@
 .skel-card { display: grid; gap: var(--s-3); margin-top: var(--s-4); }
 .skel-hero + .skel-card { margin-top: 0; }
 .skel-head { display: flex; align-items: center; gap: var(--s-3); margin-bottom: var(--s-1); }
-.skel-hero { height: 296px; border-radius: var(--r-xl); margin-bottom: var(--s-4); }
+.skel-hero { border-radius: var(--r-xl); margin-bottom: var(--s-4); }
 .skel-hero.detail { height: 220px; }
-.skel-kpis { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--s-3); }
-.skel-kpis.n3 { grid-template-columns: repeat(3, 1fr); }
+.skel-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-3); }
 .skel-kpi { height: 112px; border-radius: var(--r-lg); }
 /* hero szkieletu ma kolor prawdziwego hero (bez błysku szarości przed ciemną zielenią) */
 .skel-hero { background: linear-gradient(165deg, var(--bar) 0%, var(--hero-2) 60%, var(--hero-3) 100%); animation: none; }
 .skel-hero.neutral { height: 136px; background: linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3) 37%, var(--surface-2) 63%); background-size: 400% 100%; animation: skel-shine 1.4s ease infinite; }
-@media (min-width: 761px) { .skel-kpis.n4 { grid-template-columns: repeat(4, 1fr); } .skel-hero { height: 254px; } }
-/* telefon: hero „Dziś” sięga krawędzi jak prawdziwe .hero */
-@media (max-width: 760px) { .sk-today .skel-hero { margin: calc(var(--s-5) * -1) calc(var(--s-4) * -1) var(--s-4); border-radius: 0 0 var(--r-xl) var(--r-xl); } }
 @media (prefers-reduced-motion: reduce) { .skeleton .skel-line, .skel-dot, .skel-hero, .skel-kpi { animation: none; } }
 
 /* ===== Porównanie: kolumny odmian bez poziomego przewijania ===== */
@@ -47,6 +43,7 @@
 .cmp-head a { font-family: var(--font-display), system-ui, sans-serif; font-size: var(--fs-lg); font-weight: 600; line-height: 1.25; color: var(--text); text-decoration: none; overflow-wrap: anywhere; }
 .cmp-head a:hover { text-decoration: underline; }
 .cmp-spacer { display: none; }
+@media (max-width: 760px) { .cmp-head { top: var(--cbar-h, 0px); } } /* pod kompaktowym paskiem (CompactTitle) */
 .cmp-lines { margin: 0; }
 .cmp-line { padding-block: var(--s-3); border-top: 1px solid var(--sep); }
 .cmp-line:first-child { border-top: 0; }

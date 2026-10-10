@@ -34,7 +34,7 @@ export default function CompactTitle() {
   const top = () => window.scrollTo({ top: 0, behavior: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   return (
     <div className={`cbar${on ? ' on' : ''}`} aria-hidden="true" onClick={top}>
-      <span className={`cbar-t${t.dn ? ' dn' : ''}`} data-t={t.text} />
+      <span key={t.text} className={`cbar-t${t.dn ? ' dn' : ''}`} data-t={t.text} />
     </div>
   );
 }

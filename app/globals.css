@@ -627,13 +627,15 @@ a.chip.static:hover { background: var(--surface-3); color: var(--text); }
    Kolor paska marki, więc w APK łączy się z paskiem stanu. Pod arkuszami (44+), wskaźnikiem odświeżania (70) i panelem kolejki (40). */
 .cbar { display: none; }
 @media (max-width: 760px) {
-  .cbar { --cbar-top: env(safe-area-inset-top, 0px); display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; right: 0; z-index: 38;
-    height: calc(48px + var(--cbar-top)); padding: var(--cbar-top) var(--s-12) 0; background: var(--bar); color: var(--on-bar); box-shadow: var(--shadow-1); cursor: pointer;
+  /* --cbar-h: wysokość paska; kotwice (#objawy), scrollIntoView i elementy sticky (np. .cmp-head) zaczynają się pod nim */
+  :root { --cbar-top: env(safe-area-inset-top, 0px); --cbar-h: calc(48px + var(--cbar-top)); scroll-padding-top: calc(var(--cbar-h) + var(--s-2)); }
+  html.native-app { --cbar-top: max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px)); }
+  .cbar { display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; right: 0; z-index: 38;
+    height: var(--cbar-h); padding: var(--cbar-top) var(--s-12) 0; background: var(--bar); color: var(--on-bar); box-shadow: var(--shadow-1); cursor: pointer;
     visibility: hidden; transform: translateY(-100%); transition: transform var(--dur-2) var(--ease), visibility 0s linear var(--dur-2); }
   .cbar.on { visibility: visible; transform: none; transition: transform var(--dur-2) var(--ease), visibility 0s; }
   .cbar-t { display: block; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: var(--fs-lg); font-weight: 700; letter-spacing: -.01em; }
   .cbar-t::before { content: attr(data-t); }
-  html.native-app .cbar { --cbar-top: max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px)); }
 }
 
 /* ===== Reakcja na dotyk: element „ugina się” przy wciśnięciu (tylko bez „ogranicz ruch”) ===== */
