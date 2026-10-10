@@ -81,3 +81,53 @@ test('Historia: w trybie dyskretnym porównanie okresów nie ma nazw odmian', as
 test('Historia: bez błędów w konsoli', () => {
   assert.deepEqual(problems.left(), []);
 });
+
+// A5: kalendarz zużycia (kwartał/rok, 4 stany dnia, klawiatura, tabela dla czytnika) i pora przyjęcia
+test('Historia: kalendarz zużycia mieści się w ekranie, przełącza się na rok i reaguje na strzałki', async () => {
+  try {
+    for (const width of [320, 390]) {
+      await page.setViewportSize({ width, height: 844 });
+      await go(page, '/historia');
+      const card = page.locator('figure.cal');
+      await card.waitFor({ timeout: 15000 });
+      assert.equal(await card.locator('.cal-q').count(), 1);
+      const days = await card.locator('.cal-c[data-d]').count();
+      assert.ok(days > 80 && days <= 91, `kwartał ma ${days} dni`);
+      const size = await card.locator('.cal-c[data-d]').first().evaluate((el) => el.getBoundingClientRect().width);
+      assert.ok(size >= (width >= 390 ? 20 : 16), `${width} px: komórka ${size} px`);
+      assert.ok(await card.locator('.cal-legend li').count() >= 4, 'legenda');
+      assert.equal(await card.locator('.cal-c.is-today[data-d]').count(), 1, 'dziś oznaczone obwódką');
+      const over = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+      assert.ok(over <= 0, `${width} px: poziome przewijanie o ${over} px`);
+      // klawiatura: strzałka wybiera dzień, odczyt (aria-live) się zmienia, Escape czyści
+      const scrub = card.locator('.cal-scrub');
+      await scrub.focus();
+      const read = card.locator('.cal-read');
+      const idle = await read.innerText();
+      await page.keyboard.press('ArrowLeft');
+      await card.locator('.cal-c.on').waitFor();
+      assert.notEqual(await read.innerText(), idle);
+      assert.equal(await read.getAttribute('aria-live'), 'polite');
+      await page.keyboard.press('Escape');
+      assert.equal(await card.locator('.cal-c.on').count(), 0);
+      // rok: 4 kwartały, cele przełącznika ≥ 44 px
+      const year = card.getByRole('button', { name: 'Rok' });
+      assert.ok((await year.boundingBox()).height >= 44);
+      await year.click();
+      assert.equal(await card.locator('.cal-q').count(), 4);
+      assert.ok((await card.locator('.sr-only table').count()) === 1, 'tabela dla czytnika');
+    }
+  } catch (e) { await shot(page, 'historia-kalendarz'); throw e; }
+});
+
+test('Historia: pora przyjęcia ma cztery paski w jednym kolorze i tekst z liczbą wpisów', async () => {
+  try {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await go(page, '/historia');
+    const card = page.locator('figure.per');
+    if (!(await card.count())) return; // konto bez wpisów w ostatnich 90 dniach: sekcji nie ma
+    assert.equal(await card.locator('.hb-row').count(), 4);
+    assert.match(await card.innerText(), /rano[\s\S]*w ciągu dnia[\s\S]*wieczorem[\s\S]*w nocy/);
+    assert.equal(await card.locator('.hb-bar:not(.data)').count(), 0);
+  } catch (e) { await shot(page, 'historia-pora'); throw e; }
+});

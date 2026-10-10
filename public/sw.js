@@ -1,7 +1,8 @@
 // Service worker: cache tylko "powłoki" aplikacji (statyczne pliki), nigdy odpowiedzi API ani stron z danymi.
 // Dzięki temu strona otwiera się szybciej i działa offline z komunikatem, ale dane zawsze są świeże z sieci.
-const CACHE = 'zielnik-shell-v1';
-const SHELL = ['/manifest.webmanifest', '/icon-192.png', '/icon-512.png', '/offline.html'];
+const CACHE = 'zielnik-shell-v2';
+// czcionki PDF raportu: plik powstaje lokalnie, także bez sieci
+const SHELL = ['/manifest.webmanifest', '/icon-192.png', '/icon-512.png', '/offline.html', '/fonts/Figtree-Regular.ttf', '/fonts/Figtree-Bold.ttf'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));

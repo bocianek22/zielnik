@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Icon from './Icon';
+import Bump from './Bump';
 import TodayPanel, { unitsOf } from './TodayPanel';
 import QuickActions from './QuickActions';
 import { unitOf } from '@/lib/units';
@@ -56,7 +57,7 @@ export function TodayHero({ usage = { perDay: 0, perDayMl: 0 } }) {
         <Ring days={d} what={what} />
         <div className="hero-fig">
           <h2 className="hero-lbl">Zapas {what}</h2>
-          <p className="big-num kpi-big"><b>{n2(stock[u])}</b> <small>{u}</small></p>
+          <p className="big-num kpi-big"><Bump key={u} value={n2(stock[u])}>{n2(stock[u])}</Bump> <small>{u}</small></p>
           {other && <p className="hero-sub">{other === 'ml' ? 'Olej i pen' : 'Susz'}: {n2(stock[other])} {other}{dOther != null && `, ${dOther} ${plural(dOther, 'dzień', 'dni')}`}</p>}
         </div>
       </div>
@@ -64,7 +65,7 @@ export function TodayHero({ usage = { perDay: 0, perDayMl: 0 } }) {
         <div className="today-quick">
           <QuickActions key={quick.id} idPrefix="today-q" icons strainId={quick.id} name={quick.name} form={quick.form} current={quick.current}
             remaining={0} onSaved={onUsed} />
-          <p className="tq-name">Ostatnio używana: <span className="tq-strain"><span className="dn">{quick.name}</span><span className="tq-stock">, mam {n2(quick.current)} {unitOf(quick.form)}</span></span></p>
+          <p className="tq-name">Ostatnio używana: <span className="tq-strain"><span className="dn">{quick.name}</span><span className="tq-stock">, mam <Bump key={quick.id} as="span" value={n2(quick.current)}>{n2(quick.current)}</Bump> {unitOf(quick.form)}</span></span></p>
         </div>
       ) : (
         <div className="today-quick today-quick-links">
