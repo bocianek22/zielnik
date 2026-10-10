@@ -6,6 +6,7 @@ import { api } from '@/lib/api';
 import { csvToObjects } from '@/lib/csv';
 import { FORMS, formLabel } from '@/lib/forms';
 import Icon from '../components/Icon';
+import EmptyState from '../components/EmptyState';
 import { formatDay } from '@/lib/date';
 
 const dec = (n) => Number(n).toLocaleString('pl-PL', { maximumFractionDigits: 1 });
@@ -69,18 +70,11 @@ export default function CatalogBoard({ items, owned, isAdmin }) {
       {msg && <div className="alert note" role="status">{msg}</div>}
 
       {items.length === 0 ? (
-        <div className="card empty">
-          <Icon name="book" size={32} />
-          <h2>Katalog jest jeszcze pusty</h2>
-          <p>{isAdmin ? 'Wczytaj plik CSV albo ustaw automatyczne źródło (opis poniżej).' : 'Poproś admina o wczytanie listy.'}</p>
-          {isAdmin && fileBtn}
-        </div>
+        <EmptyState art="jar" cat="learn" title="Katalog jest jeszcze pusty" action={isAdmin ? fileBtn : null}>
+          {isAdmin ? 'Wczytaj plik CSV albo ustaw automatyczne źródło (opis poniżej).' : 'Poproś admina o wczytanie listy.'}
+        </EmptyState>
       ) : shown.length === 0 ? (
-        <div className="card empty">
-          <Icon name="search" size={32} />
-          <h2>Brak pasujących pozycji</h2>
-          <p>Zmień frazę, postać albo odznacz „Tylko aktualne”.</p>
-        </div>
+        <EmptyState art="search" cat="learn" title="Brak pasujących pozycji">Zmień frazę, postać albo odznacz „Tylko aktualne”.</EmptyState>
       ) : (
         <>
           <p className="cat-count" aria-live="polite">{shown.length} {shown.length === 1 ? 'pozycja' : shown.length % 10 >= 2 && shown.length % 10 <= 4 && (shown.length % 100 < 12 || shown.length % 100 > 14) ? 'pozycje' : 'pozycji'}</p>

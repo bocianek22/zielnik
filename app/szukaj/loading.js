@@ -1,5 +1,5 @@
 import LoadingShell from '../components/LoadingShell';
 
 export default function Loading() {
-  return <LoadingShell title="Rankingi" variant="list" />;
+  return <LoadingShell title="Szukaj" variant="list" />;
 }

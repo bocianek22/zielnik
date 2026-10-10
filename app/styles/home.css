@@ -36,11 +36,11 @@
 .tq-stock { font-weight: 400; color: var(--on-hero-2); font-variant-numeric: tabular-nums; }
 /* panel ilości i komunikat zapisu są białe na zielonym tle: przywracają zwykłe kolory przycisków i fokusu */
 .hero .quick-panel, .hero .toast { color: var(--text); text-align: left; }
-.hero .quick-panel .btn, .hero .toast .btn { background: var(--btn); color: var(--on-btn); border-color: var(--btn); }
+.hero .quick-panel .btn { background: var(--btn); color: var(--on-btn); border-color: var(--btn); }
 .hero .quick-panel .btn:hover { background: var(--btn-hover); border-color: var(--btn-hover); }
-.hero .quick-panel .btn.ghost, .hero .toast .btn.ghost { background: var(--surface); color: var(--accent-text); border-color: var(--sep-strong); }
-.hero .quick-panel .btn.ghost:hover, .hero .toast .btn.ghost:hover { background: var(--hover-bg); }
-.hero .quick-panel :focus-visible, .hero .toast :focus-visible { outline-color: var(--accent); }
+.hero .quick-panel .btn.ghost { background: var(--surface); color: var(--accent-text); border-color: var(--sep-strong); }
+.hero .quick-panel .btn.ghost:hover { background: var(--hover-bg); }
+.hero .quick-panel :focus-visible { outline-color: var(--accent); }
 
 /* ===== Panel pod hero ===== */
 .today { display: grid; gap: var(--s-4); }
@@ -56,8 +56,9 @@ a.kpi-tile:active { filter: brightness(.96); }
 .today-chart .usage-head { margin-bottom: var(--s-1); }
 .today-chart .no-use { padding: var(--s-3) 0 0; border: 0; }
 .stock-lead { display: grid; gap: 2px; margin-top: var(--s-4); padding-top: var(--s-3); border-top: 1px solid var(--sep); }
+.stock-lead:empty { display: none; }
 .stock-lead p { margin: 0; font-size: var(--fs-sm); color: var(--text-2); }
-.stock-lead b { color: var(--text); font-weight: 700; font-variant-numeric: tabular-nums; }
+.stock-lead b { color: var(--text); font-weight: 700; }
 .stock-lead .low b { color: var(--warn); }
 .today-note { margin: var(--s-3) 0 0; font-size: var(--fs-sm); color: var(--text-2); line-height: 1.45; }
 .stock-notes { margin-top: var(--s-2); border-top: 1px solid var(--sep); }
@@ -71,8 +72,8 @@ a.kpi-tile:active { filter: brightness(.96); }
 .stock-notes-unit + .stock-notes-unit { border-top: 1px solid var(--sep); padding-top: var(--s-3); }
 .today-chart .forecast { margin-top: var(--s-2); }
 
-/* „Do zrobienia” (nagłówek: .section-label z globals.css) */
-.today-todo > .section-label { margin-top: 0; }
+/* „Do zrobienia” (nagłówek: .section-title z globals.css) */
+.today-todo > .section-title { margin-top: 0; }
 .todo { list-style: none; margin: 0; padding: var(--s-1) var(--s-4); }
 .todo li + li { border-top: 1px solid var(--sep); }
 .todo-row { display: flex; align-items: center; gap: var(--s-3); min-height: 64px; padding: var(--s-3) 0; color: var(--text); text-decoration: none; }
@@ -160,7 +161,7 @@ a.kpi-tile:active { filter: brightness(.96); }
   .today:not(.fresh) .kpi-grid { grid-area: kpi; }
   .today:not(.fresh) .today-chart { grid-area: chart; }
   .today:not(.fresh) .today-todo { grid-area: todo; }
-  .today:not(.fresh) .tsym { grid-area: sym; }
+  .today:not(.fresh) .tsym { grid-area: sym; align-self: stretch; } /* karta objawów dociąga kolumnę do dołu wykresu: bez dziury */
   .today:not(.fresh) .today-rx { grid-area: rx; }
   .today:not(.fresh) .prefs-card { grid-area: prefs; }
   .trx-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--s-8); }

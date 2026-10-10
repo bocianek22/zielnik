@@ -45,6 +45,8 @@ a.person-name { color: var(--accent-text); width: fit-content; }
 .rank-sum b { color: var(--text); font-size: var(--fs-lg); font-weight: 600; }
 .rank-sum small { font-size: var(--fs-xs); color: var(--text-2); }
 .group-leave .row .btn { flex: 1 1 140px; }
+.group-policy { margin-bottom: var(--s-3); }
+.group-policy > p.muted { margin: 0 0 var(--s-2); font-size: var(--fs-sm); }
 
 /* profil publiczny */
 .profile-card .profile-id { display: flex; align-items: center; gap: var(--s-4); }
@@ -85,3 +87,14 @@ a.person-name { color: var(--accent-text); width: fit-content; }
 @media (max-width: 760px) {
   .group-leave .row .btn { flex: 1 1 100%; }
 }
+
+/* Design 3.1: nagłówki list między kartami, zasada zapraszania w karcie, formularz nowej grupy zwinięty */
+.social > .section-title { margin: var(--s-6) var(--s-1) var(--s-3); }
+.social > .section-title:first-child { margin-top: 0; }
+.social > .section-title + * { margin-top: 0; }
+.social > .section-title + .social-note + .social-note { margin-top: var(--s-2); }
+.group-policy.card { padding: var(--s-4); }
+.group-policy > p.muted { font-weight: 600; color: var(--c-ink, var(--text-2)); }
+.group-policy .seg { width: 100%; }
+.group-policy .seg button { flex: 1 1 0; }
+.new-group > summary { color: var(--accent-text); }

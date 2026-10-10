@@ -17,7 +17,8 @@ export function installHaptics() {
     if (t?.matches?.('input[type="checkbox"], input[type="radio"], input[type="range"], select')) haptic('light');
   };
   const onClick = (e) => {
-    const b = e.target.closest?.('.chip, [role="switch"], [role="tab"], [role="radio"]');
+    // zmiana zakładki dolnego paska i segmentu to „wybór” (Design 3.1); bieżąca zakładka nie wibruje
+    const b = e.target.closest?.('.chip, [role="switch"], [role="tab"], [role="radio"], .bottomnav a:not([aria-current]), .bottomnav > button, .seg button:not(.on), .seg a:not(.on)');
     // pola input (np. przełącznik role=switch) wibrują już w onChange: bez podwójnej haptyki
     if (b && !b.disabled && !b.matches('input')) haptic('light');
   };

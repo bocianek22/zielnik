@@ -9,6 +9,7 @@ import { matches, rank } from '@/lib/searchMatch';
 import { strainItems, catalogItems } from '@/lib/searchItems';
 import Header from '../components/Header';
 import Icon from '../components/Icon';
+import EmptyState from '../components/EmptyState';
 import SearchBox from './SearchBox';
 
 const cap = (t) => (t ? t[0].toUpperCase() + t.slice(1) : '');
@@ -69,11 +70,7 @@ export default async function Szukaj({ searchParams }) {
         <SearchBox key={raw} initial={raw} index={lite} />
         {!q && <p className="search-hint">Podpowiedzi pojawiają się od pierwszej litery. Szukamy w odmianach, katalogu, terpenach, wiedzy, ludziach (od 2 znaków) i Twoich grupach.</p>}
         {q && total === 0 && (
-          <div className="card empty">
-            <Icon name="search" size={32} />
-            <h2>Nic nie znaleziono</h2>
-            <p>Brak wyników dla „{raw}”. Sprawdź pisownię albo wpisz krótszą frazę.</p>
-          </div>
+          <EmptyState art="search" cat="learn" title="Nic nie znaleziono">Brak wyników dla „{raw}”. Sprawdź pisownię albo wpisz krótszą frazę.</EmptyState>
         )}
         <Group title="Odmiany" n={strains.length}>{strains.map((x) => (
           <li key={x.id}><Link href={`/strains/${x.id}`} className="list-row"><span className="lr-main"><b className="dn">{x.name}</b><span className="lr-sub dn">{x.producer}</span></span>

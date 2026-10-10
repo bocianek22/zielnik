@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import NoUseToday from './NoUseToday';
 import Icon from './Icon';
+import EmptyState from './EmptyState';
 import SymptomsQuick from './SymptomsQuick';
 import UsageDays from './charts/UsageDays';
 import StockForecast from './charts/StockForecast';
@@ -52,16 +53,12 @@ function Prescriptions({ items, total }) {
                 <span>{expired ? `${days(n)} temu` : r.days_left === 0 ? 'ost. dzień' : days(n)}</span>
               </div>
               <div className="trx-main">
-                <p className="trx-title">
-                  {expired
-                    ? <>Recepta na {n2(r.grams)} {u} wygasła {n} {days(n)} temu</>
-                    : r.days_left === 0 ? <>Recepta na {n2(r.grams)} {u}: ostatni dzień ważności</>
-                      : <>Recepta na {n2(r.grams)} {u} wygasa za {n} {days(n)}</>}
-                </p>
+                {/* liczba dni jest w kwadracie obok, więc tytuł jej nie powtarza */}
+                <p className="trx-title">{expired ? 'Wygasła recepta' : 'Recepta'} na {n2(r.grams)} {u}</p>
                 <p className="trx-sub">
                   {expired
-                    ? <>Niewykorzystane <b>{n2(r.remaining)} {u}</b>, ważna była do {longDay(r.valid_until)}</>
-                    : <>Do wykupienia <b>{n2(r.remaining)} {u}</b> z {n2(r.grams)} {u}, ważna do {longDay(r.valid_until)}</>}
+                    ? <>Niewykorzystane <b>{n2(r.remaining)} {u}</b>, ważna była do {ddmm(r.valid_until)}</>
+                    : <>Do wykupienia <b>{n2(r.remaining)} {u}</b>, ważna do {ddmm(r.valid_until)}</>}
                 </p>
                 {!expired && <div className="trx-bar" aria-hidden="true"><span style={{ width: `${pct}%` }} /></div>}
               </div>
@@ -89,7 +86,7 @@ function Tile({ href, cat, solid, warn, icon, label, value, sub }) {
 function Todo({ items }) {
   return (
     <section className="today-todo" aria-labelledby="todo-h">
-      <h2 id="todo-h" className="section-label">Do zrobienia</h2>
+      <h2 id="todo-h" className="section-title">Do zrobienia</h2>
       <ul className="card todo">
         {items.map((t) => {
           const body = (
@@ -106,11 +103,9 @@ function Todo({ items }) {
   );
 }
 
-const notesOf = ({ unit, stock, dailyUse, bought, today }) => {
-  const daysLeft = daysOf(stock, dailyUse);
+const notesOf = ({ unit, dailyUse, bought }) => {
   return [
     dailyUse > 0 && `średnio ${n2(dailyUse)} ${unit} dziennie`,
-    daysLeft != null && `do ok. ${longDay(addDays(today, daysLeft))}`,
     bought > 0 && `wykupiono ${n2(bought)} ${unit} w tym miesiącu`,
   ].filter(Boolean);
 };
@@ -171,11 +166,8 @@ export default function TodayPanel({ stock, dailyUse, forecast, bought, low, ser
     <Tile key="today" href="/historia" cat="stock" icon="chart" label="Dziś zużyto"
       value={<>{n2(usedNow)}<small>{u1}</small></>}
       sub={noUseOn && !usedToday ? 'oznaczone: bez zużycia' : dailyUse[u1] > 0 ? `średnio ${n2(dailyUse[u1])} ${u1}` : 'jeszcze bez średniej'} />,
-    reason
-      ? <Tile key="low" href="/odmiany" warn icon="alert" label="Kończy się"
-        value={lowStrain ? <>{n2(lowStrain.current)}<small>{lowStrain.unit}</small></> : <>{n2(stock[warnU])}<small>{warnU}</small></>}
-        sub={lowStrain ? <span className="dn">{lowStrain.name}</span> : daysWarn != null ? `starczy na ${daysWarn} ${days(daysWarn)}` : `zapas ${what(warnU)}`} />
-      : bought[u1] > 0
+    // „Kończy się” jest pozycją listy „Do zrobienia” (z nazwą odmiany), więc kafla nie powtarzamy
+    bought[u1] > 0
         ? <Tile key="buy" href="/recepty" cat="rx" icon="cart" label="Wykupiono" value={<>{n2(bought[u1])}<small>{u1}</small></>} sub="w tym miesiącu" />
         : <Tile key="avg" href="/historia" cat="stock" icon="trend" label="Średnio dziennie"
           value={dailyUse[u1] > 0 ? <>{n2(dailyUse[u1])}<small>{u1}</small></> : '–'} sub={dailyUse[u1] > 0 ? 'z ostatnich 30 dni' : 'po pierwszych zapisach'} />,
@@ -197,13 +189,11 @@ export default function TodayPanel({ stock, dailyUse, forecast, bought, low, ser
   return (
     <div className={`today${fresh ? ' fresh' : ''}`}>
       {fresh ? (
-        <section className="card empty" aria-labelledby="today-empty-h">
-          <Icon name="chart" size={32} />
-          <h2 id="today-empty-h">Tu zobaczysz zapas i prognozę</h2>
-          <p>{hasOwn ? 'Wpisz, ile masz którejś odmiany, w jej karcie na liście poniżej. Potem przycisk „Zużyłem” policzy, na ile dni starczy zapasu.'
-            : 'Dodaj odmianę, którą masz, i jej stan. Potem przycisk „Zużyłem” policzy, na ile dni starczy zapasu.'}</p>
-          <button type="button" className="btn" onClick={onAdd}>{hasOwn ? 'Wpisz stan' : 'Dodaj odmianę'}</button>
-        </section>
+        <EmptyState art="chart" cat="stock" title="Tu zobaczysz zapas i prognozę" id="today-empty-h"
+          action={<button type="button" className="btn" onClick={onAdd}>{hasOwn ? 'Wpisz stan' : 'Dodaj odmianę'}</button>}>
+          {hasOwn ? 'Wpisz, ile masz którejś odmiany, w jej wierszu na liście odmian. Potem przycisk „Zużyłem” policzy, na ile dni starczy zapasu.'
+            : 'Dodaj odmianę, którą masz, i jej stan. Potem przycisk „Zużyłem” policzy, na ile dni starczy zapasu.'}
+        </EmptyState>
       ) : (
         <>
           <div className="kpi-grid">{tiles}</div>
@@ -212,10 +202,11 @@ export default function TodayPanel({ stock, dailyUse, forecast, bought, low, ser
             <UsageDays series={series} />
             {/* POM-38: tylko gdy dziś nie zapisano zużycia (zapis „Zużyłem” zdejmuje znacznik na serwerze) */}
             {!usedToday && <NoUseToday day={today} on={noUseOn} setOn={setNoUseOn} />}
+            {/* ilość i liczba dni są w nagłówku strony („Dziś”); tu tylko data, do której starczy zapasu */}
             <div className="stock-lead">
               {units.map((u) => {
                 const d = daysOf(stock[u], dailyUse[u]);
-                return <p key={u} className={warnU === u ? 'low' : undefined}><span>Zapas {what(u)}</span> <b>{n2(stock[u])} {u}</b>{d != null && <>, starczy na <b>{d} {days(d)}</b></>}</p>;
+                return d != null && <p key={u} className={warnU === u ? 'low' : undefined}><span>Zapas {what(u)}</span> starczy do <b>{longDay(addDays(today, d))}</b></p>;
               })}
             </div>
             {rows.length > 0 ? (

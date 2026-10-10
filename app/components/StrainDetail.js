@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation';
 import { OwnEntry, dec } from './StrainCard';
 import Icon from './Icon';
 import SecHead from './SecHead';
+import Fold from './Fold';
+import QuickActions from './QuickActions';
+import Illustration from './Illustration';
 import StrainForm from './StrainForm';
 import Tests from './Tests';
 import ReportButton from './ReportButton';
@@ -122,6 +125,12 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, st
       patchMine({ current: Math.max(Number(mine.current) + r.dCur, 0), ...(r.dRem ? { remaining: Number(mine.remaining) + r.dRem } : {}) });
     } else if (d.type === 'sent' && !hasQueued((i) => i.meta?.strainId === strain.id && i.kind !== 'symptoms')) router.refresh();
   });
+  // zakup lub zużycie: odśwież statystyki (bez sieci zostaje stan pokazany od razu, odświeżenie po wysłaniu kolejki)
+  const onMineSaved = (x) => {
+    if (!x || 'rating' in x) return;
+    patchMine({ current: x.current, ...(x.remaining !== undefined ? { remaining: x.remaining } : {}) });
+    if (navigator.onLine) router.refresh();
+  };
   const others = strain.entries.filter((e) => e.userId !== me.id && (e.rating != null || e.notes));
   // ta sama średnia co na karcie odmiany na liście: wszystkie widoczne oceny, z moją włącznie
   const rated = strain.entries.filter((e) => e.rating != null);
@@ -177,8 +186,14 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, st
             </div>
             {photo && (
               <div className="dhero-media">
-                <Lightbox className="dhero-img dn-img" src={photo} alt={`Zdjęcie: ${strain.name}`} attr={strain.photo_attr} />
+                {/* niewczytane zdjęcie (uszkodzony plik, brak sieci) zastępuje ilustracja słoika w kafelku rodzaju */}
+                <Lightbox className="dhero-img dn-img" src={photo} alt={`Zdjęcie: ${strain.name}`} attr={strain.photo_attr}
+                  fallback={<div className="dhero-fallback" aria-hidden="true"><Illustration art="jar" size={132} /></div>} />
                 <PhotoCredit attr={strain.photo_attr} />
+                <details className="photo-menu">
+                  <summary aria-label="Opcje zdjęcia"><Icon name="more" size={20} /></summary>
+                  <div className="photo-menu-list"><ReportButton type="photo" refId={strain.id} label="Zgłoś zdjęcie" /></div>
+                </details>
               </div>
             )}
           </header>
@@ -190,33 +205,29 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, st
 
           <StrainProposals proposals={proposals} onChange={() => router.refresh()} />
 
-          {((strain.created_by && strain.created_by !== me.id) || photo) && (
-            <div className="row">
-              {strain.created_by && strain.created_by !== me.id && <ReportButton type="strain" refId={strain.id} label="Zgłoś odmianę" />}
-              {photo && <ReportButton type="photo" refId={strain.id} label="Zgłoś zdjęcie" />}
-            </div>
+          {strain.created_by && strain.created_by !== me.id && (
+            <div className="row"><ReportButton type="strain" refId={strain.id} label="Zgłoś odmianę" /></div>
           )}
         </>
+      )}
+
+      {/* „Mój wpis” jest zwinięty, więc najczęstsze czynności (zużyłem, wykupiłem) są od razu pod ocenami */}
+      {mine && !editing && (
+        <section className="card dquick" data-cat="stock" aria-label="Szybkie akcje">
+          <QuickActions idPrefix="dq" strainId={strain.id} name={strain.name} form={strain.form} current={mine.current} remaining={mine.remaining} onSaved={onMineSaved} />
+        </section>
       )}
 
       <MyStats stats={stats} unit={unit} />
 
       <StrainBatches batches={batches} unit={unit} />
 
-      <section className="card dmine" aria-labelledby="dmine-h">
-        <SecHead cat="stock" icon="jar" id="dmine-h">Mój wpis</SecHead>
-        {mine && <OwnEntry strainId={strain.id} strainName={strain.name} form={strain.form} entry={mine} mates={mates} hidePrice={me.hidePrices}
-          onSaved={(x) => {
-            if (!x || 'rating' in x) return;
-            // zakup lub zużycie: odśwież statystyki (bez sieci zostaje stan pokazany od razu, odświeżenie po wysłaniu kolejki)
-            patchMine({ current: x.current, ...(x.remaining !== undefined ? { remaining: x.remaining } : {}) });
-            if (navigator.onLine) router.refresh();
-          }} />}
-      </section>
+      <Fold cat="stock" icon="jar" title="Mój wpis" className="dmine">
+        {mine && <OwnEntry strainId={strain.id} strainName={strain.name} form={strain.form} entry={mine} mates={mates} hidePrice={me.hidePrices} onSaved={onMineSaved} />}
+      </Fold>
 
       {!editing && hasComposition && (
-        <section className="card dcomp" aria-labelledby="dcomp-h">
-          <SecHead cat="strain" icon="flask" id="dcomp-h">Skład</SecHead>
+        <Fold cat="strain" icon="flask" title="Skład" className="dcomp" open>
           <div className="dcomp-body">
           <div>
           {(strain.thc != null || strain.cbd != null) && (
@@ -237,15 +248,14 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, st
             <dl className="facts dfacts">{facts.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
           )}
           </div>
-        </section>
+        </Fold>
       )}
-      <CharacteristicCard strain={strain} hidePrice={me.hidePrices} compact />
+      <CharacteristicCard strain={strain} hidePrice={me.hidePrices} compact fold />
       <PharmacyLink producer={strain.producer} name={strain.name} />
 
       <Effects strain={strain} meId={me.id} />
 
-      <section className="card dopinions" aria-labelledby="dop-h">
-        <SecHead cat="social" icon="users" id="dop-h">Opinie innych</SecHead>
+      <Fold cat="social" icon="users" title="Opinie innych" count={others.length || null} className="dopinions">
         {others.length ? (
           <ul className="opinions">
             {others.map((e) => (
@@ -259,7 +269,7 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, st
             ))}
           </ul>
         ) : <p className="muted">Nie widzisz jeszcze opinii innych osób o tej odmianie.</p>}
-      </section>
+      </Fold>
 
       <Tests strainId={strain.id} initialTests={tests} me={me} />
 

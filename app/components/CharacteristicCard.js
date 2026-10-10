@@ -1,7 +1,7 @@
 import { EFFECTS, strainTags } from '@/lib/effects';
 import { formLabel } from '@/lib/forms';
 import { unitOf } from '@/lib/units';
-import SecHead from './SecHead';
+import { Section } from './Fold';
 import Icon from './Icon';
 
 const dec = (n) => String(n).replace('.', ','); // jak dec() w StrainCard.js (ten plik renderuje też strona serwerowa katalogu)
@@ -10,7 +10,7 @@ const fx = (n) => String(Number(n.toFixed(1))).replace('.', ',');
 // Karta charakterystyki odmiany: opis, dane, terpeny, odczucia użytkowników, średnia cena, źródła
 // hidePrice: aplikacja natywna (lib/client.js), bez średniej ceny
 // compact: strona odmiany pokazuje rodzaj, stężenia, terpeny i smak w nagłówku, więc tu ich nie powtarzamy
-export default function CharacteristicCard({ strain, hidePrice = false, compact = false }) {
+export default function CharacteristicCard({ strain, hidePrice = false, compact = false, fold = false }) {
   const tags = strainTags(strain);
   const feel = EFFECTS.map(([k, label]) => {
     const v = (strain.entries || []).map((e) => e.effects?.[k]).filter((x) => x != null);
@@ -21,8 +21,7 @@ export default function CharacteristicCard({ strain, hidePrice = false, compact 
     : strain.price_n ? `za mało zgłoszeń do średniej (${strain.price_n}, potrzeba co najmniej 3)` : 'brak zgłoszeń cen';
 
   return (
-    <section className="card charcard">
-      <SecHead cat="learn" icon="book">Karta charakterystyki</SecHead>
+    <Section fold={fold} cat="learn" icon="book" title="Karta charakterystyki" className="charcard">
       <p className="priv-note charcard-note"><Icon name="info" size={18} />Informacje mają charakter poglądowy i edukacyjny. Nie zastępują porady lekarza: dobór odmiany i dawkowanie ustal z lekarzem prowadzącym.</p>
       {strain.description
         ? <p className="detail-desc">{strain.description}</p>
@@ -52,6 +51,6 @@ export default function CharacteristicCard({ strain, hidePrice = false, compact 
           <ul>{strain.sources.map((s) => <li key={s.url}><a href={s.url} target="_blank" rel="noopener noreferrer nofollow">{s.title}</a></li>)}</ul>
         </>
       )}
-    </section>
+    </Section>
   );
 }

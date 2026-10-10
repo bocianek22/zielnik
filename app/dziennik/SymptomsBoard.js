@@ -5,7 +5,7 @@ import { SYMPTOMS, customMeta, CUSTOM_MAX, CUSTOM_NAME_MAX } from '@/lib/symptom
 import Icon from '../components/Icon';
 import DictateButton from '../components/DictateButton';
 import Toast from '../components/Toast';
-import SecHead from '../components/SecHead';
+import Illustration from '../components/Illustration';
 import SymptomsChart from '../components/charts/SymptomsChart';
 import { addDays } from '../components/charts/fmt';
 
@@ -132,24 +132,7 @@ export default function SymptomsBoard() {
   }, [folded]);
   return (
     <div className="stack">
-      <p className="priv-note"><Icon name="info" size={20} />Dziennik służy Twojej obserwacji i rozmowie z lekarzem. Dane są prywatne, a średnie z wybranego okresu trafiają do raportu dla lekarza.</p>
-      <SecHead cat="journal" icon="chart">Ostatnie 30 dni</SecHead>
-      {loaded && merged.length === 0 && data.usage.length === 0 ? (
-        <section className="card empty">
-          <Icon name="pulse" size={32} />
-          <h2>Wykres pojawi się po pierwszym wpisie</h2>
-          <p>Zapisz, jak się dziś czujesz. Po kilku dniach zobaczysz tu przebieg bólu, snu, lęku i nastroju.</p>
-          <button type="button" className="btn" onClick={() => { const f = document.getElementById('sym-form'); f?.scrollIntoView({ block: 'start' }); f?.querySelector('input')?.focus({ preventScroll: true }); }}>Wpisz stan</button>
-        </section>
-      ) : !loaded ? (
-        // przed pobraniem danych: miejsce zarezerwowane, bez fałszywego „brak wpisów” i bez skoku układu
-        <section className="card sym-skel" aria-busy="true" aria-label="Wczytywanie wykresu" />
-      ) : (
-      <section className="card" data-cat="journal">
-        <SymptomsChart rows={merged} usage={data.usage} all={all} end={todayIso()} />
-      </section>
-      )}
-      <SecHead cat="journal" icon="edit">Wpis objawów</SecHead>
+      {!folded && <h2 className="section-title" id="sym-entry-h">Wpis objawów</h2>}
       {msg?.error && <div className="alert error" role="alert">{msg.text}</div>}
       <Toast text={msg && !msg.error ? msg.text : ''} onClose={() => setMsg(null)} />
       {folded ? (
@@ -204,7 +187,24 @@ export default function SymptomsBoard() {
               <div className="sym-actions"><button className="btn" aria-busy={saving || undefined} disabled={saving}>Zapisz wpis</button>{existing && <button type="button" className="btn danger" onClick={remove}>Usuń wpis</button>}</div>
         </form>
       )}
+      <h2 className="section-title">Ostatnie 30 dni</h2>
+      {loaded && merged.length === 0 && data.usage.length === 0 ? (
+        <section className="card empty">
+          <Illustration art="chart" />
+          <h2>Wykres pojawi się po pierwszym wpisie</h2>
+          <p>Zapisz, jak się dziś czujesz. Po kilku dniach zobaczysz tu przebieg bólu, snu, lęku i nastroju.</p>
+          <button type="button" className="btn" onClick={() => { const f = document.getElementById('sym-form'); f?.scrollIntoView({ block: 'start' }); f?.querySelector('input')?.focus({ preventScroll: true }); }}>Wpisz stan</button>
+        </section>
+      ) : !loaded ? (
+        // przed pobraniem danych: miejsce zarezerwowane, bez fałszywego „brak wpisów” i bez skoku układu
+        <section className="card sym-skel" aria-busy="true" aria-label="Wczytywanie wykresu" />
+      ) : (
+      <section className="card" data-cat="journal">
+        <SymptomsChart rows={merged} usage={data.usage} all={all} end={todayIso()} />
+      </section>
+      )}
       <CustomManager defs={defs} onChange={async (text) => { try { await reload(); setMsg(text ? { text } : null); } catch (e) { setMsg({ text: e.message, error: true }); } }} />
+      <p className="priv-note"><Icon name="info" size={20} />Dane są prywatne. Średnie z wybranego okresu trafiają do raportu dla lekarza.</p>
     </div>
   );
 }
