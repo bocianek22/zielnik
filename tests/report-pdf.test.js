@@ -96,3 +96,12 @@ test('buildReportPdf: poprawny PDF z polskimi znakami, emoji nie wywraca generat
   const [w, h] = [doc.getPage(0).getWidth(), doc.getPage(0).getHeight()];
   assert.ok(Math.abs(w - 595.28) < 0.01 && Math.abs(h - 841.89) < 0.01, 'A4');
 });
+
+test('layoutReport: komórka wyższa niż strona jest przycięta ze znacznikiem, nic nie leży pod dolnym marginesem', () => {
+  const long = Array.from({ length: 150 }, (_, i) => `linia ${i}`).join('\n');
+  const pages = layoutReport([{ type: 'table', head: ['Odmiana', 'Spostrzeżenia'], widths: [1, 2], rows: [['A', long], ['B', 'krótko']] }], { measure });
+  const texts = pages.flat().filter((o) => o.t === 'text');
+  for (const o of texts) assert.ok(o.y <= PAGE.h - PAGE.bottom + 0.01, `"${o.text}" pod marginesem (${o.y})`);
+  assert.ok(texts.some((o) => o.text === '… (pełny tekst w aplikacji)'));
+  assert.ok(texts.some((o) => o.text === 'krótko'), 'następny wiersz nie ginie');
+});

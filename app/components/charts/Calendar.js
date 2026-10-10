@@ -3,7 +3,7 @@ import { useMemo, useRef, useState } from 'react';
 import SecHead from '../SecHead';
 import Frame from './Frame';
 import { addDays, longDay, num, plural, weekday } from './fmt';
-import { dayState, levelOf, monthLabels, quarters, thresholds } from './calendar';
+import { dayState, levelOf, monthLabels, quarters, thresholds } from './calendar-grid';
 
 // Kalendarz zużycia w Historii (A5): kwartał (13 tygodni × 7 dni) albo rok (4 kwartały; na komputerze w jednym rzędzie).
 // Cztery stany dnia różnią się kształtem, nie tylko kolorem: brak wpisu = pusta komórka z ramką, „dzień bez zużycia” (POM-38) =

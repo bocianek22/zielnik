@@ -1,7 +1,7 @@
-// Kalendarz zużycia (app/components/charts/calendar.js): siatka kwartałów, progi skali i cztery stany dnia (bez Reacta).
+// Kalendarz zużycia (app/components/charts/calendar-grid.js): siatka kwartałów, progi skali i cztery stany dnia (bez Reacta).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { weekStart, quarters, thresholds, levelOf, dayState, monthLabels } from '../app/components/charts/calendar.js';
+import { weekStart, quarters, thresholds, levelOf, dayState, monthLabels } from '../app/components/charts/calendar-grid.js';
 
 test('weekStart: poniedziałek tygodnia (niedziela należy do poprzedniego tygodnia)', () => {
   assert.equal(weekStart('2026-10-10'), '2026-10-05'); // sobota

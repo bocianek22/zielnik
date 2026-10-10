@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Icon from '../components/Icon';
 import { isNative, nativePrint } from '../components/native/bridge';
 import { isDiscreet } from '@/lib/discreet';
@@ -45,10 +45,25 @@ export default function ReportActions({ from, to, model, notes: initialNotes }) 
     return new File([bytes], model.fileName, { type: 'application/pdf' });
   };
 
+  // Safari (iOS) wymaga świeżego gestu przy navigator.share: plik przygotowujemy zawczasu (i po każdej zmianie notatek),
+  // a dotknięcie tylko go udostępnia. Tryb dyskretny wpływa na tytuł metadanych, więc przy udostępnianiu sprawdzamy go jeszcze raz.
+  const ready = useRef(null);
+  useEffect(() => {
+    if (!caps?.share) return undefined;
+    let live = true;
+    ready.current = null;
+    const t = setTimeout(() => {
+      const discreet = isDiscreet();
+      make().then((file) => { if (live) ready.current = { file, discreet }; }).catch(() => {});
+    }, 300);
+    return () => { live = false; clearTimeout(t); };
+  }, [caps, notes]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const run = (kind) => async () => {
     setErr(''); setBusy(kind);
     try {
-      const file = await make();
+      const pre = kind === 'share' && ready.current?.discreet === isDiscreet() ? ready.current.file : null;
+      const file = pre || await make();
       if (kind === 'share') {
         await navigator.share({ files: [file], title: 'Raport' });
       } else {
