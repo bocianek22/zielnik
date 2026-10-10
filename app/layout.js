@@ -26,6 +26,7 @@ import { isNativeApp } from '@/lib/client';
 import RegisterSW from './components/RegisterSW';
 import DiscreetGuard from './components/DiscreetGuard';
 import NativeShell from './components/NativeShell';
+import WebTransitions from './components/WebTransitions';
 import WebLock from './components/WebLock';
 import { BOOT_SCRIPT } from '@/lib/applock';
 
@@ -71,7 +72,7 @@ export default async function RootLayout({ children }) {
         <script nonce={nonce} dangerouslySetInnerHTML={{ __html: "try{var t=localStorage.getItem('zielnik.theme');if(t==='dark'||t==='light')document.documentElement.dataset.theme=t}catch(e){}try{if(localStorage.getItem('zielnik.big')==='1')document.documentElement.classList.add('big-ui')}catch(e){}try{if(localStorage.getItem('zielnik.discreet')==='1'&&document.documentElement.dataset.discreet!=='1'){document.documentElement.dataset.discreet='1';document.cookie='zielnik_discreet=1; path=/; max-age=31536000; SameSite=Lax'}}catch(e){}" }} />
         <script nonce={nonce} dangerouslySetInnerHTML={{ __html: BOOT_SCRIPT }} />
       </head>
-      <body>{children}<RegisterSW /><DiscreetGuard /><NativeShell /><WebLock /></body>
+      <body>{children}<RegisterSW /><DiscreetGuard /><NativeShell /><WebTransitions /><WebLock /></body>
     </html>
   );
 }

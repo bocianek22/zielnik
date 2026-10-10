@@ -89,3 +89,52 @@ test('prefers-reduced-motion: animacje i przejścia wyłączone', async () => {
     assert.equal(d.a, 'none');
   } finally { await ctx.close(); }
 });
+
+// B4: mikrointerakcje. Wejście kart, podświetlenie liczby (.bump) i przejścia między ekranami (View Transitions) działają tylko
+// bez „ogranicz ruch”; z nim nie ma żadnej animacji i nie startuje żadne przejście.
+const countTransitions = () => {
+  window.__vt = 0;
+  if (typeof document.startViewTransition !== 'function') return;
+  const orig = document.startViewTransition.bind(document);
+  document.startViewTransition = (...a) => { window.__vt++; return orig(...a); };
+};
+const motion = (page) => page.evaluate(() => {
+  const probe = document.createElement('b');
+  probe.className = 'bump';
+  document.body.append(probe);
+  const bump = getComputedStyle(probe).animationName;
+  probe.remove();
+  return { card: getComputedStyle(document.querySelector('.page > .card:not(.empty), .page > section.card')).animationName, bump, vt: window.__vt };
+});
+
+test('prefers-reduced-motion: bez wejścia kart, podświetlenia liczby i przejść między ekranami', async () => {
+  const { ctx, page } = await open('light');
+  try {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.addInitScript(countTransitions);
+    await go(page, '/historia');
+    const m = await motion(page);
+    assert.equal(m.card, 'none');
+    assert.equal(m.bump, 'none');
+    await page.locator('.bottomnav a[href="/"]').click();
+    await page.waitForURL((u) => u.pathname === '/', { timeout: 15000 });
+    assert.equal((await page.evaluate(() => window.__vt)) || 0, 0, 'przejście ekranu mimo „ogranicz ruch”');
+  } finally { await ctx.close(); }
+});
+
+test('bez „ogranicz ruch”: karty wchodzą animacją, liczba ma podświetlenie, przejście ekranu startuje i kończy się bez śladu', async () => {
+  const { ctx, page } = await open('light');
+  try {
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await page.addInitScript(countTransitions);
+    await go(page, '/historia');
+    const m = await motion(page);
+    assert.equal(m.card, 'card-in');
+    assert.equal(m.bump, 'bump-flash');
+    const supported = await page.evaluate(() => typeof document.startViewTransition === 'function');
+    await page.locator('.bottomnav a[href="/"]').click();
+    await page.waitForURL((u) => u.pathname === '/', { timeout: 15000 });
+    if (supported) assert.ok((await page.evaluate(() => window.__vt)) >= 1, 'brak przejścia ekranu');
+    await page.waitForFunction(() => !document.documentElement.classList.contains('vt-active'), null, { timeout: 5000 });
+  } finally { await ctx.close(); }
+});
