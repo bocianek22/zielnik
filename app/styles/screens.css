@@ -2,20 +2,19 @@
    Każdy blok ma właściciela w docs/DESIGN.md („Do przeniesienia na system”); przy przenoszeniu ekranu
    wydziel jego blok do osobnego pliku app/styles/<ekran>.css i dopisz import w app/layout.js. */
 
-/* ===== Wspólne dla profilu, wyszukiwarki i panelu admina (.avatar, .wall); układ znajomych, grup i profilu publicznego: social.css ===== */
+/* ===== Wspólne dla profilu, wyszukiwarki i panelu admina (.avatar, .person); układ znajomych, grup i profilu publicznego: social.css ===== */
 .avatar { width: 88px; height: 88px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background: var(--surface-2); }
-.avatar.ph { display: grid; place-items: center; background: var(--accent-soft); color: var(--on-accent-soft); font-family: var(--font-display), Georgia, serif; font-size: 2rem; font-weight: 600; }
-.wall { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
-.wall li p { margin: 0 0 4px; }
+.avatar.ph { display: grid; place-items: center; background: var(--accent-soft); color: var(--on-accent-soft); font-family: var(--font-display), system-ui, sans-serif; font-size: 2rem; font-weight: 600; }
 .person { display: flex; justify-content: space-between; align-items: center; gap: var(--s-3); flex-wrap: wrap; padding: var(--s-3) 0; border-top: 1px solid var(--sep); }
 .person a { text-decoration: none; color: inherit; font-weight: 600; }
 
 
 /* POM-37: karta „W aptece” na stronie Recepty */
-.pharmacy h2 { margin-bottom: var(--s-2); }
-.pharmacy-rx { list-style: none; margin: 0 0 var(--s-3); padding: 0; display: grid; gap: var(--s-1); }
-.pharmacy-pools { list-style: none; margin: 0; padding: 0; }
-.pharmacy-pool { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-2) var(--s-3); padding: var(--s-3) 0; border-top: 1px solid var(--sep); }
+.pharmacy .sec-head { margin-bottom: var(--s-3); }
+.pharmacy-rx { list-style: none; margin: 0 0 var(--s-3); padding: var(--s-3) var(--s-4); display: grid; gap: var(--s-1); background: var(--surface); border-radius: var(--r-lg); }
+.pharmacy-pools { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-2); }
+.pharmacy-pool { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-2) var(--s-3); padding: var(--s-3) var(--s-4); background: var(--surface); border-radius: var(--r-lg); }
+.pharmacy > p.muted { color: var(--c-ink); }
 .pp-name { display: grid; gap: 2px; min-width: 0; }
 .pharmacy-pool .quick { flex: 0 1 auto; min-width: 0; max-width: 100%; }
 .pharmacy-pool .quick-stock { display: none; }
@@ -30,3 +29,6 @@
 /* Recepty: krótka uwaga nad listą (pełny tekst w Pomocy) */
 .rx-note { margin: 0 0 var(--s-3); font-size: var(--fs-sm); }
 .rx-note a { padding: 12px 6px; margin: -12px -6px; font-weight: 600; color: var(--accent-text); }
+
+/* ===== Design 3, S3: hero obszaru (.hero.cat-hero), .hero-top, .hero-actions, .priv-note, .pill-trend i kółko w karcie tonalnej
+   są komponentami bazowymi w globals.css ===== */

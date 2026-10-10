@@ -73,8 +73,9 @@ test('dailyUse: forecast liczy tempo tygodni osobno dla g i ml, a perDay zostaje
   assert.equal(du.forecast.g.minRate, 0.5);
   assert.equal(du.forecast.g.maxRate, 1);
   assert.deepEqual(du.forecast.ml, { days: 10, minRate: null, maxRate: null });
-  // dotychczasowe pola bez zmian: 20 dni wpisów, suma 3,5 + 13 = 16,5 g, dni od pierwszego wpisu (19 dni temu, południe) = 20
-  assert.ok(Math.abs(du.perDay - 16.5 / 20) < 1e-9, `perDay ${du.perDay}`);
+  // dotychczasowe pola bez zmian: suma 3,5 + 13 = 16,5 g na liczbę dni od pierwszego wpisu (19 dni temu, południe);
+  // przed południem polskim dzisiejszy wpis jest jeszcze w przyszłości, więc dzielnik to 19 albo 20 zależnie od godziny testu
+  assert.ok([19, 20].some((n) => Math.abs(du.perDay - 16.5 / n) < 1e-9), `perDay ${du.perDay}`);
   assert.ok(du.perDayMl > 0);
 });
 

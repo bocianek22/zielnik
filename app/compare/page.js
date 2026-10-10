@@ -61,17 +61,17 @@ export default async function Compare({ searchParams }) {
     <>
       <Header user={user} />
       <main className="page">
-        <Link href="/" className="back"><Icon name="chevronLeft" size={20} />Wszystkie odmiany</Link>
-        <h1>Porównanie</h1>
+        <Link href="/odmiany" className="back"><Icon name="chevronLeft" size={20} />Wszystkie odmiany</Link>
+        <header className="page-head"><h1>Porównanie</h1></header>
         {rows.length < 2 ? (
           <div className="empty">
             <Icon name="list" size={32} />
             <h2>Wybierz odmiany do porównania</h2>
-            <p>Zaznacz na liście co najmniej dwie odmiany (pole „Porównaj”) i otwórz porównanie.</p>
-            <Link className="btn" href="/">Wróć do odmian</Link>
+            <p>Zaznacz na liście co najmniej dwie odmiany (menu „⋯” przy odmianie, pozycja „Porównaj”) i otwórz porównanie.</p>
+            <Link className="btn" href="/odmiany">Wróć do odmian</Link>
           </div>
         ) : (
-          <div className="card cmp-board" style={{ '--n': rows.length }}>
+          <div className="card cmp-board" data-cat="strain" style={{ '--n': rows.length }}>
             <div className="cmp-head">
               <span className="cmp-spacer" aria-hidden="true" />
               {rows.map((s) => <Link key={s.id} href={`/strains/${s.id}`} className="dn">{s.name}</Link>)}

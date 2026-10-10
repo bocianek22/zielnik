@@ -8,8 +8,7 @@
 .stat-strip > div + div { border-left: 1px solid var(--sep); }
 .stat-strip dt { font-size: var(--fs-xs); font-weight: 600; color: var(--text-2); letter-spacing: .01em; }
 .stat-strip dd { margin: 2px 0 0; font-size: var(--fs-sm); color: var(--text-2); white-space: nowrap; }
-.stat-strip dd b { font-family: var(--font-display), Georgia, serif; font-size: 1.625rem; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums lining-nums; letter-spacing: -.01em; }
-.stat-sub { display: block; font-size: var(--fs-xs); color: var(--text-3); }
+.stat-strip dd b { font-family: var(--font-display), system-ui, sans-serif; font-size: 1.625rem; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums lining-nums; letter-spacing: -.01em; }
 .prefs { border-top: 1px solid var(--sep); }
 .prefs > summary { display: flex; align-items: center; justify-content: space-between; min-height: var(--tap); padding: 0 var(--s-4); cursor: pointer; list-style: none; font-size: var(--fs-sm); font-weight: 600; color: var(--accent-text); }
 .prefs > summary::-webkit-details-marker { display: none; }
@@ -58,33 +57,46 @@
   .sortbox .input { flex: 1; min-width: 0; }
 }
 
-/* ===== Karta odmiany ===== */
-.strain { padding: var(--s-4) var(--s-5); }
-.strain-head { display: flex; gap: var(--s-4); align-items: flex-start; }
+/* ===== Podsumowanie nad listą (trzy kafle) ===== */
+.strain-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-3); margin-bottom: var(--s-4); }
+.strain-kpis .kpi-tile { min-height: 92px; padding: var(--s-3) var(--s-4); min-width: 0; }
+.strain-kpis .kt-value { font-size: 1.875rem; }
+
+/* ===== Lista: wiersze w jednej karcie ===== */
+.strain-list { padding: 0; overflow: visible; }
+.strain { position: relative; padding: var(--s-4) var(--s-5); }
+.strain + .strain, .strain-list > * + .strain, .strain-list > .strain + * { border-top: 1px solid var(--sep); }
+.strain-head { display: flex; gap: var(--s-3); align-items: flex-start; }
 .strain-title { flex: 1; min-width: 0; }
-.strain-head h3 { font-size: 1.375rem; margin: 0 0 2px; line-height: 1.2; overflow-wrap: anywhere; }
+.strain-head h3 { font-size: 1.1875rem; font-weight: 700; margin: 0 0 2px; line-height: 1.25; overflow-wrap: anywhere; }
 .strain-head h3 a { color: inherit; text-decoration: none; }
 .strain-head h3 a:hover { text-decoration: underline; text-decoration-color: var(--sep-strong); text-underline-offset: 4px; }
-.strain-meta, .strain-facts { display: flex; flex-wrap: wrap; align-items: center; margin: 0; color: var(--text-2); font-size: .9375rem; line-height: 1.5; }
-.strain-meta > * + *::before, .strain-facts > * + *::before { content: '·'; margin: 0 6px; color: var(--text-3); }
-/* linia meta: jedna linia z wielokropkiem, pełna treść w szczegółach */
+.strain-meta { display: flex; flex-wrap: wrap; align-items: center; margin: 0; color: var(--text-2); font-size: .9375rem; line-height: 1.5; }
+.strain-meta > * + *::before { content: '·'; margin: 0 6px; color: var(--text-3); }
 .strain-meta { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .strain-meta > * { display: inline; }
 .strain-meta .kind { display: inline-flex; vertical-align: baseline; }
-.strain-facts { color: var(--text); font-weight: 500; font-variant-numeric: tabular-nums; font-size: var(--fs-sm); margin-top: 2px; }
-.strain-meta .badge { margin-left: 2px; }
-.strain-status { display: flex; flex-wrap: wrap; gap: 6px; margin: var(--s-2) 0 0; }
 /* rodzaj: kolorowa kropka + nazwa (kolor tylko jako znacznik danych) */
 .kind { display: inline-flex; align-items: center; }
 .kind-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--kind, var(--text-3)); margin-right: 5px; flex: none; }
 .kind-indica { --kind: var(--kind-indica); } .kind-sativa { --kind: var(--kind-sativa); } .kind-hybryda { --kind: var(--kind-hybryda); }
+/* miniatura: kwadrat w kolorze rodzaju z ikoną słoika albo kropli (bez inicjałów, tryb dyskretny) */
+.strain-thumb { flex: none; width: 56px; height: 56px; border-radius: var(--r-md); display: grid; place-items: center; background: var(--kind, var(--surface-3)); color: var(--on-kind); }
+.k-none .strain-thumb { background: var(--surface-3); color: var(--text-2); }
+.strain.k-indica { --kind: var(--kind-indica); } .strain.k-sativa { --kind: var(--kind-sativa); } .strain.k-hybryda { --kind: var(--kind-hybryda); }
 .scores { display: flex; gap: var(--s-4); flex-shrink: 0; text-align: right; }
-.score { display: grid; justify-items: end; min-width: 56px; }
-.score b { font-family: var(--font-display), Georgia, serif; font-size: 1.875rem; line-height: 1; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums lining-nums; }
-.score-stock { margin: var(--s-1) 0 0; font-size: var(--fs-sm); color: var(--text-2); font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; }
-.score small { font-size: var(--fs-xs); color: var(--text-2); margin-top: 4px; white-space: nowrap; }
-.score.soft b { font-size: 1.375rem; color: var(--text-2); }
-.strain-photo { width: 72px; height: 72px; object-fit: cover; border-radius: var(--r-md); background: var(--surface-2); display: block; }
+.score { display: grid; justify-items: end; min-width: 48px; }
+.score b { font-size: 1.75rem; line-height: 1.05; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums lining-nums; letter-spacing: -.02em; }
+.score small { font-size: var(--fs-xs); color: var(--text-2); margin-top: 2px; white-space: nowrap; }
+.score.soft b { font-size: 1.25rem; font-weight: 700; color: var(--text-2); }
+/* pigułki: dane (THC, cena) neutralne, stan zapasu w kolorze znaczenia */
+.strain-pills { display: flex; flex-wrap: wrap; gap: 6px; margin: var(--s-3) 0 0; padding: 0; }
+.strain-pills:empty { display: none; }
+.pill { display: inline-flex; align-items: center; min-height: 28px; padding: 0 12px; border-radius: var(--r-pill); background: var(--surface-2); color: var(--text); font-size: var(--fs-sm); font-weight: 600; font-variant-numeric: tabular-nums; }
+.pill.stock-ok { background: var(--c-soft); color: var(--c-ink); }
+.pill.stock-low { background: var(--warn-soft); color: var(--warn); }
+.pill.stock-none { color: var(--text-2); }
+.strain-photo { width: 56px; height: 56px; object-fit: cover; border-radius: var(--r-md); background: var(--surface-2); display: block; overflow: hidden; color: transparent; font-size: 0; } /* zepsuty obraz: bez rozlanego tekstu alt (czytnik nadal go czyta) */
 .strain-photo.ph { display: grid; place-items: center; font-size: var(--fs-xs); color: var(--text-2); text-align: center; }
 .photo-link { flex-shrink: 0; }
 .strain-more { margin-top: var(--s-3); }
@@ -92,38 +104,31 @@
 .strain-desc { margin-top: var(--s-2); }
 .strain-desc summary { cursor: pointer; font-weight: 600; font-size: var(--fs-sm); color: var(--accent-text); min-height: var(--tap); display: flex; align-items: center; }
 .strain-desc p { margin: 6px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
-.strain-foot { margin-top: var(--s-3); padding-top: var(--s-2); border-top: 1px solid var(--sep); display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); flex-wrap: wrap; }
-.strain-foot .check { font-size: var(--fs-sm); min-height: var(--tap); }
+.strain-foot { margin-top: var(--s-2); display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); }
 .strain-foot .chev { transition: transform var(--dur-2) var(--ease); }
 .strain.expanded .strain-foot .chev { transform: rotate(180deg); }
-.strain-foot .cmp-check { color: var(--text-2); font-weight: 500; }
-.strain-foot .btn.text[aria-label] { color: var(--text-2); font-weight: 500; }
-.strain-foot .btn.text[aria-label] .icon { color: var(--text-3); }
+.strain-foot .btn { min-height: var(--tap); }
+.strain-foot > .card-menu:only-child { margin-left: auto; }
+/* menu karty: „Porównaj” i „Edytuj” (rzadkie akcje) */
+.card-menu { position: relative; margin-left: auto; }
+.card-menu > summary { list-style: none; display: inline-grid; place-items: center; width: var(--tap); height: var(--tap); border-radius: var(--r-md); color: var(--text-2); cursor: pointer; }
+.card-menu > summary::-webkit-details-marker { display: none; }
+.card-menu > summary:hover, .card-menu[open] > summary { background: var(--hover-bg); color: var(--text); }
+.card-menu-list { position: absolute; right: 0; bottom: 100%; z-index: 20; min-width: 230px; display: grid; padding: var(--s-1); background: var(--surface); border: 1px solid var(--sep-strong); border-radius: var(--r-md); box-shadow: var(--shadow-card); }
+.card-menu-list .check { min-height: var(--tap); padding: 0 var(--s-3); font-size: var(--fs-sm); font-weight: 500; }
+.card-menu-list .btn { justify-content: flex-start; font-weight: 500; }
 .pool-note { color: var(--text-2); font-size: var(--fs-xs); line-height: 1.35; }
 @media (max-width: 760px) {
   .strain { padding: var(--s-4); }
-  .strain-head { flex-wrap: nowrap; gap: var(--s-3); }
-  .strain-head h3 { font-size: 1.25rem; }
-  .strain-photo { width: 56px; height: 56px; }
-  .scores { flex-direction: column; gap: var(--s-2); }
-  .score b { font-size: 1.625rem; }
-  .score.soft b { font-size: 1.125rem; }
-  .strain-foot { flex-wrap: nowrap; gap: 0; margin-inline: calc(var(--s-2) * -1); }
-  .strain-foot .btn.text { padding-inline: var(--s-2); white-space: nowrap; flex: none; }
-  .strain-foot .hide-narrow { display: none; }
-  .strain-foot .cmp-check { padding-inline: var(--s-2); gap: 8px; white-space: nowrap; }
+  .score.soft { display: none; }
 }
-/* 320 px: stopka karty mieści trzy cele; etykiety się nie łamią, „Porównaj” ma własne miejsce i zwęża się razem z przyciskami */
 @media (max-width: 359px) {
-  .strain-foot { margin-inline: calc(var(--s-1) * -1); }
-  .strain-foot > * { min-width: 0; }
-  .strain-foot .btn.text { padding-inline: var(--s-1); font-size: var(--fs-xs); gap: 2px; }
-  .strain-foot .cmp-check { padding-inline: var(--s-1); gap: 6px; font-size: var(--fs-xs); flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis; }
-  .strain-meta > * + *::before, .strain-facts > * + *::before { margin: 0 4px; }
-  .strain-facts { font-size: var(--fs-xs); }
+  .strain-kpis { gap: var(--s-2); }
+  .strain-kpis .kpi-tile { padding: var(--s-3); }
+  .strain-kpis .kt-value { font-size: 1.5rem; }
   .strain-head { gap: var(--s-2); }
-  .score { min-width: 44px; }
-  .score small { white-space: normal; text-align: right; line-height: 1.2; }
+  .strain-thumb, .strain-photo { width: 44px; height: 44px; }
+  .strain-meta > * + *::before { margin: 0 4px; }
 }
 
 /* ===== Pola użytkownika w karcie ===== */
@@ -141,7 +146,7 @@
 .entry-field { display: grid; gap: 4px; min-width: 0; }
 .entry-field label, .entry-field .lbl { font-size: var(--fs-xs); font-weight: 600; color: var(--text-2); }
 .entry-field b { padding-top: 6px; font-variant-numeric: tabular-nums; }
-.entry-field .notes-text, .entry-field.notes > span:last-child { padding-top: 6px; overflow-wrap: anywhere; }
+.entry-field.notes > span:last-child { padding-top: 6px; overflow-wrap: anywhere; }
 .entry-field .input { padding: 8px 10px; background: var(--field-bg); min-height: var(--tap); font-size: 1rem; }
 .entry-field .btn.small, .use-row .btn { min-height: var(--tap); }
 .entry-field.use, .entry-field.buy, .entry-field.vis, .entry-field.price { grid-column: 1 / -1; }
@@ -176,8 +181,11 @@
 .quick-btns { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); }
 .quick-btns .btn, .strain-foot .btn { min-height: var(--tap); }
 .quick-btn.on { background: var(--accent-soft); color: var(--on-accent-soft); border-color: var(--accent); }
+.quick-btns .btn.quick-btn:not(.ghost) { background: var(--c-soft, var(--accent-soft)); color: var(--c-ink, var(--on-accent-soft)); border-color: transparent; }
+.quick-btns .btn.quick-btn:not(.ghost).on { border-color: var(--c-ink, var(--accent)); }
+.quick-btns .btn.quick-btn.ghost { background: transparent; }
 .quick-stock { font-size: var(--fs-sm); font-variant-numeric: tabular-nums; margin-left: auto; }
-.strain > .quick .quick-stock { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; margin: 0; } /* widoczny stan stoi pod oceną (.score-stock) */
+.strain .quick .quick-stock { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; margin: 0; } /* widoczny stan stoi pod oceną (.score-stock) */
 .quick-panel { display: grid; gap: var(--s-2); padding: var(--s-3); border: 1px solid var(--sep-strong); border-radius: var(--r-md); background: var(--surface); animation: quick-in var(--dur-2) var(--ease); }
 .quick-panel > label { font-weight: 600; font-size: var(--fs-sm); }
 .quick-chips { margin-top: 0; }

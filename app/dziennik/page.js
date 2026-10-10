@@ -15,16 +15,20 @@ export default async function Dziennik() {
     <>
       <Header user={user} />
       <main className="page">
-        <h1>Dziennik objawów</h1>
+        <header className="hero cat-hero" data-cat="journal">
+          <div className="hero-top">
+            <span className="ic-dot sq"><Icon name="pulse" size={24} /></span>
+            <div>
+              <h1>Dziennik objawów</h1>
+              <p className="hero-sub">Ból, sen, lęk i nastrój w skali 0–10</p>
+            </div>
+          </div>
+          <nav className="hero-actions" aria-label="Wnioski z wpisów">
+            <Link href="/raport" className="btn">Raport</Link>
+            <Link href="/obserwacje" className="btn ghost">Moje obserwacje</Link>
+          </nav>
+        </header>
         <SymptomsBoard />
-        <h2 className="section-label">Wnioski z wpisów</h2>
-        <nav className="list" aria-label="Wnioski z wpisów">
-          <Link href="/obserwacje" className="list-row">
-            <Icon name="chart" />
-            <span className="lr-main">Moje obserwacje<span className="lr-sub">Średnie objawów w dniach z daną odmianą</span></span>
-            <Icon name="chevronRight" size={18} className="lr-chev" />
-          </Link>
-        </nav>
       </main>
     </>
   );

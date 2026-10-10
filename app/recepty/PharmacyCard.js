@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import SecHead from '../components/SecHead';
 import QuickActions from '../components/QuickActions';
 import { formatDay } from '@/lib/date';
 
@@ -20,8 +21,8 @@ export default function PharmacyCard({ rx, pools: initial }) {
     window.dispatchEvent(new Event('zielnik:purchase'));
   };
   return (
-    <section className="card pharmacy" aria-labelledby="pharmacy-h">
-      <h2 id="pharmacy-h">W aptece</h2>
+    <section className="card tint pharmacy" data-cat="rx" aria-labelledby="pharmacy-h">
+      <SecHead cat="rx" icon="cart" id="pharmacy-h">W aptece</SecHead>
       {active.length > 0 && (
         <ul className="pharmacy-rx">
           {active.map((r) => (

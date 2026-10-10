@@ -3,21 +3,28 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import AxeBuilder from '@axe-core/playwright';
-import { launch, phone, login, shot, go } from './helpers.mjs';
+import { BASE, launch, phone, login, shot, go } from './helpers.mjs';
 
 let browser;
 let session;
+let chatPath; // czat grupy z jedną wiadomością (Design 3: dymki w tle obszaru „społeczność”)
 before(async () => {
   browser = await launch();
   const { ctx } = await phone(browser);
   const page = await ctx.newPage();
   await login(page, 'ania');
   session = await ctx.storageState();
+  const headers = { origin: BASE };
+  const g = await (await ctx.request.post(`${BASE}/api/groups`, { data: { name: 'Dostępność E2E' }, headers })).json();
+  assert.ok(g.id, 'grupa założona');
+  const m = await ctx.request.post(`${BASE}/api/groups/${g.id}/messages`, { data: { body: 'Wiadomość do sprawdzenia kontrastu dymka.' }, headers });
+  assert.ok(m.ok(), `wiadomość zapisana (${m.status()})`);
+  chatPath = `/grupy/${g.id}`;
   await ctx.close();
 });
 after(async () => { await browser?.close(); });
 
-const PAGES = ['/', '/dziennik', '/obserwacje', '/raport', '/recepty', '/historia', '/profil', '/katalog', 'STRAIN'];
+const PAGES = ['/', '/odmiany', '/dziennik', '/obserwacje', '/raport', '/recepty', '/historia', '/profil', '/katalog', '/grupy', 'STRAIN', 'CHAT'];
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 
 async function open(storageState, theme, big) {
@@ -38,7 +45,7 @@ async function strainPath(page) {
   await go(page, '/katalog');
   const href = await page.locator('a[href^="/strains/"]').first().getAttribute('href').catch(() => null);
   if (href) return href;
-  await go(page, '/');
+  await go(page, '/odmiany');
   return page.locator('a[href^="/strains/"]').first().getAttribute('href');
 }
 
@@ -49,8 +56,15 @@ for (const [theme, big] of [['light', false], ['dark', false], ['light', true]])
     try {
       for (let path of PAGES) {
         if (path === 'STRAIN') path = await strainPath(page);
-        await go(page, path);
-        await page.waitForLoadState('networkidle').catch(() => {});
+        if (path === 'CHAT') {
+          // czat odpytuje serwer co kilka sekund, więc networkidle nie nadchodzi: czekamy na wczytane wiadomości
+          path = chatPath;
+          await go(page, path);
+          await page.locator('.chat-msgs .chat-bubble').first().waitFor();
+        } else {
+          await go(page, path);
+          await page.waitForLoadState('networkidle').catch(() => {});
+        }
         for (const v of await violations(page)) found.push(`${path}: ${v}`);
       }
       assert.deepEqual(found, [], 'naruszenia axe (serious/critical)');
@@ -78,8 +92,9 @@ for (const big of [false, true]) {
     try {
       const min = big ? 56 : 44;
       const bad = [];
-      for (const path of ['/', '/dziennik', '/profil', '/katalog']) {
-        await go(page, path);
+      for (const path of ['/', '/odmiany', '/dziennik', '/profil', '/katalog', '/recepty', '/historia', '/raport', '/obserwacje', 'CHAT']) {
+        await go(page, path === 'CHAT' ? chatPath : path);
+        if (path === 'CHAT') await page.locator('.chat-msgs .chat-bubble').first().waitFor();
         const small = await page.evaluate((m) => {
           const out = [];
           for (const el of document.querySelectorAll('button, a[href], input:not([type=hidden]), select, textarea, [role=button], [role=radio], [role=switch]')) {

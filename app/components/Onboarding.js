@@ -197,10 +197,10 @@ export default function Onboarding() {
 
   return (
     <div className="stack onb">
-      <header className="onb-head">
+      <header className="onb-head hero">
         <h1>Pierwsze kroki</h1>
         <p className="muted">Trzy krótkie kroki. Każdy możesz pominąć i uzupełnić później.</p>
-        {step < 3 && <button type="button" className="btn text small" onClick={close} disabled={busy}>Zamknij kreator</button>}
+        {step < 3 && <button type="button" className="btn ghost small" onClick={close} disabled={busy}>Zamknij kreator</button>}
       </header>
       {err && <div className="alert error" role="alert">{err}</div>}
       <ol className="onb-steps" aria-label="Postęp kreatora">

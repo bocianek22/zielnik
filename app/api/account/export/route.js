@@ -60,6 +60,10 @@ export const GET = safe(async (req) => {
     feedback: await q`SELECT kind, body, status, meta, created_at AS "createdAt" FROM beta_feedback WHERE user_id = ${me} ORDER BY created_at`,
     friends: await q`SELECT u.username, f.status FROM friendships f JOIN users u ON u.id = CASE WHEN f.requester = ${me} THEN f.addressee ELSE f.requester END WHERE f.requester = ${me} OR f.addressee = ${me}`,
     groups: await q`SELECT g.name, gm.role, gm.status FROM group_members gm JOIN groups g ON g.id = gm.group_id WHERE gm.user_id = ${me}`,
+    // własne wiadomości z czatów grup (SPO-2), odszyfrowane; usunięte nie mają treści i nie wchodzą do eksportu
+    groupMessages: openRows(await q`SELECT m.id, g.name AS "group", m.body, m.created_at AS "createdAt", m.edited_at AS "editedAt"
+      FROM group_messages m JOIN groups g ON g.id = m.group_id WHERE m.user_id = ${me} AND m.deleted_at IS NULL ORDER BY m.id`,
+      'group_messages', 'body', (r) => rowScope('group_messages', r)).map(({ id: _id, ...m }) => m),
     prescriptions: openRows(await q`SELECT id, to_char(issued_on, 'YYYY-MM-DD') AS issued_on, to_char(valid_until, 'YYYY-MM-DD') AS valid_until, grams::float8 AS grams, unit, note FROM prescriptions WHERE user_id = ${me} ORDER BY issued_on`, 'prescriptions', 'note', (r) => rowScope('prescriptions', { user_id: me, id: r.id })),
     symptoms: openRows(await q`SELECT to_char(day, 'YYYY-MM-DD') AS day, pain, sleep, anxiety, mood, note FROM symptom_log WHERE user_id = ${me} ORDER BY day`, 'symptom_log', 'note', (r) => rowScope('symptom_log', { user_id: me, day: r.day })),
     customSymptoms: await q`SELECT name, higher_better AS "higherBetter", created_at AS "createdAt" FROM symptom_custom WHERE user_id = ${me} ORDER BY slot`,

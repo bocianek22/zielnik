@@ -11,40 +11,48 @@
 .detail-bar { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); }
 .detail-bar .btn.text { margin-right: calc(-1 * var(--s-2)); }
 .stack > .detail-bar + * { margin-top: var(--s-2); }
-.detail-page > .section-label { margin: var(--s-8) var(--s-1) 0; }
-.detail-page > .section-label + * { margin-top: var(--s-2); }
 
-/* ===== Nagłówek odmiany ===== */
-.dhero { --kind: var(--text-3); }
-.dhero.kind-indica { --kind: var(--kind-indica); }
-.dhero.kind-sativa { --kind: var(--kind-sativa); }
-.dhero.kind-hybryda { --kind: var(--kind-hybryda); }
+/* ===== Nagłówek odmiany: hero z gradientem (komponent .hero), chipy, ilustracja słoika ===== */
+.dhero { position: relative; overflow: hidden; padding-bottom: var(--s-12); }
+.dhero > * { position: relative; }
+.dhero .detail-bar { margin-left: calc(-1 * var(--s-2)); }
+.dhero .back { color: var(--on-hero); margin-left: 0; }
+.dhero .btn.ghost.small { min-height: var(--tap); }
+.dhero-head { display: grid; gap: var(--s-2); margin-top: var(--s-2); max-width: calc(100% - 80px); }
+.dhero.has-photo .dhero-head { max-width: none; }
+.dhero-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; }
+.hchip { display: inline-flex; align-items: center; min-height: 28px; padding: 0 12px; border-radius: var(--r-pill); background: var(--hero-btn-2); color: var(--on-hero); font-size: var(--fs-sm); font-weight: 600; font-variant-numeric: tabular-nums; }
+.hchip.strong { font-weight: 700; }
+.hchip.warn { background: var(--warn-soft); color: var(--warn); }
+.hchip .kind-dot { width: 9px; height: 9px; margin-right: 6px; background: var(--kind); }
+.dhero h1 { margin: 2px 0 0; font-size: 2rem; font-weight: 800; line-height: 1.1; letter-spacing: -.02em; overflow-wrap: anywhere; }
+.dhero-producer { margin: 0; font-size: var(--fs-lg); color: var(--on-hero-2); overflow-wrap: anywhere; }
+.dhero-art { position: absolute !important; right: var(--s-4); bottom: var(--s-8); width: 84px; height: auto; color: var(--on-hero); opacity: .28; pointer-events: none; }
+.dhero-media { margin-top: var(--s-4); }
+.charcard-note { margin-bottom: var(--s-4); }
 .dhero-media .photo-open { display: block; width: 100%; }
-.dhero-img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: var(--surface-2); }
-.dhero-body { display: grid; gap: var(--s-5); }
-.dhero-head { display: grid; gap: var(--s-1); align-content: end; }
-/* bez zdjęcia: spokojny blok w kolorze rodzaju; tekst zostaje w kolorach tekstu, kolor rodzaju tylko w tle i kropce */
-.dhero.no-photo .dhero-head { background: color-mix(in srgb, var(--kind) 13%, var(--surface)); border: 1px solid color-mix(in srgb, var(--kind) 22%, var(--sep)); border-radius: var(--r-lg); padding: var(--s-10) var(--s-5) var(--s-5); min-height: 168px; }
-.dhero.kind-none.no-photo .dhero-head { background: var(--surface-2); border-color: var(--sep); }
-.dhero-eyebrow { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--s-2); font-size: var(--fs-sm); font-weight: 600; color: var(--text-2); }
-.dhero-eyebrow > span + span::before { content: '·'; margin-right: var(--s-2); color: var(--text-3); font-weight: 400; }
-.dhero-eyebrow .kind-dot { width: 9px; height: 9px; margin-right: 6px; }
-.dhero h1 { margin: 2px 0 0; font-size: 2.125rem; line-height: 1.1; letter-spacing: -.02em; overflow-wrap: anywhere; }
-.dhero-producer { margin: 0; font-size: var(--fs-lg); color: var(--text-2); }
-.dhero-status { margin: var(--s-2) 0 0; display: flex; gap: var(--s-2); flex-wrap: wrap; }
+.dhero-img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: var(--surface-2); border-radius: var(--r-lg); }
+.dhero .photo-credit { color: var(--on-hero-2); opacity: 1; }
+.dhero .photo-credit a { color: var(--on-hero); }
+.dhero.kind-indica { --kind: var(--kind-indica); } .dhero.kind-sativa { --kind: var(--kind-sativa); } .dhero.kind-hybryda { --kind: var(--kind-hybryda); }
 
-/* trzy oceny: duże liczby z cienkimi liniami między nimi */
-.dscores { display: grid; grid-template-columns: repeat(3, 1fr); margin: 0; border-top: 1px solid var(--sep); border-bottom: 1px solid var(--sep); }
-.dscores > div { padding: var(--s-3) var(--s-3) var(--s-3) 0; min-width: 0; }
-/* wspólne wiersze (subgrid): przy zawiniętej etykiecie liczby nadal stoją w jednej linii */
-.dscores > div { display: grid; grid-row: span 3; grid-template-rows: subgrid; align-content: start; }
-.dscores dt { align-self: end; }
-.dscores > div + div { padding-left: var(--s-3); border-left: 1px solid var(--sep); }
-.dscores dt { font-size: var(--fs-xs); font-weight: 600; color: var(--text-2); letter-spacing: .01em; }
-.dscores dd { margin: 0; color: var(--text-2); }
-.dscores dd b { font-family: var(--font-display), Georgia, serif; font-size: 2.25rem; line-height: 1.15; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums lining-nums; letter-spacing: -.02em; }
-.dscores dd small { font-size: var(--fs-sm); margin-left: 2px; }
-.dscores .dscore-sub { font-size: var(--fs-xs); }
+/* trzy kafle ocen nachodzą na dół hero; tylko „Moja” jest pełna (.solid) */
+.detail-page > .dscores { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-3); margin-top: calc(-1 * var(--s-10)); position: relative; padding-inline: var(--s-1); }
+.dscores .kpi-tile { min-height: 104px; padding: var(--s-3); min-width: 0; }
+.dscores .kt-label { margin: 0; }
+.dscores dd { margin: 0; }
+.dscores .kt-value { font-size: 1.875rem; }
+.dscores .kt-value small { font-size: var(--fs-sm); font-weight: 700; margin-left: 1px; }
+.dscores .kt-sub { font-size: var(--fs-xs); }
+
+/* karty szczegółów: tytuł z kółkiem w kolorze obszaru */
+.detail-page .sec-head { margin-bottom: var(--s-4); }
+.detail-page .sec-head > h2 { font-size: var(--fs-lg); font-weight: 700; }
+.hist-details > summary .ic-dot { flex: none; }
+.hist-details > summary .hist-title { flex: 1; font-size: var(--fs-lg); font-weight: 700; }
+.hist-details > summary { padding-block: var(--s-3); }
+.hist-details[open] > summary .ic-dot .icon { transform: none; color: inherit; }
+.hist-details > summary .ic-dot .icon { color: inherit; }
 
 /* ===== Skład: mierniki THC/CBD, terpeny, fakty ===== */
 .dlabel { margin: 0 0 var(--s-2); font-family: var(--font-body), system-ui, sans-serif; font-size: var(--fs-sm); font-weight: 600; color: var(--text-2); letter-spacing: .01em; }
@@ -61,7 +69,7 @@
 .mystats-grid > div:nth-child(n+3) { border-top: 1px solid var(--sep); }
 .mystats-grid dt { font-size: var(--fs-xs); font-weight: 600; color: var(--text-2); }
 .mystats-grid dd { margin: 0; color: var(--text-2); }
-.mystats-grid dd b { font-family: var(--font-display), Georgia, serif; font-size: 1.75rem; line-height: 1.2; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums lining-nums; letter-spacing: -.01em; }
+.mystats-grid dd b { font-family: var(--font-display), system-ui, sans-serif; font-size: 1.75rem; line-height: 1.2; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums lining-nums; letter-spacing: -.01em; }
 .mystats-grid dd b.txt { font-size: 1.375rem; line-height: 1.53; }
 .mystats-grid .sub { font-size: var(--fs-xs); }
 @media (min-width: 761px) {
@@ -79,7 +87,7 @@
 .op-who { display: inline-flex; align-items: center; min-height: var(--tap); font-weight: 600; color: var(--text); text-decoration: none; overflow-wrap: anywhere; }
 .op-who:hover { text-decoration: underline; }
 .op-rating { color: var(--text-2); font-size: var(--fs-sm); white-space: nowrap; }
-.op-rating b { font-family: var(--font-display), Georgia, serif; font-size: var(--fs-xl); color: var(--text); font-variant-numeric: tabular-nums lining-nums; margin-right: 1px; }
+.op-rating b { font-family: var(--font-display), system-ui, sans-serif; font-size: var(--fs-xl); color: var(--text); font-variant-numeric: tabular-nums lining-nums; margin-right: 1px; }
 .op-note { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 
 /* mój wpis: sekcja ma już tytuł, więc „Twoje pola” tylko dla czytnika ekranu; stan zapisu zostaje widoczny */
@@ -89,16 +97,13 @@
 .dmine .entry-who > span:first-child { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 @media (min-width: 761px) {
-  .dhero.has-photo { display: grid; grid-template-columns: minmax(280px, 42%) 1fr; gap: var(--s-8); }
-  .dhero.has-photo .dhero-media .photo-open, .dhero.has-photo .dhero-img { border-radius: var(--r-lg); }
-  .dhero.has-photo .dhero-body { align-content: end; }
-  .dhero h1 { font-size: 2.75rem; }
-  /* bez zdjęcia na szerokim ekranie: oceny w tym samym bloku koloru, po prawej */
-  .dhero.no-photo .dhero-body { grid-template-columns: 1fr minmax(360px, 46%); gap: var(--s-8); align-items: end; background: color-mix(in srgb, var(--kind) 13%, var(--surface)); border: 1px solid color-mix(in srgb, var(--kind) 22%, var(--sep)); border-radius: var(--r-lg); padding: var(--s-12) var(--s-6) var(--s-6); }
-  .dhero.kind-none.no-photo .dhero-body { background: var(--surface-2); border-color: var(--sep); }
-  .dhero.no-photo .dhero-head { background: none; border: 0; padding: 0; min-height: 0; }
-  .dhero.no-photo .dscores { border-color: color-mix(in srgb, var(--kind) 25%, var(--sep)); }
-  .dhero.no-photo .dscores > div + div { border-left-color: color-mix(in srgb, var(--kind) 25%, var(--sep)); }
+  .dhero { padding: var(--s-6) var(--s-6) var(--s-12); }
+  .dhero.has-photo { display: grid; grid-template-columns: 1fr minmax(240px, 34%); column-gap: var(--s-8); align-items: end; }
+  .dhero.has-photo > .detail-bar { grid-column: 1 / -1; }
+  .dhero.has-photo .dhero-media { margin-top: 0; }
+  .dhero h1 { font-size: 2.5rem; }
+  .dhero-art { width: 120px; right: var(--s-8); }
+  .detail-page > .dscores { max-width: 640px; }
   /* skład w dwóch kolumnach: mierniki i terpeny | fakty */
   .dcomp-body { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-10); align-items: start; }
   .dcomp-body .dterp { margin-bottom: 0; }
@@ -106,18 +111,13 @@
   .detail-page .effects-body { align-items: flex-start; }
 }
 @media (max-width: 760px) {
-  .detail-page { padding-bottom: var(--s-6); margin-top: calc(-1 * var(--s-3)); }
-  /* zdjęcie i blok koloru od krawędzi do krawędzi ekranu (margines strony to --s-4) */
-  .dhero-media, .dhero.no-photo .dhero-head { margin-inline: calc(-1 * var(--s-4)); }
-  .dhero.no-photo .dhero-head { border-radius: 0; border-inline: 0; padding: var(--s-6) var(--s-4) var(--s-5); min-height: 120px; }
-  .dhero-body { margin-top: var(--s-4); }
-  .dhero h1 { font-size: 2rem; }
-  .dscores dd b { font-size: 1.875rem; }
+  .detail-page { padding-bottom: var(--s-6); }
 }
 @media (max-width: 360px) {
-  .dscores > div { padding-right: var(--s-2); }
-  .dscores > div + div { padding-left: var(--s-2); }
-  .dscores dd b { font-size: 1.625rem; }
+  .dscores { gap: var(--s-2); }
+  .dscores .kt-value { font-size: 1.5rem; }
+  .dhero-art { display: none; }
+  .dhero-head { max-width: none; }
 }
 
 /* opis w karcie charakterystyki */
@@ -172,3 +172,8 @@
 
 /* cele dotykowe >= 44 px: chipy terpenów (linki do Wiedzy) i małe przyciski w szczegółach */
 .detail-page .dterp .chip, .detail-page .btn.small, .detail-page .btn.text.small { min-height: var(--tap); }
+
+/* porównanie: nagłówki kolumn tonalne w kolorze odmian */
+.cmp-board[data-cat] .cmp-head { background: var(--c-soft); border-bottom-color: transparent; }
+.cmp-board[data-cat] .cmp-head a { color: var(--c-ink); font-weight: 700; }
+.cmp-board .cmp-line dd { font-weight: 600; }

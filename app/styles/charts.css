@@ -2,15 +2,6 @@
    Import po ekranach (layout.js), żeby kolejność kaskady została taka jak przed wydzieleniem. */
 :where(figure.chart-frame) { margin: 0; }
 
-/* Wykres słupkowy (Historia) */
-.usage-chart { padding-bottom: var(--s-3); }
-.bars { width: 100%; max-width: 520px; height: auto; display: block; margin: 0 auto; }
-.bars text { font-family: var(--font-body), system-ui, sans-serif; font-variant-numeric: tabular-nums lining-nums; }
-.bars .axis { stroke: var(--chart-axis); stroke-width: 1; }
-.bars .bar { fill: var(--chart-data); }
-.bars .val { fill: var(--text); font-size: 12px; font-weight: 600; }
-.bars .tick { fill: var(--text-2); font-size: 11px; }
-
 /* Prognoza zapasu (charts/StockForecast.js): linia spadku, pasmo zakresu, kreska recepty; podpisy osi w HTML */
 .forecast { margin-top: var(--s-4); }
 .fc-plot { position: relative; height: 96px; margin-inline: 5px; }
@@ -36,7 +27,7 @@
 .usage-head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s-3); }
 .usage-sel { margin: 0; font-size: var(--fs-sm); color: var(--text-2); white-space: nowrap; }
 .usage-unit { margin: var(--s-2) 0 var(--s-1); }
-.usage-sel b { font-family: var(--font-display), Georgia, serif; font-size: var(--fs-xl); font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums lining-nums; margin-left: 2px; }
+.usage-sel b { font-family: var(--font-display), system-ui, sans-serif; font-size: var(--fs-xl); font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums lining-nums; margin-left: 2px; }
 .usage-scrub { position: relative; height: 80px; margin-top: var(--s-3); touch-action: pan-y; cursor: crosshair; border-radius: var(--r-sm); -webkit-tap-highlight-color: transparent; }
 .usage-scrub:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 .usage-svg { display: block; width: 100%; height: 80px; overflow: visible; }
@@ -70,7 +61,7 @@
 .meter { position: relative; height: 10px; border-radius: var(--r-pill); background: var(--surface-2); overflow: hidden; }
 .meter-fill { position: absolute; inset: 0 auto 0 0; border-radius: inherit; background: var(--chart-data); }
 .meter-fill.meter-cbd { background: var(--chart-ref); }
-.meter-val { text-align: right; font-family: var(--font-display), Georgia, serif; font-size: 1.375rem; font-weight: 600; font-variant-numeric: tabular-nums lining-nums; }
+.meter-val { text-align: right; font-family: var(--font-display), system-ui, sans-serif; font-size: 1.375rem; font-weight: 600; font-variant-numeric: tabular-nums lining-nums; }
 .meter-scale { margin: 0; font-size: var(--fs-xs); color: var(--text-3); text-align: right; }
 /* wykres zużycia tygodniowego (słupki SVG, jedna seria: bez legendy, tytuł ją nazywa) */
 .uchart-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-1) var(--s-3); flex-wrap: wrap; }
@@ -108,10 +99,11 @@
 .sp-panel { padding: var(--s-3) 0; border-top: 1px solid var(--sep); }
 .sp-scrub > .sp-panel:first-child { border-top: 0; padding-top: 0; }
 .sp-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-3); margin-bottom: var(--s-2); }
-.sp-id { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--s-2); min-width: 0; }
-.sp-id b { font-size: var(--fs-md, 1rem); font-weight: 600; }
-.sp-id span { font-size: var(--fs-xs); color: var(--text-3); }
-.sp-val { font-family: var(--font-display), Georgia, serif; font-size: 1.25rem; font-weight: 600; font-variant-numeric: tabular-nums lining-nums; min-width: 2ch; text-align: right; }
+.sp-id { display: flex; flex-wrap: wrap; align-items: center; gap: 2px var(--s-2); min-width: 0; }
+.sp-id b { font-size: var(--fs-lg); font-weight: 700; }
+.sp-id > span:not(.pill-trend) { font-size: var(--fs-xs); color: var(--text-3); }
+.sp-head { align-items: center; }
+.sp-val { font-family: var(--font-display), system-ui, sans-serif; font-size: 1.75rem; font-weight: 800; font-variant-numeric: tabular-nums lining-nums; min-width: 2ch; text-align: right; }
 .sp-plot { position: relative; height: 72px; }
 .sp-plot.sp-use { height: 56px; }
 .sym-chart { display: block; width: 100%; height: 72px; overflow: visible; }
@@ -155,3 +147,52 @@
   .sp-end { background: CanvasText; }
   .sym-chart .sp-ubar path { fill: CanvasText; }
 }
+/* A4: słupki tygodniowe w Historii (charts/WeeklyBars.js) i porównanie okresów (charts/PeriodCompare.js, HBars.js) */
+.wk { padding: var(--s-4); }
+.wk-head { display: flex; justify-content: flex-end; }
+.wk-read { margin: 0; font-size: var(--fs-sm); color: var(--text-2); white-space: nowrap; }
+.wk-read b { font-family: var(--font-display), system-ui, sans-serif; font-size: var(--fs-xl); font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums lining-nums; margin-left: 2px; }
+.wk-unit { margin: 0 0 var(--s-2); }
+.wk-unit button, .pc-seg button { min-height: 44px; }
+.wk-scrub { position: relative; height: 120px; margin: var(--s-2) 40px 0 0; touch-action: pan-y; cursor: crosshair; border-radius: var(--r-sm); -webkit-tap-highlight-color: transparent; }
+.wk-scrub:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.wk-svg { display: block; width: 100%; height: 120px; overflow: visible; }
+.wk-svg * { vector-effect: non-scaling-stroke; }
+.wk-svg .ubar path { vector-effect: none; }
+.wk-scrub[data-sel] .ubar:not(.on) path { fill-opacity: .38; }
+.wk-scrub[data-sel] .ubar.on .ubar-zero { fill: var(--text-3); }
+.wk-axis { position: relative; height: 16px; margin: 6px 40px 0 0; font-size: var(--fs-xs); color: var(--text-3); font-variant-numeric: tabular-nums; line-height: 16px; }
+.wk-axis > .strong { color: var(--text-2); font-weight: 600; }
+.wk-none { margin: var(--s-2) 0 0; font-size: var(--fs-sm); color: var(--text-2); }
+
+.pc { padding: var(--s-4); }
+.pc-seg { margin: 0 0 var(--s-3); }
+.pc-legend { list-style: none; margin: 0 0 var(--s-4); padding: 0; display: grid; gap: var(--s-1); font-size: var(--fs-sm); color: var(--text-2); }
+.pc-legend li { display: flex; align-items: baseline; gap: var(--s-2); }
+.pc-legend i { flex: none; width: 10px; height: 10px; border-radius: 2px; transform: translateY(1px); }
+.pc-legend i.data { background: var(--chart-data); }
+.pc-legend i.ref { background: var(--chart-ref); }
+.pc-legend b { color: var(--text); font-weight: 600; }
+.pc-range { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.pc-row { padding: var(--s-3) 0; border-top: 1px solid var(--sep); }
+.pc-row:first-child { border-top: 0; padding-top: 0; }
+.pc-head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s-3); flex-wrap: wrap; }
+.pc-name { font-weight: 600; font-size: var(--fs-sm); color: var(--text); }
+.pc-diff { font-size: var(--fs-sm); color: var(--text); font-variant-numeric: tabular-nums lining-nums; }
+.pc-note { margin: 2px 0 0; font-size: var(--fs-xs); color: var(--text-3); }
+.pc-sub { margin: var(--s-4) 0 0; padding-top: var(--s-3); border-top: 1px solid var(--sep-strong); font-size: var(--fs-sm); font-weight: 600; color: var(--text); }
+.pc-sub + .pc-note { margin-bottom: var(--s-3); }
+.pc-empty { margin: 0; font-size: var(--fs-sm); color: var(--text-2); }
+.hb { display: grid; gap: 6px; margin-top: var(--s-2); }
+.hb-row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: var(--s-3); }
+.hb-track { display: block; height: 12px; border-left: 1px solid var(--chart-axis); }
+.hb-bar { display: block; height: 100%; min-width: 3px; border-radius: 0 4px 4px 0; }
+.hb-bar.data { background: var(--chart-data); }
+.hb-bar.ref { background: var(--chart-ref); }
+.hb-val { min-width: 5.5em; text-align: right; font-size: var(--fs-sm); font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums lining-nums; white-space: nowrap; }
+@media (forced-colors: active) {
+  .hb-bar.data, .pc-legend i.data { background: CanvasText; }
+  .hb-bar.ref, .pc-legend i.ref { background: GrayText; }
+}
+/* podpisy siatki słupków tygodniowych stoją w osobnym pasie po prawej, nie na słupkach */
+.wk-scrub .usage-tick { right: -40px; width: 36px; text-align: left; }

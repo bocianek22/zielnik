@@ -1,0 +1,50 @@
+/* Czat grupowy (SPO-2): app/grupy/[id]/GroupChat.js. Karta tonalna obszaru „społeczność” (data-cat="social" z page.js);
+   biała lista jako wyspa, dymki „moje” po prawej w tle tonalnym obszaru (pełne kolory tylko na ekranie Dziś, DESIGN-3 sekcja 0). */
+.chat > * + * { margin-top: var(--s-2); }
+.chat-wrap { position: relative; }
+.chat-list { max-height: min(62vh, 520px); min-height: 180px; overflow-y: auto; overscroll-behavior: contain; padding: var(--s-3);
+  background: var(--surface); border: 1px solid var(--card-line); border-radius: var(--r-lg); }
+.chat-list:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.chat-empty { margin: var(--s-6) 0; text-align: center; }
+.chat-older { display: flex; margin: 0 auto var(--s-2); }
+.chat-msgs { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-2); }
+.chat-day { display: flex; justify-content: center; margin: var(--s-2) 0; }
+.chat-day span { padding: 2px var(--s-3); border-radius: var(--r-pill); background: var(--c-soft, var(--surface-2)); color: var(--c-ink, var(--text-2)); font-size: var(--fs-xs); font-weight: 600; }
+
+.chat-row { display: flex; align-items: flex-end; gap: var(--s-2); }
+.chat-row.mine { justify-content: flex-end; }
+/* dymek i „…” w jednym wierszu (opcje obok dymka, nie pod nim: krótsza lista, awatar przy dymku);
+   otwarte menu albo błąd wysyłki są szersze i zawijają się pod dymek */
+.chat-main { min-width: 0; max-width: min(86%, 560px); display: flex; flex-wrap: wrap; align-items: flex-end; column-gap: 2px; }
+.chat-row.mine .chat-main { flex-direction: row-reverse; }
+.chat-main > .chat-bubble { flex: 0 1 auto; min-width: 0; max-width: calc(100% - var(--tap) - 2px); }
+.chat-main > .chat-actions { flex: 0 0 auto; }
+.chat-bubble { display: grid; gap: 2px; padding: var(--s-2) var(--s-3); border-radius: var(--r-lg) var(--r-lg) var(--r-lg) var(--r-sm);
+  background: var(--surface-2); color: var(--text); max-width: 100%; }
+.chat-row.mine .chat-bubble { background: var(--c-soft, var(--accent-soft)); color: var(--text); border-radius: var(--r-lg) var(--r-lg) var(--r-sm) var(--r-lg); }
+.chat-bubble.pending { opacity: .7; }
+.chat-bubble.gone { background: transparent; border: 1px dashed var(--sep-strong); color: var(--text-2); font-style: italic; }
+.chat-name { font-size: var(--fs-xs); font-weight: 700; color: var(--c-ink, var(--accent-text)); overflow-wrap: anywhere; }
+/* treść zawsze jako zwykły tekst (React nie wstawia HTML); linki nie są klikalne */
+.chat-body { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.4; }
+.chat-meta { justify-self: end; font-size: var(--fs-xs); color: var(--text-2); font-variant-numeric: tabular-nums; }
+.chat-row.mine .chat-meta { color: var(--text-2); }
+.chat-edit { display: grid; gap: var(--s-2); min-width: min(60vw, 260px); }
+.chat-edit .row { display: flex; gap: var(--s-2); }
+
+.chat-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-1); }
+.chat-more { min-width: var(--tap); min-height: var(--tap); padding: 0; }
+.chat-actions .btn.text.chat-more { color: var(--text-2); }
+.chat-menu { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--s-1); }
+.chat-menu .btn { min-height: var(--tap); }
+.chat-menu .report-form { min-width: min(70vw, 280px); }
+
+.chat-new { position: absolute; left: 50%; bottom: var(--s-3); transform: translateX(-50%); box-shadow: var(--shadow-2); }
+
+.chat-rule { margin: 0 var(--s-1); }
+.chat-offline { margin: 0 var(--s-1); }
+.chat-form { display: grid; grid-template-columns: 1fr auto; gap: var(--s-2); align-items: end; }
+.chat-input { resize: vertical; min-height: var(--tap); max-height: 160px; }
+.chat-send { min-width: var(--tap); min-height: var(--tap); }
+.chat-count { grid-column: 1 / -1; justify-self: end; color: var(--text-2); font-variant-numeric: tabular-nums; margin-top: calc(var(--s-1) * -1); }
+.chat-count.warn { color: var(--warn); font-weight: 600; }

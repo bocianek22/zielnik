@@ -23,3 +23,9 @@
 .proposal-sent { display: grid; gap: var(--s-3); }
 .proposal-sent h2, .proposal-sent p { margin: 0; }
 .proposal-sent .btn { justify-self: start; }
+
+/* Design 3: pole „Twoja propozycja” w tonie stanu (kolory przez tokeny) */
+.proposal-box.oczekuje { background: var(--warn-soft); border-color: var(--warn-line); border-left-width: 3px; }
+.proposal-box.oczekuje h2 { color: var(--warn); }
+.proposal-box.przyjeta { background: var(--ok-soft); border-color: transparent; border-left: 3px solid var(--ok); }
+.proposal-box.przyjeta h2 { color: var(--ok); }

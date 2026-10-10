@@ -4,6 +4,7 @@ import { api } from '@/lib/api';
 import useNativeRefresh from '@/app/components/native/useNativeRefresh';
 import Icon from '@/app/components/Icon';
 import { formatDay } from '@/lib/date';
+import SecHead from '@/app/components/SecHead';
 import RxForm from './RxForm';
 
 const daysLeft = (iso) => Math.ceil((new Date(`${iso}T23:59:59`) - Date.now()) / 864e5);
@@ -42,8 +43,8 @@ export default function Prescriptions() {
         </div>
       ) : (
         <>
-          <h2 className="section-label">Twoje recepty</h2>
-          <ul className="list">
+          <SecHead cat="rx" icon="clipboard">Twoje recepty</SecHead>
+          <ul className="rx-list">
             {list.map((p) => {
               const left = Math.max(p.grams - p.bought, 0);
               const u = uOf(p);
@@ -57,10 +58,13 @@ export default function Prescriptions() {
               else if (d != null) state = <span className="rx-state">Ważna jeszcze {dni(d)}</span>;
               else state = <span className="rx-state">Bez daty ważności</span>;
               return (
-                <li key={p.id} className={`rx-row${done ? ' done' : ''}${expired ? ' expired' : ''}`}>
+                <li key={p.id} data-cat="rx" className={`rx-row${done ? ' done' : ''}${expired ? ' expired' : ''}`}>
                   <div className="rx-top">
-                    <h3 className="rx-title">{nf(p.grams)} {u}{p.note && <small>{p.note}</small>}</h3>
-                    {state}
+                    <div className="rx-main">
+                      <h3 className="rx-title">{nf(p.grams)} {u}{p.note && <small>{p.note}</small>}</h3>
+                      {state}
+                    </div>
+                    {d != null && !done && !expired && <div className={`day-count${d <= 7 ? ' soon' : ''}`} aria-hidden="true"><b>{d}</b><span>{d === 1 ? 'dzień' : 'dni'}</span></div>}
                   </div>
                   <progress value={Math.min(p.bought, p.grams)} max={p.grams} aria-label="Wykupiono z przepisanej ilości" />
                   <p className="rx-amount">Wykupiono <b>{nf(p.bought)} {u}</b>, zostało <b>{nf(left)} {u}</b>{expired && !done && ' (niewykorzystane)'}</p>

@@ -1,3 +1,4 @@
+import SecHead from '../components/SecHead';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
@@ -39,9 +40,16 @@ export default async function Obserwacje({ searchParams }) {
     <>
       <Header user={user} />
       <main className="page obs-page">
-        <h1>Moje obserwacje</h1>
-        <p className="obs-lead">Średnie z Twojego dziennika objawów w dniach, w których używałeś danej odmiany.</p>
-        <div className="alert note">To zestawienie Twoich zapisów, nie ocena skuteczności. Zmiany leczenia omawiaj z lekarzem.</div>
+        <header className="hero cat-hero" data-cat="journal">
+          <div className="hero-top">
+            <span className="ic-dot sq"><Icon name="chart" size={24} /></span>
+            <div>
+              <h1>Moje obserwacje</h1>
+              <p className="hero-sub">Średnie z dziennika w dniach, w których używałeś danej odmiany</p>
+            </div>
+          </div>
+        </header>
+        <p className="priv-note"><Icon name="info" size={20} />To zestawienie Twoich zapisów, nie ocena skuteczności. Zmiany leczenia omawiaj z lekarzem.</p>
 
         <nav className="seg obs-period" aria-label="Okres">
           {PERIODS.map((d) => (
@@ -67,7 +75,7 @@ export default async function Obserwacje({ searchParams }) {
 
             {data.strains.length > 0 && (
               <>
-                <h2 className="section-label">Zużycie w okresie</h2>
+                <SecHead cat="journal" icon="jar">Zużycie w okresie</SecHead>
                 <ul className="list">
                   {data.strains.map((s) => (
                     <li key={s.id} className="list-row">
@@ -88,7 +96,7 @@ export default async function Obserwacje({ searchParams }) {
           </>
         )}
 
-        <h2 className="section-label">Jak liczymy</h2>
+        <SecHead cat="journal" icon="info">Jak liczymy</SecHead>
         <section className="card obs-rules">
           <ul>
             <li>Dzień z jedną odmianą trafia do jej wiersza. Dni z kilkoma odmianami i dni bez zużycia mają osobne wiersze.</li>

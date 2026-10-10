@@ -1,3 +1,4 @@
+import SecHead from '../components/SecHead';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
@@ -37,7 +38,7 @@ export default async function Raport({ searchParams }) {
   const q = sql();
   const [plan] = await q`SELECT plan, plan_until, display_name FROM users WHERE id = ${me.id}`;
   if (!canUse(plan, 'doctor_report')) {
-    return (<><Header user={me} /><main className="page"><h1>Raport dla lekarza</h1><div className="card empty">
+    return (<><Header user={me} /><main className="page"><header className="hero cat-hero" data-cat="learn"><div className="hero-top"><span className="ic-dot sq"><Icon name="file" size={24} /></span><div><h1>Raport dla lekarza</h1></div></div></header><div className="card empty">
       <Icon name="file" size={32} />
       <h2>Funkcja planu Premium</h2>
       <p>Raport zestawia zużycie, zakupy, recepty i objawy z wybranego okresu do wydruku lub zapisu jako PDF.</p>
@@ -68,7 +69,11 @@ export default async function Raport({ searchParams }) {
   const uLabel = { g: 'susz', ml: 'olej i pen' };
   const both = (o) => units.map((u) => `${nf(o[u], 2)} ${u}`).join(' i ');
   const fx = (o, k) => (o && o[k] != null ? o[k] : null);
-  const meta = (u) => [u.producer, u.thc != null && `THC ${nf(u.thc)}%`, u.cbd != null && `CBD ${nf(u.cbd)}%`, `${dni(u.days)} użycia`].filter(Boolean).join(' · ');
+  // producent zdradza odmianę: w trybie dyskretnym rozmyty jak nazwa (.dn), reszta opisu zostaje czytelna
+  const meta = (u) => {
+    const rest = [u.thc != null && `THC ${nf(u.thc)}%`, u.cbd != null && `CBD ${nf(u.cbd)}%`, `${dni(u.days)} użycia`].filter(Boolean).join(' · ');
+    return u.producer ? <><span className="dn">{u.producer}</span> · {rest}</> : rest;
+  };
   const feelLine = (f) => EFFECTS.map(([k, l]) => (fx(f.effects, k) != null ? `${l} ${nf(fx(f.effects, k))}` : null)).filter(Boolean).join(' · ');
 
   // tydzień po tygodniu
@@ -97,9 +102,17 @@ export default async function Raport({ searchParams }) {
     <>
       <Header user={me} />
       <main className="page stack report-page">
-        <h1 className="no-print">Raport dla lekarza</h1>
-        <div className="card report-filter no-print">
-          <h2 className="section-label">Okres</h2>
+        <header className="hero cat-hero no-print" data-cat="learn">
+          <div className="hero-top">
+            <span className="ic-dot sq"><Icon name="file" size={24} /></span>
+            <div>
+              <h1>Raport dla lekarza</h1>
+              <p className="hero-sub">Zestawienie do wydruku albo zapisu jako PDF</p>
+            </div>
+          </div>
+        </header>
+        <div className="card report-filter no-print" data-cat="learn">
+          <SecHead cat="learn" icon="calendar">Okres</SecHead>
           <nav className="chips report-presets" aria-label="Gotowe okresy">
             {PRESETS.map(([n, l]) => (
               <Link key={n} className={`chip${presetOn(n) ? ' on' : ''}`} href={presetHref(n)} aria-current={presetOn(n) ? 'page' : undefined}>{l}</Link>

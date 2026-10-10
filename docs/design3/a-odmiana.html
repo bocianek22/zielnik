@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=390,initial-scale=1">
+<title>Zielnik A · Lemon Skunk</title>
+<style>
+@font-face{font-family:Fraunces;font-weight:100 900;src:url(fonts/fraunces-latin.woff2) format("woff2");unicode-range:u+00??,u+0131,u+0152-0153,u+02bb-02bc,u+02c6,u+02da,u+02dc,u+0304,u+0308,u+0329,u+2000-206f,u+20ac,u+2122,u+2191,u+2193,u+2212,u+2215,u+feff,u+fffd}
+@font-face{font-family:Fraunces;font-weight:100 900;src:url(fonts/fraunces-latin-ext.woff2) format("woff2");unicode-range:u+0100-02ba,u+02bd-02c5,u+02c7-02cc,u+02ce-02d7,u+02dd-02ff,u+0304,u+0308,u+0329,u+1d00-1dbf,u+1e00-1e9f,u+1ef2-1eff,u+2020,u+20a0-20ab,u+20ad-20c4,u+2113,u+2c60-2c7f,u+a720-a7ff}
+@font-face{font-family:Figtree;font-weight:300 900;src:url(fonts/figtree-latin.woff2) format("woff2");unicode-range:u+00??,u+0131,u+0152-0153,u+02bb-02bc,u+02c6,u+02da,u+02dc,u+0304,u+0308,u+0329,u+2000-206f,u+20ac,u+2122,u+2191,u+2193,u+2212,u+2215,u+feff,u+fffd}
+@font-face{font-family:Figtree;font-weight:300 900;src:url(fonts/figtree-latin-ext.woff2) format("woff2");unicode-range:u+0100-02ba,u+02bd-02c5,u+02c7-02cc,u+02ce-02d7,u+02dd-02ff,u+0304,u+0308,u+0329,u+1d00-1dbf,u+1e00-1e9f,u+1ef2-1eff,u+2020,u+20a0-20ab,u+20ad-20c4,u+2113,u+2c60-2c7f,u+a720-a7ff}
+:root{
+  --bg: #f6f3ec;
+  --bg-tint: #efe9dd;
+  --surface: #ffffff;
+  --surface-2: #f3efe6;
+  --surface-3: #e9e3d6;
+  --sep: #e8e2d6;
+  --sep-strong: #cdc5b6;
+  --text: #1c2420;
+  --text-2: #525a54;
+  --text-3: #676e68;
+  --brand: #2b6a4a;
+  --brand-hover: #225a3e;
+  --on-brand: #ffffff;
+  --btn: #2b6a4a;
+  --on-btn: #ffffff;
+  --brand-soft: #dcefe2;
+  --on-brand-soft: #1c4a32;
+  --bar: #f6f3ec;
+  --on-bar: #1c2420;
+  --cat-stock: #2b7a4c;
+  --cat-stock-soft: #e1f2e6;
+  --cat-stock-ink: #1d5535;
+  --cat-journal: #6a4fb6;
+  --cat-journal-soft: #eee9fb;
+  --cat-journal-ink: #4a3590;
+  --cat-rx: #2c62b5;
+  --cat-rx-soft: #e3ecfa;
+  --cat-rx-ink: #1f4888;
+  --cat-strain: #0d726d;
+  --cat-strain-soft: #d9f1ee;
+  --cat-strain-ink: #0a5450;
+  --cat-social: #b03b67;
+  --cat-social-soft: #fbe6ee;
+  --cat-social-ink: #85284c;
+  --cat-learn: #8a6200;
+  --cat-learn-soft: #f8eed3;
+  --cat-learn-ink: #654700;
+  --warn: #a54a00;
+  --warn-soft: #fdecd9;
+  --danger: #b42318;
+  --danger-soft: #fde8e6;
+  --ok: #2b7a4c;
+  --ok-soft: #e1f2e6;
+  --kind-indica: #74589b;
+  --kind-sativa: #94600c;
+  --kind-hybryda: #2c7d63;
+  --chart-data: #2f7d4a;
+  --chart-data-soft: #a9cdb4;
+  --chart-grid: #e8e2d6;
+  --chart-1: #2a72cc;
+  --chart-2: #d65f2c;
+  --chart-3: #14946b;
+  --chart-4: #b27c00;
+  --chart-5: #cf5f8c;
+  --chart-6: #2e7d1f;
+  --chart-7: #5546b0;
+  --shadow-card: 0 1px 2px rgba(60,48,24,.05), 0 6px 20px rgba(60,48,24,.07);
+  color-scheme:light;
+}
+
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--text);font-family:Figtree,system-ui,sans-serif;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;width:390px;min-height:844px}
+h1,h2,h3,p{margin:0}
+.num,.big{font-variant-numeric:tabular-nums lining-nums}
+.i{flex:none;display:block}
+.row{display:flex;align-items:center;gap:12px}
+.grow{flex:1;min-width:0}
+.muted{color:var(--text-2)}
+.sub{font-size:14px;color:var(--text-2)}
+.k{font-size:13px;color:var(--text-2)}
+html[data-discreet] .leaf{display:none}
+html[data-discreet] .bn-real{display:none}
+html:not([data-discreet]) .bn-alt{display:none}
+html[data-discreet] .dn{filter:blur(7px)}
+.nav{position:fixed;left:0;right:0;bottom:0;width:390px}
+.shot-full .nav{position:static}
+
+
+.top{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 4px;background:var(--bar);color:var(--on-bar)}
+.brand{display:flex;align-items:center;gap:8px;font:600 22px/1 Fraunces,Georgia,serif;letter-spacing:-.01em}
+.brand .leaf{color:var(--brand)}
+.avatar{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--cat-social-soft);color:var(--cat-social-ink);font:600 18px Fraunces,serif}
+.page{padding:8px 16px 112px}
+.date{font-size:14px;color:var(--text-2);font-weight:500}
+h1{font:600 30px/1.15 Fraunces,Georgia,serif;letter-spacing:-.015em;margin:2px 0 18px}
+h2{font:600 19px/1.25 Fraunces,Georgia,serif;letter-spacing:-.01em}
+.card{background:var(--surface);border-radius:22px;box-shadow:var(--shadow-card);padding:18px;margin-bottom:14px}
+.tint{box-shadow:none}
+.t-stock{background:var(--cat-stock-soft)}.t-journal{background:var(--cat-journal-soft)}.t-rx{background:var(--cat-rx-soft)}.t-strain{background:var(--cat-strain-soft)}.t-social{background:var(--cat-social-soft)}.t-learn{background:var(--cat-learn-soft)}
+.dot{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;flex:none}
+.dot.sm{width:36px;height:36px}
+.d-stock{background:var(--cat-stock-soft);color:var(--cat-stock)}.d-journal{background:var(--cat-journal-soft);color:var(--cat-journal)}.d-rx{background:var(--cat-rx-soft);color:var(--cat-rx)}.d-strain{background:var(--cat-strain-soft);color:var(--cat-strain)}.d-social{background:var(--cat-social-soft);color:var(--cat-social)}.d-learn{background:var(--cat-learn-soft);color:var(--cat-learn)}
+.s-stock{background:var(--cat-stock);color:var(--surface)}.s-journal{background:var(--cat-journal);color:var(--surface)}.s-rx{background:var(--cat-rx);color:var(--surface)}.s-strain{background:var(--cat-strain);color:var(--surface)}
+.w,.tag.w{background:var(--surface)}
+.nw{white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.tap{display:inline-flex;align-items:center;min-height:44px}
+.shot-full .page{padding-bottom:20px}
+.ink-stock{color:var(--cat-stock-ink)}.ink-journal{color:var(--cat-journal-ink)}.ink-rx{color:var(--cat-rx-ink)}.ink-strain{color:var(--cat-strain-ink)}.ink-social{color:var(--cat-social-ink)}.ink-learn{color:var(--cat-learn-ink)}
+.sec-h{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.sec-h h2{flex:1}
+.eyebrow{font-size:14px;font-weight:600}
+.big{font:600 56px/1 Fraunces,Georgia,serif;letter-spacing:-.02em}
+.big small{font:500 22px Figtree,sans-serif;color:var(--text-2);margin-left:4px;letter-spacing:0}
+.meter{height:10px;border-radius:99px;background:color-mix(in srgb,var(--surface) 70%,transparent);overflow:hidden}
+.meter i{display:block;height:100%;border-radius:99px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;border-radius:14px;font:600 16px Figtree,sans-serif;border:1px solid transparent;background:var(--btn);color:var(--on-btn)}
+.btn.ghost{background:var(--surface);color:var(--text);border-color:var(--sep-strong)}
+.btn.soft{background:var(--surface);color:var(--cat-journal-ink);border-color:transparent}
+.btn.sm{min-height:44px;padding:0 16px;font-size:15px;border-radius:12px}
+.btn.pill{border-radius:99px}
+.btns{display:flex;gap:10px}.btns .btn{flex:1}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.tile{background:var(--surface);border-radius:18px;box-shadow:var(--shadow-card);padding:12px 4px 10px;display:grid;justify-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--text)}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border-radius:99px;font-size:14px;font-weight:600;background:var(--surface);color:var(--text);border:1px solid var(--sep-strong);white-space:nowrap}
+.chip.on{background:var(--cat-strain);color:var(--surface);border-color:var(--cat-strain)}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;font-size:13px;font-weight:600;background:var(--surface-2);color:var(--text-2)}
+.kdot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.badge-warn{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:13px;font-weight:700;background:var(--warn-soft);color:var(--warn)}
+.axis{display:flex;justify-content:space-between;font-size:12px;color:var(--text-2);margin-top:6px}
+.axis b{color:var(--text)}
+.rx{display:flex;gap:14px;align-items:center;padding:12px 0}
+.rx + .rx{border-top:1px solid var(--sep)}
+.days{width:58px;height:58px;border-radius:16px;display:grid;place-content:center;text-align:center;background:var(--cat-rx-soft);color:var(--cat-rx-ink);flex:none}
+.days b{font:600 24px/1 Fraunces,serif}.days span{font-size:12px;font-weight:600}
+.thin{height:6px;border-radius:99px;background:var(--surface-3);overflow:hidden;margin-top:8px}.thin i{display:block;height:100%;background:var(--cat-rx);border-radius:99px}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.metric{background:var(--surface);border-radius:16px;padding:12px 14px;display:flex;align-items:center;gap:10px}
+.metric b{font:600 24px/1 Fraunces,serif;margin-left:auto}
+.metric span{font-size:15px;font-weight:600}
+.nav{background:var(--surface);box-shadow:0 -1px 0 var(--sep),0 -6px 24px rgba(0,0,0,.05);display:grid;grid-template-columns:repeat(5,1fr);align-items:end;padding:8px 6px 14px;z-index:9}
+.nav a{display:grid;justify-items:center;gap:3px;font-size:12px;font-weight:600;color:var(--text-2);min-height:52px;padding-top:4px}
+.nav a .pill{width:56px;height:30px;border-radius:99px;display:grid;place-items:center}
+.nav a.on-home{color:var(--brand)}.nav a.on-home .pill{background:var(--brand-soft)}
+.nav a.on-strain{color:var(--cat-strain-ink)}.nav a.on-strain .pill{background:var(--cat-strain-soft)}
+.nav a.on-journal{color:var(--cat-journal-ink)}.nav a.on-journal .pill{background:var(--cat-journal-soft)}
+.nav .add{width:56px;height:56px;border-radius:18px;background:var(--btn);color:var(--on-btn);display:grid;place-items:center;justify-self:center;box-shadow:0 6px 18px color-mix(in srgb,var(--btn) 35%,transparent);margin-bottom:8px}
+.hscroll{display:flex;gap:8px;overflow:hidden;margin:0 -16px 16px;padding:0 16px}
+.search{display:flex;align-items:center;gap:10px;height:52px;border-radius:99px;background:var(--surface);box-shadow:var(--shadow-card);padding:0 18px;color:var(--text-3);font-size:16px;margin-bottom:14px}
+.scard{background:var(--surface);border-radius:22px;box-shadow:var(--shadow-card);padding:16px;margin-bottom:12px}
+.thumb{width:56px;height:56px;border-radius:16px;display:grid;place-items:center;flex:none}
+.k-sativa{background:color-mix(in srgb,var(--kind-sativa) 15%,var(--surface));color:var(--kind-sativa)}
+.k-indica{background:color-mix(in srgb,var(--kind-indica) 15%,var(--surface));color:var(--kind-indica)}
+.k-hybryda{background:color-mix(in srgb,var(--kind-hybryda) 15%,var(--surface));color:var(--kind-hybryda)}
+.sname{font:600 19px/1.2 Fraunces,serif;letter-spacing:-.01em}
+.meta{font-size:14px;color:var(--text-2);margin-top:2px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.score{width:52px;height:52px;border-radius:50%;display:grid;place-content:center;text-align:center;background:var(--brand-soft);color:var(--on-brand-soft);flex:none}
+.score b{font:600 19px/1 Fraunces,serif}.score span{font-size:11px;font-weight:600}
+.sfoot{display:flex;align-items:center;gap:10px;margin-top:14px;padding-top:12px;border-top:1px solid var(--sep)}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.hero-ill{height:200px;border-radius:26px;position:relative;overflow:hidden;margin-bottom:18px}
+.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.trio > div{border-radius:18px;padding:14px 12px}
+.trio b{display:block;font:600 30px/1.05 Fraunces,serif;margin:4px 0 2px}
+.trio b small{font:500 14px Figtree;color:var(--text-2)}
+.eff{display:grid;grid-template-columns:96px 1fr 28px;gap:10px;align-items:center;padding:7px 0;font-size:15px}
+.eff .track{height:10px;border-radius:99px;background:var(--surface-2);overflow:hidden}.eff .track i{display:block;height:100%;border-radius:99px;background:var(--cat-strain)}
+.eff b{text-align:right;font-variant-numeric:tabular-nums}
+.quote{border-radius:18px;padding:14px 16px;font-size:16px}
+.person{display:flex;gap:12px;align-items:flex-start;padding:12px 0}
+.person + .person{border-top:1px solid var(--sep)}
+.slider{padding:12px 0}
+.slider + .slider{border-top:1px solid color-mix(in srgb,var(--cat-journal) 18%,transparent)}
+.slider .row b{font:600 26px/1 Fraunces,serif;margin-left:auto;color:var(--cat-journal-ink)}
+.rng{position:relative;height:28px;margin-top:6px}
+.rng .tr{position:absolute;top:11px;left:0;right:0;height:6px;border-radius:99px;background:var(--surface)}
+.rng .fi{position:absolute;top:11px;left:0;height:6px;border-radius:99px;background:var(--cat-journal)}
+.rng .th{position:absolute;top:2px;width:24px;height:24px;margin-left:-12px;border-radius:50%;background:var(--surface);border:3px solid var(--cat-journal);box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.ends{display:flex;justify-content:space-between;font-size:12px;color:var(--text-2)}
+.mini{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mini .card{margin:0;padding:14px}
+.trend{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:700;padding:2px 8px;border-radius:99px}
+.trend.good{background:var(--ok-soft);color:var(--ok)}
+.trend.flat{background:var(--surface-2);color:var(--text-2)}
+.note{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--text-2);background:var(--surface-2);border-radius:16px;padding:12px 14px;margin-bottom:16px}
+.empty-ill{display:grid;justify-items:center;text-align:center;gap:8px;padding:8px 8px 4px}
+
+</style></head>
+<body>
+<header class="top"><div class="brand"><svg class="leaf" width="26" height="26" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true"><ellipse cx="50" cy="46" rx="6" ry="40" transform="rotate(0 50 86)"/><ellipse cx="50" cy="52" rx="6" ry="34" transform="rotate(-28 50 86)"/><ellipse cx="50" cy="52" rx="6" ry="34" transform="rotate(28 50 86)"/><ellipse cx="50" cy="59" rx="5" ry="27" transform="rotate(-56 50 86)"/><ellipse cx="50" cy="59" rx="5" ry="27" transform="rotate(56 50 86)"/><ellipse cx="50" cy="68" rx="5" ry="18" transform="rotate(-80 50 86)"/><ellipse cx="50" cy="68" rx="5" ry="18" transform="rotate(80 50 86)"/><rect x="48.6" y="84" width="2.8" height="14" rx="1.4"/></svg><span class="bn-real">Zielnik</span><span class="bn-alt">Notatnik</span></div><div class="avatar">A</div></header>
+<main class="page">
+  <div class="row" style="justify-content:space-between;margin:4px 0 12px"><span class="row ink-strain" style="gap:4px;font-weight:600;min-height:44px"><svg class="i" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>Odmiany</span><span class="dot w" aria-label="Edytuj" style="box-shadow:var(--shadow-card);color:var(--text-2)"><svg class="i" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17z"/></svg></span></div>
+  <div class="hero-ill" style="background:linear-gradient(140deg,color-mix(in srgb,var(--kind-sativa) 22%,var(--surface)),color-mix(in srgb,var(--cat-learn) 10%,var(--surface)))">
+    <svg width="358" height="200" viewBox="0 0 358 200" aria-hidden="true" style="position:absolute;inset:0">
+      <circle cx="300" cy="40" r="70" fill="var(--surface)" opacity=".35"/><circle cx="40" cy="190" r="60" fill="var(--surface)" opacity=".3"/>
+      <g transform="translate(200 40) scale(.85)" fill="none" stroke="var(--kind-sativa)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="6" y="0" width="66" height="16" rx="5" fill="var(--surface)"/>
+        <path d="M2 26h74v96a12 12 0 0 1-12 12H14A12 12 0 0 1 2 122z" fill="var(--surface)"/>
+        <rect x="16" y="54" width="46" height="40" rx="6" fill="color-mix(in srgb,var(--kind-sativa) 14%,var(--surface))"/>
+        <path d="M26 68h26M26 80h18"/>
+      </g>
+    </svg>
+    <div class="row" style="position:absolute;left:14px;top:14px;gap:8px"><span class="tag w"><span class="kdot" style="background:var(--kind-sativa)"></span>Sativa</span><span class="tag w">Haze</span></div>
+  </div>
+  <h1 class="dn" style="font-size:34px;margin:0">Lemon Skunk</h1>
+  <p class="muted dn" style="margin:2px 0 12px">Aurora · partia A2231</p>
+  <div class="tags" style="margin:0 0 16px"><span class="tag" style="background:var(--cat-strain-soft);color:var(--cat-strain-ink)">THC 22%</span><span class="tag" style="background:var(--cat-strain-soft);color:var(--cat-strain-ink)">CBD 0,5%</span><span class="tag">45 zł/g</span></div>
+  <div class="trio">
+    <div style="background:var(--brand-soft)"><span class="k" style="color:var(--on-brand-soft);font-weight:600">Końcowa</span><b class="num">8,5<small>/10</small></b></div>
+    <div style="background:var(--cat-strain-soft)"><span class="k ink-strain" style="font-weight:600">Średnia</span><b class="num">7,8<small>/10</small></b><span class="k">2 oceny</span></div>
+    <div style="background:var(--cat-journal-soft)"><span class="k ink-journal" style="font-weight:600">Moja ocena</span><b class="num">8,0<small>/10</small></b></div>
+  </div>
+  <section class="card">
+    <div class="sec-h"><span class="dot sm d-stock"><svg class="i" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3h8M7 6h10"/><path d="M7 6v12.5A2.5 2.5 0 0 0 9.5 21h5a2.5 2.5 0 0 0 2.5-2.5V6"/><path d="M10 12h4M10 15.5h4"/></svg></span><h2>Mój zapas</h2></div>
+    <div class="row" style="align-items:flex-end;margin-bottom:12px"><p class="grow"><span style="font:600 34px Fraunces" class="num">6,5 g</span><br><span class="sub">w domu · 10 g do wykupienia</span></p></div>
+    <div class="btns"><span class="btn">Zużyłem</span><span class="btn ghost">Wykupiłem</span></div>
+  </section>
+  <section class="card">
+    <div class="sec-h"><span class="dot sm d-strain"><svg class="i" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 3 5 13.5h6L10 21l9-11h-6z"/></svg></span><h2>Jak działa na mnie</h2></div>
+    <div class="eff"><span>Energia</span><span class="track"><i style="width:80%"></i></span><b>8</b></div><div class="eff"><span>Ulga w bólu</span><span class="track"><i style="width:60%"></i></span><b>6</b></div><div class="eff"><span>Apetyt</span><span class="track"><i style="width:50%"></i></span><b>5</b></div><div class="eff"><span>Relaks</span><span class="track"><i style="width:40%"></i></span><b>4</b></div><div class="eff"><span>Sen</span><span class="track"><i style="width:20%"></i></span><b>2</b></div>
+  </section>
+  <section class="card">
+    <div class="sec-h"><span class="dot sm d-learn"><svg class="i" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"/><path d="M7.5 15h9"/></svg></span><h2>Smak i terpeny</h2></div>
+    <p style="margin-bottom:10px">Cytrusowy, ziemisty</p>
+    <div class="tags" style="margin:0"><span class="tag" style="background:var(--cat-learn-soft);color:var(--cat-learn-ink)">Limonen</span><span class="tag" style="background:var(--cat-learn-soft);color:var(--cat-learn-ink)">Mircen</span></div>
+  </section>
+  <section class="card tint t-journal">
+    <div class="sec-h" style="margin-bottom:10px"><span class="dot sm s-journal"><svg class="i" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17z"/></svg></span><h2>Moja notatka</h2></div>
+    <p>„Pomaga rano, bez senności.”</p>
+  </section>
+  <section class="card">
+    <div class="sec-h" style="margin-bottom:4px"><span class="dot sm d-social"><svg class="i" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.2a6.5 6.5 0 0 1 3.5 5.8"/></svg></span><h2>Oceny znajomych</h2></div>
+    <div class="person"><span class="avatar" style="width:40px;height:40px;font-size:16px">B</span><div class="grow"><b>bartek</b> <span class="tag" style="margin-left:4px">7,5</span><p class="sub" style="color:var(--text)">Trochę za mocna wieczorem.</p></div></div>
+  </section>
+</main>
+<nav class="nav" aria-label="Główna nawigacja">
+<a class=""><span class="pill"><svg class="i" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V19.5A1.5 1.5 0 0 1 18.5 21H15v-6h-6v6H5.5A1.5 1.5 0 0 1 4 19.5z"/></svg></span>Dziś</a>
+<a class="on-strain"><span class="pill"><svg class="i" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3h8M7 6h10"/><path d="M7 6v12.5A2.5 2.5 0 0 0 9.5 21h5a2.5 2.5 0 0 0 2.5-2.5V6"/><path d="M10 12h4M10 15.5h4"/></svg></span>Odmiany</a>
+<span class="add" aria-label="Dodaj"><svg class="i" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span>
+<a class=""><span class="pill"><svg class="i" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l2.5-6 5 12 2.5-6h4"/></svg></span>Dziennik</a>
+<a><span class="pill"><svg class="i" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></span>Więcej</a></nav>
+</body></html>

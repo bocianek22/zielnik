@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
+import SecHead from './SecHead';
 import { EFFECTS, EFFECT_HELP, TAG_THRESHOLD, strainTags } from '@/lib/effects';
 
 const N = EFFECTS.length, SIZE = 280, C = SIZE / 2, R = 92;
@@ -59,7 +60,7 @@ export default function Effects({ strain, meId }) {
 
   return (
     <section className="card effects">
-      <h2>Skala odczuć</h2>
+      <SecHead cat="strain" icon="zap">Skala odczuć</SecHead>
       <p className="muted">Oceń, jak ta odmiana działała na Ciebie (0–10). To Twoje subiektywne odczucia, nie zalecenia medyczne. Suwak, którego nie ruszysz, pozostaje bez oceny.</p>
       <p>Tagi efektów: {strainTags(strain).length ? strainTags(strain).map((t) => <span key={t} className="chip tag">{t}</span>) : <span className="muted">brak (tag pojawia się, gdy średnia widocznych ocen efektu wynosi co najmniej {String(TAG_THRESHOLD).replace('.', ',')}).</span>}</p>
       <div className="effects-body">
@@ -75,7 +76,7 @@ export default function Effects({ strain, meId }) {
               <input id={`fx-${k}`} type="range" min="0" max="10" step="1" value={mine[k] ?? 5}
                 aria-valuetext={mine[k] == null ? 'nie oceniono, przesuń, aby ustawić' : `${mine[k]} z 10`}
                 onChange={(e) => setMine((p) => ({ ...p, [k]: Number(e.target.value) }))} />
-              {mine[k] != null && <button type="button" className="btn ghost small" onClick={() => setMine((p) => ({ ...p, [k]: null }))}>Wyczyść ocenę</button>}
+              {mine[k] != null && <button type="button" className="btn text small" onClick={() => setMine((p) => ({ ...p, [k]: null }))}>Wyczyść ocenę</button>}
             </div>
           ))}
           <div className="row">

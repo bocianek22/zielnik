@@ -100,7 +100,7 @@ export default function Wheel({ items: all }) {
         <Icon name="shuffle" size={32} />
         <h2>Koło jest puste</h2>
         <p>Na kole pojawiają się odmiany, których Twój stan („Mam teraz”) jest większy od 0. Uzupełnij stany na liście odmian.</p>
-        <Link href="/" className="btn">Przejdź do odmian</Link>
+        <Link href="/odmiany" className="btn">Przejdź do odmian</Link>
       </div>
     );
   }

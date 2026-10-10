@@ -31,8 +31,9 @@ async function call(uid, route, method, body, params = {}, { text = false, query
   return { status: res.status, json };
 }
 
-const D = (n) => new Date(Date.now() - n * 864e5).toISOString().slice(0, 10);
-const TODAY = () => new Date().toISOString().slice(0, 10);
+const plDay = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Warsaw', year: 'numeric', month: '2-digit', day: '2-digit' }); // dzień jak w aplikacji (po 22:00 UTC jest już jutro)
+const D = (n) => plDay.format(new Date(Date.now() - n * 864e5));
+const TODAY = () => D(0);
 
 before(async () => {
   if (skip) return;

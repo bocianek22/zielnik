@@ -29,7 +29,8 @@ const toBody = (day, v, defs) => ({
   ...(defs.length ? { custom: Object.fromEntries(defs.map((d) => [d.id, v[`c${d.id}`]])) } : {}),
 });
 
-export default function SymptomsQuick({ day, initial }) {
+// onChange(v): panel „Dziś” pokazuje dzisiejszy nastrój i zadanie „Wpisz objawy” na żywo, bez przeładowania
+export default function SymptomsQuick({ day, initial, onChange }) {
   const defs = useMemo(() => initial?.defs ?? [], [initial]);
   const items = useMemo(() => [...SYMPTOMS, ...defs.map(customMeta)], [defs]);
   const count = (v) => items.filter((s) => v[s.key] != null).length;
@@ -101,12 +102,13 @@ export default function SymptomsQuick({ day, initial }) {
   });
 
   const filled = count(v);
-  
+  useEffect(() => { onChange?.(v); }, [v, onChange]);
 
   return (
-    <section className="card tsym" id="objawy" aria-labelledby="tsym-h">
-      <div className="today-card-head">
-        <h2 id="tsym-h" className="today-h">Jak się dziś czujesz?</h2>
+    <section className="card tint tsym" data-cat="journal" id="objawy" aria-labelledby="tsym-h">
+      <div className="sec-head">
+        <span className="ic-dot"><Icon name="pulse" size={22} /></span>
+        <h2 id="tsym-h">Jak się dziś czujesz?</h2>
         <Link className="btn text small" href="/dziennik">Dziennik<Icon name="chevronRight" size={18} /></Link>
       </div>
 

@@ -81,7 +81,11 @@ Waga: K = krytyczna, W = wysoka, Ś = średnia, N = niska. Status: ✅ naprawion
 | `users/[id]/avatar` | GET | U, `can_see` profilu | OK po #9 |
 | `users/search` | GET | U, z pominięciem blokad | 👤 (lista nazw dla zalogowanych) |
 | `friends`, `blocks`, `groups`, `groups/[id]` | GET, POST | U, członkostwo i rola w każdym zapytaniu | OK po #13 |
-| `reports` | POST | U | OK po #3 i #12 |
+| `groups/[id]/messages` (SPO-2) | GET, POST | U + aktywny członek grupy (zaproszony bez przyjęcia i obcy: 404), POST 20/min i 300/h na konto, treść 1..2000 znaków, szyfrowana jak notatki (AAD `group_messages.body\|id`), blokady ukrywają wiadomości | OK (`tests/db/czat-grup.test.js`) |
+| czat: zgłoszenia i historia (SPO-2) | – | Zgłoszenie wiadomości zapisuje zaszyfrowaną migawkę treści (`reports.snapshot`, AAD `reports.snapshot\|id`): edycja albo usunięcie przez autora nie zaciera dowodu. Admin widzi tylko zgłoszoną wiadomość; usunięcie przez admina spoza grupy trafia do audytu. Nowi członkowie widzą wcześniejszą historię (informacja w czacie). Polling `after` dokłada świeże wiadomości do 20 id wstecz (id rezerwowane przed zapisem). | OK (`tests/db/czat-grup.test.js`) |
+| `groups/[id]/messages/[mid]` (SPO-2) | PATCH, DELETE | U + członkostwo sprawdzone w tym samym zapytaniu; PATCH: tylko autor, do 15 min, 30/min; DELETE (miękkie, treść znika z bazy): autor, właściciel grupy albo admin aplikacji (admin spoza grupy może tylko usuwać, nie czyta ani nie pisze) | OK |
+| `groups/[id]/read` (SPO-2) | POST | U + aktywny członek; znacznik przeczytania tylko rośnie | OK |
+| `reports` | POST | U (typ `message`: zgłaszający musi być aktywnym członkiem grupy wiadomości; zgłoszenie ujawnia treść wiadomości adminowi) | OK po #3 i #12 |
 | `notifications`, `options`, `catalog` (GET), `import` | GET, POST | U | OK po #12 |
 | `push/config`, `push/prefs`, `push/subscription`, `push/test` | GET, PUT, POST, DELETE | U (test: limit 5 na 10 min) | OK |
 | `catalog` (POST), `admin/*`, `backup` | — | A | OK po #3 i #16 |
@@ -197,7 +201,7 @@ Wnioski:
 ## Szyfrowanie notatek w bazie (POM-28)
 Projekt i uzasadnienie wyboru: `docs/SZYFROWANIE-NOTATEK.md`. Moduł `lib/data-crypto.js`, przepisanie danych `scripts/encrypt-notes.mjs`.
 
-**Zakres.** Szyfrowane są `symptom_log.note`, `user_strain.notes`, `prescriptions.note` i `strain_tests.note`. `doctor_notes.text` zostaje jawne do decyzji właściciela (CHECK 1..200 vs szyfrogram; w kodzie komentarz TODO). Daty, liczby, skale, widoczność i nazwy odmian zostają jawne.
+**Zakres.** Szyfrowane są `symptom_log.note`, `user_strain.notes`, `prescriptions.note`, `strain_tests.note` i `group_messages.body` (czat grup, SPO-2). `doctor_notes.text` zostaje jawne do decyzji właściciela (CHECK 1..200 vs szyfrogram; w kodzie komentarz TODO). Daty, liczby, skale, widoczność i nazwy odmian zostają jawne.
 
 **Model zagrożeń.**
 | Zagrożenie | Efekt |

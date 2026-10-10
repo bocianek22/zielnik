@@ -9,46 +9,50 @@
 .sym-slider { display: grid; gap: 2px; }
 .sym-head { display: flex; align-items: center; gap: var(--s-2); min-height: var(--tap); }
 .sym-head label { flex: 1; font-weight: 600; }
-.sym-val { font-family: var(--font-display), Georgia, serif; font-size: 1.5rem; font-weight: 600; font-variant-numeric: tabular-nums lining-nums; min-width: 2ch; text-align: right; }
+.sym-val { font-family: var(--font-display), system-ui, sans-serif; font-size: 1.5rem; font-weight: 600; font-variant-numeric: tabular-nums lining-nums; min-width: 2ch; text-align: right; }
 .sym-val.unset { font-family: var(--font-body), system-ui, sans-serif; font-size: var(--fs-sm); font-weight: 500; color: var(--text-3); }
 .sym-slider small { line-height: 1.4; color: var(--text-2); }
-.sym-slider input[type=range] { width: 100%; accent-color: var(--accent); min-height: var(--tap); margin: 0; }
+.sym-slider input[type=range] { width: 100%; accent-color: var(--c, var(--accent)); min-height: var(--tap); margin: 0; }
 .sym-slider.unset input[type=range] { accent-color: var(--text-3); }
 .sym-scale { display: flex; justify-content: space-between; font-size: var(--fs-xs); color: var(--text-3); font-variant-numeric: tabular-nums; margin-top: -6px; }
 .sym-actions { display: flex; gap: var(--s-3); flex-wrap: wrap; }
 .sym-actions .btn { flex: 1 1 140px; }
 @media (min-width: 640px) { .sym-actions .btn { flex: 0 0 auto; } }
 
-/* Recepty */
+/* Recepty: każda recepta to osobna karta z kafelkiem odliczania dni */
 .rx-add > summary { display: flex; align-items: center; gap: var(--s-2); min-height: var(--tap); padding: 0 var(--s-4); cursor: pointer; list-style: none; font-weight: 600; color: var(--accent-text); }
 .rx-add > summary::-webkit-details-marker { display: none; }
 .rx-add { padding: 0; }
 .rx-add form { padding: var(--s-2) var(--s-4) var(--s-4); }
 .rx-add .row .field { margin-bottom: 0; }
-.rx-row { display: grid; gap: var(--s-2); padding: var(--s-4); }
-.rx-top { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--s-3); }
-.rx-title { margin: 0; font-family: var(--font-display), Georgia, serif; font-size: var(--fs-xl); font-weight: 600; font-variant-numeric: tabular-nums lining-nums; }
+.rx-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-3); }
+.rx-row { display: grid; gap: var(--s-2); padding: var(--s-4); background: var(--surface); border: 1px solid var(--card-line); border-radius: var(--r-lg); box-shadow: var(--shadow-card); }
+.rx-top { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); }
+.rx-main { display: grid; gap: var(--s-1); min-width: 0; justify-items: start; }
+.rx-title { margin: 0; font-size: var(--fs-xl); font-weight: 800; font-variant-numeric: tabular-nums lining-nums; }
 .rx-unit { border: 0; padding: 0; margin: 0; min-width: 0; }
 .rx-unit legend { font-weight: 600; font-size: var(--fs-sm); padding: 0; margin-bottom: 6px; }
 .rx-unit small { display: block; margin-top: 6px; }
-.rx-title small { margin-left: var(--s-2); font-family: var(--font-body), system-ui, sans-serif; font-size: var(--fs-sm); font-weight: 500; color: var(--text-2); }
-.rx-state { font-size: var(--fs-sm); color: var(--text-2); text-align: right; flex: none; }
-.rx-row progress { appearance: none; -webkit-appearance: none; width: 100%; height: 8px; border: 0; border-radius: var(--r-pill); overflow: hidden; background: var(--surface-3); color: var(--accent); accent-color: var(--accent); }
-.rx-row progress::-webkit-progress-bar { background: var(--surface-3); }
-.rx-row progress::-webkit-progress-value { background: var(--accent); border-radius: var(--r-pill); }
-.rx-row progress::-moz-progress-bar { background: var(--accent); border-radius: var(--r-pill); }
-.rx-row.done progress, .rx-row.expired progress { color: var(--text-3); accent-color: var(--text-3); }
+.rx-title small { margin-left: var(--s-2); font-size: var(--fs-sm); font-weight: 500; color: var(--text-2); }
+.rx-state { font-size: var(--fs-sm); color: var(--text-2); }
+/* odliczanie dni: .day-count (globals.css); pasek wykupu w kolorze recept */
+.rx-row progress { appearance: none; -webkit-appearance: none; width: 100%; height: 10px; border: 0; border-radius: var(--r-pill); overflow: hidden; background: var(--c-soft); color: var(--c); accent-color: var(--c); }
+.rx-row progress::-webkit-progress-bar { background: var(--c-soft); }
+.rx-row progress::-webkit-progress-value { background: var(--c); border-radius: var(--r-pill); }
+.rx-row progress::-moz-progress-bar { background: var(--c); border-radius: var(--r-pill); }
+.rx-row.done progress, .rx-row.expired progress { color: var(--text-3); accent-color: var(--text-3); background: var(--surface-3); }
+.rx-row.done progress::-webkit-progress-bar, .rx-row.expired progress::-webkit-progress-bar { background: var(--surface-3); }
 .rx-row.done progress::-webkit-progress-value, .rx-row.expired progress::-webkit-progress-value { background: var(--text-3); }
 .rx-row.done progress::-moz-progress-bar, .rx-row.expired progress::-moz-progress-bar { background: var(--text-3); }
 .rx-amount { margin: 0; font-variant-numeric: tabular-nums; }
-.rx-amount b { font-weight: 600; }
+.rx-amount b { font-weight: 700; }
 .rx-dates { margin: 0; font-size: var(--fs-sm); color: var(--text-2); }
 .rx-foot { display: flex; justify-content: flex-end; }
 .rx-foot .btn { margin-right: calc(var(--s-2) * -1); }
 
 /* Moje obserwacje (app/obserwacje, POM-06) */
-.obs-lead { margin: calc(var(--s-2) * -1) 0 var(--s-4); color: var(--text-2); max-width: 68ch; }
-.obs-page .alert.note { margin-bottom: var(--s-4); }
+.obs-page > .priv-note { margin-bottom: var(--s-4); }
+.obs-page > .sec-head { margin-top: var(--s-6); }
 .obs-period { margin-bottom: var(--s-4); }
 /* przełącznik okresu z linkami (adres ?okres=…) w tym samym wyglądzie co .seg button (tylko tutaj) */
 .obs-period a { flex: 1 1 auto; display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 0 var(--s-4); border-radius: 8px; font-size: var(--fs-sm); font-weight: 600; color: var(--text-2); text-decoration: none; white-space: nowrap; }
@@ -61,10 +65,10 @@
 .obs-summary b { color: var(--text); font-weight: 600; }
 .obs-sym { margin-top: var(--s-5); }
 .obs-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px var(--s-3); }
-.obs-head span { font-weight: 500; color: var(--text-3); font-size: var(--fs-xs); }
+.obs-head > span { font-weight: 500; color: var(--text-3); font-size: var(--fs-xs); }
 .obs-row .lr-main > span:first-child { font-weight: 500; }
 .obs-val { flex: none; margin-left: auto; display: inline-flex; align-items: center; gap: var(--s-3); }
-.obs-val b { font-family: var(--font-display), Georgia, serif; font-size: 1.375rem; font-weight: 600; font-variant-numeric: tabular-nums lining-nums; min-width: 2.6ch; text-align: right; }
+.obs-val b { font-family: var(--font-display), system-ui, sans-serif; font-size: 1.375rem; font-weight: 600; font-variant-numeric: tabular-nums lining-nums; min-width: 2.6ch; text-align: right; }
 .obs-val.none { color: var(--text-3); padding-right: var(--s-2); }
 .obs-row.few .lr-sub { color: var(--text-3); }
 /* skala 0–10: tor i punkt średniej, ten sam kolor w każdej grupie (bez oceniania kolorem) */
@@ -87,10 +91,18 @@
 .sym-custom p { margin-top: 0; }
 .sym-custom[open] { display: grid; gap: var(--s-3); }
 /* Wpis z dziś zapisany: formularz zwinięty do jednego wiersza */
-.sym-today { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-3) var(--s-4); }
-.sym-today h2 { margin: 0; font-size: var(--fs-lg); }
-.sym-today p { margin: 2px 0 0; }
-.sym-today .btn { flex: none; }
+.sym-today { display: grid; gap: var(--s-3); padding: var(--s-4); }
+.sym-today-head { display: flex; align-items: center; gap: var(--s-3); }
+.sym-today-head h2 { flex: 1; min-width: 0; margin: 0; font-size: var(--fs-lg); }
+.sym-today-head .btn { flex: none; }
+.sym-today p { margin: 0; color: var(--c-ink); }
+.sym-tiles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(72px, 1fr)); gap: var(--s-2); }
+.sym-tiles li { display: grid; justify-items: center; gap: 2px; padding: var(--s-3) var(--s-1); border-radius: var(--r-lg); background: var(--surface); min-width: 0; }
+.sym-tiles b { font-size: 1.75rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums lining-nums; color: var(--c-ink); }
+.sym-tiles span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-sm); font-weight: 600; color: var(--text-2); }
 .sym-custom-row { flex-wrap: wrap; }
 .sym-custom-row form { flex: 1 1 100%; }
 .sym-skel { min-height: 520px; background: linear-gradient(var(--surface-2), var(--surface-2)) var(--s-4) var(--s-4) / calc(100% - 2 * var(--s-4)) 60% no-repeat, var(--surface); }
+.sym-today-head .ic-dot { background: var(--surface); }
+.tint .btn.soft { background: var(--surface); }
+.sym-tiles span::first-letter { text-transform: uppercase; }

@@ -69,6 +69,8 @@ scenario('Wykres zużycia 14 dni: strzałki zmieniają odczyt, Escape wraca do d
   await go(page, '/');
   const read = page.locator('.usage-sel');
   assert.match(await text(read), /^Dziś/);
+  // strona „Dziś” bez listy odmian ładuje się szybciej niż wyspa wykresu: klawiatura dopiero po jej hydratacji
+  await interactive(page.locator('.usage-scrub'));
   await page.locator('.usage-scrub').focus();
   await page.keyboard.press('ArrowLeft');
   assert.match(await text(read), /^Wczoraj/, 'strzałka w lewo wybiera wczoraj');
@@ -83,7 +85,7 @@ scenario('Wykres zużycia 14 dni: strzałki zmieniają odczyt, Escape wraca do d
 }, withSession);
 
 scenario('"Wykupiłem" na karcie odmiany (i Cofnij)', async (page) => {
-  await go(page, '/');
+  await go(page, '/odmiany');
   const btn = page.getByRole('button', { name: 'Wykupiłem: Lemon Skunk' });
   const card = page.locator('.quick').filter({ has: btn });
   await btn.click();
@@ -148,7 +150,9 @@ scenario('Recepty: "W aptece" i "Wykupiłem" zmniejsza resztę na recepcie', asy
   const left = async () => num((await text(card.locator('.pharmacy-rx li', { hasText: ' g zostało' }).first())).match(/([\d,]+) g zostało/)[1]);
   const before = await left();
   const pool = card.locator('.pharmacy-pool').filter({ hasText: 'do wykupienia' }).filter({ hasText: / g do wykupienia/ }).first();
-  await pool.getByRole('button', { name: /^Wykupiłem/ }).click();
+  const buy = pool.getByRole('button', { name: /^Wykupiłem/ });
+  await interactive(buy); // przed hydratacją klik nie otwiera pola ilości
+  await buy.click();
   await pool.getByRole('textbox').fill('1');
   await pool.getByRole('button', { name: 'Zapisz wykup' }).click();
   await pool.locator('.quick-msg', { hasText: 'Zapisano: +1 g' }).waitFor();
@@ -268,20 +272,32 @@ scenario('Profil: przypomnienia (wyłączone domyślnie, wieczorne zablokowane b
 
 scenario('tryb dyskretny: nazwy rozmyte, tytuł "Notatnik"',async (page) => {
   await go(page, '/profil');
-  await page.getByRole('switch', { name: 'Tryb dyskretny' }).check();
-  await page.waitForFunction(() => document.title === 'Notatnik' || document.documentElement.hasAttribute('data-discreet'));
-  await go(page, '/');
+  const toggle = page.getByRole('switch', { name: 'Tryb dyskretny' });
+  await interactive(toggle); // przed hydratacją klik zaznacza samo pole, a setDiscreet() się nie wykonuje
+  await toggle.check();
+  await page.waitForFunction(() => document.title === 'Notatnik' && document.cookie.includes('zielnik_discreet=1'));
+  await go(page, '/odmiany');
   await page.waitForSelector('.dn');
   const blurs = await page.$$eval('.dn', (els) => els.map((e) => getComputedStyle(e).filter));
   assert.ok(blurs.length > 0 && blurs.every((f) => /blur/.test(f)), `nazwy rozmyte: ${blurs.slice(0, 3)}`);
   assert.equal(await page.title(), 'Notatnik');
-  // dotknięcie odsłania nazwę na chwilę
+  // panel „Dziś” (strona główna) też rozmywa nazwę ostatnio używanej odmiany
+  await go(page, '/');
+  await page.waitForSelector('.dn');
+  assert.ok((await page.$$eval('.dn', (els) => els.map((e) => getComputedStyle(e).filter))).every((f) => /blur/.test(f)), 'nazwy rozmyte na „Dziś”');
+  await go(page, '/odmiany');
+  // dotknięcie odsłania nazwę na chwilę; nasłuch DiscreetGuard działa po jego efekcie (oznacza wtedy .dn atrybutem data-dn-labelled).
+  // Dotknięcie przed nim przechodzi linkiem do szczegółów odmiany i test czekał na odsłonięcie na innej stronie
+  await page.waitForSelector('.dn[data-dn-labelled]');
   await page.locator('.dn').first().tap();
   await page.waitForFunction(() => !/blur/.test(getComputedStyle(document.querySelector('.dn')).filter), null, { timeout: 3000 });
   // wyłączenie przywraca widok
   await go(page, '/profil');
-  await page.getByRole('switch', { name: 'Tryb dyskretny' }).uncheck();
-  await go(page, '/');
+  const off = page.getByRole('switch', { name: 'Tryb dyskretny' });
+  await interactive(off);
+  await off.uncheck();
+  await page.waitForFunction(() => !document.cookie.includes('zielnik_discreet=1'));
+  await go(page, '/odmiany');
   await page.waitForSelector('.dn');
   assert.ok((await page.$$eval('.dn', (els) => els.map((e) => getComputedStyle(e).filter))).every((f) => !/blur/.test(f)));
 }, withSession);

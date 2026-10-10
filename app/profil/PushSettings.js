@@ -1,4 +1,5 @@
 'use client';
+import SecHead from '../components/SecHead';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import { fcmToken, hasFcm, isNative, pushPermission, removeFcm, requestPushPermission, saveFcm, storedFcm } from '../components/native/bridge';
@@ -171,7 +172,7 @@ export default function PushSettings() {
 
   return (
     <section className="card stack" aria-labelledby="push-h">
-      <h2 id="push-h">Powiadomienia</h2>
+      <SecHead icon="bell" id="push-h">Powiadomienia</SecHead>
       <p className="muted">Przypomnienia o kończącej się recepcie i zapasie, zebrane w jedno powiadomienie raz dziennie.</p>
       {body}
       <span role="status" className="muted">{msg}</span>

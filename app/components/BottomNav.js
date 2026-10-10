@@ -11,7 +11,7 @@ import { isActive } from './TopNav';
 import { navItems, SHEET_GROUPS } from './navItems';
 import { VERSION } from '@/lib/version';
 
-// Dolny pasek nawigacji dla telefonów (widoczny tylko poniżej 760 px) z arkuszem "Więcej"
+// Dolny pasek nawigacji dla telefonów (widoczny tylko poniżej 760 px): Dziś, Odmiany, „+” (menu dodawania), Dziennik, Więcej (arkusz)
 // Ekran do zgłoszenia bez identyfikatorów i nazw kont: adres trafia do historii przeglądarki i logów żądań
 const screenOf = (p) => p.replace(/^\/u\/[^/]+/, '/u/:handle').replace(/\/\d+(?=\/|$)/g, '/:id');
 
@@ -29,26 +29,29 @@ export default function BottomNav({ isAdmin }) {
 
   function newStrain() {
     setFab(false);
-    if (path === '/') window.dispatchEvent(new Event('zielnik:new-strain'));
-    else router.push('/?new=1');
+    if (path === '/odmiany') window.dispatchEvent(new Event('zielnik:new-strain'));
+    else router.push('/odmiany?new=1');
   }
 
   const sheet = navItems('sheet', isAdmin);
+  const bar = navItems('bar', isAdmin);
+  const tab = (i) => {
+    const on = !open && !fab && isActive(path, i.href); // przy otwartym arkuszu aktywna jest tylko zakładka „Więcej”
+    return (
+      <Link key={i.href} href={i.href} className={on ? 'on' : ''} data-cat={i.cat} aria-current={on ? 'page' : undefined}>
+        <span className="bn-ic"><Icon name={i.icon} /></span><span>{i.short || i.label}</span>{i.badge && <NavBadge kind={i.badge} />}
+      </Link>
+    );
+  };
   return (
     <>
       {(open || fab) && <div className="sheet-backdrop" onClick={closeAll} aria-hidden="true" />}
       {fab && (
         <div className="fab-menu list" role="menu" ref={fabRef}>
-          <button type="button" role="menuitem" className="list-row" onClick={newStrain}><Icon name="plus" /><span className="lr-main">Nowa odmiana</span></button>
-          <Link href="/dziennik" role="menuitem" className="list-row"><Icon name="pulse" /><span className="lr-main">Objawy dnia</span></Link>
-          <Link href="/historia" role="menuitem" className="list-row"><Icon name="clock" /><span className="lr-main">Historia zużycia i zakupów</span></Link>
+          <button type="button" role="menuitem" className="list-row" onClick={newStrain}><span className="ic-dot sm" data-cat="strain"><Icon name="jar" size={18} /></span><span className="lr-main">Nowa odmiana</span></button>
+          <Link href="/dziennik" role="menuitem" className="list-row"><span className="ic-dot sm" data-cat="journal"><Icon name="pulse" size={18} /></span><span className="lr-main">Objawy dnia</span></Link>
+          <Link href="/historia" role="menuitem" className="list-row"><span className="ic-dot sm" data-cat="stock"><Icon name="clock" size={18} /></span><span className="lr-main">Historia zużycia i zakupów</span></Link>
         </div>
-      )}
-      {/* „+” tylko na liście odmian: tam dodaje się odmiany i notuje zużycie */}
-      {!open && path === '/' && (
-        <button type="button" className="fab" onClick={() => setFab((f) => !f)} aria-label={fab ? 'Zamknij' : 'Dodaj'} aria-expanded={fab}>
-          <Icon name={fab ? 'close' : 'plus'} />
-        </button>
       )}
       {open && (
         <nav className="sheet" aria-label="Więcej" ref={sheetRef}>
@@ -59,13 +62,19 @@ export default function BottomNav({ isAdmin }) {
               <section key={g}>
                 <h2 className="section-label">{title}</h2>
                 <div className="list">
-                  {items.map((i) => (
-                    <Link key={i.href} href={i.href === '/uwagi' && path ? `/uwagi?ekran=${encodeURIComponent(screenOf(path))}` : i.href} className="list-row" aria-current={isActive(path, i.href) ? 'page' : undefined}>
-                      <Icon name={i.icon} /><span className="lr-main">{i.label}</span>
-                      {i.badge && <NavBadge kind={i.badge} />}
-                      <Icon name="chevronRight" size={18} className="lr-chev" />
-                    </Link>
-                  ))}
+                  {items.map((i) => {
+                    const inner = (
+                      <>
+                        <span className="ic-dot sm" data-cat={i.cat}><Icon name={i.icon} size={18} /></span><span className="lr-main">{i.label}</span>
+                        {i.badge && <NavBadge kind={i.badge} />}
+                        <Icon name={i.file ? 'download' : 'chevronRight'} size={18} className="lr-chev" />
+                      </>
+                    );
+                    // pobranie pliku z API: zwykły odnośnik (Link próbowałby nawigacji po stronie klienta)
+                    return i.file ? <a key={i.href} href={i.href} className="list-row">{inner}</a> : (
+                      <Link key={i.href} href={i.href === '/uwagi' && path ? `/uwagi?ekran=${encodeURIComponent(screenOf(path))}` : i.href} className="list-row" aria-current={isActive(path, i.href) ? 'page' : undefined}>{inner}</Link>
+                    );
+                  })}
                   {g === 'account' && <ThemeToggle variant="row" />}
                   {g === 'account' && (
                     <LogoutButton className="list-row logout"><Icon name="logout" /><span className="lr-main">Wyloguj</span></LogoutButton>
@@ -78,16 +87,17 @@ export default function BottomNav({ isAdmin }) {
         </nav>
       )}
       <nav className="bottomnav" aria-label="Główna nawigacja">
-        {navItems('bar', isAdmin).map((i) => {
-          const on = !open && isActive(path, i.href); // przy otwartym arkuszu aktywna jest tylko zakładka „Więcej”
-          return (
-            <Link key={i.href} href={i.href} className={on ? 'on' : ''} aria-current={on ? 'page' : undefined}>
-              <span className="bn-ic"><Icon name={i.icon} /></span><span>{i.label}</span>{i.badge && <NavBadge kind={i.badge} />}
-            </Link>
-          );
-        })}
+        {bar.slice(0, 2).map(tab)}
+        {/* „+” w środku paska: nie zasłania treści; menu dodawania (odmiana, objawy, historia) */}
+        <span className="bn-add">
+          <button type="button" className="fab" onClick={() => { setOpen(false); setFab((f) => !f); }} aria-label={fab ? 'Zamknij menu dodawania' : 'Dodaj'} aria-expanded={fab}>
+            <Icon name={fab ? 'close' : 'plus'} />
+          </button>
+        </span>
+        {bar.slice(2).map(tab)}
         <button type="button" className={open ? 'on' : ''} onClick={() => { setFab(false); setOpen((o) => !o); }} aria-expanded={open}>
-          <span className="bn-ic"><Icon name="more" /></span><span>Więcej</span>
+          {/* Znajomi i Grupy są w arkuszu: zaproszenia widać na przycisku */}
+          <span className="bn-ic"><Icon name="more" /></span><span>Więcej</span><NavBadge kind="social" />
         </button>
       </nav>
     </>

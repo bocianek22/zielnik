@@ -6,6 +6,7 @@ import { VIS, visLabel } from '@/lib/visibility';
 import ReportButton from './ReportButton';
 import Lightbox from './Lightbox';
 import Icon from './Icon';
+import SecHead from './SecHead';
 import { formatDay } from '@/lib/date';
 
 const fmtDate = formatDay;
@@ -86,8 +87,8 @@ export default function Tests({ strainId, initialTests, me }) {
   return (
     <section className="card tests">
       <div className="tests-head">
-        <h2>Testy</h2>
-        {!adding && <button type="button" className="btn small" onClick={() => { setError(''); setEditing(null); setAdding(true); }}><Icon name="plus" size={18} />Dodaj test</button>}
+        <SecHead cat="social" icon="flask">Testy</SecHead>
+        {!adding && <button type="button" className="btn small soft" onClick={() => { setError(''); setEditing(null); setAdding(true); }}><Icon name="plus" size={18} />Dodaj test</button>}
       </div>
       {adding && <TestForm key={tests.length} onSubmit={add} onCancel={() => { setAdding(false); setError(''); }} busy={busy} error={editing ? '' : error} />}
       {!adding && !editing && error && <div className="alert error" role="alert">{error}</div>}

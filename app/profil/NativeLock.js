@@ -1,4 +1,5 @@
 'use client';
+import SecHead from '../components/SecHead';
 import { useEffect, useState } from 'react';
 import { NO_SECURITY, authenticate, isNative, lockEnabled, lockSupport, setLockEnabled } from '../components/native/bridge';
 
@@ -35,7 +36,7 @@ export default function NativeLock() {
 
   return (
     <section className="card stack" aria-labelledby="lock-h">
-      <h2 id="lock-h">Blokada aplikacji</h2>
+      <SecHead icon="key" id="lock-h">Blokada aplikacji</SecHead>
       <p className="muted">Zielnik poprosi o odcisk palca, twarz albo kod telefonu przy otwarciu i po powrocie z tła (po ponad 30 sekundach).</p>
       {!state.available && !state.secure && <p className="alert note">Telefon nie ma ustawionej blokady ekranu, więc tej funkcji nie da się włączyć.</p>}
       <label className="switch-row native-check">

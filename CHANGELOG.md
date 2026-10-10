@@ -8,6 +8,20 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.54.0] - 2026-10
+Redesign „Design 3” (kierunek B z elementami A, `docs/DESIGN-3.md`) po uwagach testerów bety, czat w grupach (SPO-2), „Mój miesiąc” (POM-42).
+### Dodano
+- **Design 3:** tokeny z kolorami obszarów (`--cat-*` z wariantami `-soft`/`-ink`), hero z gradientem, kafle KPI, ikony w kółkach, karty z cieniem; jeden krój (Figtree); nowe zasady w `docs/DESIGN.md`; test kontrastu wszystkich par tekst/tło w obu motywach (`tests/theme.test.js`).
+- **Nawigacja:** dolny pasek Dziś / Odmiany / „+” / Dziennik / Więcej, arkusz „Więcej” w grupach z kolorowymi ikonami; lista odmian na osobnym ekranie `/odmiany` (stare `/?new=1` i `/?q=` przekierowują), widżet Androida odświeżany także stamtąd.
+- **Dziś:** hero z pierścieniem dni zapasu i przyciskami Zużyłem/Wykupiłem, kafle (recepta, nastrój, dziś zużyto, „Kończy się” tylko z powodem), lista „Do zrobienia”, karta wykresu 14 dni.
+- **Odmiany:** kafle liczb, przełącznik Moje / Katalog / Rankingi, wiersze z miniaturą w kolorze rodzaju, menu „⋯” (Porównaj, Edytuj), hero szczegółów z kaflami ocen i ilustracją słoika bez zdjęcia.
+- **Dziennik, historia, recepty, raport, profil, obserwacje:** hero w kolorze obszaru, karty z nagłówkami sekcji, trend objawów opisowo w pigułce, recepty z kaflem dni, neutralne notki o prywatności.
+- **Czat w grupach (SPO-2):** wiadomości dla aktywnych członków (1–2000 znaków), szyfrowane w bazie jak notatki; edycja do 15 min, usuwanie (autor, właściciel grupy, admin z audytem), zgłoszenia z zaszyfrowaną migawką treści, licznik nieprzeczytanych, odświeżanie co ~5 s; w eksporcie danych, bez importu kopii. Tabela `group_messages`, kolumny `group_members.last_read_message_id`, `reports.snapshot`.
+- **„Mój miesiąc” (POM-42):** w Historii porównanie ostatnich 30/90 dni z poprzednim okresem (zużycie g i ml osobno, dni z użyciem, wykup, średnie objawów), różnice neutralne; słupki tygodniowe z przełącznikiem g/ml (`lib/recap.js`).
+- **Motyw:** wybór Systemowy / Jasny / Ciemny także w menu „Więcej” i w nagłówku; Systemowy domyślnie.
+### Zmieniono
+- Testy: dzień w czasie polskim w `seed.mjs` i testach z bazą (po 22:00 UTC padały); stabilniejsze E2E (hydratacja, efekty); axe i cele 44 px na wszystkich ekranach, także czatu.
+
 ## [0.53.0] - 2026-10
 UI 2.0, etapy A1, A2, A3, B2, B3 (`docs/UI-2.md`), po przeglądzie Opus.
 ### Dodano

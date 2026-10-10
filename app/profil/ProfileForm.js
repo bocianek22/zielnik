@@ -1,4 +1,5 @@
 'use client';
+import SecHead from '../components/SecHead';
 import { clearQueue } from '@/lib/offline-client';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -63,8 +64,8 @@ export default function ProfileForm({ me, initial, children }) {
   return (
     <div className="stack">
       <form className="stack" onSubmit={save}>
-        <h2 className="section-label">Tożsamość</h2>
         <div className="card stack">
+          <SecHead icon="user">Tożsamość</SecHead>
           <div className="photo-edit profile-id">
             {shown ? <img className="avatar" src={shown} alt="Awatar" /> : <div className="avatar ph">{me.username[0].toUpperCase()}</div>}
             <div className="profile-who"><b>{f.displayName || me.username}</b><span className="muted">@{me.username}</span></div>
@@ -79,16 +80,16 @@ export default function ProfileForm({ me, initial, children }) {
             <textarea id="p-bio" className="input" rows={4} maxLength={500} value={f.bio} onChange={(e) => setF({ ...f, bio: e.target.value })} /></div>
         </div>
 
-        <h2 className="section-label">Widoczność</h2>
         <div className="card stack">
+          <SecHead icon="users">Widoczność</SecHead>
           <div className="field"><label htmlFor="p-vis">Kto widzi mój profil</label>
             <select id="p-vis" className="input vis-select" value={f.profileVisibility} onChange={(e) => setF({ ...f, profileVisibility: e.target.value })}>
               {VIS.map(([v, label]) => <option key={v} value={v}>{label}</option>)}</select>
             <small>Dotyczy opisu, awatara, ocen i testów, zgodnie z ich ustawieniami.</small></div>
         </div>
 
-        <h2 className="section-label">Linki</h2>
         <div className="card stack">
+          <SecHead icon="share">Linki</SecHead>
           {f.links.length === 0 && <p className="muted">Do 3 linków, np. do mediów społecznościowych.</p>}
           {f.links.map((l, i) => (
             <div key={i} className="link-row">
@@ -111,7 +112,7 @@ export default function ProfileForm({ me, initial, children }) {
 
       <h2 className="section-label">Dane i konto</h2>
       <section className="card">
-        <h2>Moje dane</h2>
+        <SecHead icon="download">Moje dane</SecHead>
         <p className="muted">Pobierz kopię wszystkich swoich danych: profil, oceny, opinie, zużycie, zakupy, testy, znajomych i grupy.</p>
         <p className="muted">Dokumenty: <Link href="/regulamin">regulamin bety</Link> i <Link href="/prywatnosc">polityka prywatności</Link>.</p>
         <div className="list inset">
@@ -133,14 +134,14 @@ export default function ProfileForm({ me, initial, children }) {
       <EmailSettings isAdmin={me.isAdmin} />
 
       <section className="card">
-        <h2>Sesje</h2>
+        <SecHead icon="logout">Sesje</SecHead>
         <p className="muted">Jeśli logowałeś się na cudzym lub zgubionym urządzeniu, wyloguj je z listy poniżej. Zmiana hasła wylogowuje wszystkie pozostałe urządzenia.</p>
         <Sessions />
         <div className="row"><button type="button" className="btn ghost" onClick={logoutAll}>Wyloguj ze wszystkich urządzeń</button></div>
       </section>
 
       <section className="card danger-zone">
-        <h2>Usuń konto</h2>
+        <SecHead icon="alert">Usuń konto</SecHead>
         {me.isAdmin ? <p className="muted">Konta admina nie można usunąć samodzielnie.</p> : (
           <>
             <p className="muted">Usuwa konto oraz wszystkie Twoje wpisy, zakupy, zużycie i testy. Wpisz hasło, aby potwierdzić.</p>
