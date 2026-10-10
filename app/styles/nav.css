@@ -96,6 +96,17 @@ a.who-name:hover { color: var(--on-bar); }
     box-shadow: var(--shadow-2); animation: sheet-in var(--dur-2) var(--ease); }
   .fab-menu .list-row { min-height: 48px; }
 }
+/* Design 3.1: arkusz i menu „+” zamykane gestem w dół (useSheetDrag.js); zakładka ugina się przy dotyku */
+@media (max-width: 760px) {
+  .sheet::before { width: 40px; height: 5px; border-radius: 3px; }
+  .sheet, .fab-menu { will-change: transform; }
+}
+@media (max-width: 760px) and (prefers-reduced-motion: no-preference) {
+  .bottomnav .bn-ic { transition: background var(--dur-2) var(--ease), transform var(--dur-1) var(--ease); }
+  .bottomnav a:active .bn-ic, .bottomnav > button:active .bn-ic { transform: scale(.9); }
+  .bottomnav .fab { transition: transform var(--dur-1) var(--ease); }
+  .bottomnav .fab:active { transform: scale(.94); }
+}
 @keyframes sheet-in { from { transform: translateY(12px); opacity: 0; } }
 .theme-row { cursor: default; }
 .theme-row .seg-sm { margin-left: auto; flex-wrap: nowrap; }

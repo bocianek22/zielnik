@@ -4,6 +4,15 @@ Krótki przewodnik dla każdego, kto zmienia wygląd aplikacji. Kod: tokeny i ko
 
 Od 9.10.2026 obowiązuje **Design 3** (kierunek B „Dashboard zdrowia” z elementami A): diagnoza, makiety, finalne tokeny z kontrastem i plan strumieni są w `docs/DESIGN-3.md` (sekcja 0). Zasady 3–5 poniżej zastąpiły dawne „hierarchia zamiast ozdobników”, „jeden akcent” i „listy zamiast kart”.
 
+Od 10.10.2026 **Design 3.1** dopracowuje wykonanie bez zmiany tożsamości. Opis i plan strumieni są w `docs/DESIGN-3.1.md`. Zmiany:
+- kompaktowy pasek z nazwą ekranu;
+- arkusze zamykane gestem;
+- wypełniona ikona aktywnej zakładki;
+- `.qty`/`.unit` i `.section-title`;
+- `EmptyState` z ilustracją;
+- szkielety w kształcie treści (`Skeleton`, `LoadingShell`);
+- toast z ikoną stanu.
+
 ## Zasady
 
 1. **Spokojnie i rzetelnie.** Odbiorcy to dorośli pacjenci, a dane dotyczą zdrowia. Ton jak w aplikacji apteki albo dzienniku zdrowia, bez „stonerskiej” estetyki i marketingu.

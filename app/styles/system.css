@@ -10,14 +10,29 @@
 .system-actions .btn { width: 100%; }
 @media (min-width: 480px) { .system-actions { display: flex; justify-content: center; width: auto; max-width: none; } .system-actions .btn { width: auto; } }
 
-/* ===== Szkielet ładowania: wiersz jak .list-row ===== */
+/* ===== Szkielety ładowania (components/Skeleton.js): kształt docelowej treści, jeden połysk dla wszystkich części ===== */
+.skeleton .skel-line, .skel-dot, .skel-hero, .skel-kpi { background: linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3) 37%, var(--surface-2) 63%); background-size: 400% 100%; animation: skel-shine 1.4s ease infinite; }
+.skeleton .skel-line { display: block; height: 12px; margin: 0; border-radius: var(--r-sm); }
+.skeleton .skel-line.w80 { width: 80%; }
+.skeleton .skel-line.w60 { width: 60%; }
+.skeleton .skel-line.w40 { width: 40%; height: 16px; }
+.skeleton .skel-line.w30 { width: 30%; }
 .skeleton .skel-row { min-height: 68px; }
 .skeleton .lr-main { display: grid; gap: var(--s-2); }
-.skeleton .skel-line { display: block; margin: 0; }
-.skeleton .skel-line.w60 { height: 18px; }
-.skeleton .skel-line.w30 { height: 12px; }
+.skeleton .skel-row .skel-line.w60 { height: 16px; }
 .skeleton .skel-val { width: 44px; height: 20px; margin-left: auto; }
-@media (prefers-reduced-motion: reduce) { .skel-line { animation: none; } }
+.skel-dot { flex: none; width: 36px; height: 36px; border-radius: 50%; }
+.skel-card { display: grid; gap: var(--s-3); margin-top: var(--s-4); }
+.skel-hero + .skel-card { margin-top: 0; }
+.skel-head { display: flex; align-items: center; gap: var(--s-3); margin-bottom: var(--s-1); }
+.skel-hero { border-radius: var(--r-xl); margin-bottom: var(--s-4); }
+.skel-hero.detail { height: 220px; }
+.skel-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-3); }
+.skel-kpi { height: 112px; border-radius: var(--r-lg); }
+/* hero szkieletu ma kolor prawdziwego hero (bez błysku szarości przed ciemną zielenią) */
+.skel-hero { background: linear-gradient(165deg, var(--bar) 0%, var(--hero-2) 60%, var(--hero-3) 100%); animation: none; }
+.skel-hero.neutral { height: 136px; background: linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3) 37%, var(--surface-2) 63%); background-size: 400% 100%; animation: skel-shine 1.4s ease infinite; }
+@media (prefers-reduced-motion: reduce) { .skeleton .skel-line, .skel-dot, .skel-hero, .skel-kpi { animation: none; } }
 
 /* ===== Porównanie: kolumny odmian bez poziomego przewijania ===== */
 .cap { display: inline-block; }
@@ -28,6 +43,7 @@
 .cmp-head a { font-family: var(--font-display), system-ui, sans-serif; font-size: var(--fs-lg); font-weight: 600; line-height: 1.25; color: var(--text); text-decoration: none; overflow-wrap: anywhere; }
 .cmp-head a:hover { text-decoration: underline; }
 .cmp-spacer { display: none; }
+@media (max-width: 760px) { .cmp-head { top: var(--cbar-h, 0px); } } /* pod kompaktowym paskiem (CompactTitle) */
 .cmp-lines { margin: 0; }
 .cmp-line { padding-block: var(--s-3); border-top: 1px solid var(--sep); }
 .cmp-line:first-child { border-top: 0; }
@@ -41,19 +57,21 @@
 }
 
 /* ===== Potwierdzenie zapisu: components/Toast.js ===== */
-/* Nad dolnym paskiem i przyciskiem „+” (telefon), w rogu na szerokim ekranie. Pusty obszar role="status" zostaje w DOM, ale nie jest widoczny. */
-.toast { position: fixed; z-index: 60; left: var(--s-4); right: var(--s-4); bottom: calc(var(--bottomnav-h) + 84px + env(safe-area-inset-bottom));
-  display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); max-width: 420px; margin: 0 auto; padding: var(--s-2) var(--s-2) var(--s-2) var(--s-4);
-  background: var(--surface); color: var(--text); border: 1px solid var(--sep); border-radius: var(--r-lg); box-shadow: var(--shadow-2); animation: toast-in .18s ease-out; }
+/* Tuż nad dolnym paskiem (telefon), w rogu na szerokim ekranie. Pusty obszar role="status" zostaje w DOM, ale nie jest widoczny.
+   Tekst neutralny, stan mówi ikona w kolorze stanu (kolor sukcesu na całym zdaniu był mniej czytelny) */
+.toast { position: fixed; z-index: 60; left: var(--s-4); right: var(--s-4); bottom: calc(var(--bottomnav-h) + var(--s-3) + env(safe-area-inset-bottom));
+  display: flex; align-items: center; gap: var(--s-3); max-width: 420px; min-height: 52px; margin: 0 auto; padding: var(--s-1) var(--s-1) var(--s-1) var(--s-4);
+  background: var(--surface); color: var(--text); border: 1px solid var(--sep); border-radius: var(--r-lg); box-shadow: var(--shadow-2); animation: toast-in .2s var(--ease); }
 .toast[data-empty] { display: none; }
-.toast-text { margin: 0; flex: 1 1 auto; min-width: 0; font-size: var(--fs-sm); line-height: 1.35; font-weight: 600; color: var(--ok); }
+.toast-ic { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--ok-soft); color: var(--ok); }
+.toast.warn .toast-ic { background: var(--danger-soft); color: var(--danger); }
+.toast.queued .toast-ic { background: var(--warn-soft); color: var(--warn); }
+.toast-text { margin: 0; flex: 1 1 auto; min-width: 0; padding: var(--s-2) 0; font-size: .9375rem; line-height: 1.35; font-weight: 600; color: var(--text); }
 .toast-text:empty { display: none; }
-.toast.warn .toast-text { color: var(--danger); }
-.toast.queued .toast-text { color: var(--warn); }
-.toast .undo-btn { flex: none; min-height: var(--tap); }
+.toast .undo-btn { flex: none; min-height: var(--tap); border: 0; background: transparent; color: var(--accent-text); font-weight: 700; }
 @media (min-width: 761px) { .toast { left: auto; right: var(--s-6); bottom: var(--s-6); margin: 0; } }
-html.native-app .toast { bottom: calc(var(--bottomnav-h) + 84px + max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px))); }
-@keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+html.native-app .toast { bottom: calc(var(--bottomnav-h) + var(--s-3) + max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px))); }
+@keyframes toast-in { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .toast { animation: none; } }
 
 /* Przycisk w trakcie zapisu (aria-busy): kursor postępu, szerokość bez zmian */
