@@ -173,7 +173,7 @@ test('puste stany nowego konta: panel „Dziś”, wykres objawów i recepty maj
     await go(page, '/');
     await click(page.getByRole('button', { name: 'Zamknij kreator' }));
     await page.locator('.home-date').waitFor();
-    const today = page.locator('section.empty', { hasText: 'Tu zobaczysz zapas i prognozę' });
+    const today = page.locator('.empty', { hasText: 'Tu zobaczysz zapas i prognozę' });
     await today.waitFor();
     assert.equal(await today.getByRole('button').count(), 1);
     assert.equal(await today.getByRole('button', { name: 'Dodaj odmianę' }).count(), 1);

@@ -20,7 +20,7 @@ export default function VisitPeriod({ today, value, notes }) {
     <form method="get" className="report-visit" onSubmit={save}>
       <div className="field">
         <label htmlFor="visit">Data ostatniej wizyty</label>
-        <input ref={ref} id="visit" name="from" type="date" className="input" max={today} required defaultValue={value || undefined} />
+        <input ref={ref} id="visit" name="from" type="date" lang="pl" className="input" max={today} required defaultValue={value || undefined} />
       </div>
       <input type="hidden" name="to" value={today} />
       <input type="hidden" name="okres" value="wizyta" />

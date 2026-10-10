@@ -40,7 +40,7 @@ export default async function Raport({ searchParams }) {
   const q = sql();
   const [plan] = await q`SELECT plan, plan_until, display_name FROM users WHERE id = ${me.id}`;
   if (!canUse(plan, 'doctor_report')) {
-    return (<><Header user={me} /><main className="page"><header className="hero cat-hero" data-cat="learn"><div className="hero-top"><span className="ic-dot sq"><Icon name="file" size={24} /></span><div><h1>Raport dla lekarza</h1></div></div></header><div className="card empty">
+    return (<><Header user={me} /><main className="page"><header className="hero cat-hero" data-cat="learn"><div className="hero-top"><span className="ic-dot sq"><Icon name="clipboard" size={24} /></span><div><h1>Raport dla lekarza</h1></div></div></header><div className="card empty">
       <Icon name="file" size={32} />
       <h2>Funkcja planu Premium</h2>
       <p>Raport zestawia zużycie, zakupy, recepty i objawy z wybranego okresu do wydruku lub zapisu jako PDF.</p>
@@ -107,7 +107,7 @@ export default async function Raport({ searchParams }) {
       <main className="page stack report-page">
         <header className="hero cat-hero no-print" data-cat="learn">
           <div className="hero-top">
-            <span className="ic-dot sq"><Icon name="file" size={24} /></span>
+            <span className="ic-dot sq"><Icon name="clipboard" size={24} /></span>
             <div>
               <h1>Raport dla lekarza</h1>
               <p className="hero-sub">Zestawienie do wydruku albo zapisu jako PDF</p>
@@ -125,14 +125,18 @@ export default async function Raport({ searchParams }) {
           <details className="report-more" open={custom || undefined}>
             <summary>Własny zakres dat i opcje<Icon name="chevronDown" size={20} className="report-more-chev" /></summary>
             <form className="row report-range" method="get">
-              <div className="field"><label htmlFor="from">Od</label><input id="from" name="from" type="date" className="input" defaultValue={from} max={today} /></div>
-              <div className="field"><label htmlFor="to">Do</label><input id="to" name="to" type="date" className="input" defaultValue={to} max={today} /></div>
+              <div className="field"><label htmlFor="from">Od</label><input id="from" name="from" type="date" lang="pl" className="input" defaultValue={from} max={today} /></div>
+              <div className="field"><label htmlFor="to">Do</label><input id="to" name="to" type="date" lang="pl" className="input" defaultValue={to} max={today} /></div>
               <label className="check"><input type="checkbox" name="notes" value="1" defaultChecked={withNotes} /> Dołącz moje spostrzeżenia (notatki przy odmianach i o partiach)</label>
               <button className="btn ghost">Pokaż raport</button>
             </form>
           </details>
           <ReportActions from={from} to={to} notes={openNotes} model={buildReportModel({ patient: plan?.display_name || me.username, from, to, today, withNotes, report, minSymptomDays: MIN_SYMPTOM_DAYS })} />
-          <p className="muted small">PDF powstaje na tym urządzeniu, dane nie trafiają na zewnętrzny serwer. Nazwa pliku jest neutralna. W PDF i na wydruku nazwy odmian są widoczne także w trybie dyskretnym.</p>
+          <p className="muted small">PDF powstaje na tym urządzeniu, a dane nie trafiają na serwer.</p>
+          <details className="report-more">
+            <summary>O pliku PDF<Icon name="chevronDown" size={20} className="report-more-chev" /></summary>
+            <p className="muted small">Nazwa pliku jest neutralna. W PDF i na wydruku nazwy odmian są widoczne także w trybie dyskretnym.</p>
+          </details>
         </div>
 
         <DoctorNotes initial={notes} />

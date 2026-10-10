@@ -136,6 +136,40 @@ test('zapraszanie: aktywny członek i moderator tak, zaproszony bez przyjęcia n
   await q`DELETE FROM group_members WHERE group_id = ${G} AND user_id = ${ids.darek}`;
 });
 
+test('zasada zapraszania: zmieniają ją właściciel i moderator; przy „staff” zwykły członek nie zaprasza, moderator tak; usuwanie zaproszeń', { skip }, async () => {
+  const { ids, q } = h;
+  const was = await role(ids.bartek);
+  await q`UPDATE group_members SET role = 'moderator' WHERE group_id = ${G} AND user_id = ${ids.bartek}`;
+  const policy = async () => (await q`SELECT invite_policy FROM groups WHERE id = ${G}`)[0].invite_policy;
+  assert.equal(await policy(), 'all', 'domyślnie zaprasza każdy');
+  // zwykły członek nie zmienia zasady, błędna wartość odrzucona, obcy dostaje 403
+  assert.equal((await act(ids.celina, { action: 'invitePolicy', policy: 'staff' })).status, 403);
+  assert.equal((await act(ids.bartek, { action: 'invitePolicy', policy: 'admin' })).status, 400);
+  assert.equal((await act(ids.darek, { action: 'invitePolicy', policy: 'staff' })).status, 403);
+  assert.equal((await act(ids.darek, { action: 'invitePolicy', policy: 'staff' }, G2)).status, 200, 'właściciel własnej grupy');
+  assert.equal(await policy(), 'all', 'zmiana w innej grupie nie dotyka tej');
+  // moderator przełącza na „staff”
+  assert.equal((await act(ids.bartek, { action: 'invitePolicy', policy: 'staff' })).status, 200);
+  assert.equal(await policy(), 'staff');
+  await q`INSERT INTO friendships (requester, addressee, status) VALUES (${ids.celina}, ${ids.adm}, 'accepted')`;
+  const r = await act(ids.celina, { action: 'invite', username: 'adm' });
+  assert.equal(r.status, 403);
+  assert.match(r.json.error, /tylko właściciel i moderatorzy/);
+  assert.equal((await q`SELECT 1 FROM group_members WHERE group_id = ${G} AND user_id = ${ids.adm}`).length, 0);
+  // moderator zaprasza, a potem usuwa oczekujące zaproszenie
+  assert.equal((await act(ids.bartek, { action: 'invite', username: 'adm' })).status, 200);
+  assert.equal((await q`SELECT status FROM group_members WHERE group_id = ${G} AND user_id = ${ids.adm}`)[0].status, 'invited');
+  assert.equal((await act(ids.bartek, { action: 'kick', userId: ids.adm })).status, 200);
+  assert.equal((await q`SELECT 1 FROM group_members WHERE group_id = ${G} AND user_id = ${ids.adm}`).length, 0);
+  // po odebraniu roli moderatora bartek nie zmienia już zasady; właściciel przywraca „all” i członek znów zaprasza
+  await q`UPDATE group_members SET role = 'member' WHERE group_id = ${G} AND user_id = ${ids.bartek}`;
+  assert.equal((await act(ids.bartek, { action: 'invitePolicy', policy: 'all' })).status, 403);
+  assert.equal((await act(ids.ania, { action: 'invitePolicy', policy: 'all' })).status, 200);
+  assert.equal((await act(ids.celina, { action: 'invite', username: 'adm' })).status, 200);
+  await q`DELETE FROM group_members WHERE group_id = ${G} AND user_id = ${ids.adm}`;
+  await q`UPDATE group_members SET role = ${was} WHERE group_id = ${G} AND user_id = ${ids.bartek}`;
+});
+
 test('przekazanie własności: tylko właściciel, tylko aktywnemu członkowi; role i owner_id zmieniają się razem', { skip }, async () => {
   const { ids, q } = h;
   const owner = async () => (await q`SELECT owner_id FROM groups WHERE id = ${G}`)[0].owner_id;

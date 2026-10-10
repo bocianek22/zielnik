@@ -1,5 +1,5 @@
-import Skeleton from '../components/Skeleton';
+import LoadingShell from '../components/LoadingShell';
 
 export default function Loading() {
-  return <main className="page"><h1>Rankingi</h1><Skeleton /></main>;
+  return <LoadingShell title="Rankingi" variant="list" />;
 }

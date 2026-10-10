@@ -105,7 +105,7 @@ function UsagePanel({ xs, use, sel }) {
     <div className="sp-panel">
       <div className="sp-head">
         <div className="sp-id"><b>Zużycie suszu</b><span>{max > 0 ? `osobna skala, 0–${num(top)} g dziennie` : 'g dziennie, osobna skala'}</span></div>
-        <span className="sp-val" aria-hidden="true">{sel == null && !g ? '–' : `${num(g)} g`}</span>
+        <span className="sp-val" aria-hidden="true">{sel == null && !g ? '–' : <span className="qty">{num(g)}<span className="unit">g</span></span>}</span>
       </div>
       {max === 0 ? <p className="sp-none">Nie zapisano zużycia suszu w ostatnich 30 dniach.</p> : (
         <div className="sp-plot sp-use">
@@ -241,10 +241,13 @@ export default function SymptomsChart({ rows, usage, all, end }) {
           <Axis xs={xs} />
         </Scrub>
       )}
-      <p className="sp-cap">
-        {hasSym ? 'Kropki to wpisy. Linia to średnia z 7 dni, liczona tylko wtedy, gdy w tych 7 dniach są co najmniej 4 wpisy; pasmo to zakres z 7 dni (od najniższego do najwyższego wpisu). Linia nie łączy dni, między którymi są co najmniej 3 dni bez wpisu. ' : ''}
-        Zużycie ma własną skalę i jest osobno.
-      </p>
+      <details className="sp-how">
+        <summary>Jak czytać wykres</summary>
+        <p className="sp-cap">
+          {hasSym ? 'Kropki to wpisy. Linia to średnia z 7 dni, liczona tylko wtedy, gdy w tych 7 dniach są co najmniej 4 wpisy; pasmo to zakres z 7 dni (od najniższego do najwyższego wpisu). Linia nie łączy dni, między którymi są co najmniej 3 dni bez wpisu. ' : ''}
+          Zużycie ma własną skalę i jest osobno.
+        </p>
+      </details>
     </Frame>
   );
 }

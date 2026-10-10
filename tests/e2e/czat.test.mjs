@@ -86,7 +86,8 @@ test('czat: wysyłka, polling u drugiej osoby, Shift+Enter, edycja, usunięcie, 
       await A.page.locator('.list-row', { hasText: 'Czat E2E' }).locator('.nbadge').waitFor();
       const row = A.page.locator('.list-row', { hasText: 'Czat E2E' });
       await interactive(row);
-      await row.click();
+      await Promise.all([A.page.waitForURL(/\/grupy\/\d+$/, { timeout: 15000 }), row.click()]);
+      await A.page.locator('.chat-list').waitFor();
       await bubble(A.page, 'Czy ktoś jest?').waitFor();
 
       // zgłoszenie cudzej wiadomości

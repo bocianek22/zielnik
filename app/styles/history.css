@@ -150,3 +150,11 @@
 .hist-batch { margin-top: var(--s-3); padding-top: var(--s-3); border-top: 1px solid var(--sep); }
 .hist-batch > h3 { margin: 0 0 var(--s-2); font-size: var(--fs-base); }
 .hist-batch-cell { display: block; margin-top: var(--s-1); }
+
+/* Design 3.1: kafle miesiąca na wspólnej linii bazowej (etykieta, liczba, podpis w stałych rzędach) */
+.hist-kpis .kpi-tile { display: grid; grid-template-rows: auto 1.75rem auto; align-content: start; gap: var(--s-2); min-height: 104px; }
+.hist-kpis .kt-value { margin-top: 0; align-self: end; line-height: 1.75rem; }
+.hist-kpis .kt-value .unit { font-size: .5em; }
+.hist-page > .section-title { margin-top: var(--s-6); }
+.hist-page > .hero + .section-title { margin-top: var(--s-5); }
+.hist-page > .section-title + .list, .hist-page > .section-title + .card { margin-top: 0; }

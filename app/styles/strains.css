@@ -57,77 +57,67 @@
   .sortbox .input { flex: 1; min-width: 0; }
 }
 
-/* ===== Podsumowanie nad listą (trzy kafle) ===== */
-.strain-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-3); margin-bottom: var(--s-4); }
-.strain-kpis .kpi-tile { min-height: 92px; padding: var(--s-3) var(--s-4); min-width: 0; }
-.strain-kpis .kt-value { font-size: 1.875rem; }
+/* ===== Podsumowanie nad listą: jedna linia (Design 3.1) ===== */
+.strain-stats { display: flex; flex-wrap: wrap; gap: 0 var(--s-4); margin: 0 var(--s-1) var(--s-3); font-size: var(--fs-sm); color: var(--text-2); font-variant-numeric: tabular-nums; }
+.strain-stats b { color: var(--text); font-weight: 700; }
 
-/* ===== Lista: wiersze w jednej karcie ===== */
+/* ===== Lista: wiersze w jednej karcie (Design 3.1: wiersz około 96 px, jedno działanie główne, reszta w „…”) ===== */
 .strain-list { padding: 0; overflow: visible; }
-.strain { position: relative; padding: var(--s-4) var(--s-5); }
+.strain { position: relative; padding: 6px var(--s-4) 2px; }
 .strain + .strain, .strain-list > * + .strain, .strain-list > .strain + * { border-top: 1px solid var(--sep); }
-.strain-head { display: flex; gap: var(--s-3); align-items: flex-start; }
+.strain-head { position: relative; display: flex; gap: var(--s-3); align-items: center; min-height: 40px; }
 .strain-title { flex: 1; min-width: 0; }
-.strain-head h3 { font-size: 1.1875rem; font-weight: 700; margin: 0 0 2px; line-height: 1.25; overflow-wrap: anywhere; }
+.strain-head h3 { font-size: 1.0625rem; font-weight: 700; margin: 0; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .strain-head h3 a { color: inherit; text-decoration: none; }
+/* cały nagłówek wiersza jest celem dotyku (przejście do szczegółów); zdjęcie z podglądem leży nad nim */
+.strain-head h3 a::after { content: ''; position: absolute; inset: 0; }
 .strain-head h3 a:hover { text-decoration: underline; text-decoration-color: var(--sep-strong); text-underline-offset: 4px; }
-.strain-meta { display: flex; flex-wrap: wrap; align-items: center; margin: 0; color: var(--text-2); font-size: .9375rem; line-height: 1.5; }
-.strain-meta > * + *::before { content: '·'; margin: 0 6px; color: var(--text-3); }
-.strain-meta { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.photo-link { position: relative; z-index: 1; flex-shrink: 0; }
+.strain-meta { margin: 0; color: var(--text-2); font-size: var(--fs-sm); line-height: 1.4; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .strain-meta > * { display: inline; }
+.strain-meta > * + *::before { content: '·'; margin: 0 5px; color: var(--text-3); }
 .strain-meta .kind { display: inline-flex; vertical-align: baseline; }
+.strain-meta .meta-warn { color: var(--warn); font-weight: 600; }
 /* rodzaj: kolorowa kropka + nazwa (kolor tylko jako znacznik danych) */
 .kind { display: inline-flex; align-items: center; }
 .kind-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--kind, var(--text-3)); margin-right: 5px; flex: none; }
 .kind-indica { --kind: var(--kind-indica); } .kind-sativa { --kind: var(--kind-sativa); } .kind-hybryda { --kind: var(--kind-hybryda); }
 /* miniatura: kwadrat w kolorze rodzaju z ikoną słoika albo kropli (bez inicjałów, tryb dyskretny) */
-.strain-thumb { flex: none; width: 56px; height: 56px; border-radius: var(--r-md); display: grid; place-items: center; background: var(--kind, var(--surface-3)); color: var(--on-kind); }
+.strain-thumb { flex: none; width: 40px; height: 40px; border-radius: var(--r-md); display: grid; place-items: center; background: var(--kind, var(--surface-3)); color: var(--on-kind); }
 .k-none .strain-thumb { background: var(--surface-3); color: var(--text-2); }
 .strain.k-indica { --kind: var(--kind-indica); } .strain.k-sativa { --kind: var(--kind-sativa); } .strain.k-hybryda { --kind: var(--kind-hybryda); }
-.scores { display: flex; gap: var(--s-4); flex-shrink: 0; text-align: right; }
-.score { display: grid; justify-items: end; min-width: 48px; }
-.score b { font-size: 1.75rem; line-height: 1.05; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums lining-nums; letter-spacing: -.02em; }
-.score small { font-size: var(--fs-xs); color: var(--text-2); margin-top: 2px; white-space: nowrap; }
-.score.soft b { font-size: 1.25rem; font-weight: 700; color: var(--text-2); }
-/* pigułki: dane (THC, cena) neutralne, stan zapasu w kolorze znaczenia */
-.strain-pills { display: flex; flex-wrap: wrap; gap: 6px; margin: var(--s-3) 0 0; padding: 0; }
-.strain-pills:empty { display: none; }
+.strain-photo { flex: none; width: 40px; height: 40px; object-fit: cover; border-radius: var(--r-md); background: var(--surface-2); display: block; overflow: hidden; color: transparent; font-size: 0; } /* zepsuty obraz: bez rozlanego tekstu alt (czytnik nadal go czyta) */
+/* ocena (800) i krótki stan zapasu pod nią */
+.scores { display: grid; justify-items: end; gap: 0; flex-shrink: 0; text-align: right; }
+.score { font-size: 1.4375rem; line-height: 1; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums lining-nums; letter-spacing: -.02em; }
 .pill { display: inline-flex; align-items: center; min-height: 28px; padding: 0 12px; border-radius: var(--r-pill); background: var(--surface-2); color: var(--text); font-size: var(--fs-sm); font-weight: 600; font-variant-numeric: tabular-nums; }
+.pill.sm { min-height: 18px; padding: 0 8px; font-size: var(--fs-xs); white-space: nowrap; }
 .pill.stock-ok { background: var(--c-soft); color: var(--c-ink); }
 .pill.stock-low { background: var(--warn-soft); color: var(--warn); }
 .pill.stock-none { color: var(--text-2); }
-.strain-photo { width: 56px; height: 56px; object-fit: cover; border-radius: var(--r-md); background: var(--surface-2); display: block; overflow: hidden; color: transparent; font-size: 0; } /* zepsuty obraz: bez rozlanego tekstu alt (czytnik nadal go czyta) */
-.strain-photo.ph { display: grid; place-items: center; font-size: var(--fs-xs); color: var(--text-2); text-align: center; }
-.photo-link { flex-shrink: 0; }
-.strain-more { margin-top: var(--s-3); }
-.strain-taste { margin: 4px 0 0; color: var(--text-2); font-size: var(--fs-sm); }
-.strain-desc { margin-top: var(--s-2); }
+.strain-foot { display: flex; justify-content: flex-end; }
+.strain .quick { margin-top: 2px; }
+.strain .quick-btns { flex-wrap: nowrap; }
+.strain .quick-btns .btn.quick-btn { min-width: 0; padding-inline: var(--s-3); }
 .strain-desc summary { cursor: pointer; font-weight: 600; font-size: var(--fs-sm); color: var(--accent-text); min-height: var(--tap); display: flex; align-items: center; }
 .strain-desc p { margin: 6px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
-.strain-foot { margin-top: var(--s-2); display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); }
-.strain-foot .chev { transition: transform var(--dur-2) var(--ease); }
-.strain.expanded .strain-foot .chev { transform: rotate(180deg); }
-.strain-foot .btn { min-height: var(--tap); }
-.strain-foot > .card-menu:only-child { margin-left: auto; }
-/* menu karty: „Porównaj” i „Edytuj” (rzadkie akcje) */
-.card-menu { position: relative; margin-left: auto; }
-.card-menu > summary { list-style: none; display: inline-grid; place-items: center; width: var(--tap); height: var(--tap); border-radius: var(--r-md); color: var(--text-2); cursor: pointer; }
-.card-menu > summary::-webkit-details-marker { display: none; }
-.card-menu > summary:hover, .card-menu[open] > summary { background: var(--hover-bg); color: var(--text); }
-.card-menu-list { position: absolute; right: 0; bottom: 100%; z-index: 20; min-width: 230px; display: grid; padding: var(--s-1); background: var(--surface); border: 1px solid var(--sep-strong); border-radius: var(--r-md); box-shadow: var(--shadow-card); }
-.card-menu-list .check { min-height: var(--tap); padding: 0 var(--s-3); font-size: var(--fs-sm); font-weight: 500; }
-.card-menu-list .btn { justify-content: flex-start; font-weight: 500; }
+/* przycisk „…” na końcu rzędu akcji; menu to arkusz (.row-sheet) */
+.card-menu-btn { margin-left: auto; flex: none; display: inline-grid; place-items: center; width: var(--tap); height: var(--tap); border: 0; border-radius: var(--r-md); background: none; color: var(--text-2); cursor: pointer; }
+.card-menu-btn:hover, .card-menu-btn[aria-expanded="true"] { background: var(--hover-bg); color: var(--text); }
+.rs-backdrop { position: fixed; inset: 0; background: var(--scrim); z-index: 70; }
+.row-sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 71; max-width: 560px; margin: 0 auto; max-height: min(78vh, 640px); max-height: min(78dvh, 640px); overflow: auto; overscroll-behavior: contain;
+  background: var(--bg); color: var(--text); border-radius: var(--r-xl) var(--r-xl) 0 0; padding: 8px var(--s-4) calc(var(--s-4) + env(safe-area-inset-bottom)); box-shadow: var(--shadow-2); animation: sheet-in var(--dur-2) var(--ease); will-change: transform; }
+.row-sheet::before { content: ''; display: block; width: 40px; height: 5px; border-radius: 3px; background: var(--sep-strong); margin: 0 auto var(--s-3); }
+.rs-title { margin: 0 var(--s-1) var(--s-2); font-weight: 700; font-size: var(--fs-lg); overflow-wrap: anywhere; }
+.row-sheet .list a, .row-sheet .list button { color: var(--text); }
+.row-sheet .list > .list-row + .list-row { border-top: 0; background-image: linear-gradient(var(--sep), var(--sep)); background-size: calc(100% - 64px) 1px; background-position: right top; background-repeat: no-repeat; }
+.row-sheet .rs-check { cursor: pointer; }
+.row-sheet .rs-check input { width: 22px; height: 22px; margin-left: auto; flex: none; accent-color: var(--accent); }
 .pool-note { color: var(--text-2); font-size: var(--fs-xs); line-height: 1.35; }
-@media (max-width: 760px) {
-  .strain { padding: var(--s-4); }
-  .score.soft { display: none; }
-}
 @media (max-width: 359px) {
-  .strain-kpis { gap: var(--s-2); }
-  .strain-kpis .kpi-tile { padding: var(--s-3); }
-  .strain-kpis .kt-value { font-size: 1.5rem; }
+  .strain { padding-inline: var(--s-3); }
   .strain-head { gap: var(--s-2); }
-  .strain-thumb, .strain-photo { width: 44px; height: 44px; }
+  .strain .quick-btns { flex-wrap: wrap; }
   .strain-meta > * + *::before { margin: 0 4px; }
 }
 
@@ -170,8 +160,6 @@
   .entry.other .entry-field { grid-column: auto; }
 }
 @media (max-width: 760px) {
-  /* zwinięta karta na telefonie to wiersz listy: nazwa, dane, ocena, szybkie akcje. Pola edycji dopiero po „Szczegóły”. */
-  .strain:not(.expanded) .entries, .strain:not(.expanded) .strain-more { display: none; }
   .entry-field.use, .entry-field.buy, .entry-field.vis, .entry-field.price { grid-column: 1 / -1; }
   .entry-field.price .input, .entry-field.vis .input, .vis-select, .use-row { max-width: none; }
 }

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
 import { requireUser, bad, safe, intId, jsonBody } from '@/lib/guard';
 
-// { action: 'invite' | 'accept' | 'leave' | 'kick' | 'mod' | 'unmod' | 'transfer' | 'delete', username?, userId? }
+// { action: 'invite' | 'accept' | 'leave' | 'kick' | 'mod' | 'unmod' | 'transfer' | 'invitePolicy' | 'delete', username?, userId?, policy? }
 // Role (SPO-3): owner (jeden na grupę), moderator (nadaje właściciel), member. Uprawnienia sprawdza samo zapytanie
 // (członkostwo i rola wywołującego w WHERE), więc wyrzucenie z grupy albo odebranie roli działa od razu.
 export const POST = safe(async (req, { params }) => {
@@ -40,10 +40,28 @@ export const POST = safe(async (req, { params }) => {
     const friend = await q`SELECT 1 FROM friendships WHERE status = 'accepted'
       AND ((requester = ${user.id} AND addressee = ${t.id}) OR (requester = ${t.id} AND addressee = ${user.id}))`;
     if (!friend.length && t.id !== user.id) return bad('Do grupy możesz zapraszać tylko znajomych.', 403);
-    await q`INSERT INTO group_members (group_id, user_id, role, status) VALUES (${gid}, ${t.id}, 'member', 'invited') ON CONFLICT DO NOTHING`;
+    // zasada zapraszania i rola sprawdzane w tym samym zapytaniu, więc zmiana ustawienia działa od razu
+    const ins = await q`INSERT INTO group_members (group_id, user_id, role, status)
+      SELECT ${gid}::int, ${t.id}::int, 'member', 'invited' FROM groups g
+      JOIN group_members c ON c.group_id = g.id AND c.user_id = ${user.id}::int AND c.status = 'active'
+      WHERE g.id = ${gid}::int AND (g.invite_policy = 'all' OR c.role IN ('owner', 'moderator'))
+      ON CONFLICT DO NOTHING RETURNING user_id`;
+    if (!ins.length) {
+      const [g] = await q`SELECT invite_policy FROM groups WHERE id = ${gid}::int`;
+      if (g?.invite_policy === 'staff' && m.role === 'member') return bad('W tej grupie zapraszać mogą tylko właściciel i moderatorzy.', 403);
+    }
     return NextResponse.json({ ok: true });
   }
   const staff = m.role === 'owner' || m.role === 'moderator';
+  if (b.action === 'invitePolicy') {
+    if (!staff) return bad('Tylko właściciel albo moderator grupy może to zrobić.', 403);
+    if (b.policy !== 'all' && b.policy !== 'staff') return bad('Nieznane ustawienie.');
+    const upd = await q`UPDATE groups SET invite_policy = ${b.policy}::text WHERE id = ${gid}::int
+      AND EXISTS (SELECT 1 FROM group_members c WHERE c.group_id = ${gid}::int AND c.user_id = ${user.id}::int AND c.status = 'active'
+                  AND c.role IN ('owner', 'moderator'))
+      RETURNING id`;
+    return upd.length ? NextResponse.json({ ok: true }) : bad('Tylko właściciel albo moderator grupy może to zrobić.', 403);
+  }
   if (b.action === 'kick') {
     if (!staff) return bad('Tylko właściciel albo moderator grupy może to zrobić.', 403);
     const uid = intId(b.userId);

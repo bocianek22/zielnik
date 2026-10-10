@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { KINDS } from '@/lib/kinds';
 import { unitOf } from '@/lib/units';
 import Icon from '../components/Icon';
+import EmptyState from '../components/EmptyState';
 import { parseNum, decimalProps } from '../components/num';
 
 const TAU = Math.PI * 2;
@@ -96,12 +97,9 @@ export default function Wheel({ items: all }) {
 
   if (!all.length) {
     return (
-      <div className="card empty">
-        <Icon name="shuffle" size={32} />
-        <h2>Koło jest puste</h2>
-        <p>Na kole pojawiają się odmiany, których Twój stan („Mam teraz”) jest większy od 0. Uzupełnij stany na liście odmian.</p>
-        <Link href="/odmiany" className="btn">Przejdź do odmian</Link>
-      </div>
+      <EmptyState art="jar" cat="strain" title="Koło jest puste" action={<Link href="/odmiany" className="btn">Przejdź do odmian</Link>}>
+        Na kole pojawiają się odmiany, których Twój stan („Mam teraz”) jest większy od 0. Uzupełnij stany na liście odmian.
+      </EmptyState>
     );
   }
 
@@ -155,11 +153,7 @@ export default function Wheel({ items: all }) {
     <div className="wh">
       {filters}
       {items.length ? wheel : (
-        <div className="card empty">
-          <Icon name="filter" size={32} />
-          <h2>Brak odmian dla tych filtrów</h2>
-          <p>Zmień rodzaj lub obniż minimalne THC.</p>
-        </div>
+        <EmptyState art="search" cat="strain" title="Brak odmian dla tych filtrów">Zmień rodzaj lub obniż minimalne THC.</EmptyState>
       )}
     </div>
   );

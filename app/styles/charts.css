@@ -248,3 +248,11 @@
 .hb-row.lbl { grid-template-columns: minmax(5.5em, 7.5em) 1fr auto; }
 .hb-lbl { font-size: var(--fs-sm); color: var(--text-2); }
 .per-note { margin: var(--s-3) 0 0; font-size: var(--fs-xs); color: var(--text-3); line-height: 1.4; }
+
+/* Design 3.1: objaśnienie wykresu w zwijanej sekcji */
+.sp-how { margin-top: var(--s-3); border-top: 1px solid var(--sep); }
+.sp-how > summary { display: flex; align-items: center; min-height: var(--tap); cursor: pointer; list-style: none; font-size: var(--fs-sm); font-weight: 600; color: var(--accent-text); }
+.sp-how > summary::-webkit-details-marker { display: none; }
+.sp-how > summary::after { content: ''; width: 8px; height: 8px; margin-left: var(--s-2); border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) translateY(-2px); }
+.sp-how[open] > summary::after { transform: rotate(-135deg); }
+.sp-how .sp-cap { margin-top: 0; padding-bottom: var(--s-2); font-size: var(--fs-sm); color: var(--text-2); }

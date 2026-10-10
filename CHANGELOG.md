@@ -8,6 +8,21 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.57.0] - 2026-10
+Design 3.1: dopracowanie interfejsu na wzór najlepszych aplikacji (`docs/DESIGN-3.1.md`, etapy P1, S1, S2).
+### Dodano
+- **Zasada zapraszania do grupy (SPO-3):** `groups.invite_policy` (`all` domyślnie, `staff`), akcja `invitePolicy` dla właściciela i moderatorów; zasada i rola sprawdzane w samym `INSERT` zaproszenia. Przełącznik „Kto może zapraszać” na ekranie grupy; zwykły członek przy `staff` widzi informację zamiast formularza. Właściciel i moderator usuwają też oczekujące zaproszenia.
+- **Kompaktowy pasek tytułu** po przewinięciu (`CompactTitle`, jak „large title” w iOS; w trybie dyskretnym nazwa odmiany rozmyta).
+- **Gest arkusza:** „Więcej”, menu „+” i nowe menu „…” w wierszu odmiany zamykają się przeciągnięciem w dół (`useSheetDrag`, przy „ogranicz ruch” bez animacji).
+- **Puste stany z ilustracją** (`EmptyState`, `Illustration`, komponenty serwerowe) na listach odmian, w katalogu, rankingach, wyszukiwarce, receptach, historii, grupach i znajomych.
+- **Szkielety w kształcie treści** (`Skeleton`, `LoadingShell`) we wszystkich ekranach wczytywania i w czacie.
+### Zmieniono
+- Aktywna zakładka z wypełnioną ikoną; lekka haptyka przy zmianie zakładki w APK; toast z ikoną stanu tuż nad paskiem; jednolite nagłówki sekcji (`.section-title`) i liczby z jednostką bez łamania (`.qty`).
+- Lista odmian: wiersz do ok. 96 px (nazwa, meta w jednej linii, stan, „Zużyłem”, „Wykupiłem”, „…”), statystyki jedną linią.
+- Szczegóły odmiany: zwijane sekcje (`Fold`), „Mój wpis” zwinięty, szybkie akcje pod ocenami, ilustracja zamiast niewczytanego zdjęcia.
+- Dziś bez powtórzeń (recepta, „Kończy się”); Dziennik z wpisem dnia pod nagłówkiem; Profil z kartą tożsamości i zwijanymi grupami w stylu Ustawień; krótsze teksty w Receptach i Raporcie, pola daty `lang="pl"`.
+- Testy E2E zerują liczniki logowania przed logowaniem testowym (lokalnie wszystkie logowania mają jeden adres).
+
 ## [0.56.0] - 2026-10
 ### Dodano
 - **PDF raportu w APK:** wtyczka `ZielnikShare.sharePdf` (`SharePlugin.java`): zapis do `cache/share/` (sprzątany przy starcie i przed kolejnym udostępnieniem), FileProvider tylko dla tej ścieżki i zdjęć z aparatu, `ACTION_SEND` z prawem odczytu, bez nowych uprawnień. W APK 0.5.0 przycisk „Udostępnij PDF” obok „Drukuj”; starsze APK bez zmian.

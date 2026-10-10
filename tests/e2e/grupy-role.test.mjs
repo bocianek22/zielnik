@@ -77,6 +77,17 @@ test('role w grupie: nadanie moderatora, moderator bez usuwania wiadomości wła
       await A.page.getByRole('button', { name: 'Nadaj rolę moderatora: bartek' }).waitFor();
       assert.equal((await pool.query(`SELECT role FROM group_members WHERE group_id = $1 AND user_id = (SELECT id FROM users WHERE username = 'bartek')`, [gid])).rows[0].role, 'member');
 
+      // zasada zapraszania: właścicielka ogranicza do siebie i moderatorów; zwykły członek widzi informację zamiast formularza
+      const staffOnly = A.page.getByRole('radio', { name: 'Właściciel i moderatorzy' });
+      await interactive(staffOnly);
+      await staffOnly.click();
+      await A.page.locator('[role=radio][aria-checked=true]', { hasText: 'Właściciel i moderatorzy' }).waitFor();
+      assert.deepEqual(await serious(A.page), []);
+      await go(B.page, `/grupy/${gid}`);
+      await B.page.getByText('W tej grupie zapraszać mogą tylko właściciel i moderatorzy.').waitFor();
+      assert.equal(await B.page.locator('#g-invite').count(), 0, 'zwykły członek nie ma formularza zaproszenia');
+      assert.equal(await B.page.getByRole('radiogroup').count(), 0, 'zwykły członek nie zmienia zasady');
+
       assert.deepEqual(A.problems.left(), []);
       assert.deepEqual(B.problems.left(), []);
     } catch (e) { await shot(A.page, 'grupy-role-ania'); await shot(B.page, 'grupy-role-bartek'); throw e; }

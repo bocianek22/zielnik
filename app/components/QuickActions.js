@@ -24,7 +24,7 @@ export const parseGrams = (s) => {
 // Szybkie akcje na wierzchu karty: „Zużyłem” i „Wykupiłem” z małym panelem na ilość w jednostce odmiany (bez rozwijania karty).
 // idPrefix: inny przedrostek identyfikatorów, gdy ta sama odmiana ma akcje także w panelu „Dziś” (unikalne id w DOM);
 // icons: ikony w przyciskach (nagłówek panelu „Dziś”); buy={false}: tylko „Zużyłem”; use={false}: tylko „Wykupiłem” (karta „W aptece”).
-export default function QuickActions({ strainId, name, form = 'susz', current, remaining, onSaved, idPrefix = 'q', buy = true, use = true, icons = false }) {
+export default function QuickActions({ strainId, name, form = 'susz', current, remaining, onSaved, idPrefix = 'q', buy = true, use = true, icons = false, trailing = null }) {
   const unit = unitOf(form);
   const MODES = modes(form);
   const [mode, setMode] = useState(null); // null | 'use' | 'buy'
@@ -114,6 +114,7 @@ export default function QuickActions({ strainId, name, form = 'susz', current, r
             aria-expanded={mode === 'buy'} aria-controls={id} aria-label={`Wykupiłem: ${name}`} onClick={() => open('buy')}>{icons && <Icon name="cart" size={20} />}Wykupiłem</button>
         )}
         <span className="quick-stock muted">Mam {pl(current)} {unit}{Number(remaining) > 0 && <>, do wykupienia {pl(remaining)} {unit}</>}</span>
+        {trailing}
       </div>
       {m && (
         <form id={id} className="quick-panel" role="group" aria-label={`${m.label}: ${name}`} onSubmit={submit}>

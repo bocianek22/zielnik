@@ -48,3 +48,10 @@
 .chat-send { min-width: var(--tap); min-height: var(--tap); }
 .chat-count { grid-column: 1 / -1; justify-self: end; color: var(--text-2); font-variant-numeric: tabular-nums; margin-top: calc(var(--s-1) * -1); }
 .chat-count.warn { color: var(--warn); font-weight: 600; }
+
+/* Design 3.1: szkielet dymków na czas wczytywania czatu (kształt jak docelowa treść) */
+.chat-skel { display: grid; gap: var(--s-3); padding: var(--s-2) 0; }
+.chat-skel .skel-bubble { display: grid; align-content: center; min-height: 44px; padding: var(--s-3); border-radius: var(--r-lg); background: var(--surface-2); }
+.chat-skel .skel-bubble.w40 { width: 40%; } .chat-skel .skel-bubble.w60 { width: 60%; } .chat-skel .skel-bubble.w80 { width: 80%; }
+.chat-skel .skel-bubble .skel-line { width: 70%; }
+.chat-skel .chat-row.mine .skel-dot { display: none; }

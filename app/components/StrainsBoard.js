@@ -7,9 +7,11 @@ import useNativeRefresh from './native/useNativeRefresh';
 import { KINDS } from '@/lib/kinds';
 import { FORMS } from '@/lib/forms';
 import { TAG_LIST, strainTags } from '@/lib/effects';
+import { plural } from './charts/fmt';
 import StrainCard from './StrainCard';
 import StrainForm from './StrainForm';
 import Icon from './Icon';
+import EmptyState from './EmptyState';
 import MoreMenu from './MoreMenu';
 import { useHome } from './HomeStore';
 import SearchSuggest from './SearchSuggest';
@@ -147,7 +149,6 @@ export default function StrainsBoard({ initialStrains, initialOptions, me }) {
     strains.forEach((s) => m.set(s.pool_key, [...(m.get(s.pool_key) || []), s]));
     return m;
   }, [strains]);
-  const matesOf = (s) => (pools.get(s.pool_key) || []).filter((o) => o.id !== s.id).map((o) => o.name);
   // sumy osobno dla g i ml (pula łączy tylko odmiany tej samej postaci, więc ma jedną jednostkę)
   const byUnit = (list, val) => list.reduce((a, s) => { a[unitOf(s.form)] += val(s); return a; }, { g: 0, ml: 0 });
   const remainingU = byUnit([...pools.values()].map((list) => list[0]), (s) => Number(mine(s).remaining) || 0);
@@ -208,10 +209,11 @@ export default function StrainsBoard({ initialStrains, initialOptions, me }) {
   useEffect(() => { setVisibleLimit(30); }, [query, onlyStock, kindFilter, formFilter, tagFilter, scope, sortKey, dir]);
   const activeFilters = [kindFilter, formFilter, tagFilter, scope === 'mine', onlyStock, sortKey !== 'new'].filter(Boolean).length;
 
+  const clearFilters = () => { setQuery(''); setOnlyStock(false); setKindFilter(''); setScope('all'); setFormFilter(''); setTagFilter(''); };
   const canDelete = (s) => me.isAdmin || s.created_by === me.id;
   const done = () => refresh().catch((e) => setError(e.message));
 
-  // trzy liczby nad listą: moje odmiany, te w domu, średnia z moich ocen
+  // podsumowanie listy jedną linią: moje odmiany, te w domu, średnia z moich ocen
   const myList = strains.filter((s) => isMine(s, mine(s), me.id));
   const atHome = myList.filter((s) => Number(mine(s).current) > 0).length;
   const myRatings = myList.map((s) => mine(s).rating).filter((r) => r != null && r !== '').map(Number);
@@ -220,11 +222,11 @@ export default function StrainsBoard({ initialStrains, initialOptions, me }) {
   return (
     <>
       {strains.length > 0 && (
-        <div className="strain-kpis" role="group" aria-label="Podsumowanie moich odmian">
-          <div className="kpi-tile" data-cat="strain"><span className="kt-label">Odmiany</span><b className="kt-value">{myList.length}</b></div>
-          <div className="kpi-tile" data-cat="stock"><span className="kt-label">W domu</span><b className="kt-value">{atHome}</b></div>
-          <div className="kpi-tile" data-cat="learn"><span className="kt-label">Śr. ocena</span><b className="kt-value">{myAvg == null ? '–' : String(Math.round(myAvg * 10) / 10).replace('.', ',')}</b></div>
-        </div>
+        <p className="strain-stats" aria-label="Podsumowanie moich odmian">
+          <span><b>{myList.length}</b> {plural(myList.length, 'odmiana', 'odmiany', 'odmian')}</span>
+          <span><b>{atHome}</b> w domu</span>
+          <span>śr. ocena <b>{myAvg == null ? '–' : String(Math.round(myAvg * 10) / 10).replace('.', ',')}</b></span>
+        </p>
       )}
       <div className="toolbar">
         <SearchSuggest value={query} onChange={setQuery} groups={suggestGroups} onPick={pickSuggestion} historyKey="zielnik.odmiany.ostatnie"
@@ -298,20 +300,24 @@ export default function StrainsBoard({ initialStrains, initialOptions, me }) {
       )}
 
       {strains.length === 0 && formFor !== 'new' && (
-        <div className="card empty">
-          <Icon name="list" size={32} />
-          <h2>Zielnik jest jeszcze pusty</h2>
-          <p>Pierwszą odmianę dodasz przyciskiem „Dodaj odmianę” powyżej. Każdy użytkownik dostanie dla niej własne pola: ocenę, ilość, ilość do wykupienia i spostrzeżenia.</p>
-        </div>
+        <EmptyState art="jar" cat="strain" title="Zielnik jest jeszcze pusty"
+          action={<button type="button" className="btn" onClick={() => setFormFor('new')}><Icon name="plus" size={20} />Dodaj odmianę</button>}>
+          Każdy użytkownik dostanie dla odmiany własne pola: ocenę, ilość, ilość do wykupienia i spostrzeżenia.
+        </EmptyState>
       )}
-      {strains.length > 0 && visible.length === 0 && <p className="muted empty-inline">Nic nie pasuje do filtrów.</p>}
+      {strains.length > 0 && visible.length === 0 && (
+        <EmptyState art="search" cat="strain" title="Nic nie pasuje do filtrów"
+          action={<button type="button" className="btn ghost" onClick={clearFilters}>Wyczyść filtry</button>}>
+          Zmień wyszukiwaną frazę albo zdejmij filtry.
+        </EmptyState>
+      )}
 
       {visible.length > 0 && <div className="card strain-list">
       {visible.slice(0, visibleLimit).map((s) => (formFor === s.id ? (
         <FormSheet key={s.id}><StrainForm strain={s} options={options} tastes={tastes} canDelete={canDelete(s)} proposing={!me.isAdmin && s.created_by !== me.id} hidePrice={me.hidePrices}
           onOptionsChange={setOptions} onDone={done} onCancel={() => setFormFor(null)} /></FormSheet>
       ) : (
-        <StrainCard key={s.id} strain={s} meId={me.id} hidePrice={me.hidePrices} mates={matesOf(s)} low={low} cmpOn={cmp.includes(s.id)} onCmp={() => setCmp((c) => (c.includes(s.id) ? c.filter((x) => x !== s.id) : [...c, s.id].slice(-3)))} onEdit={() => setFormFor(s.id)} onEntrySaved={entrySaved} />
+        <StrainCard key={s.id} strain={s} meId={me.id} low={low} cmpOn={cmp.includes(s.id)} onCmp={() => setCmp((c) => (c.includes(s.id) ? c.filter((x) => x !== s.id) : [...c, s.id].slice(-3)))} onEdit={() => setFormFor(s.id)} onEntrySaved={entrySaved} />
       )))}
       </div>}
       {visible.length > visibleLimit && <button className="btn ghost block" onClick={() => setVisibleLimit((l) => l + 30)}>Pokaż więcej ({visible.length - visibleLimit})</button>}

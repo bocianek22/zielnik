@@ -49,3 +49,28 @@
 .link-row .input { flex: 1; min-width: 0; }
 .link-row .btn { flex: none; }
 .profile-save { margin-top: var(--s-4); }
+
+/* Design 3.1: karta tożsamości i zwijane grupy w stylu Ustawień iOS */
+.me-card { padding: var(--s-4); }
+.me-card .profile-id { display: flex; align-items: center; flex-wrap: nowrap; padding-bottom: 0; border-bottom: 0; }
+.me-card .profile-who { flex: 1 1 auto; }
+.me-card .profile-id .btn { flex: none; }
+.profile-edit { padding-top: var(--s-4); border-top: 1px solid var(--sep); }
+.profile-links { border: 0; margin: 0; padding: 0; min-width: 0; display: grid; gap: var(--s-2); }
+.profile-links legend { font-weight: 600; font-size: var(--fs-sm); padding: 0; margin-bottom: var(--s-2); }
+.profile-links p { margin: 0; }
+.profile-save { margin-top: 0; }
+.set-group { padding: 0; }
+.set-group > summary { display: flex; align-items: center; gap: var(--s-3); min-height: 56px; padding: var(--s-2) var(--s-4); cursor: pointer; list-style: none; font-weight: 600; font-size: var(--fs-lg); }
+.set-group > summary::-webkit-details-marker { display: none; }
+.set-group > summary .lr-main { flex: 1; min-width: 0; }
+.set-group > summary .lr-value { font-size: var(--fs-sm); font-weight: 500; color: var(--text-2); }
+.set-group > summary .lr-chev { flex: none; color: var(--text-3); transition: transform var(--dur-1, .12s) var(--ease, ease); }
+.set-group[open] > summary .lr-chev { transform: rotate(90deg); }
+.set-group > summary:active { background: var(--press-bg); }
+.set-group[open] > summary { border-bottom: 1px solid var(--sep); }
+.set-body { padding: var(--s-4); display: grid; gap: var(--s-3); }
+.set-body > * { margin: 0; }
+.set-group.danger-zone > summary { color: var(--danger); }
+.set-group.danger-zone .ic-dot { background: var(--danger-soft, var(--surface-2)); color: var(--danger); }
+@media (prefers-reduced-motion: reduce) { .set-group > summary .lr-chev { transition: none; } }

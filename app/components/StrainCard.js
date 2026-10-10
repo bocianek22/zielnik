@@ -1,17 +1,18 @@
 'use client';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { api } from '@/lib/api';
 import { expiryInfo } from '@/lib/expiry';
 import { VIS } from '@/lib/visibility';
 import { formLabel } from '@/lib/forms';
-import Lightbox from './Lightbox';
 import QuickActions from './QuickActions';
 import RxPicker, { useOpenPrescriptions, rxField } from './RxPicker';
 import { useQuickSave, SaveNote } from './useQuickSave';
 import Icon from './Icon';
+import useFocusTrap from './useFocusTrap';
+import useSheetDrag from './useSheetDrag';
 import { parseNum, decimalProps } from './num';
-import { strainTags } from '@/lib/effects';
 import { unitOf, quickValues, consumePlaceholder, buyPlaceholder } from '@/lib/units';
 
 export const LOW_STOCK = 3; // g: poniżej tej ilości susz dostaje znacznik "Kończy się" (próg w gramach, więc nie dla ml)
@@ -208,120 +209,98 @@ export function OtherEntry({ e }) {
   );
 }
 
+// Miniatura w wierszu: samo zdjęcie (dotknięcie wiersza otwiera szczegóły, tam jest podgląd na cały ekran); przy błędzie kafelek rodzaju
+function RowPhoto({ src, alt, fallback }) {
+  const [failed, setFailed] = useState(false);
+  const img = useRef(null);
+  useEffect(() => { const el = img.current; setFailed(!!el && el.complete && el.naturalWidth === 0); }, [src]);
+  if (failed) return fallback;
+  return <img ref={img} className="strain-photo dn-img" src={src} alt={alt} loading="lazy" onError={() => setFailed(true)} />;
+}
+
 const cap = (s) => (s ? s[0].toUpperCase() + s.slice(1) : s);
 
-// Menu karty (rzadkie akcje): „Porównaj” i „Edytuj pola wspólne”. Zamyka się po kliknięciu poza nim.
-function CardMenu({ name, cmpOn, onCmp, onEdit }) {
+// Menu wiersza („…”): rzadkie akcje w arkuszu zamykanym gestem w dół, uchwytem, tłem i Escape (jak „Więcej” w dolnym pasku).
+// Arkusz idzie do <body>, żeby animacja karty ani przewijanie listy nie zmieniały jego położenia.
+function CardMenu({ id, name, cmpOn, onCmp, onEdit }) {
+  const [open, setOpen] = useState(false);
   const ref = useRef(null);
-  useEffect(() => {
-    const close = (e) => { if (ref.current?.open && !ref.current.contains(e.target)) ref.current.open = false; };
-    document.addEventListener('click', close);
-    return () => document.removeEventListener('click', close);
-  }, []);
+  const close = () => setOpen(false);
+  useFocusTrap(ref, open, close);
+  useSheetDrag(ref, open, close);
   return (
-    <details className="card-menu" ref={ref} onKeyDown={(e) => { if (e.key === 'Escape' && ref.current?.open) { ref.current.open = false; ref.current.querySelector('summary')?.focus(); } }}>
-      <summary aria-label={`Więcej akcji: ${name}`}><Icon name="more" size={22} /></summary>
-      <div className="card-menu-list">
-        <label className="check cmp-check"><input type="checkbox" checked={!!cmpOn} onChange={onCmp} /> <span>Porównaj</span></label>
-        <button type="button" className="btn text small" onClick={() => { if (ref.current) ref.current.open = false; onEdit(); }}><Icon name="edit" size={18} />Edytuj pola wspólne</button>
-      </div>
-    </details>
+    <>
+      <button type="button" className="card-menu-btn" aria-label={`Więcej akcji: ${name}`} aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}>
+        <Icon name="more" size={22} />
+      </button>
+      {open && createPortal(
+        <>
+          <div className="rs-backdrop" onClick={close} aria-hidden="true" />
+          <div className="row-sheet" role="dialog" aria-modal="true" aria-label={`Akcje: ${name}`} ref={ref}>
+            <p className="rs-title dn">{name}</p>
+            <div className="list">
+              <Link href={`/strains/${id}`} className="list-row" onClick={close}>
+                <span className="ic-dot sm" data-cat="strain"><Icon name="jar" size={18} /></span><span className="lr-main">Szczegóły odmiany</span><Icon name="chevronRight" size={18} className="lr-chev" />
+              </Link>
+              <label className="list-row rs-check cmp-check">
+                <span className="ic-dot sm" data-cat="learn"><Icon name="shuffle" size={18} /></span>
+                <span className="lr-main">Porównaj</span>
+                <input type="checkbox" checked={!!cmpOn} onChange={onCmp} />
+              </label>
+              <button type="button" className="list-row" onClick={() => { close(); onEdit(); }}>
+                <span className="ic-dot sm" data-cat="stock"><Icon name="edit" size={18} /></span><span className="lr-main">Edytuj pola wspólne</span>
+              </button>
+            </div>
+          </div>
+        </>,
+        document.body,
+      )}
+    </>
   );
 }
 
-export default function StrainCard({ strain, meId, hidePrice = false, mates, low, cmpOn, onCmp, onEdit, onEntrySaved }) {
-  const [expanded, setExpanded] = useState(false); // na telefonie szczegóły są domyślnie zwinięte
+export default function StrainCard({ strain, meId, low, cmpOn, onCmp, onEdit, onEntrySaved }) {
   const mine = strain.entries.find((e) => e.userId === meId);
-  const others = strain.entries.filter((e) => e.userId !== meId);
-  const rated = strain.entries.filter((e) => e.rating != null);
-  const avg = rated.length ? (rated.reduce((a, e) => a + Number(e.rating), 0) / rated.length).toFixed(1) : null;
-
   const ex = expiryInfo(strain.expires_on);
   const photoSrc = `/api/strains/${strain.id}/photo?v=${strain.photo_v}`;
   const unit = unitOf(strain.form);
   const cur = Number(mine?.current) || 0;
   const rem = Number(mine?.remaining) || 0;
   const lowStock = unit === 'g' && mine && cur > 0 && cur <= (low ?? LOW_STOCK);
-  const facts = [
-    strain.thc != null && `THC ${dec(strain.thc)}%`,
-    strain.cbd != null && `CBD ${dec(strain.cbd)}%`,
-    strain.price_per_g != null && !hidePrice && `${dec(strain.price_per_g)} zł/${unit}`,
-  ].filter(Boolean);
-  const tags = strainTags(strain);
-  // pigułka stanu zapasu; czytnik ekranu dostaje ten sam stan z „.quick-stock” w szybkich akcjach
-  const stock = !mine ? null
-    : cur > 0 ? [lowStock ? 'low' : 'ok', `Mam ${dec(Math.round(cur * 100) / 100)} ${unit}${lowStock ? ', kończy się' : ''}`]
-    : ['none', rem > 0 ? `Brak w domu, ${dec(rem)} ${unit} do wykupienia` : 'Brak w domu'];
+  // stan zapasu pod oceną: krótko, bo wiersz ma jedną linię na dane; pełne zdanie czyta czytnik z „.quick-stock” w szybkich akcjach
+  const stock = !mine ? null : cur > 0 ? [lowStock ? 'low' : 'ok', `${dec(Math.round(cur * 100) / 100)} ${unit}`] : ['none', rem > 0 ? 'do wykupu' : 'brak'];
+  const rating = strain.final_rating;
+  // bez inicjałów: nazwa nie może wyciekać w trybie dyskretnym
+  const thumb = <span className="strain-thumb" aria-hidden="true"><Icon name={unit === 'ml' ? 'drop' : 'jar'} size={24} /></span>;
+  const menu = <CardMenu id={strain.id} name={strain.name} cmpOn={cmpOn} onCmp={onCmp} onEdit={onEdit} />;
 
   return (
-    <article className={`strain k-${strain.kind || 'none'}${expanded ? ' expanded' : ''}`} data-cat="stock">
+    <article className={`strain k-${strain.kind || 'none'}`} data-cat="stock">
       <header className="strain-head">
         {strain.photo_v ? (
-          <div className="photo-link dn-img"><Lightbox className="strain-photo" src={photoSrc} alt={`Zdjęcie: ${strain.name}`} attr={strain.photo_attr} /></div>
-        ) : (
-          // bez inicjałów: nazwa nie może wyciekać w trybie dyskretnym
-          <span className="strain-thumb" aria-hidden="true"><Icon name={unit === 'ml' ? 'drop' : 'jar'} size={26} /></span>
-        )}
+          <RowPhoto src={photoSrc} alt={`Zdjęcie: ${strain.name}`} fallback={thumb} />
+        ) : thumb}
         <div className="strain-title">
           <h3><Link href={`/strains/${strain.id}`} className="dn">{strain.name}</Link></h3>
           <p className="strain-meta">
             <span className="dn">{strain.producer}</span>
             {strain.kind && <span className={`kind kind-${strain.kind}`}><i className="kind-dot" aria-hidden="true" />{cap(strain.kind)}</span>}
-            {strain.type?.toLowerCase() !== strain.kind && <span>{cap(strain.type)}</span>}
             {strain.form && strain.form !== 'susz' && <span>{formLabel(strain.form)}</span>}
+            {strain.thc != null && <span>THC {dec(strain.thc)}%</span>}
+            {ex?.expired && <span className="meta-warn">Po terminie</span>}
+            {ex?.soon && <span className="meta-warn">Ważne jeszcze {ex.days} dni</span>}
           </p>
         </div>
         <div className="scores">
-          <div className="score" title="Ocena końcowa">
-            <b>{strain.final_rating != null ? dec(strain.final_rating) : '–'}</b><small>{strain.final_rating != null ? 'ocena' : 'brak'}</small>
-          </div>
-          {avg && <div className="score soft" title="Średnia ocen użytkowników">
-            <b>{dec(avg)}</b><small>średnia ({rated.length})</small>
-          </div>}
+          <b className="score" title="Ocena końcowa">{rating != null ? <><span className="sr-only">Ocena końcowa: </span>{dec(rating)}</> : <span aria-label="Brak oceny">–</span>}</b>
+          {stock && <span className={`pill sm stock-${stock[0]}`} aria-hidden="true">{stock[1]}</span>}
         </div>
       </header>
 
-      <p className="strain-pills">
-        {facts.map((f) => <span key={f} className="pill">{f}</span>)}
-        {stock && <span className={`pill stock-${stock[0]}`} aria-hidden="true">{stock[1]}</span>}
-        {ex?.expired && <span className="pill stock-low">Po terminie</span>}
-        {ex?.soon && <span className="pill stock-low">Ważne jeszcze {ex.days} dni</span>}
-      </p>
-
-      {(strain.batch || strain.expires_on || strain.taste || tags.length > 0 || strain.terpenes?.length > 0 || strain.description) && (
-        <div className="strain-more">
-          {(strain.batch || strain.expires_on) && (
-            <p className="strain-taste">
-              {strain.batch && <>Seria {strain.batch}. </>}{strain.expires_on && <>Ważne do {strain.expires_on}.</>}
-            </p>
-          )}
-          {strain.taste && <p className="strain-taste">Smak: {strain.taste}</p>}
-          {tags.length > 0 && <div className="chips small">{tags.map((t) => <span key={t} className="chip tag">{t}</span>)}</div>}
-          {strain.terpenes?.length > 0 && (
-            <div className="chips small">{strain.terpenes.map((t) => <Link key={t} href={`/wiedza#t-${t.toLowerCase().split(' ')[0]}`} className="chip on static dn">{t}</Link>)}</div>
-          )}
-          {strain.description && (
-            <details className="strain-desc"><summary>Opis</summary><p>{strain.description}</p></details>
-          )}
-        </div>
-      )}
-
-      {/* „Wykupiłem” zawsze na wierzchu: pierwszy zakup nowej odmiany bez rozwijania karty */}
-      {mine && (
-        <QuickActions strainId={strain.id} name={strain.name} form={strain.form} current={mine.current} remaining={mine.remaining} onSaved={(en) => { onEntrySaved(strain.id, en); }} />
-      )}
-
-      <div className="entries">
-        {mine && <OwnEntry strainId={strain.id} strainName={strain.name} form={strain.form} entry={mine} mates={mates} hidePrice={hidePrice} onSaved={(en) => onEntrySaved(strain.id, en)} />}
-        {others.map((e) => <OtherEntry key={e.userId} e={e} />)}
-      </div>
-
-      <div className="strain-foot">
-        <button type="button" className="btn text small only-mobile" onClick={() => setExpanded((v) => !v)} aria-expanded={expanded}>
-          {expanded ? 'Zwiń' : 'Szczegóły'}<Icon name="chevronDown" size={18} className="chev" />
-        </button>
-        <CardMenu name={strain.name} cmpOn={cmpOn} onCmp={onCmp} onEdit={onEdit} />
-      </div>
+      {mine ? (
+        <QuickActions strainId={strain.id} name={strain.name} form={strain.form} current={mine.current} remaining={mine.remaining} trailing={menu}
+          onSaved={(en) => { onEntrySaved(strain.id, en); }} />
+      ) : <div className="strain-foot">{menu}</div>}
     </article>
   );
 }

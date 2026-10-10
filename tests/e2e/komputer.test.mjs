@@ -110,6 +110,7 @@ test('1280 px: eksport konta zwraca plik JSON', async () => {
     const data = await res.json();
     assert.ok(data.exportedAt && data.profile?.username === 'ania');
     // przycisk w profilu to zwykły link do tego adresu: sprawdzamy, że przeglądarka pobiera plik
+    await page.locator('#moje-dane > summary').click(); // grupa „Moje dane” jest zwinięta
     const link = page.getByRole('link', { name: 'Pobierz dane (JSON)', exact: true });
     const [download] = await Promise.all([page.waitForEvent('download'), link.click()]);
     assert.match(download.suggestedFilename(), /\.json$/);

@@ -185,7 +185,13 @@ export default function GroupChat({ groupId }) {
       <div className="chat-wrap">
         <div className="chat-list" ref={box} onScroll={onScroll} role="log" aria-live="off" aria-label="Wiadomości grupy" tabIndex={0}>
           {hasMore && <button type="button" className="btn text small chat-older" onClick={older}>Wczytaj starsze</button>}
-          {msgs === null ? <p className="muted chat-empty">Ładuję…</p> : msgs.length === 0 ? <p className="muted chat-empty">Brak wiadomości. Napisz pierwszą.</p> : (
+          {msgs === null ? (
+            <div className="skeleton chat-skel" role="status" aria-label="Wczytywanie wiadomości">
+              {[['w60', false], ['w40', true], ['w80', false], ['w60', true]].map(([w, mine], i) => (
+                <div key={i} className={`chat-row${mine ? ' mine' : ''}`}><span className="skel-dot" /><span className={`skel-bubble ${w}`}><span className="skel-line" /></span></div>
+              ))}
+            </div>
+          ) : msgs.length === 0 ? <p className="muted chat-empty">Brak wiadomości. Napisz pierwszą.</p> : (
             <ul className="chat-msgs">
               {msgs.map((m) => {
                 const dk = dayKey(m.createdAt), sep = dk !== prevDay;

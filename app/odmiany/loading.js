@@ -1,5 +1,5 @@
-import Skeleton from '../components/Skeleton';
+import LoadingShell from '../components/LoadingShell';
 
 export default function Loading() {
-  return <main className="page"><h1>Odmiany</h1><Skeleton rows={6} /></main>;
+  return <LoadingShell title="Odmiany" rows={6} variant="list" />;
 }

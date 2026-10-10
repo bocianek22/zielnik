@@ -1,5 +1,4 @@
 'use client';
-import SecHead from '../components/SecHead';
 import { clearQueue } from '@/lib/offline-client';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -8,11 +7,12 @@ import { api } from '@/lib/api';
 import { fileToDataUrl } from '@/lib/image';
 import { clearDeviceData } from '../components/deviceData';
 import { storedFcm, widgetClear } from '../components/native/bridge';
-import { VIS } from '@/lib/visibility';
+import { VIS, visLabel } from '@/lib/visibility';
 import Icon from '../components/Icon';
 import Toast from '../components/Toast';
 import Sessions from './Sessions';
 import EmailSettings from './EmailSettings';
+import SettingsGroup from './SettingsGroup';
 
 export default function ProfileForm({ me, initial, children }) {
   const router = useRouter();
@@ -26,6 +26,7 @@ export default function ProfileForm({ me, initial, children }) {
   const [pw, setPw] = useState('');
   const [csvFrom, setCsvFrom] = useState('');
   const [csvTo, setCsvTo] = useState('');
+  const [editing, setEditing] = useState(false);
 
   const shown = avatar === undefined ? (initial.has_avatar ? `/api/users/${me.id}/avatar?t=${Date.now() % 1e6}` : null) : avatar;
 
@@ -39,7 +40,7 @@ export default function ProfileForm({ me, initial, children }) {
     setBusy(true); setMsg('');
     try {
       await api('/api/profile', 'PUT', { ...f, ...(avatar !== undefined ? { avatar } : {}) });
-      setMsg('Zapisano.'); router.refresh();
+      setMsg('Zapisano.'); setEditing(false); router.refresh();
     } catch (err) { setMsg(err.message); }
     setBusy(false);
   }
@@ -64,44 +65,45 @@ export default function ProfileForm({ me, initial, children }) {
   return (
     <div className="stack">
       <form className="stack" onSubmit={save}>
-        <div className="card stack">
-          <SecHead icon="user">Tożsamość</SecHead>
-          <div className="photo-edit profile-id">
+        <div className="card stack me-card">
+          <div className="profile-id">
             {shown ? <img className="avatar" src={shown} alt="Awatar" /> : <div className="avatar ph">{me.username[0].toUpperCase()}</div>}
-            <div className="profile-who"><b>{f.displayName || me.username}</b><span className="muted">@{me.username}</span></div>
-            <div className="photo-actions">
-              <label className="btn ghost small file-btn">Zmień awatar<input type="file" accept="image/*" hidden onChange={pick} /></label>
-              {shown && <button type="button" className="btn ghost small" onClick={() => setAvatar(null)}>Usuń awatar</button>}
-            </div>
+            <div className="profile-who"><b>{f.displayName || me.username}</b><span className="muted">@{me.username}</span><span className="muted">Widoczność: {visLabel(f.profileVisibility)}</span></div>
+            <button type="button" className="btn soft" aria-expanded={editing} aria-controls="profile-edit" onClick={() => setEditing(!editing)}>{editing ? 'Zwiń' : 'Edytuj'}</button>
           </div>
-          <div className="field"><label htmlFor="p-name">Nazwa wyświetlana</label>
-            <input id="p-name" className="input" maxLength={40} value={f.displayName} onChange={(e) => setF({ ...f, displayName: e.target.value })} /></div>
-          <div className="field"><label htmlFor="p-bio">O mnie</label>
-            <textarea id="p-bio" className="input" rows={4} maxLength={500} value={f.bio} onChange={(e) => setF({ ...f, bio: e.target.value })} /></div>
+          {editing && (
+            <div id="profile-edit" className="stack profile-edit">
+              <div className="photo-actions">
+                <label className="btn ghost small file-btn">Zmień awatar<input type="file" accept="image/*" hidden onChange={pick} /></label>
+                {shown && <button type="button" className="btn ghost small" onClick={() => setAvatar(null)}>Usuń awatar</button>}
+              </div>
+              <div className="field"><label htmlFor="p-name">Nazwa wyświetlana</label>
+                <input id="p-name" className="input" maxLength={40} value={f.displayName} onChange={(e) => setF({ ...f, displayName: e.target.value })} /></div>
+              <div className="field"><label htmlFor="p-bio">O mnie</label>
+                <textarea id="p-bio" className="input" rows={4} maxLength={500} value={f.bio} onChange={(e) => setF({ ...f, bio: e.target.value })} /></div>
+              <div className="field"><label htmlFor="p-vis">Kto widzi mój profil</label>
+                <select id="p-vis" className="input vis-select" value={f.profileVisibility} onChange={(e) => setF({ ...f, profileVisibility: e.target.value })}>
+                  {VIS.map(([v, label]) => <option key={v} value={v}>{label}</option>)}</select>
+                <small>Dotyczy opisu, awatara, ocen i testów, zgodnie z ich ustawieniami.</small></div>
+              <fieldset className="profile-links">
+                <legend>Linki</legend>
+                {f.links.length === 0 && <p className="muted">Do 3 linków, np. do mediów społecznościowych.</p>}
+                {f.links.map((l, i) => (
+                  <div key={i} className="link-row">
+                    <input className="input" type="url" placeholder="https://…" aria-label={`Link ${i + 1}`} value={l}
+                      onChange={(e) => setF({ ...f, links: f.links.map((x, j) => (j === i ? e.target.value : x)) })} />
+                    <button type="button" className="btn text small" onClick={() => setF({ ...f, links: f.links.filter((_, j) => j !== i) })} aria-label={`Usuń link ${i + 1}`}>Usuń</button>
+                  </div>))}
+                {f.links.length < 3 && <div><button type="button" className="btn ghost small" onClick={() => setF({ ...f, links: [...f.links, ''] })}><Icon name="plus" size={18} />Dodaj link</button></div>}
+              </fieldset>
+              <div className="row">
+                <button className="btn" disabled={busy} aria-busy={busy || undefined}>Zapisz profil</button>
+                <button type="button" className="btn text" onClick={() => setEditing(false)}>Anuluj</button>
+              </div>
+            </div>
+          )}
         </div>
-
-        <div className="card stack">
-          <SecHead icon="users">Widoczność</SecHead>
-          <div className="field"><label htmlFor="p-vis">Kto widzi mój profil</label>
-            <select id="p-vis" className="input vis-select" value={f.profileVisibility} onChange={(e) => setF({ ...f, profileVisibility: e.target.value })}>
-              {VIS.map(([v, label]) => <option key={v} value={v}>{label}</option>)}</select>
-            <small>Dotyczy opisu, awatara, ocen i testów, zgodnie z ich ustawieniami.</small></div>
-        </div>
-
-        <div className="card stack">
-          <SecHead icon="share">Linki</SecHead>
-          {f.links.length === 0 && <p className="muted">Do 3 linków, np. do mediów społecznościowych.</p>}
-          {f.links.map((l, i) => (
-            <div key={i} className="link-row">
-              <input className="input" type="url" placeholder="https://…" aria-label={`Link ${i + 1}`} value={l}
-                onChange={(e) => setF({ ...f, links: f.links.map((x, j) => (j === i ? e.target.value : x)) })} />
-              <button type="button" className="btn text small" onClick={() => setF({ ...f, links: f.links.filter((_, j) => j !== i) })} aria-label={`Usuń link ${i + 1}`}>Usuń</button>
-            </div>))}
-          {f.links.length < 3 && <div><button type="button" className="btn ghost small" onClick={() => setF({ ...f, links: [...f.links, ''] })}><Icon name="plus" size={18} />Dodaj link</button></div>}
-        </div>
-
         <div className="row profile-save">
-          <button className="btn" disabled={busy} aria-busy={busy || undefined}>Zapisz profil</button>
           <Link className="btn ghost" href={`/u/${encodeURIComponent(me.username)}`}>Zobacz mój profil</Link>
           <button type="button" className="btn ghost only-mobile" onClick={shareProfile}><Icon name="share" size={18} />Udostępnij</button>
           <Toast text={msg} tone={/^(Zapisano|Skopiowano)/.test(msg) ? 'ok' : 'warn'} onClose={() => setMsg('')} duration={/^(Zapisano|Skopiowano)/.test(msg) ? 4000 : 10000} />
@@ -111,8 +113,7 @@ export default function ProfileForm({ me, initial, children }) {
       {children}
 
       <h2 className="section-label">Dane i konto</h2>
-      <section className="card">
-        <SecHead icon="download">Moje dane</SecHead>
+      <SettingsGroup icon="download" title="Moje dane" value="Eksport i kopia" id="moje-dane">
         <p className="muted">Pobierz kopię wszystkich swoich danych: profil, oceny, opinie, zużycie, zakupy, testy, znajomych i grupy.</p>
         <p className="muted">Dokumenty: <Link href="/regulamin">regulamin bety</Link> i <Link href="/prywatnosc">polityka prywatności</Link>.</p>
         <div className="list inset">
@@ -125,23 +126,21 @@ export default function ProfileForm({ me, initial, children }) {
           </a>
         </div>
         <div className="row">
-          <div className="field"><label htmlFor="csv-od">Dziennik od</label><input id="csv-od" className="input" type="date" value={csvFrom} max={csvTo || undefined} onChange={(e) => setCsvFrom(e.target.value)} /></div>
-          <div className="field"><label htmlFor="csv-do">do</label><input id="csv-do" className="input" type="date" value={csvTo} min={csvFrom || undefined} onChange={(e) => setCsvTo(e.target.value)} /></div>
+          <div className="field"><label htmlFor="csv-od">Dziennik od</label><input id="csv-od" className="input" type="date" lang="pl" value={csvFrom} max={csvTo || undefined} onChange={(e) => setCsvFrom(e.target.value)} /></div>
+          <div className="field"><label htmlFor="csv-do">do</label><input id="csv-do" className="input" type="date" lang="pl" value={csvTo} min={csvFrom || undefined} onChange={(e) => setCsvTo(e.target.value)} /></div>
         </div>
         <p className="muted">Pusty zakres dat oznacza cały dziennik. Plik otwiera się w Excelu (separator „;”, przecinek dziesiętny).</p>
-      </section>
+      </SettingsGroup>
 
       <EmailSettings isAdmin={me.isAdmin} />
 
-      <section className="card">
-        <SecHead icon="logout">Sesje</SecHead>
+      <SettingsGroup icon="logout" title="Sesje" id="sesje">
         <p className="muted">Jeśli logowałeś się na cudzym lub zgubionym urządzeniu, wyloguj je z listy poniżej. Zmiana hasła wylogowuje wszystkie pozostałe urządzenia.</p>
         <Sessions />
         <div className="row"><button type="button" className="btn ghost" onClick={logoutAll}>Wyloguj ze wszystkich urządzeń</button></div>
-      </section>
+      </SettingsGroup>
 
-      <section className="card danger-zone">
-        <SecHead icon="alert">Usuń konto</SecHead>
+      <SettingsGroup icon="alert" title="Usuń konto" danger id="usun-konto">
         {me.isAdmin ? <p className="muted">Konta admina nie można usunąć samodzielnie.</p> : (
           <>
             <p className="muted">Usuwa konto oraz wszystkie Twoje wpisy, zakupy, zużycie i testy. Wpisz hasło, aby potwierdzić.</p>
@@ -149,7 +148,7 @@ export default function ProfileForm({ me, initial, children }) {
               <button className="btn danger" onClick={del} disabled={!pw}>Usuń konto</button></div>
           </>
         )}
-      </section>
+      </SettingsGroup>
     </div>
   );
 }

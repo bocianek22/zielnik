@@ -43,7 +43,7 @@
 }
 
 /* ===== Testy odmiany ===== */
-.tests-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); margin-bottom: var(--s-4); }
+.tests-head { display: flex; align-items: center; justify-content: flex-end; gap: var(--s-3); margin-bottom: var(--s-4); }
 .tests-head h2 { margin: 0; }
 .test-form .form-actions { margin-top: 0; }
 .test-meta .badge { margin-inline: 0; }

@@ -7,6 +7,7 @@ import NavBadge from './NavBadge';
 import MoreMenu from './MoreMenu';
 import ThemeToggle from './ThemeToggle';
 import BottomNav from './BottomNav';
+import CompactTitle from './CompactTitle';
 import TopNav from './TopNav';
 import WhatsNew from './WhatsNew';
 import { navItems } from './navItems';
@@ -47,6 +48,7 @@ export default function Header({ user }) {
         </div>
       </div>
     </header>
+    <CompactTitle />
     <BottomNav isAdmin={admin} />
     <WhatsNew />
     {askConsent && <ConsentGate version={legal} admin={admin} />}

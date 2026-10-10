@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import useFocusTrap from './useFocusTrap';
+import useSheetDrag from './useSheetDrag';
 import { usePathname, useRouter } from 'next/navigation';
 import NavBadge from './NavBadge';
 import ThemeToggle from './ThemeToggle';
@@ -26,6 +27,8 @@ export default function BottomNav({ isAdmin }) {
   const closeAll = () => { setOpen(false); setFab(false); };
   useFocusTrap(sheetRef, open, closeAll);
   useFocusTrap(fabRef, fab, closeAll);
+  useSheetDrag(sheetRef, open, closeAll);
+  useSheetDrag(fabRef, fab, closeAll);
 
   function newStrain() {
     setFab(false);
@@ -39,7 +42,7 @@ export default function BottomNav({ isAdmin }) {
     const on = !open && !fab && isActive(path, i.href); // przy otwartym arkuszu aktywna jest tylko zakładka „Więcej”
     return (
       <Link key={i.href} href={i.href} className={on ? 'on' : ''} data-cat={i.cat} aria-current={on ? 'page' : undefined}>
-        <span className="bn-ic"><Icon name={i.icon} /></span><span>{i.short || i.label}</span>{i.badge && <NavBadge kind={i.badge} />}
+        <span className="bn-ic"><Icon name={i.icon} filled={on} /></span><span>{i.short || i.label}</span>{i.badge && <NavBadge kind={i.badge} />}
       </Link>
     );
   };
@@ -97,7 +100,7 @@ export default function BottomNav({ isAdmin }) {
         {bar.slice(2).map(tab)}
         <button type="button" className={open ? 'on' : ''} onClick={() => { setFab(false); setOpen((o) => !o); }} aria-expanded={open}>
           {/* Znajomi i Grupy są w arkuszu: zaproszenia widać na przycisku */}
-          <span className="bn-ic"><Icon name="more" /></span><span>Więcej</span><NavBadge kind="social" />
+          <span className="bn-ic"><Icon name="more" filled={open} /></span><span>Więcej</span><NavBadge kind="social" />
         </button>
       </nav>
     </>
