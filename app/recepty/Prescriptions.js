@@ -64,12 +64,12 @@ export default function Prescriptions() {
                       <h3 className="rx-title">{nf(p.grams)} {u}{p.note && <small>{p.note}</small>}</h3>
                       {state}
                     </div>
-                    {d != null && !done && <div className={`day-count${d <= 7 ? ' soon' : ''}`} aria-hidden="true"><b>{Math.max(d, 0)}</b><span>{d === 1 ? 'dzień' : 'dni'}</span></div>}
+                    {d != null && !done && !expired && <div className={`day-count${d <= 7 ? ' soon' : ''}`} aria-hidden="true"><b>{d}</b><span>{d === 1 ? 'dzień' : 'dni'}</span></div>}
                   </div>
                   <progress value={Math.min(p.bought, p.grams)} max={p.grams} aria-label="Wykupiono z przepisanej ilości" />
                   <p className="rx-amount">Wykupiono <b>{nf(p.bought)} {u}</b>, zostało <b>{nf(left)} {u}</b>{expired && !done && ' (niewykorzystane)'}</p>
                   {p.estimated > 0 && <p className="muted rx-est">Szacunek: {nf(p.estimated)} {u} bez przypisania. <Link href="/historia">Przypisz w Historii</Link></p>}
-                  <p className="rx-dates">Wystawiona {fmt(p.issued_on)}</p>
+                  <p className="rx-dates">Wystawiona {fmt(p.issued_on)}{p.valid_until && (expired || d <= 7) ? `, ważna do ${fmt(p.valid_until)}` : ''}</p>
                   <div className="rx-foot"><button type="button" className="btn text small" onClick={() => remove(p.id)} aria-label={`Usuń receptę ${nf(p.grams)} ${u}`}>Usuń</button></div>
                 </li>
               );

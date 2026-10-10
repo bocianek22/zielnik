@@ -10,7 +10,7 @@
   .card { border: none !important; box-shadow: none !important; padding: 0 !important; background: #fff !important; }
   .cmp th, .cmp td { padding: 4px 8px; }
   /* wydruk raportu dla lekarza pokazuje nazwy mimo trybu dyskretnego */
-  html[data-discreet] .dn, html[data-discreet] .dn-img { filter: none !important; }
+  html[data-discreet] .dn, html[data-discreet] .dn > span, html[data-discreet] .dn-img { filter: none !important; }
 }
 
 /* ===== Tryb dyskretny (ustawienie per urządzenie): nazwy odmian, producentów i terpenów rozmyte, dotknięcie odsłania na 5 s ===== */

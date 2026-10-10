@@ -19,6 +19,7 @@ export default function DiscreetGuard() {
     const label = () => {
       const on = isDiscreet();
       document.querySelectorAll('.dn').forEach((el) => {
+        if (el.closest('[aria-hidden="true"]')) return; // np. kompaktowy pasek tytułu: bez fokusu w ukrytym poddrzewie
         const hidden = on && !el.dataset.dnOpen;
         const native = el.matches('a,button');
         if (hidden && !el.dataset.dnLabelled) {
