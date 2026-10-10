@@ -47,7 +47,9 @@ export const DELETE = safe(async (_req, { params }) => {
     WHERE id = ${mid}::int AND group_id = ${gid}::int AND deleted_at IS NULL AND (
       ${!!user.is_admin}::boolean
       OR EXISTS (SELECT 1 FROM group_members g WHERE g.group_id = ${gid}::int AND g.user_id = ${user.id}::int AND g.status = 'active'
-                 AND (g.role IN ('owner', 'moderator') OR group_messages.user_id = ${user.id}::int)))
+                 AND (g.role = 'owner' OR group_messages.user_id = ${user.id}::int
+                      OR (g.role = 'moderator' AND NOT EXISTS (SELECT 1 FROM group_members a WHERE a.group_id = ${gid}::int
+                          AND a.user_id = group_messages.user_id AND a.role IN ('owner', 'moderator'))))))
     RETURNING id`;
   if (!del.length) {
     // członek, który nie może usunąć istniejącej wiadomości, dostaje 403; brak albo już usunięta = 404

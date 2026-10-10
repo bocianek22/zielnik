@@ -1,5 +1,5 @@
 // SPO-3: role w grupach na telefonie (390 px): właścicielka (ania) nadaje bartkowi rolę moderatora w liście członków,
-// moderator usuwa wiadomość właścicielki, a właścicielka odbiera rolę. Członkostwo bartka wstawiamy w bazie (E2E_DB_URL).
+// moderator nie może usunąć wiadomości właścicielki (hierarchia ról), a właścicielka odbiera rolę. Członkostwo bartka wstawiamy w bazie (E2E_DB_URL).
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import pg from 'pg';
@@ -25,7 +25,7 @@ async function as(user) {
   return { ctx, problems, page };
 }
 
-test('role w grupie: nadanie moderatora, usunięcie wiadomości właścicielki przez moderatora, odebranie roli',
+test('role w grupie: nadanie moderatora, moderator bez usuwania wiadomości właścicielki, odebranie roli',
   { skip: !process.env.E2E_DB_URL && 'brak E2E_DB_URL', timeout: 120000 }, async () => {
     const A = await as('ania'), B = await as('bartek');
     try {
@@ -57,14 +57,15 @@ test('role w grupie: nadanie moderatora, usunięcie wiadomości właścicielki p
       assert.deepEqual(await serious(A.page), []);
       await shot(A.page, 'grupy-role-wlasciciel');
 
-      // bartek jako moderator widzi „Usuń” przy wiadomości właścicielki i ją usuwa
+      // bartek jako moderator nie ma „Usuń” przy wiadomości właścicielki (usuwa tylko wiadomości zwykłych członków)
       await B.page.reload({ waitUntil: 'load' });
       await B.page.locator('.chat-bubble', { hasText: 'Wiadomość właścicielki' }).waitFor();
       assert.match(await B.page.locator('.group-head').innerText(), /jesteś moderatorem/);
       await B.page.getByRole('button', { name: /Opcje wiadomości od ania/i }).click();
-      await B.page.locator('.chat-menu').getByRole('button', { name: 'Usuń', exact: true }).click();
-      await B.page.locator('.chat-bubble.gone').waitFor();
-      assert.equal((await pool.query(`SELECT count(*)::int AS n FROM group_messages WHERE group_id = $1 AND body = '' AND deleted_at IS NOT NULL`, [gid])).rows[0].n, 1);
+      await B.page.locator('.chat-menu').waitFor();
+      assert.equal(await B.page.locator('.chat-menu').getByRole('button', { name: 'Usuń', exact: true }).count(), 0);
+      await B.page.keyboard.press('Escape');
+      assert.equal((await pool.query(`SELECT count(*)::int AS n FROM group_messages WHERE group_id = $1 AND deleted_at IS NOT NULL`, [gid])).rows[0].n, 0);
       // moderator nie widzi przycisków nadawania ról ani przekazania własności
       assert.equal(await B.page.getByRole('button', { name: /Nadaj rolę moderatora|Przekaż własność/ }).count(), 0);
       assert.deepEqual(await serious(B.page), []);

@@ -85,7 +85,7 @@ test('udostępnianie PDF: provider nieeksportowany z grantUriPermissions, ście�
   assert.match(provider, /android:grantUriPermissions="true"/);
   assert.match(provider, /android:resource="@xml\/file_paths"/);
   const paths = read('res/xml/file_paths.xml');
-  assert.deepEqual([...paths.matchAll(/<([a-z-]+-path)\b[^>]*path="([^"]*)"/g)].map((m) => [m[1], m[2]]), [['cache-path', 'share/']]);
+  assert.deepEqual([...paths.matchAll(/<([a-z-]+-path)\b[^>]*path="([^"]*)"/g)].map((m) => [m[1], m[2]]), [['cache-path', 'share/'], ['external-files-path', 'Pictures/']]);
   const main = read('java/pl/zielnik/app/MainActivity.java');
   assert.match(main, /registerPlugin\(SharePlugin\.class\)/);
   const plugin = read('java/pl/zielnik/app/SharePlugin.java');

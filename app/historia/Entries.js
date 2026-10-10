@@ -135,7 +135,7 @@ export default function Entries({ kind, rows: serverRows, prescriptions = [] }) 
           <p className="hist-edit-title"><span className="dn">{edit.row.name}</span>, {formatDay(edit.row.at)}, {nf(edit.row.grams)} {eu}</p>
           {edit.batch ? (
             <BatchForm purchase={edit.row} idPrefix="hb" onCancel={close}
-              onSaved={(b) => { setLocal((l) => ({ base: serverRows, map: { ...(l.base === serverRows ? l.map : {}), [b.id]: b } })); setEdit(null); setMsg('Zapisano notatkę o partii.'); back.current?.focus?.(); router.refresh(); }} />
+              onSaved={(b) => { setLocal((l) => ({ base: serverRows, map: { ...(l.base === serverRows ? l.map : {}), [b.id]: { batchNoteLocked: false, ...b } } })); setEdit(null); setMsg('Zapisano notatkę o partii.'); back.current?.focus?.(); router.refresh(); }} />
           ) : edit.confirm ? (
             <>
               <p>{purchase

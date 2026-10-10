@@ -21,17 +21,21 @@ export default function DictateButton({ value, onChange, max }) {
   const [err, setErr] = useState('');
   const [said, setSaid] = useState(false); // czy ostatnia sesja coś dopisała (komunikat dla czytnika ekranu)
   const rec = useRef(null);
+  const busy = useRef(false); // start w toku (await przed r.start): drugie dotknięcie nie uruchamia drugiej sesji
+  const mounted = useRef(true);
   const latest = useRef({ value, onChange, max });
   useEffect(() => { latest.current = { value, onChange, max }; });
 
   useEffect(() => {
+    mounted.current = true;
     setOk(Boolean(getSR()) && !isNative());
-    return () => { try { rec.current?.abort(); } catch {} };
+    return () => { mounted.current = false; try { rec.current?.abort(); } catch {} };
   }, []);
 
   async function start() {
     const SR = getSR();
-    if (!SR) return;
+    if (!SR || busy.current) return;
+    busy.current = true;
     setErr(''); setSaid(false);
     const r = new SR();
     r.lang = 'pl-PL';
@@ -39,6 +43,8 @@ export default function DictateButton({ value, onChange, max }) {
     r.continuous = false;
     r.maxAlternatives = 1;
     try { if (typeof SR.available === 'function' && (await SR.available({ langs: ['pl-PL'], processLocally: true })) === 'available') r.processLocally = true; } catch {}
+    // komponent zniknął w trakcie await: nie włączamy mikrofonu, którego nikt by nie zatrzymał
+    if (!mounted.current) { busy.current = false; return; }
     const base = latest.current.value || '';
     let got = false;
     r.onresult = (e) => {
@@ -51,6 +57,7 @@ export default function DictateButton({ value, onChange, max }) {
     r.onend = () => { if (rec.current === r) rec.current = null; setState('idle'); setSaid(got); };
     rec.current = r;
     try { r.start(); setState('listening'); } catch { rec.current = null; setState('idle'); setErr(dictateError('other')); }
+    busy.current = false;
   }
 
   function click() {

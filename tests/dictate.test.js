@@ -41,5 +41,6 @@ test('dictateError: komunikaty po polsku, przerwanie bez komunikatu', () => {
 
 test('informacja o prywatności: przeglądarka robi rozpoznawanie, Zielnik nic nie wysyła', () => {
   assert.match(DICTATE_NOTICE, /Google/);
-  assert.match(DICTATE_NOTICE, /nie jest nigdzie wysyłana przez Zielnik/);
+  assert.match(DICTATE_NOTICE, /Apple/);
+  assert.match(DICTATE_NOTICE, /Zielnik nie wysyła nagrania/);
 });

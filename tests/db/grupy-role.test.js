@@ -63,24 +63,25 @@ test('moderatora nadaje i odbiera tylko właściciel; zwykły członek i moderat
   await act(ids.ania, { action: 'mod', userId: ids.bartek });
 });
 
-test('moderator usuwa cudze wiadomości (także właściciela); zwykły członek nie; canDelete zgodne z rolą', { skip }, async () => {
+test('moderator usuwa wiadomości zwykłych członków (nie właściciela); zwykły członek nie; canDelete zgodne z rolą', { skip }, async () => {
   const { ids, q } = h;
   await q`DELETE FROM rate_limits`;
   const a = await say(ids.ania, 'wiadomość właściciela');
   const c = await say(ids.celina, 'wiadomość celiny');
   const e = await say(ids.ewa, 'wiadomość ewy');
-  // lista dla moderatora: wszystko do usunięcia; dla zwykłego członka tylko własne
+  // lista dla moderatora: zwykłych członków tak, właściciela nie (ta sama hierarchia co przy usuwaniu z grupy)
   const asMod = (await h.call(ids.bartek, MSG, 'GET', undefined, p(G))).json.messages;
-  assert.deepEqual(asMod.map((m) => m.canDelete), [true, true, true]);
+  assert.deepEqual(asMod.map((m) => m.canDelete), [false, true, true]);
   const asMember = (await h.call(ids.celina, MSG, 'GET', undefined, p(G))).json.messages;
   assert.deepEqual(asMember.map((m) => [m.name, m.canDelete]), [['ania', false], ['celina', true], ['ewa', false]]);
   // zwykły członek: 403, wiadomość zostaje
   assert.equal((await h.call(ids.ewa, ONE, 'DELETE', undefined, p(G, c))).status, 403);
   assert.equal((await q`SELECT deleted_at FROM group_messages WHERE id = ${c}`)[0].deleted_at, null);
-  // moderator: cudzą i właściciela
+  // moderator: zwykłego członka tak, właściciela nie (403, wiadomość zostaje)
   assert.equal((await h.call(ids.bartek, ONE, 'DELETE', undefined, p(G, c))).status, 200);
-  assert.equal((await h.call(ids.bartek, ONE, 'DELETE', undefined, p(G, a))).status, 200);
-  const rows = await q`SELECT id, body, deleted_at, deleted_by FROM group_messages WHERE id IN (${a}, ${c})`;
+  assert.equal((await h.call(ids.bartek, ONE, 'DELETE', undefined, p(G, a))).status, 403);
+  assert.equal((await q`SELECT deleted_at FROM group_messages WHERE id = ${a}`)[0].deleted_at, null);
+  const rows = await q`SELECT id, body, deleted_at, deleted_by FROM group_messages WHERE id IN (${c})`;
   for (const r of rows) { assert.equal(r.body, ''); assert.ok(r.deleted_at); assert.equal(r.deleted_by, ids.bartek); }
   // moderator innej grupy nie ma władzy w G: ewa jest moderatorem w G2, w G zostaje zwykłym członkiem
   await q`UPDATE group_members SET role = 'moderator' WHERE group_id = ${G2} AND user_id = ${ids.ewa}`;

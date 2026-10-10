@@ -12,6 +12,7 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.Locale;
 
 /**
  * Udostępnianie PDF-a (raport dla lekarza). WebView nie pobiera plików z blob: i nie ma Web Share z plikami,
@@ -25,6 +26,13 @@ public class SharePlugin extends Plugin {
     private static final String DIR = "share";
     private static final String DEFAULT_NAME = "raport.pdf";
     private static final int MAX_BASE64 = 24 * 1024 * 1024; // ok. 18 MB PDF-a
+
+    // Raport z danymi zdrowotnymi nie zostaje w pamięci podręcznej po zamknięciu aplikacji: sprzątanie przy starcie wtyczki
+    @Override
+    public void load() {
+        File[] old = new File(getContext().getCacheDir(), DIR).listFiles();
+        if (old != null) for (File f : old) f.delete();
+    }
 
     @PluginMethod
     public void sharePdf(PluginCall call) {
@@ -85,6 +93,6 @@ public class SharePlugin extends Plugin {
         String s = raw.replaceAll("[\\\\/:*?\"<>|\\p{Cntrl}]", " ").trim();
         if (s.length() > 80) s = s.substring(0, 80).trim();
         if (s.isEmpty() || s.equals(".pdf")) return DEFAULT_NAME;
-        return s.toLowerCase().endsWith(".pdf") ? s : s + ".pdf";
+        return s.toLowerCase(Locale.ROOT).endsWith(".pdf") ? s : s + ".pdf";
     }
 }

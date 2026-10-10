@@ -98,7 +98,7 @@ export default function StrainBatches({ batches: serverBatches, unit }) {
               <BatchSummary r={b} />
               {open === b.id ? (
                 <BatchForm purchase={b} idPrefix="sb" onCancel={() => setOpen(null)}
-                  onSaved={(b) => { setLocal((l) => ({ base: serverBatches, map: { ...(l.base === serverBatches ? l.map : {}), [b.id]: b } })); setOpen(null); setMsg('Zapisano notatkę o partii.'); router.refresh(); }} />
+                  onSaved={(b) => { setLocal((l) => ({ base: serverBatches, map: { ...(l.base === serverBatches ? l.map : {}), [b.id]: { batchNoteLocked: false, ...b } } })); setOpen(null); setMsg('Zapisano notatkę o partii.'); router.refresh(); }} />
               ) : (
                 <button type="button" className="btn small text batch-edit" aria-label={`${hasBatch(b) ? 'Edytuj' : 'Dodaj'} notatkę o partii: zakup z ${formatDay(b.day)}`}
                   onClick={() => { setMsg(''); setOpen(b.id); }}>{hasBatch(b) ? 'Edytuj partię' : 'Dodaj notatkę o partii'}</button>
