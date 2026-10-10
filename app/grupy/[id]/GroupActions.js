@@ -3,8 +3,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 
-// part="invite": zaproszenie znajomego. part="leave": opuszczenie i usunięcie grupy. kickId: usunięcie członka.
-export default function GroupActions({ groupId, isOwner, kickId, part = 'invite' }) {
+// part="invite": zaproszenie znajomego. part="leave": opuszczenie i usunięcie grupy. kickId: działania na członku
+// (SPO-3): właściciel nadaje i odbiera moderatora, przekazuje grupę i usuwa; moderator usuwa tylko zwykłych członków.
+export default function GroupActions({ groupId, isOwner, kickId, kickName = 'członka', memberRole, viewerRole, part = 'invite' }) {
   const router = useRouter();
   const [username, setUsername] = useState('');
   const [msg, setMsg] = useState('');
@@ -12,7 +13,20 @@ export default function GroupActions({ groupId, isOwner, kickId, part = 'invite'
     try { await api(`/api/groups/${groupId}`, 'POST', body); setMsg(''); after ? after() : router.refresh(); }
     catch (e) { setMsg(e.message); }
   }
-  if (kickId) return <button className="btn text small" onClick={() => confirm('Usunąć z grupy?') && act({ action: 'kick', userId: kickId })}>Usuń</button>;
+  if (kickId) {
+    const owner = viewerRole === 'owner';
+    return (
+      <>
+        {owner && memberRole !== 'invited' && (memberRole === 'moderator'
+          ? <button className="btn text small" aria-label={`Odbierz rolę moderatora: ${kickName}`} onClick={() => act({ action: 'unmod', userId: kickId })}>Odbierz moderatora</button>
+          : <button className="btn text small" aria-label={`Nadaj rolę moderatora: ${kickName}`} onClick={() => act({ action: 'mod', userId: kickId })}>Nadaj moderatora</button>)}
+        {owner && memberRole !== 'invited' && <button className="btn text small" aria-label={`Przekaż własność grupy: ${kickName}`}
+          onClick={() => confirm(`Przekazać grupę użytkownikowi ${kickName}? Zostaniesz zwykłym członkiem i nie cofniesz tego sam.`) && act({ action: 'transfer', userId: kickId })}>Przekaż grupę</button>}
+        <button className="btn text small" aria-label={`Usuń z grupy: ${kickName}`} onClick={() => confirm('Usunąć z grupy?') && act({ action: 'kick', userId: kickId })}>Usuń</button>
+        {msg && <p className="field-err person-err" role="alert">{msg}</p>}
+      </>
+    );
+  }
   if (part === 'leave') {
     return (
       <div className="group-leave">

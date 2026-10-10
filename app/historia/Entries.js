@@ -5,6 +5,7 @@ import { api } from '@/lib/api';
 import { formatDay, todayPL } from '@/lib/date';
 import { METHODS, PERIODS, methodLabel, periodLabel } from '@/lib/usage-meta';
 import { parseNum, decimalProps } from '@/app/components/num';
+import { BatchForm, BatchSummary } from '@/app/components/BatchNote';
 
 const nf = (n, max = 2) => Number(n).toLocaleString('pl-PL', { maximumFractionDigits: max });
 // 1 zakup, 2-4 zakupy (bez 12-14), 5 zakupów
@@ -19,11 +20,14 @@ const perUnit = (u) => (u === 'ml' ? 'ml' : 'gram');
 // wartość pola „Recepta”: numer recepty, 'none' (jawnie bez recepty) albo '' (bez przypisania)
 const rxOf = (row) => (row.prescriptionId ? String(row.prescriptionId) : row.noRx ? 'none' : '');
 
-export default function Entries({ kind, rows, prescriptions = [] }) {
+export default function Entries({ kind, rows: serverRows, prescriptions = [] }) {
   const purchase = kind === 'purchase';
   const base = purchase ? '/api/history/purchases' : '/api/history/usage';
   const router = useRouter();
-  const [edit, setEdit] = useState(null); // { row, confirm }
+  const [edit, setEdit] = useState(null); // { row, confirm, batch }
+  // zapisana partia widoczna od razu; do czasu odświeżenia danych z serwera (wtedy serverRows to nowa tablica)
+  const [local, setLocal] = useState({ base: null, map: {} });
+  const rows = local.base === serverRows ? serverRows.map((r) => (local.map[r.id] ? { ...r, ...local.map[r.id] } : r)) : serverRows;
   const [f, setF] = useState({});
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
@@ -33,9 +37,9 @@ export default function Entries({ kind, rows, prescriptions = [] }) {
   const back = useRef(null);
   useEffect(() => { if (edit) box.current?.querySelector('input, button')?.focus(); }, [edit]);
 
-  function open(row, confirm, e) {
+  function open(row, confirm, e, batch = false) {
     back.current = e?.currentTarget ?? null;
-    setEdit({ row, confirm });
+    setEdit({ row, confirm, batch });
     setErr(''); setMsg(''); setOffer(null);
     setF({ grams: dec(row.grams), day: row.day, method: row.method || '', period: row.period || '', costMode: 'price', cost: row.cost != null ? dec(row.cost / row.grams) : '', rx: rxOf(row) });
   }
@@ -101,6 +105,7 @@ export default function Entries({ kind, rows, prescriptions = [] }) {
   const actions = (r) => (
     <span className="hist-actions">
       <button type="button" className="btn small text" aria-label={`Popraw: ${label(r)}`} onClick={(e) => open(r, false, e)}>Popraw</button>
+      {purchase && <button type="button" className="btn small text" aria-label={`Partia: ${label(r)}`} onClick={(e) => open(r, false, e, true)}>Partia</button>}
       <button type="button" className="btn small text hist-del" aria-label={`Usuń: ${label(r)}`} onClick={(e) => open(r, true, e)}>Usuń</button>
     </span>
   );
@@ -125,10 +130,13 @@ export default function Entries({ kind, rows, prescriptions = [] }) {
         </div>
       )}
       {edit && (
-        <div ref={box} className="card hist-edit" role="group" aria-label={`${edit.confirm ? 'Usuń' : 'Popraw'}: ${label(edit.row)}`}
+        <div ref={box} className="card hist-edit" role="group" aria-label={`${edit.confirm ? 'Usuń' : edit.batch ? 'Partia' : 'Popraw'}: ${label(edit.row)}`}
           onKeyDown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); close(); } }}>
           <p className="hist-edit-title"><span className="dn">{edit.row.name}</span>, {formatDay(edit.row.at)}, {nf(edit.row.grams)} {eu}</p>
-          {edit.confirm ? (
+          {edit.batch ? (
+            <BatchForm purchase={edit.row} idPrefix="hb" onCancel={close}
+              onSaved={(b) => { setLocal((l) => ({ base: serverRows, map: { ...(l.base === serverRows ? l.map : {}), [b.id]: b } })); setEdit(null); setMsg('Zapisano notatkę o partii.'); back.current?.focus?.(); router.refresh(); }} />
+          ) : edit.confirm ? (
             <>
               <p>{purchase
                 ? `Usunąć ten zakup? Stan zmniejszy się o wykupione ${eu === 'ml' ? 'ml' : 'gramy'}, a pula „do wykupienia” wróci o tyle, ile z niej zdjęto.`
@@ -205,7 +213,7 @@ export default function Entries({ kind, rows, prescriptions = [] }) {
       <ul className="list hist-list">
         {rows.map((r) => (
           <li key={r.id} className={`list-row${r.id === edit?.row.id ? ' editing' : ''}`}>
-            <span className="lr-main"><span className="dn">{r.name}</span><span className="lr-sub">{formatDay(r.at)}{!purchase && how(r) && ` · ${how(r)}`}</span>{actions(r)}</span>
+            <span className="lr-main"><span className="dn">{r.name}</span><span className="lr-sub">{formatDay(r.at)}{!purchase && how(r) && ` · ${how(r)}`}</span>{purchase && <BatchSummary r={r} />}{actions(r)}</span>
             <span className="lr-value">{nf(r.grams)} {uOf(r)}{purchase && (r.cost != null ? <small>{nf(r.cost)} zł</small> : <small>{noPrice}</small>)}</span>
           </li>
         ))}
@@ -214,7 +222,7 @@ export default function Entries({ kind, rows, prescriptions = [] }) {
         <thead><tr><th>Data</th><th>Odmiana</th><th className="num">Ilość</th>{!purchase && <th>Sposób i pora</th>}{purchase && <th className="num">Koszt</th>}<th><span className="sr-only">Akcje</span></th></tr></thead>
         <tbody>{rows.map((r) => (
           <tr key={r.id} className={r.id === edit?.row.id ? 'editing' : undefined}>
-            <td>{formatDay(r.at)}</td><td><span className="dn">{r.name}</span></td><td className="num">{nf(r.grams)} {uOf(r)}</td>
+            <td>{formatDay(r.at)}</td><td><span className="dn">{r.name}</span>{purchase && <BatchSummary r={r} />}</td><td className="num">{nf(r.grams)} {uOf(r)}</td>
             {!purchase && <td>{how(r)}</td>}
             {purchase && <td className="num">{r.cost != null ? `${nf(r.cost)} zł` : noPrice}</td>}
             <td className="hist-act-cell">{actions(r)}</td>

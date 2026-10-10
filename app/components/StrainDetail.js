@@ -16,6 +16,7 @@ import PharmacyLink from './PharmacyLink';
 import Lightbox, { PhotoCredit } from './Lightbox';
 import StrainHistory from './StrainHistory';
 import StrainProposals from './StrainProposals';
+import StrainBatches from './BatchNote';
 import UsageWeeks from './charts/UsageWeeks';
 import { expiryInfo } from '@/lib/expiry';
 import { formLabel } from '@/lib/forms';
@@ -105,7 +106,7 @@ function MyStats({ stats, unit }) {
   );
 }
 
-export default function StrainDetail({ strain, options, tastes, mates, tests, stats, me, proposals = [], proposing = false }) {
+export default function StrainDetail({ strain, options, tastes, mates, tests, stats, batches = [], me, proposals = [], proposing = false }) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [opts, setOpts] = useState(options);
@@ -199,6 +200,8 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, st
       )}
 
       <MyStats stats={stats} unit={unit} />
+
+      <StrainBatches batches={batches} unit={unit} />
 
       <section className="card dmine" aria-labelledby="dmine-h">
         <SecHead cat="stock" icon="jar" id="dmine-h">Mój wpis</SecHead>

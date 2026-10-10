@@ -26,7 +26,8 @@
 .person-row .lr-sub, .opinion-row .lr-sub { line-height: 1.35; }
 a.person-name { color: var(--accent-text); width: fit-content; }
 .person-row .lr-sub { overflow-wrap: anywhere; }
-.person-actions { display: flex; align-items: center; justify-content: flex-end; gap: var(--s-1); margin-left: auto; }
+.person-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--s-1); margin-left: auto; }
+.person-actions .person-err { flex: 1 0 100%; margin: 0; text-align: right; }
 .person-state { color: var(--text-2); font-size: var(--fs-sm); }
 .friend-search .search-row .btn { padding-inline: var(--s-4); }
 .empty.card .btn { margin-top: var(--s-4); }
