@@ -29,7 +29,7 @@ export default function GroupActions({ groupId, isOwner, kickId, kickName = 'cz�
   }
   if (part === 'policy') {
     return (
-      <div className="group-policy">
+      <div className="group-policy card tint" data-cat="social">
         <p className="muted" id="g-policy">Kto może zapraszać</p>
         <div className="seg" role="radiogroup" aria-labelledby="g-policy">
           {[['all', 'Wszyscy członkowie'], ['staff', 'Właściciel i moderatorzy']].map(([v, label]) => (

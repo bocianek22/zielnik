@@ -27,8 +27,8 @@ export default function PharmacyCard({ rx, pools: initial }) {
         <ul className="pharmacy-rx">
           {active.map((r) => (
             <li key={r.id}>
-              <b>{nf(r.remaining)} {r.unit === 'ml' ? 'ml' : 'g'}</b> zostało na recepcie
-              <span className="muted"> · ważna do {formatDay(r.valid_until)}{r.days_left <= 7 ? ` (${r.days_left === 0 ? 'dziś' : `${r.days_left} dni`})` : ''}</span>
+              <b>{nf(r.remaining)} {r.unit === 'ml' ? 'ml' : 'g'}</b> zostało
+              <span className="muted"> · do {formatDay(r.valid_until)}</span>
             </li>
           ))}
         </ul>
