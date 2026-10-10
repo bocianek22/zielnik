@@ -45,6 +45,8 @@ a.person-name { color: var(--accent-text); width: fit-content; }
 .rank-sum b { color: var(--text); font-size: var(--fs-lg); font-weight: 600; }
 .rank-sum small { font-size: var(--fs-xs); color: var(--text-2); }
 .group-leave .row .btn { flex: 1 1 140px; }
+.group-policy { margin-bottom: var(--s-3); }
+.group-policy > p.muted { margin: 0 0 var(--s-2); font-size: var(--fs-sm); }
 
 /* profil publiczny */
 .profile-card .profile-id { display: flex; align-items: center; gap: var(--s-4); }

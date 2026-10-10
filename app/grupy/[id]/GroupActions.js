@@ -3,9 +3,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 
-// part="invite": zaproszenie znajomego. part="leave": opuszczenie i usunięcie grupy. kickId: działania na członku
+// part="invite": zaproszenie znajomego. part="policy": kto może zapraszać (właściciel i moderatorzy). part="leave": opuszczenie i usunięcie grupy. kickId: działania na członku
 // (SPO-3): właściciel nadaje i odbiera moderatora, przekazuje grupę i usuwa; moderator usuwa tylko zwykłych członków.
-export default function GroupActions({ groupId, isOwner, kickId, kickName = 'członka', memberRole, viewerRole, part = 'invite' }) {
+export default function GroupActions({ groupId, isOwner, kickId, kickName = 'członka', memberRole, viewerRole, policy, part = 'invite' }) {
   const router = useRouter();
   const [username, setUsername] = useState('');
   const [msg, setMsg] = useState('');
@@ -25,6 +25,19 @@ export default function GroupActions({ groupId, isOwner, kickId, kickName = 'cz�
         <button className="btn text small" aria-label={`Usuń z grupy: ${kickName}`} onClick={() => confirm('Usunąć z grupy?') && act({ action: 'kick', userId: kickId })}>Usuń</button>
         {msg && <p className="field-err person-err" role="alert">{msg}</p>}
       </>
+    );
+  }
+  if (part === 'policy') {
+    return (
+      <div className="group-policy">
+        <p className="muted" id="g-policy">Kto może zapraszać</p>
+        <div className="seg" role="radiogroup" aria-labelledby="g-policy">
+          {[['all', 'Wszyscy członkowie'], ['staff', 'Właściciel i moderatorzy']].map(([v, label]) => (
+            <button key={v} type="button" role="radio" aria-checked={policy === v} className={policy === v ? 'on' : ''}
+              onClick={() => policy !== v && act({ action: 'invitePolicy', policy: v })}>{label}</button>))}
+        </div>
+        {msg && <p className="field-err" role="alert">{msg}</p>}
+      </div>
     );
   }
   if (part === 'leave') {

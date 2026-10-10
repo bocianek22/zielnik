@@ -23,7 +23,7 @@ export default async function GroupPage({ params }) {
   const gid = intId((await params).id);
   if (!gid) notFound();
   const q = sql();
-  const [g] = await q`SELECT g.id, g.name, g.description, gm.role FROM groups g
+  const [g] = await q`SELECT g.id, g.name, g.description, g.invite_policy, gm.role FROM groups g
                       JOIN group_members gm ON gm.group_id = g.id AND gm.user_id = ${me.id} AND gm.status = 'active' WHERE g.id = ${gid}`;
   if (!g) notFound();
   const members = await q`SELECT u.id, u.username, u.display_name, gm.role, gm.status FROM group_members gm
@@ -35,6 +35,7 @@ export default async function GroupPage({ params }) {
     WHERE gm.group_id = ${gid} AND gm.status = 'active' AND can_see(${me.id}::int, us.user_id, us.visibility)
     GROUP BY s.id ORDER BY sum DESC, n DESC, s.name LIMIT 20`;
   const active = members.filter((m) => m.status === 'active').length;
+  const staff = g.role === 'owner' || g.role === 'moderator';
 
   return (
     <>
@@ -53,7 +54,10 @@ export default async function GroupPage({ params }) {
         </section>
 
         <h2 className="section-label">Zaproś do grupy</h2>
-        <GroupActions groupId={g.id} isOwner={g.role === 'owner'} />
+        {staff && <GroupActions groupId={g.id} part="policy" policy={g.invite_policy} />}
+        {staff || g.invite_policy === 'all'
+          ? <GroupActions groupId={g.id} isOwner={g.role === 'owner'} />
+          : <p className="muted social-note">W tej grupie zapraszać mogą tylko właściciel i moderatorzy.</p>}
 
         <h2 className="section-label">Członkowie</h2>
         <ul className="list">{members.map((m) => {
