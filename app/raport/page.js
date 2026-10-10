@@ -16,6 +16,7 @@ import { listNotes } from '@/lib/doctor-notes';
 import { formatDay, todayPL, addDaysIso } from '@/lib/date';
 import { doctorReport, MIN_SYMPTOM_DAYS } from '@/lib/report';
 import { buildReportModel } from '@/lib/report-pdf-model';
+import { batchSummary } from '@/lib/batch-meta';
 import { METHODS, PERIODS, periodLabel } from '@/lib/usage-meta';
 
 export const dynamic = 'force-dynamic';
@@ -57,7 +58,7 @@ export default async function Raport({ searchParams }) {
   const notesQs = withNotes ? '&notes=1' : '';
 
   const [report, notes] = await Promise.all([
-    doctorReport(me.id, from, to), listNotes(me.id),
+    doctorReport(me.id, from, to, { withNotes }), listNotes(me.id),
   ]);
   const { usage, weekly, purchases, feel: feelAll, sym, customSym, totals, rx, rxSum, strainSym, whenUsed } = report;
   const openNotes = notes.filter((n) => !n.done);
@@ -126,7 +127,7 @@ export default async function Raport({ searchParams }) {
             <form className="row report-range" method="get">
               <div className="field"><label htmlFor="from">Od</label><input id="from" name="from" type="date" className="input" defaultValue={from} max={today} /></div>
               <div className="field"><label htmlFor="to">Do</label><input id="to" name="to" type="date" className="input" defaultValue={to} max={today} /></div>
-              <label className="check"><input type="checkbox" name="notes" value="1" defaultChecked={withNotes} /> Dołącz moje spostrzeżenia</label>
+              <label className="check"><input type="checkbox" name="notes" value="1" defaultChecked={withNotes} /> Dołącz moje spostrzeżenia (notatki przy odmianach i o partiach)</label>
               <button className="btn ghost">Pokaż raport</button>
             </form>
           </details>
@@ -261,11 +262,11 @@ export default async function Raport({ searchParams }) {
           {purchases.length > 0 && (<><h3>Zakupy</h3>
             <ul className="list report-narrow">
               {purchases.map((p, i) => (
-                <li key={i} className="list-row"><span className="lr-main"><span className="dn">{p.name}</span><span className="lr-sub">{day(p.at)}</span></span><span className="lr-value">{nf(p.grams, 2)} {p.unit}{p.cost != null && <small>{nf(p.cost, 2)} zł</small>}</span></li>
+                <li key={i} className="list-row"><span className="lr-main"><span className="dn">{p.name}</span><span className="lr-sub">{day(p.at)}</span>{withNotes && batchSummary(p) && <span className="lr-sub">{batchSummary(p)}</span>}</span><span className="lr-value">{nf(p.grams, 2)} {p.unit}{p.cost != null && <small>{nf(p.cost, 2)} zł</small>}</span></li>
               ))}
             </ul>
             <div className="table-wrap report-wide"><table className="cmp"><thead><tr><th>Data</th><th>Odmiana</th><th className="num">Ilość</th><th className="num">Koszt</th></tr></thead>
-              <tbody>{purchases.map((p, i) => <tr key={i}><td>{day(p.at)}</td><td><span className="dn">{p.name}</span></td><td className="num">{nf(p.grams, 2)} {p.unit}</td><td className="num">{p.cost != null ? `${nf(p.cost, 2)} zł` : '–'}</td></tr>)}</tbody></table></div>
+              <tbody>{purchases.map((p, i) => <tr key={i}><td>{day(p.at)}</td><td><span className="dn">{p.name}</span>{withNotes && batchSummary(p) && <span className="lr-sub">{batchSummary(p)}</span>}</td><td className="num">{nf(p.grams, 2)} {p.unit}</td><td className="num">{p.cost != null ? `${nf(p.cost, 2)} zł` : '–'}</td></tr>)}</tbody></table></div>
             <p className="muted small">Razem: {both(bought)}.</p></>)}
 
           {feel.length > 0 && (<><h3>Odczucia pacjenta (skala 0–10)</h3>

@@ -37,8 +37,8 @@ Bieżąca wersja: **0.50.0** (zamknięta beta, rejestracja z zaproszeniem). Stan
 - **PRA-6 (P2, S)** Ustawienia widoczności domyślnej użytkownika.
 
 ## 3. Dane pacjenta
-- **PAC-1 (P1, M)** Wersje partii: ta sama odmiana z różnymi seriami i stężeniami, osobne oceny.
-- **PAC-2 (P1, M)** Certyfikat badań (COA) jako załącznik partii i ostrzeżenie o różnicach stężeń.
+- **PAC-1 (P1, M)** Wersje partii: ta sama odmiana z różnymi seriami i stężeniami, osobne oceny. Pierwszy krok zrobiony w kodzie (do wydania, POM-32): przy zakupie numer partii, data ważności, ocena „słabiej / jak zwykle / mocniej” i szyfrowana notatka, widoczne w Historii i na karcie odmiany; zostają osobne stężenia partii i oceny liczbowe.
+- **PAC-2 (P1, M)** Certyfikat badań (COA) jako załącznik partii i ostrzeżenie o różnicach stężeń. Nie zaczęte; partie z POM-32 (kolumny `purchases.batch_*`) są pod to gotowe, załącznik wymaga osobnej tabeli.
 - **PAC-3 (P1, M)** Przypomnienia o wykupie recepty, terminie ważności i końcu zapasu (e-mail lub push).
 - **PAC-4 (P2, M)** Powiązanie zakupów z receptą (zamiast szacunku po datach).
 - **PAC-5 (P2, M)** Wiele zdjęć odmiany i galeria testów.
@@ -49,7 +49,7 @@ Bieżąca wersja: **0.50.0** (zamknięta beta, rejestracja z zaproszeniem). Stan
 ## 4. Społeczność
 - **SPO-1 (P1, M)** Komentarze pod opiniami i testami.
 - **SPO-2 (P1, M)** Czat grupowy w grupach (bez czatów prywatnych 1 na 1). Zrobione w kodzie (do wydania): wiadomości szyfrowane, edycja 15 min, usuwanie, zgłaszanie, licznik nieprzeczytanych, polling; role moderatora dojdą z SPO-3.
-- **SPO-3 (P2, S)** Role w grupie (moderator, gość) i poziom widoczności „grupa”.
+- **SPO-3 (P2, S)** Role w grupie (moderator, gość) i poziom widoczności „grupa”. Rola moderatora zrobiona w kodzie (do wydania): właściciel nadaje i odbiera, moderator usuwa cudze wiadomości czatu i zwykłych członków, właściciel przekazuje własność; zostają rola „gość” i widoczność „grupa”.
 - **SPO-4 (P2, S)** Reakcje „przydatne” (bez publicznych rankingów użytkowników).
 - **SPO-5 (P2, M)** Obserwowanie profili za zgodą.
 - **SPO-6 (P3, M)** Zestawienia i listy odmian tworzone przez użytkowników.

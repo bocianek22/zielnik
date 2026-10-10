@@ -47,7 +47,11 @@ export const GET = safe(async (req) => {
              WHEN pool_key ~ '^strain:[0-9]+$' THEN strain_unit(substr(pool_key, 8)::int) ELSE 'g' END AS unit
       FROM user_pool WHERE user_id = ${me}`,
     usage: await q`SELECT s.name AS strain, s.producer, l.grams::float8 AS grams, form_unit(s.form) AS unit, l.method, usage_period(l.period, l.created_at) AS period, l.created_at FROM usage_log l JOIN strains s ON s.id = l.strain_id WHERE l.user_id = ${me} ORDER BY l.created_at`,
-    purchases: await q`SELECT p.strain_name AS strain, s.producer, p.grams::float8 AS grams, strain_unit(p.strain_id) AS unit, p.cost::float8 AS cost, p.prescription_id AS "prescriptionId", p.no_rx AS "noRx", p.created_at FROM purchases p LEFT JOIN strains s ON s.id = p.strain_id WHERE p.user_id = ${me} ORDER BY p.created_at`,
+    // partia (POM-32): numer, ważność, ocena i notatka (odszyfrowana); id i user_id tylko do zakresu szyfrowania, nie trafiają do pliku
+    purchases: openRows(await q`SELECT p.id, p.user_id, p.strain_name AS strain, s.producer, p.grams::float8 AS grams, strain_unit(p.strain_id) AS unit, p.cost::float8 AS cost, p.prescription_id AS "prescriptionId", p.no_rx AS "noRx", p.created_at,
+        p.batch_no AS "batchNo", to_char(p.batch_expires_on, 'YYYY-MM-DD') AS "batchExpires", p.batch_effect AS "batchEffect", p.batch_note AS "batchNote"
+      FROM purchases p LEFT JOIN strains s ON s.id = p.strain_id WHERE p.user_id = ${me} ORDER BY p.created_at`,
+      'purchases', 'batch_note', (r) => rowScope('purchases', r), 'batchNote').map(({ id: _id, user_id: _u, ...p }) => p),
     tests: openRows(withPhotos
       ? await inline(await q`SELECT t.id, s.name AS strain, s.producer, t.note, t.visibility, t.created_at, t.mime, t.data AS photo_base64, t.blob_path FROM strain_tests t JOIN strains s ON s.id = t.strain_id WHERE t.user_id = ${me} ORDER BY t.created_at`)
       : await q`SELECT t.id, s.name AS strain, s.producer, t.note, t.visibility, t.created_at, (t.data IS NOT NULL) AS has_photo FROM strain_tests t JOIN strains s ON s.id = t.strain_id WHERE t.user_id = ${me} ORDER BY t.created_at`,

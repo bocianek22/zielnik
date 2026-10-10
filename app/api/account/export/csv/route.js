@@ -4,6 +4,7 @@ import { buildDiaryCsv, csvNum, csvText } from '@/lib/csv-export';
 import { methodLabel, periodLabel } from '@/lib/usage-meta';
 import { DISCREET_COOKIE } from '@/lib/discreet';
 import { decryptField, rowScope } from '@/lib/data-crypto';
+import { batchSummary } from '@/lib/batch-meta';
 
 const TYPES = { objawy: 'Objawy', zuzycie: 'Zużycie', zakupy: 'Zakupy' };
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
@@ -51,11 +52,14 @@ export const GET = safe(async (req) => {
   }
   if (want('zakupy')) {
     for (const r of await q`SELECT to_char(created_at AT TIME ZONE 'Europe/Warsaw', 'YYYY-MM-DD') AS d, to_char(created_at AT TIME ZONE 'Europe/Warsaw', 'HH24:MI') AS t,
-          strain_name AS name, grams::float8 AS grams, COALESCE(strain_unit(strain_id), 'g') AS unit, cost::float8 AS cost
+          strain_name AS name, grams::float8 AS grams, COALESCE(strain_unit(strain_id), 'g') AS unit, cost::float8 AS cost,
+          id, batch_no AS "batchNo", to_char(batch_expires_on, 'YYYY-MM-DD') AS "batchExpires", batch_effect AS "batchEffect", batch_note
         FROM purchases
         WHERE user_id = ${me} AND (${from}::date IS NULL OR (created_at AT TIME ZONE 'Europe/Warsaw')::date >= ${from}::date)
           AND (${to}::date IS NULL OR (created_at AT TIME ZONE 'Europe/Warsaw')::date <= ${to}::date)`) {
-      rows.push({ k: `${r.d} ${r.t}`, cells: [TYPES.zakupy, r.d, r.t, csvText(r.name), csvNum(r.grams), r.unit, '', '', csvNum(r.cost)] });
+      // partia (POM-32) w kolumnie „Notatka”: numer, ważność, ocena i notatka (odszyfrowana) w jednej linii
+      const batch = batchSummary({ ...r, batchNote: decryptField('purchases', 'batch_note', rowScope('purchases', { user_id: me, id: r.id }), r.batch_note) });
+      rows.push({ k: `${r.d} ${r.t}`, cells: [TYPES.zakupy, r.d, r.t, csvText(r.name), csvNum(r.grams), r.unit, '', '', csvNum(r.cost), '', '', '', '', csvText(batch)] });
     }
   }
   rows.sort((a, b) => (a.k < b.k ? -1 : a.k > b.k ? 1 : 0)); // sort stabilny: w obrębie czasu zostaje kolejność objawy, zużycie, zakupy
