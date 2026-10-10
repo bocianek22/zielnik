@@ -49,11 +49,24 @@ const P = {
   upload: <><path d="M12 20V9M7 14l5-5 5 5M5 4h14" /></>,
 };
 
-export default function Icon({ name, size = 24, className = '', label }) {
+// Warianty wypełnione (aktywna zakładka, stan „wybrane”): ten sam obrys co P, więc ikona nie zmienia wielkości.
+// Szczegóły wewnątrz (linie etykiety, kreski) pomijamy: w wypełnieniu byłyby niewidoczne.
+const F = {
+  home: <path d="M4 10.5 12 4l8 6.5v9A1.5 1.5 0 0 1 18.5 21H15v-6H9v6H5.5A1.5 1.5 0 0 1 4 19.5z" />,
+  jar: <><path d="M8 3h8" fill="none" /><path d="M7 6h10v12.5a2.5 2.5 0 0 1-2.5 2.5h-5A2.5 2.5 0 0 1 7 18.5z" /></>,
+  user: <><circle cx="12" cy="8" r="4" /><path d="M4.5 21a7.5 7.5 0 0 1 15 0z" /></>,
+  heart: <path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z" />,
+  file: <path d="M14 3H6.5A1.5 1.5 0 0 0 5 4.5v15A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V8z" />,
+};
+
+// filled: wariant wypełniony z F, a gdy go nie ma, grubsza kreska (2,25) w tym samym polu
+export default function Icon({ name, size = 24, className = '', label, filled = false }) {
+  const fill = filled && F[name];
   return (
-    <svg className={`icon ${className}`.trim()} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75"
-      strokeLinecap="round" strokeLinejoin="round" aria-hidden={label ? undefined : 'true'} role={label ? 'img' : undefined} aria-label={label} focusable="false">
-      {P[name]}
+    <svg className={`icon ${className}`.trim()} width={size} height={size} viewBox="0 0 24 24" fill={fill ? 'currentColor' : 'none'} stroke="currentColor"
+      strokeWidth={filled && !fill ? '2.25' : '1.75'} strokeLinecap="round" strokeLinejoin="round" aria-hidden={label ? undefined : 'true'}
+      role={label ? 'img' : undefined} aria-label={label} focusable="false">
+      {fill || P[name]}
     </svg>
   );
 }

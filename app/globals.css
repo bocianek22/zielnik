@@ -378,6 +378,14 @@ main, .card, .stack > *, .row > *, .toolbar > * { min-width: 0; }
 /* etykieta sekcji nad grupą (styl ustawień systemowych) */
 .section-label { font-family: var(--font-body), system-ui, sans-serif; font-size: var(--fs-sm); font-weight: 700; color: var(--text-2); letter-spacing: .01em; margin: var(--s-6) var(--s-1) var(--s-2); }
 .section-label:first-child { margin-top: 0; }
+/* nagłówek między kartami na ekranach treści (Design 3.1); .section-label zostaje dla formularzy i ustawień */
+.section-title { font-family: var(--font-display), system-ui, sans-serif; font-size: var(--fs-xl); font-weight: 700; letter-spacing: -.015em; line-height: var(--lh-tight); color: var(--text); margin: var(--s-6) var(--s-1) var(--s-3); }
+.section-title.sm { font-size: var(--fs-lg); }
+.section-title:first-child { margin-top: 0; }
+
+/* liczba z jednostką jako jeden blok, który się nie łamie („0,3 g”): <span class="qty">0,3<span class="unit">g</span></span> */
+.qty { white-space: nowrap; font-variant-numeric: tabular-nums lining-nums; }
+.unit { font-size: .55em; font-weight: 700; letter-spacing: 0; margin-left: .12em; }
 
 /* ===== Listy w stylu natywnym ===== */
 .list { list-style: none; margin: 0; padding: 0; background: var(--surface); border: 1px solid var(--card-line); border-radius: var(--r-lg); overflow: hidden; box-shadow: var(--shadow-card); }
@@ -576,6 +584,7 @@ a.chip.static:hover { background: var(--surface-3); color: var(--text); }
 /* duża liczba (stan, ocena): Figtree 800, cyfry tabelaryczne */
 .big-num { font-size: 3rem; font-weight: 800; line-height: 1; letter-spacing: -.03em; font-variant-numeric: tabular-nums lining-nums; }
 .big-num small { font-size: 1.25rem; font-weight: 700; letter-spacing: 0; margin-left: 4px; }
+.big-num, .kpi-tile .kt-value, .day-count b { white-space: nowrap; }
 
 /* hero: nagłówek ekranu z gradientem od koloru paska (na telefonie łączy się z górnym paskiem, pasek stanu bez zmian) */
 .hero { background: linear-gradient(165deg, var(--bar) 0%, var(--hero-2) 60%, var(--hero-3) 100%); color: var(--on-hero);
@@ -614,6 +623,27 @@ a.chip.static:hover { background: var(--surface-3); color: var(--text); }
 /* chip wybrany w obszarze ekranu (np. filtry na liście odmian w kolorze odmian) */
 [data-cat] .chip.on, .chip.on[data-cat] { background: var(--c-soft); color: var(--c-ink); border-color: var(--c-ink); }
 
+/* ===== Kompaktowy pasek z nazwą ekranu (components/CompactTitle.js): telefon, po przewinięciu h1 =====
+   Kolor paska marki, więc w APK łączy się z paskiem stanu. Pod arkuszami (44+), wskaźnikiem odświeżania (70) i panelem kolejki (40). */
+.cbar { display: none; }
+@media (max-width: 760px) {
+  .cbar { --cbar-top: env(safe-area-inset-top, 0px); display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; right: 0; z-index: 38;
+    height: calc(48px + var(--cbar-top)); padding: var(--cbar-top) var(--s-12) 0; background: var(--bar); color: var(--on-bar); box-shadow: var(--shadow-1); cursor: pointer;
+    visibility: hidden; transform: translateY(-100%); transition: transform var(--dur-2) var(--ease), visibility 0s linear var(--dur-2); }
+  .cbar.on { visibility: visible; transform: none; transition: transform var(--dur-2) var(--ease), visibility 0s; }
+  .cbar-t { display: block; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: var(--fs-lg); font-weight: 700; letter-spacing: -.01em; }
+  .cbar-t::before { content: attr(data-t); }
+  html.native-app .cbar { --cbar-top: max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px)); }
+}
+
+/* ===== Reakcja na dotyk: element „ugina się” przy wciśnięciu (tylko bez „ogranicz ruch”) ===== */
+@media (prefers-reduced-motion: no-preference) {
+  .btn { transition: background var(--dur-1) var(--ease), border-color var(--dur-1) var(--ease), transform var(--dur-1) var(--ease); }
+  .chip, .seg button, .seg a, a.kpi-tile, a.card, .tile { transition: transform var(--dur-1) var(--ease), background var(--dur-1) var(--ease); }
+  .btn:active:not(:disabled), .chip:active, .seg button:active, .seg a:active { transform: scale(.97); }
+  a.kpi-tile:active, a.card:active, .tile:active { transform: scale(.98); }
+}
+
 /* ===== Tabele ===== */
 .table, .cmp { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
 .table th, .table td, .cmp th, .cmp td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--sep); vertical-align: middle; }
@@ -628,9 +658,25 @@ a.chip.static:hover { background: var(--surface-3); color: var(--text); }
 .empty { text-align: center; padding: var(--s-10) var(--s-6); color: var(--text-2); }
 .empty h2 { margin-bottom: var(--s-2); color: var(--text); font-size: var(--fs-xl); }
 .empty .icon { color: var(--text-3); margin-bottom: var(--s-2); }
-.skel-line { height: 14px; border-radius: var(--r-sm); margin: 10px 0; background: linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3) 37%, var(--surface-2) 63%); background-size: 400% 100%; animation: skel-shine 1.4s ease infinite; }
-.skel-line.w60 { width: 60%; height: 20px; }
-.skel-line.w30 { width: 30%; }
+/* pusty stan z ilustracją (components/EmptyState.js, Illustration.js): kolory obszaru z data-cat */
+.empty-state { display: grid; justify-items: center; gap: var(--s-2); padding: var(--s-8) var(--s-5); }
+.empty-state .ill { margin-bottom: var(--s-2); }
+.empty-state :is(h2, h3) { margin: 0; font-size: var(--fs-xl); }
+.empty-state p { max-width: 34ch; margin: 0; }
+.empty-action { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--s-2); margin-top: var(--s-3); }
+.ill { display: block; flex: none; }
+.ill-bg { fill: var(--c-soft, var(--surface-2)); }
+.ill-fill { fill: var(--c, var(--btn)); }
+.ill-ink { fill: var(--c-ink, var(--text-2)); }
+.ill-paper { fill: var(--surface); }
+.ill-edge { stroke: var(--c-ink, var(--text-2)); stroke-width: 2.5; }
+.ill-edge-thick { stroke: var(--c-ink, var(--text-2)); stroke-width: 5; }
+.ill-line, .ill-stroke, .ill-stroke-thick, .ill-check { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.ill-line { stroke: var(--c-ink, var(--text-2)); stroke-width: 3; opacity: .45; }
+.ill-stroke { stroke: var(--c, var(--btn)); stroke-width: 3.5; }
+.ill-stroke-thick { stroke: var(--c-ink, var(--text-2)); stroke-width: 7; }
+.ill-check { stroke: var(--on-cat); stroke-width: 3.5; }
+/* szkielety (components/Skeleton.js): style w styles/system.css */
 @keyframes skel-shine { 0% { background-position: 100% 0; } 100% { background-position: 0 0; } }
 
 /* zgłoszenie treści (ReportButton) */
