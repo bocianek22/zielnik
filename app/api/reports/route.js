@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
 import { requireUser, bad, safe, intId, jsonBody } from '@/lib/guard';
 import { hit } from '@/lib/ratelimit';
+import { decryptField, encryptField, rowScope } from '@/lib/data-crypto';
 
 const TYPES = ['user', 'test', 'strain', 'photo', 'message'];
 const REASONS = { spam: 'Spam', ad: 'Reklama lub sprzedaż', abuse: 'Nękanie lub wyzwiska', privacy: 'Naruszenie prywatności', other: 'Inne' };
@@ -19,6 +20,7 @@ export const POST = safe(async (req) => {
   const refId = intId(b.ref) || null;
   let target = intId(b.userId);
   let ref = null;
+  let snapshot = null;
   if (b.type === 'user') {
     if (!target || target === user.id) return bad('Nieprawidłowe zgłoszenie.');
     const [ok] = await sql()`SELECT 1 AS x FROM users WHERE id = ${target}`;
@@ -33,13 +35,14 @@ export const POST = safe(async (req) => {
   } else if (b.type === 'message') {
     if (!refId) return bad('Nieprawidłowe zgłoszenie.');
     // wiadomość musi być z grupy zgłaszającego (aktywny członek), nieusunięta i widoczna (blokady); obcy dostaje 404
-    const [msg] = await sql()`SELECT m.user_id FROM group_messages m
+    const [msg] = await sql()`SELECT m.user_id, m.body FROM group_messages m
       JOIN group_members gm ON gm.group_id = m.group_id AND gm.user_id = ${user.id}::int AND gm.status = 'active'
       WHERE m.id = ${refId}::int AND m.deleted_at IS NULL AND can_see(${user.id}::int, m.user_id, 'all')`;
     if (!msg) return bad('Nie znaleziono zgłaszanej treści.', 404);
     if (msg.user_id === user.id) return bad('To Twoja własna treść. Możesz ją edytować lub usunąć.');
     target = msg.user_id;
     ref = refId;
+    snapshot = decryptField('group_messages', 'body', rowScope('group_messages', { id: refId }), msg.body);
   } else {
     if (!refId) return bad('Nieprawidłowe zgłoszenie.');
     // odmiany i ich zdjęcia są wspólne (widoczne dla każdego zalogowanego); odpowiedzialny to autor odmiany albo autor zdjęcia
@@ -56,8 +59,14 @@ export const POST = safe(async (req) => {
   const dup = await sql()`SELECT 1 FROM reports WHERE reporter_id = ${user.id} AND target_user_id = ${target} AND type = ${b.type}
                           AND ref IS NOT DISTINCT FROM ${ref}::int AND status = 'open'`;
   if (!dup.length) {
-    await sql()`INSERT INTO reports (reporter_id, target_user_id, type, ref, reason, note)
-                VALUES (${user.id}, ${target}, ${b.type}, ${ref}, ${b.reason}, ${String(b.note ?? '').trim().slice(0, 500)})`;
+    const [r] = await sql()`INSERT INTO reports (reporter_id, target_user_id, type, ref, reason, note)
+                VALUES (${user.id}, ${target}, ${b.type}, ${ref}, ${b.reason}, ${String(b.note ?? '').trim().slice(0, 500)}) RETURNING id`;
+    // id zgłoszenia wchodzi do AAD migawki, więc zapis po INSERT; bez działającego szyfrowania migawki nie ma (admin widzi bieżącą treść)
+    if (snapshot) {
+      let sealed = null;
+      try { sealed = encryptField('reports', 'snapshot', String(r.id), snapshot); } catch {}
+      if (sealed) await sql()`UPDATE reports SET snapshot = ${sealed} WHERE id = ${r.id}`;
+    }
   }
   return NextResponse.json({ ok: true });
 });

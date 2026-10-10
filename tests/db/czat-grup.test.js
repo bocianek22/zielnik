@@ -176,6 +176,8 @@ test('stronicowanie: najnowsza strona 30, before = starsze, after = nowsze (do 5
   await clean();
   await q`DELETE FROM group_messages WHERE group_id = ${G}`;
   for (let i = 1; i <= 75; i++) await q`INSERT INTO group_messages (group_id, user_id, body) VALUES (${G}, ${ids.ania}, ${`m${i}`})`;
+  // starsze niż minuta: bez zakładki „świeżych” wiadomości w after (ta jest sprawdzana niżej)
+  await q`UPDATE group_messages SET created_at = now() - interval '1 hour' WHERE group_id = ${G}`;
   const all = (await q`SELECT id FROM group_messages WHERE group_id = ${G} ORDER BY id`).map((r) => r.id);
   const newest = (await list(ids.bartek)).json;
   assert.equal(newest.messages.length, 30);
@@ -197,6 +199,9 @@ test('stronicowanie: najnowsza strona 30, before = starsze, after = nowsze (do 5
   // wiadomość z innej grupy nie miesza się do listy
   await send(ids.darek, 'cudza grupa', G2);
   assert.equal((await list(ids.bartek, `?after=${all[74]}`)).json.messages.length, 0);
+  // świeża wiadomość z mniejszym id (zatwierdzona poza kolejnością) wraca w after mimo wyższego znacznika
+  await q`UPDATE group_messages SET created_at = now() WHERE id = ${all[70]}`;
+  assert.deepEqual((await list(ids.bartek, `?after=${all[74]}`)).json.messages.map((m) => m.id), [all[70]]);
 });
 
 test('blokada w dowolną stronę ukrywa wiadomości drugiej osoby', { skip }, async () => {
@@ -284,6 +289,23 @@ test('zgłoszenie wiadomości: tylko członek grupy, cudzej, nieusuniętej; admi
   await q`UPDATE group_members SET status = 'invited' WHERE group_id = ${G} AND user_id = ${ids.ania}`;
   assert.equal((await rep(ids.ania, id2)).status, 404);
   await q`UPDATE group_members SET status = 'active' WHERE group_id = ${G} AND user_id = ${ids.ania}`;
+});
+
+test('zgłoszenie zapisuje migawkę treści: edycja i usunięcie przez autora nie zacierają dowodu', { skip }, async () => {
+  const { ids, q } = h;
+  await clean();
+  await q`DELETE FROM reports`;
+  const id = (await send(ids.bartek, 'sprzedam')).json.message.id;
+  assert.equal((await h.call(ids.ania, 'reports', 'POST', { type: 'message', ref: id, reason: 'ad' })).status, 200);
+  assert.equal((await h.call(ids.bartek, ONE, 'PATCH', { body: 'dzień dobry' }, { id: String(G), mid: String(id) })).status, 200);
+  let r = (await h.call(ids.adm, 'admin/reports', 'GET')).json.reports[0];
+  assert.deepEqual([r.message_snapshot, r.message_body, r.message_changed], ['sprzedam', 'dzień dobry', true]);
+  assert.equal((await h.call(ids.bartek, ONE, 'DELETE', undefined, { id: String(G), mid: String(id) })).status, 200);
+  r = (await h.call(ids.adm, 'admin/reports', 'GET')).json.reports[0];
+  assert.deepEqual([r.message_snapshot, r.message_body ?? null, r.message_exists, r.message_changed], ['sprzedam', null, false, true]);
+  // przy włączonym kluczu migawka w bazie nie jest jawnym tekstem
+  const [{ snapshot }] = await q`SELECT snapshot FROM reports WHERE id = ${r.id}`;
+  if (process.env.DATA_ENCRYPTION_KEY) assert.ok(snapshot.startsWith('zenc1:'));
 });
 
 test('eksport zawiera tylko własne, nieusunięte wiadomości (odszyfrowane); kopia zawiera szyfrogram', { skip }, async () => {

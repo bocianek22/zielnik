@@ -18,7 +18,10 @@ export const GET = safe(async (req, { params }) => {
   const after = intId(sp.get('after'));
   let rows, hasMore = false;
   if (after) {
-    rows = await fetchMessages(gid, user.id, 'm.id > $3::int', [after], `ORDER BY m.id LIMIT ${AFTER_MAX}`);
+    // zakładka: id rezerwowane przed INSERT mogą zatwierdzić się poza kolejnością, więc dokładamy świeże (ostatnia minuta)
+    // wiadomości do 20 id wstecz; klient scala po id
+    rows = await fetchMessages(gid, user.id, `(m.id > $3::int OR (m.id > $4::int AND m.created_at > now() - interval '1 minute'))`,
+      [after, Math.max(0, after - 20)], `ORDER BY m.id LIMIT ${AFTER_MAX}`);
   } else {
     const before = intId(sp.get('before')) || MAX_ID;
     rows = await fetchMessages(gid, user.id, 'm.id < $3::int', [before], `ORDER BY m.id DESC LIMIT ${PAGE + 1}`);

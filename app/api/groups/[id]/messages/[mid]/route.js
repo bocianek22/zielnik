@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
 import { requireUser, bad, safe, intId, jsonBody } from '@/lib/guard';
 import { hit } from '@/lib/ratelimit';
+import { logAudit } from '@/lib/audit';
 import { activeMember, cleanBody, fetchMessages, toClient, sealBody, BAD_BODY_MSG, NOT_FOUND_MSG, NOTE_UNAVAILABLE_REJECT_MSG, EDIT_MINUTES } from '@/lib/chat';
 
 const NO_MSG = 'Nie znaleziono wiadomości.';
@@ -53,5 +54,6 @@ export const DELETE = safe(async (_req, { params }) => {
     const [ex] = m ? await sql()`SELECT 1 AS x FROM group_messages WHERE id = ${mid}::int AND group_id = ${gid}::int AND deleted_at IS NULL` : [];
     return ex ? bad('Nie możesz usunąć tej wiadomości.', 403) : bad(NO_MSG, 404);
   }
+  if (user.is_admin && !m) await logAudit(user.id, 'chat.delete', mid, { group: gid });
   return NextResponse.json({ ok: true });
 });

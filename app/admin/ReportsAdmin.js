@@ -32,7 +32,9 @@ export default function ReportsAdmin({ onCount }) {
             <p className="muted small">{WHAT[r.type] || r.type}{' '}{r.strain_name ? <><Link href={`/strains/${r.ref}`}>{r.strain_name}</Link>, autor:</> : 'użytkownika'}{' '}
               <Link href={`/u/${encodeURIComponent(r.target)}`}>@{r.target}</Link>. Zgłosił(a): {r.reporter || 'usunięty użytkownik'}, {r.at}</p>
             {r.note && <p className="admin-quote">Opis zgłaszającego: {r.note}</p>}
-            {r.message_body && <p className="admin-quote">Treść wiadomości{r.message_group ? ` (grupa „${r.message_group}”)` : ''}: {r.message_body}</p>}
+            {r.message_snapshot && <p className="admin-quote">Treść w chwili zgłoszenia{r.message_group ? ` (grupa „${r.message_group}”)` : ''}: {r.message_snapshot}</p>}
+            {r.message_body && (!r.message_snapshot || r.message_changed) && <p className="admin-quote">{r.message_snapshot ? 'Treść teraz (zmieniona po zgłoszeniu)' : 'Treść wiadomości'}{!r.message_snapshot && r.message_group ? ` (grupa „${r.message_group}”)` : ''}: {r.message_body}</p>}
+            {r.type === 'message' && r.message_changed && !r.message_exists && <p className="muted">Autor usunął wiadomość po zgłoszeniu.</p>}
             {r.test_note && <p className="admin-quote">Treść testu: {r.test_note}</p>}
             <div className="admin-actions-bar">
               <button className="btn small" onClick={() => resolve(r.id, false)}>Zamknij zgłoszenie</button>

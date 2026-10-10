@@ -101,9 +101,11 @@ export default function GroupChat({ groupId }) {
           const t = await api(base + '/messages');
           if (!stopped) take(t.messages);
         }
-        markRead([...msgsRef.current, ...r.messages]);
+        // przeczytane tylko to, co widać: przewinięty w górę nie traci licznika nowych wiadomości
+        if (nearBottom()) markRead([...msgsRef.current, ...r.messages]);
       } catch (e) {
-        if (/Nie znaleziono|Sesja wygasła/.test(e.message)) { setGone(true); stopped = true; } else setOffline(true);
+        if (/Sesja wygasła/.test(e.message)) { setGone('session'); stopped = true; }
+        else if (/Nie znaleziono/.test(e.message)) { setGone(true); stopped = true; } else setOffline(true);
       } finally { busy = false; schedule(); }
     }
     const onVis = () => { hidden.current = document.visibilityState !== 'visible'; if (!hidden.current) { clearTimeout(timer); poll(); } else schedule(); };
@@ -121,7 +123,7 @@ export default function GroupChat({ groupId }) {
     if (stick.current) toBottom();
   }, [msgs]);
 
-  const onScroll = () => { stick.current = nearBottom(); if (stick.current) setMore(false); };
+  const onScroll = () => { stick.current = nearBottom(); if (stick.current) { setMore(false); markRead(msgsRef.current); } };
 
   async function older() {
     const first = msgs.find((m) => typeof m.id === 'number');
@@ -169,9 +171,11 @@ export default function GroupChat({ groupId }) {
   }
 
   const onKey = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); send(); }
+    // Enter wysyła tylko z fizyczną klawiaturą; na telefonie Enter to nowa linia, wysyła przycisk
+    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing && matchMedia('(pointer: fine)').matches) { e.preventDefault(); send(); }
   };
 
+  if (gone === 'session') return <p className="muted social-note" role="alert">Sesja wygasła. <a href="/login">Zaloguj się ponownie</a>, aby wrócić do czatu.</p>;
   if (gone) return <p className="muted social-note" role="alert">Nie masz już dostępu do czatu tej grupy.</p>;
 
   let prevDay = null;
@@ -199,7 +203,7 @@ export default function GroupChat({ groupId }) {
       <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">{announce}</div>
       {offline && <p className="muted small chat-offline" role="status">Brak połączenia, spróbuję ponownie.</p>}
       {err && <p className="field-err" role="alert">{err}</p>}
-      <p className="muted small chat-rule">Nie udzielamy tu porad medycznych. Nie oferuj sprzedaży ani wymiany leków.</p>
+      <p className="muted small chat-rule">Nie udzielamy tu porad medycznych. Nie oferuj sprzedaży ani wymiany leków. Nowi członkowie grupy widzą wcześniejsze wiadomości.</p>
       <form className="chat-form" onSubmit={(e) => { e.preventDefault(); send(); }}>
         <label htmlFor="chat-input" className="sr-only">Wiadomość do grupy</label>
         <textarea id="chat-input" className="input chat-input" rows={2} value={text} onChange={(e) => setText(e.target.value)} onKeyDown={onKey}
