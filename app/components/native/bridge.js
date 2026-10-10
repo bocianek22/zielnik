@@ -127,6 +127,23 @@ export function nativePrint(name) {
   try { return Promise.resolve(P.print({ name })); } catch (e) { return Promise.reject(e); }
 }
 
+// --- udostępnianie PDF (wtyczka ZielnikShare w mobile/android: plik w cache + FileProvider + systemowe okno „Udostępnij”) ---
+// Starsze APK nie mają wtyczki: wtedy canNativeSharePdf() zwraca false i zostaje sam druk.
+export const canNativeSharePdf = () => typeof plugin('ZielnikShare')?.sharePdf === 'function';
+
+// bytes: Uint8Array z PDF-em. Base64 w kawałkach, żeby nie przekroczyć limitu argumentów String.fromCharCode.
+export function bytesToBase64(bytes) {
+  let bin = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  return btoa(bin);
+}
+
+export async function nativeSharePdf(bytes, fileName) {
+  const P = plugin('ZielnikShare');
+  if (!P?.sharePdf) throw new Error('Ta wersja aplikacji nie umie udostępniać plików PDF.');
+  await P.sharePdf({ base64: bytesToBase64(bytes), fileName });
+}
+
 // Wersja aplikacji natywnej: { version, build } z App.getInfo() albo null (przeglądarka)
 export async function appInfo() {
   const A = plugin('App');

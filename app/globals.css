@@ -455,6 +455,15 @@ input.switch:disabled { opacity: .5; cursor: default; }
 .linklike { background: none; border: 0; color: inherit; font: inherit; text-align: left; cursor: pointer; padding: 6px 12px; border-radius: var(--r-md); }
 .linklike:hover { background: var(--hover-bg); }
 .file-btn { cursor: pointer; }
+/* Dyktowanie (DictateButton): przycisk pod polem; w trakcie nasłuchu kolor akcji i pulsująca kropka (bez animacji przy reduced motion) */
+.dictate { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); margin-top: var(--s-2); }
+.dictate-btn.on { background: var(--accent-soft); color: var(--on-accent-soft); border-color: var(--accent); }
+.dictate-btn.on .icon { animation: dictate-pulse 1.2s ease-in-out infinite; }
+@keyframes dictate-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+.dictate-notice { flex: 1 1 100%; padding: var(--s-3); border: 1px solid var(--sep-strong); border-radius: var(--r-md); background: var(--surface); }
+.dictate-notice p { margin: 0 0 var(--s-2); }
+.dictate-actions { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.dictate .field-err { flex: 1 1 100%; margin: 0; }
 .icon-btn { display: inline-grid; place-items: center; width: var(--tap); height: var(--tap); border: 0; border-radius: var(--r-md); background: none; color: inherit; cursor: pointer; text-decoration: none; }
 .icon-btn:hover { background: var(--hover-bg); }
 
