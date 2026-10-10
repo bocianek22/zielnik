@@ -8,6 +8,15 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.55.0] - 2026-10
+### Dodano
+- **Raport jako PDF (POM-40):** „Pobierz PDF” i (telefon z Web Share) „Udostępnij PDF” w raporcie; PDF generowany lokalnie przez `pdf-lib` + `@pdf-lib/fontkit` ładowane po kliknięciu (osobny chunk ok. 176 KB gzip), czcionka Figtree TTF z polskimi znakami w `public/fonts/` (OFL), A4 czarno-biały, nagłówek okresu, „Strona X z Y”, nagłówki tabel na każdej stronie, neutralna nazwa `raport-RRRR-MM-DD.pdf`. Na telefonie plik przygotowywany zawczasu (Safari wymaga świeżego gestu). APK: bez zmian („Udostępnij / Zapisz PDF” przez okno druku). Model raportu liczony na serwerze (`lib/report-pdf-model.js`), układ w czystych funkcjach (`lib/report-pdf-layout.js`); bardzo długa komórka przycinana ze znacznikiem.
+- **Kalendarz zużycia (UI A5):** w Historii kwartał lub rok, g/ml, stany dnia rozróżnione kształtem (brak wpisu, dzień bez zużycia, poziomy zużycia, dziś), klawiatura i dotyk, tabela dla czytnika (`lib/usage-calendar.js`, `charts/Calendar.js`, `charts/calendar-grid.js`).
+- **Pora przyjęcia:** rozkład zapisów zużycia na cztery pory dnia z 90 dni.
+- **Mikrointerakcje (UI B4):** podświetlenie zmienionej liczby (`Bump`), wejście kart, przejścia ekranów (View Transitions w przeglądarce); wszystko wyłączone przy `prefers-reduced-motion`.
+### Zmieniono
+- Service worker: czcionki PDF w pamięci podręcznej (`zielnik-shell-v2`), PDF działa bez sieci.
+
 ## [0.54.0] - 2026-10
 Redesign „Design 3” (kierunek B z elementami A, `docs/DESIGN-3.md`) po uwagach testerów bety, czat w grupach (SPO-2), „Mój miesiąc” (POM-42).
 ### Dodano
