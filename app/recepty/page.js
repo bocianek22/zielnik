@@ -20,14 +20,14 @@ export default async function Recepty() {
       <main className="page">
         <header className="hero cat-hero" data-cat="rx">
           <div className="hero-top">
-            <span className="ic-dot sq"><Icon name="clipboard" size={24} /></span>
+            <span className="ic-dot sq"><Icon name="file" size={24} /></span>
             <div>
               <h1>Recepty</h1>
               <p className="hero-sub">Ile zostało i do kiedy ważne</p>
             </div>
           </div>
         </header>
-        <p className="muted rx-note">Notatnik recept służy tylko Twojej orientacji, to nie dokument ani rejestr medyczny. <Link href="/pomoc#faq">Więcej</Link></p>
+        <p className="muted rx-note">To notatnik dla Ciebie, nie dokument medyczny. <Link href="/pomoc#faq">Więcej</Link></p>
         <div className="stack">
           <PharmacyCard rx={rx.items} pools={pools} />
           <Prescriptions />

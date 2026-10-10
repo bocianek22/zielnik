@@ -5,6 +5,8 @@ import { api } from '@/lib/api';
 import useNativeRefresh from '@/app/components/native/useNativeRefresh';
 import Avatar from '@/app/components/Avatar';
 import Icon from '@/app/components/Icon';
+import EmptyState from '@/app/components/EmptyState';
+import Skeleton from '@/app/components/Skeleton';
 
 const profile = (u) => `/u/${encodeURIComponent(u.username)}`;
 
@@ -59,7 +61,7 @@ export default function FriendsBoard() {
 
       {found && (
         <>
-          <h2 className="section-label">Wyniki wyszukiwania</h2>
+          <h2 className="section-title sm">Wyniki wyszukiwania</h2>
           {found.length === 0 ? <p className="muted social-note">Nikogo nie znaleziono. Sprawdź pisownię nicku.</p> : (
             <ul className="list">{found.map((u) => (
               <Row key={u.id} u={u}>
@@ -74,7 +76,7 @@ export default function FriendsBoard() {
 
       {incoming.length > 0 && (
         <>
-          <h2 className="section-label">Zaproszenia do Ciebie ({incoming.length})</h2>
+          <h2 className="section-title sm">Zaproszenia do Ciebie ({incoming.length})</h2>
           <ul className="list">{incoming.map((u) => (
             <Row key={u.id} u={u}>
               <button className="btn small" onClick={() => act('accept', u.id)}>Akceptuj</button>
@@ -83,21 +85,19 @@ export default function FriendsBoard() {
         </>
       )}
 
-      <h2 className="section-label">Znajomi{friends && accepted.length > 0 ? ` (${accepted.length})` : ''}</h2>
-      {friends === null ? <p className="muted social-note">Ładuję…</p> : accepted.length === 0 ? (
-        <div className="empty card">
-          <Icon name="users" size={32} />
-          <h2>Nie masz jeszcze znajomych</h2>
-          <p>Znajomi widzą oceny i opinie, które im udostępnisz. Wyszukaj kogoś po nicku.</p>
-          <button type="button" className="btn ghost" onClick={() => searchRef.current?.focus()}>Szukaj osoby</button>
-        </div>
+      <h2 className="section-title sm">Znajomi{friends && accepted.length > 0 ? ` (${accepted.length})` : ''}</h2>
+      {friends === null ? <Skeleton variant="list" rows={3} /> : accepted.length === 0 ? (
+        <EmptyState art="friends" cat="social" title="Nie masz jeszcze znajomych"
+          action={<button type="button" className="btn" onClick={() => { searchRef.current?.scrollIntoView({ block: 'center' }); searchRef.current?.focus({ preventScroll: true }); }}>Znajdź osobę</button>}>
+          Znajomi widzą oceny i opinie, które im udostępnisz. Wyszukaj kogoś po nicku.
+        </EmptyState>
       ) : (
         <ul className="list">{accepted.map((u) => (
           <Row key={u.id} u={u}><button className="btn text small" onClick={() => confirm('Usunąć ze znajomych?') && act('remove', u.id)}>Usuń</button></Row>))}</ul>)}
 
       {outgoing.length > 0 && (
         <>
-          <h2 className="section-label">Wysłane zaproszenia</h2>
+          <h2 className="section-title sm">Wysłane zaproszenia</h2>
           <ul className="list">{outgoing.map((u) => (
             <Row key={u.id} u={u}><button className="btn text small" onClick={() => act('remove', u.id)}>Cofnij</button></Row>))}</ul>
         </>

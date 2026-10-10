@@ -53,13 +53,13 @@ export default async function GroupPage({ params }) {
           <GroupChat groupId={g.id} />
         </section>
 
-        <h2 className="section-label">Zaproś do grupy</h2>
+        <h2 className="section-title sm">Zaproś do grupy</h2>
         {staff && <GroupActions groupId={g.id} part="policy" policy={g.invite_policy} />}
         {staff || g.invite_policy === 'all'
           ? <GroupActions groupId={g.id} isOwner={g.role === 'owner'} />
           : <p className="muted social-note">W tej grupie zapraszać mogą tylko właściciel i moderatorzy.</p>}
 
-        <h2 className="section-label">Członkowie</h2>
+        <h2 className="section-title sm">Członkowie</h2>
         <ul className="list">{members.map((m) => {
           const name = m.display_name || m.username;
           return (
@@ -76,7 +76,7 @@ export default async function GroupPage({ params }) {
             </li>);
         })}</ul>
 
-        <h2 className="section-label">Ranking grupy</h2>
+        <h2 className="section-title sm">Ranking grupy</h2>
         <p className="muted social-note">Suma ocen członków, które są dla Ciebie widoczne.</p>
         {ranking.length === 0 ? <p className="muted social-note">Brak widocznych ocen.</p> : (
           <ol className="list rank-rows">{ranking.map((r, i) => (
@@ -88,7 +88,7 @@ export default async function GroupPage({ params }) {
               </Link>
             </li>))}</ol>)}
 
-        <h2 className="section-label">Członkostwo</h2>
+        <h2 className="section-title sm">Członkostwo</h2>
         <GroupActions groupId={g.id} isOwner={g.role === 'owner'} part="leave" />
       </main>
     </>

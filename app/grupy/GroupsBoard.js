@@ -1,9 +1,11 @@
 'use client';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { api } from '@/lib/api';
 import useNativeRefresh from '@/app/components/native/useNativeRefresh';
 import Icon from '@/app/components/Icon';
+import EmptyState from '@/app/components/EmptyState';
+import Skeleton from '@/app/components/Skeleton';
 import osob from './osob';
 
 export default function GroupsBoard() {
@@ -11,6 +13,8 @@ export default function GroupsBoard() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [msg, setMsg] = useState('');
+  const [formOpen, setFormOpen] = useState(false);
+  const nameRef = useRef(null);
 
   const load = () => api('/api/groups').then((r) => setGroups(r.groups)).catch((e) => setMsg(e.message));
   useEffect(() => { load(); }, []);
@@ -32,7 +36,7 @@ export default function GroupsBoard() {
       {msg && <div className="alert error" role="alert">{msg}</div>}
       {invites.length > 0 && (
         <>
-          <h2 className="section-label">Zaproszenia do grup ({invites.length})</h2>
+          <h2 className="section-title sm">Zaproszenia do grup ({invites.length})</h2>
           <ul className="list">{invites.map((g) => (
             <li key={g.id} className="list-row person-row">
               <Icon name="group" />
@@ -45,14 +49,12 @@ export default function GroupsBoard() {
         </>
       )}
 
-      <h2 className="section-label">Twoje grupy</h2>
-      {groups === null ? <p className="muted social-note">Ładuję…</p> : mine.length === 0 ? (
-        <div className="empty card">
-          <Icon name="group" size={32} />
-          <h2>Nie należysz do żadnej grupy</h2>
-          <p>W grupie porównujesz oceny ze znajomymi i widzisz wspólny ranking odmian.</p>
-          <a className="btn ghost" href="#nowa-grupa">Utwórz grupę</a>
-        </div>
+      <h2 className="section-title sm">Twoje grupy</h2>
+      {groups === null ? <Skeleton variant="list" rows={2} /> : mine.length === 0 ? (
+        <EmptyState art="group" cat="social" title="Nie należysz do żadnej grupy"
+          action={<button type="button" className="btn" onClick={() => { setFormOpen(true); setTimeout(() => { document.getElementById('nowa-grupa')?.scrollIntoView({ block: 'center' }); nameRef.current?.focus({ preventScroll: true }); }, 0); }}>Utwórz grupę</button>}>
+          W grupie porównujesz oceny ze znajomymi i widzisz wspólny ranking odmian.
+        </EmptyState>
       ) : (
         <ul className="list">{mine.map((g) => (
           <li key={g.id}>
@@ -64,14 +66,16 @@ export default function GroupsBoard() {
             </Link>
           </li>))}</ul>)}
 
-      <h2 className="section-label" id="nowa-grupa">Nowa grupa</h2>
-      <form className="card stack" onSubmit={create}>
-        <div className="field"><label htmlFor="g-name">Nazwa</label>
-          <input id="g-name" className="input" maxLength={60} required minLength={3} value={name} onChange={(e) => setName(e.target.value)} /></div>
-        <div className="field"><label htmlFor="g-desc">Opis (opcjonalnie)</label>
-          <input id="g-desc" className="input" maxLength={300} value={description} onChange={(e) => setDescription(e.target.value)} /></div>
-        <div><button className="btn block">Utwórz grupę</button></div>
-      </form>
+      <details id="nowa-grupa" className="card rx-add new-group" open={formOpen} onToggle={(e) => setFormOpen(e.currentTarget.open)}>
+        <summary><Icon name="plus" size={20} />Nowa grupa</summary>
+        <form className="stack" onSubmit={create}>
+          <div className="field"><label htmlFor="g-name">Nazwa</label>
+            <input id="g-name" ref={nameRef} className="input" maxLength={60} required minLength={3} value={name} onChange={(e) => setName(e.target.value)} /></div>
+          <div className="field"><label htmlFor="g-desc">Opis (opcjonalnie)</label>
+            <input id="g-desc" className="input" maxLength={300} value={description} onChange={(e) => setDescription(e.target.value)} /></div>
+          <div><button className="btn block">Utwórz grupę</button></div>
+        </form>
+      </details>
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { getUser } from '@/lib/auth';
 import { history, monthlyRecap, purchaseStats, prescriptionOptions } from '@/lib/strains';
 import { periodCompare } from '@/lib/recap';
 import { usageCalendar, usagePeriods } from '@/lib/usage-calendar';
-import SecHead from '../components/SecHead';
+import EmptyState from '../components/EmptyState';
 import Header from '../components/Header';
 import Icon from '../components/Icon';
 import Entries from './Entries';
@@ -18,14 +18,9 @@ export const dynamic = 'force-dynamic';
 const nf = (n, max = 1) => Number(n).toLocaleString('pl-PL', { maximumFractionDigits: max });
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
-function Empty({ icon, title, text }) {
+function Empty({ art, title, text }) {
   return (
-    <div className="card empty">
-      <Icon name={icon} size={32} />
-      <h2>{title}</h2>
-      <p>{text}</p>
-      <Link className="btn ghost" href="/odmiany">Przejdź do odmian</Link>
-    </div>
+    <EmptyState art={art} cat="stock" title={title} action={<Link className="btn" href="/odmiany">Przejdź do odmian</Link>}>{text}</EmptyState>
   );
 }
 
@@ -55,15 +50,15 @@ export default async function Historia() {
           </div>
         </header>
         {nothing ? (
-          <Empty icon="clipboard" title="Historia jest jeszcze pusta" text="Tu pojawią się zakupy, zużycie i wykres tygodniowy. Zacznij od zapisania pierwszego zużycia w karcie odmiany." />
+          <Empty art="journal" title="Historia jest jeszcze pusta" text="Tu pojawią się zakupy, zużycie i wykres tygodniowy. Zacznij od zapisania pierwszego zużycia w karcie odmiany." />
         ) : (<>
         {hasRecap && (
           <>
-            <SecHead cat="stock" icon="calendar">Twój miesiąc: {monthLabel}</SecHead>
+            <h2 className="section-title">Twój miesiąc: {monthLabel}</h2>
             <section className="hist-kpis" data-cat="stock" aria-label={`Podsumowanie: ${monthLabel}`}>
-              <div className="kpi-tile"><span className="kt-label">Zużyte</span><span className="kt-value">{nf(recap.totalGrams)}<small>g</small></span>{recap.totalMl > 0 && <span className="kt-sub">{nf(recap.totalMl)} ml</span>}</div>
+              <div className="kpi-tile"><span className="kt-label">Zużyte</span><span className="kt-value qty">{nf(recap.totalGrams)}<span className="unit">g</span></span>{recap.totalMl > 0 && <span className="kt-sub">{nf(recap.totalMl)} ml</span>}</div>
               <div className="kpi-tile"><span className="kt-label">{recap.activeDays === 1 ? 'Aktywny dzień' : 'Aktywne dni'}</span><span className="kt-value">{recap.activeDays}</span></div>
-              <div className="kpi-tile"><span className="kt-label">Wykupione</span><span className="kt-value">{nf(bought.grams)}<small>g</small></span>{(bought.ml > 0 || bought.cost > 0) && <span className="kt-sub">{[bought.ml > 0 && `${nf(bought.ml)} ml`, bought.cost > 0 && `${nf(bought.cost, 0)} zł`].filter(Boolean).join(' · ')}</span>}</div>
+              <div className="kpi-tile"><span className="kt-label">Wykupione</span><span className="kt-value qty">{nf(bought.grams)}<span className="unit">g</span></span>{(bought.ml > 0 || bought.cost > 0) && <span className="kt-sub">{[bought.ml > 0 && `${nf(bought.ml)} ml`, bought.cost > 0 && `${nf(bought.cost, 0)} zł`].filter(Boolean).join(' · ')}</span>}</div>
             </section>
             {(recap.avgRating != null || recap.topStrain) && (
               <section className="card recap">
@@ -79,14 +74,14 @@ export default async function Historia() {
         )}
         <PeriodCompare compare={compare} />
 
-        <WeeklyBars weekly={weekly} empty={<Empty icon="chart" title="Brak zużycia" text="Wpisuj zużycie w karcie odmiany, a tu pojawi się wykres tygodniowy." />} />
+        <WeeklyBars weekly={weekly} empty={<Empty art="chart" title="Brak zużycia" text="Wpisuj zużycie w karcie odmiany, a tu pojawi się wykres tygodniowy." />} />
 
-        <Calendar data={calendar} empty={<Empty icon="calendar" title="Brak dni w kalendarzu" text="Zapisz zużycie albo oznacz dzień bez zużycia, a zobaczysz tu regularność." />} />
+        <Calendar data={calendar} empty={<Empty art="journal" title="Brak dni w kalendarzu" text="Zapisz zużycie albo oznacz dzień bez zużycia, a zobaczysz tu regularność." />} />
         <Periods periods={periods} />
 
         {top.length > 0 && (
           <>
-            <SecHead cat="stock" icon="trend">Najczęściej używane, 30 dni</SecHead>
+            <h2 className="section-title">Najczęściej używane, 30 dni</h2>
             <ol className="list">
               {top.map((t) => (
                 <li key={t.name} className="list-row"><span className="lr-main dn">{t.name}</span><span className="lr-value">{nf(t.grams, 2)} {t.unit}</span></li>
@@ -95,16 +90,16 @@ export default async function Historia() {
           </>
         )}
 
-        <SecHead cat="stock" icon="cart">Zakupy</SecHead>
+        <h2 className="section-title">Zakupy</h2>
         {purchases.length === 0 ? (
-          <Empty icon="list" title="Brak zakupów" text="Dodaj je w karcie odmiany, w polu „Wykupiłem”." />
+          <Empty art="jar" title="Brak zakupów" text="Dodaj je w karcie odmiany, w polu „Wykupiłem”." />
         ) : (
           <Entries kind="purchase" rows={purchases} prescriptions={rxOptions} />
         )}
 
-        <SecHead cat="stock" icon="jar">Zużycie</SecHead>
+        <h2 className="section-title">Zużycie</h2>
         {usage.length === 0 ? (
-          <Empty icon="clipboard" title="Brak wpisów" text="Dodaj je w karcie odmiany, w polu „Zużycie”." />
+          <Empty art="journal" title="Brak wpisów" text="Dodaj je w karcie odmiany, w polu „Zużycie”." />
         ) : (
           <Entries kind="usage" rows={usage} />
         )}
