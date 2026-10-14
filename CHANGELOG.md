@@ -8,6 +8,13 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.59.0] - 2026-10
+### Dodano
+- **Moje notatki w wyszukiwarce (POM-17):** grupa „Moje notatki” na `/szukaj` (od 2 znaków): notatka dnia w dzienniku, odczucia przy odmianie, recepty, notatki o partii i „Do omówienia z lekarzem”. `lib/notes-search.js`: tylko `user_id` z sesji, dopasowanie w JS po odszyfrowaniu (POM-28), bez polskich znaków i wielkości liter, wszystkie słowa zapytania; z serwera wychodzi tylko wycinek ok. 90 znaków z wyróżnieniem (`lib/notes-snippet.js`), w trybie dyskretnym rozmyty. Notatki zablokowane (brak klucza) są pomijane.
+### Poprawiono
+- Szczegóły odmiany: menu zdjęcia z formularzem „Zgłoś zdjęcie” rozwija się pod zdjęciem (wcześniej ucinał je nagłówek z `overflow: hidden`), przycisk z `aria-expanded`.
+- Otwarty arkusz „…” w wierszu odmiany blokuje przewijanie tła.
+
 ## [0.58.0] - 2026-10
 ### Dodano
 - **Seria wpisów bez presji (POM-08):** `lib/streak.js` (jedno zapytanie, dzień polski, wpis = co najmniej jedna wartość objawu, także własnego; sama notatka się nie liczy) i `lib/streak-calc.js`; `SymptomStreak` (komponent serwerowy) na „Dziś” pod szybkim wpisem objawów i w Dzienniku: „Wpisy: N dni z rzędu” albo „N z ostatnich 7 dni” oraz 7 kropek z opisem dla czytnika. Brak dzisiejszego wpisu nie zeruje serii, bez komunikatów o „zerwaniu”, odznak i powiadomień; tekst neutralny w trybie dyskretnym.

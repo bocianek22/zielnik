@@ -61,3 +61,8 @@
 .search-form { position: relative; }
 .search-form .search-wrap.suggest { position: static; }
 .search-form:has([aria-expanded="true"]) + .search-hint { visibility: hidden; }
+
+/* POM-17: trafienie w „Moich notatkach” (wycinek do 2 linii, wyróżnienie bez samego koloru: tło i pogrubienie) */
+.note-hit .lr-meta { font-weight: 400; color: var(--text-2); }
+.note-hit .lr-sub { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+.note-hit mark { background: var(--accent-soft); color: var(--text); font-weight: 600; border-radius: 3px; padding: 0 1px; }

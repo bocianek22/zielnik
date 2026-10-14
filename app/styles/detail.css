@@ -182,10 +182,9 @@
 .dhero-media { position: relative; }
 .dhero-img { aspect-ratio: 16 / 9; max-height: 200px; }
 .dhero-fallback { display: grid; place-items: center; height: 148px; border-radius: var(--r-lg); background: var(--surface); }
-.photo-menu { position: absolute; top: var(--s-2); right: var(--s-2); }
-.photo-menu > summary { list-style: none; display: grid; place-items: center; width: var(--tap); height: var(--tap); border-radius: 50%; background: var(--hero-2); color: var(--on-hero); cursor: pointer; }
-.photo-menu > summary::-webkit-details-marker { display: none; }
-.photo-menu-list { position: absolute; right: 0; top: calc(100% + 4px); z-index: 5; min-width: 180px; padding: var(--s-1); background: var(--surface); color: var(--text); border: 1px solid var(--sep-strong); border-radius: var(--r-md); box-shadow: var(--shadow-card); }
+.photo-menu { position: absolute; top: var(--s-2); right: var(--s-2); display: grid; place-items: center; width: var(--tap); height: var(--tap); padding: 0; border: 0; border-radius: 50%; background: var(--hero-2); color: var(--on-hero); cursor: pointer; }
+.photo-menu[aria-expanded="true"] { box-shadow: 0 0 0 2px var(--on-hero); }
+.photo-menu-list { margin-top: var(--s-2); padding: var(--s-2); background: var(--surface); color: var(--text); border: 1px solid var(--sep-strong); border-radius: var(--r-md); box-shadow: var(--shadow-card); }
 .photo-menu-list .btn.text { color: var(--accent-text); }
 
 /* ===== Sekcje zwijane (Fold.js): nagłówek jak .sec-head, strzałka po prawej ===== */

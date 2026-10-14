@@ -33,7 +33,7 @@ Reguła: brak sprzeczności z zasadami oceny, dane tylko własne, każdy dotyka 
 | POM-05 | Wieczorne przypomnienie o wpisie objawów | 4 | S | P | ⏱ 🔑 | nowy | PAC-9 |
 | POM-06 | Moje obserwacje: objawy a odmiany | 5 | M | P, Pr | – | zrobiony (0.35.0, ekran `/obserwacje`; sekcja w szczegółach odmiany zostaje do POM-18) | PAC-7 (zawężenie) |
 | POM-07 | Własne objawy i skale (np. VAS, nudności, apetyt) | 4 | M | P | – | zrobiony (0.39.0) | PAC-14, PAC-6 |
-| POM-08 | Nawyki bez presji: seria wpisów objawów | 3 | S | Pr | – | nowy | – |
+| POM-08 | Nawyki bez presji: seria wpisów objawów | 3 | S | Pr | – | zrobiony (0.58.0: Dziś i Dziennik) | – |
 | POM-09 | Raport dla lekarza 2.0 | 5 | M | P | – | zrobiony (0.35.0) | MON-4 (przedsionek) |
 | POM-10 | Bezpieczne udostępnienie raportu lekarzowi linkiem | 4 | M | P, Pr | ⚖️ | nowy | MON-4 |
 | POM-11 | Eksport CSV dziennika (objawy + zużycie) | 3 | S | P | – | zrobiony (0.37.0) | – |
@@ -42,8 +42,8 @@ Reguła: brak sprzeczności z zasadami oceny, dane tylko własne, każdy dotyka 
 | POM-14 | Zapisy offline z kolejką | 4 | M/L | P, T | POM-02 | zrobiony (0.36.0) | MOB-8 |
 | POM-15 | Przypomnienie o wizycie i kontroli recepty | 4 | S | P | 🔑 | nowy | PAC-16 |
 | POM-16 | Recepta: podział na pozycje i powiązanie zakupów | 3 | M | T | – | nowy | PAC-4 |
-| POM-17 | Wyszukiwanie bez polskich znaków i w moich notatkach | 3 | S/M | P | – | częściowo (0.34.0: bez polskich znaków i podpowiedzi; brak grupy „Moje notatki”) | – |
-| POM-18 | Porównanie z moimi statystykami i objawami | 3 | S | P | POM-06 | częściowo (0.44.0: statystyki; objawy przy odmianie dalej) | – |
+| POM-17 | Wyszukiwanie bez polskich znaków i w moich notatkach | 3 | S/M | P | – | zrobiony (0.34.0: bez polskich znaków; 0.59.0: „Moje notatki” na `/szukaj`) | – |
+| POM-18 | Porównanie z moimi statystykami i objawami | 3 | S | P | POM-06 | zrobiony (0.44.0: statystyki; 0.58.0: „Samopoczucie po tej odmianie”) | – |
 | POM-19 | Kreator pierwszego uruchomienia | 4 | M | – | – | nowy | UX-6 |
 | POM-20 | Puste stany prowadzące do pierwszego wpisu | 3 | S | – | – | zrobiony (0.37.0: Dziś, dziennik, recepty, Historia, raport) | UX-5 |
 | POM-21 | Dostępność wykresów i formularzy | 4 | S/M | – | – | częściowo (0.33.0: wykres objawów kreska + kształt + tabela dla czytnika; zostają suwaki, kolory, axe) | UX-2 |
