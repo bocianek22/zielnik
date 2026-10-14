@@ -260,7 +260,7 @@ export default function SymptomsBoard({ initialDay = null }) {
         <section className="card sym-skel" aria-busy="true" aria-label="Wczytywanie wykresu" />
       ) : (
       <section className="card" data-cat="journal">
-        <SymptomsChart rows={merged} usage={data.usage} all={all} end={todayIso()} />
+        <SymptomsChart rows={merged} usage={data.usage} events={data.events || []} all={all} end={todayIso()} />
       </section>
       )}
       <FactorManager factors={factorDefs} onChange={async (text) => { try { await reload(); setMsg(text ? { text } : null); } catch (e) { setMsg({ text: e.message, error: true }); } }} />
