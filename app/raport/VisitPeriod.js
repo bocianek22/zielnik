@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react';
 // Zwykły formularz GET, więc działa też bez JavaScriptu; pole uzupełniamy po zamontowaniu bez stanu Reacta.
 const VISIT_KEY = 'zielnik.lastVisit';
 
-export default function VisitPeriod({ today, value, notes }) {
+export default function VisitPeriod({ today, value, notes, brief }) {
   const ref = useRef(null);
   useEffect(() => {
     try {
@@ -25,6 +25,7 @@ export default function VisitPeriod({ today, value, notes }) {
       <input type="hidden" name="to" value={today} />
       <input type="hidden" name="okres" value="wizyta" />
       {notes && <input type="hidden" name="notes" value="1" />}
+      {brief && <input type="hidden" name="krotki" value="1" />}
       <button className="btn ghost">Od ostatniej wizyty</button>
       <p className="muted small">Datę zapamiętujemy tylko na tym urządzeniu.</p>
     </form>
