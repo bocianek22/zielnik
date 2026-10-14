@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { api } from '@/lib/api';
 import { SYMPTOMS } from '@/lib/symptoms';
 import { METHODS, PERIODS } from '@/lib/usage-meta';
+import { severityLabel } from '@/lib/adverse-meta';
 import { longDay, num, weekday } from './charts/fmt';
 import useFocusTrap from './useFocusTrap';
 import useSheetDrag from './useSheetDrag';
@@ -27,7 +28,7 @@ export default function DayCard({ day, onClose }) {
   const sym = data?.symptoms;
   const vals = sym ? [...SYMPTOMS.filter((s) => sym[s.key] != null).map((s) => ({ key: s.key, label: s.short, value: sym[s.key] })),
     ...sym.custom.map((c) => ({ key: `c${c.id}`, label: c.name, value: c.value, custom: true }))] : [];
-  const empty = data && !data.usage.length && !data.purchases.length && !sym && !data.noUse && !data.factors?.length && !data.visits?.length;
+  const empty = data && !data.usage.length && !data.purchases.length && !sym && !data.noUse && !data.factors?.length && !data.visits?.length && !data.adverse?.length;
   const title = `${weekday(day)} ${longDay(day)}`;
 
   return createPortal(
@@ -81,6 +82,17 @@ export default function DayCard({ day, onClose }) {
           <section aria-labelledby="dc-v">
             <h3 id="dc-v" className="section-label">Wizyta</h3>
             {data.visits.map((v, i) => v.note ? <p key={i} className="dc-note dn">{v.note}</p> : <p key={i} className="muted small">{v.noteLocked ? 'Notatka jest zaszyfrowana i chwilowo nieczytelna.' : 'Bez notatki.'}</p>)}
+          </section>
+        )}
+        {data?.adverse?.length > 0 && (
+          <section aria-labelledby="dc-a">
+            <h3 id="dc-a" className="section-label">{data.adverse.length > 1 ? 'Zdarzenia niepożądane' : 'Zdarzenie niepożądane'}</h3>
+            {data.adverse.map((v, i) => (
+              <p key={i} className="dc-note">
+                <strong>Nasilenie: {severityLabel(v.severity)}</strong>
+                {v.note ? <><br /><span className="dn">{v.note}</span></> : v.noteLocked ? <><br /><span className="muted small">Opis jest zaszyfrowany i chwilowo nieczytelny.</span></> : null}
+              </p>
+            ))}
           </section>
         )}
         {data?.factors?.length > 0 && (

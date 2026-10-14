@@ -9,6 +9,8 @@ import Icon from '../components/Icon';
 import SymptomsBoard from './SymptomsBoard';
 import SymptomYear from '../components/charts/SymptomYear';
 import { symptomCalendar } from '@/lib/symptom-calendar';
+import { listAdverse } from '@/lib/adverse';
+import AdverseLog from './AdverseLog';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,7 +18,7 @@ export default async function Dziennik({ searchParams }) {
   const user = await getUser();
   if (!user) redirect('/login');
   if (user.must_change_password) redirect('/change-password');
-  const [streak, year] = await Promise.all([symptomStreak(user.id), symptomCalendar(user.id)]);
+  const [streak, year, adverse] = await Promise.all([symptomStreak(user.id), symptomCalendar(user.id), listAdverse(user.id)]);
   // ?dzien=RRRR-MM-DD (karta dnia w Historii): wpis z tego dnia; niepoprawna lub przyszła data = dziś
   const raw = String((await searchParams)?.dzien || '');
   const initialDay = isIsoDay(raw) && raw <= todayPL() ? raw : null;
@@ -40,6 +42,7 @@ export default async function Dziennik({ searchParams }) {
         <SymptomStreak data={streak} className="streak-diary" />
         <SymptomsBoard key={initialDay || 'dzis'} initialDay={initialDay} />
         <SymptomYear data={year} />
+        <AdverseLog initial={adverse} />
       </main>
     </>
   );

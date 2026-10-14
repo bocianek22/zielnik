@@ -17,7 +17,7 @@ import ReportNotes from './ReportNotes';
 import { listNotes } from '@/lib/doctor-notes';
 import { formatDay, todayPL, addDaysIso } from '@/lib/date';
 import { doctorReport, MIN_SYMPTOM_DAYS } from '@/lib/report';
-import { buildReportModel, shortUsage, restLine } from '@/lib/report-pdf-model';
+import { buildReportModel, shortUsage, restLine, adverseItems, adverseBrief, ADVERSE_INFO } from '@/lib/report-pdf-model';
 import { batchSummary } from '@/lib/batch-meta';
 import { METHODS, PERIODS, periodLabel } from '@/lib/usage-meta';
 
@@ -64,7 +64,7 @@ export default async function Raport({ searchParams }) {
   const [report, notes, visits] = await Promise.all([
     doctorReport(me.id, from, to, { withNotes }), listNotes(me.id), listVisits(me.id),
   ]);
-  const { usage, weekly, purchases, feel: feelAll, sym, customSym, totals, rx, rxSum, strainSym, whenUsed, factors = [] } = report;
+  const { usage, weekly, purchases, feel: feelAll, sym, customSym, totals, rx, rxSum, strainSym, whenUsed, factors = [], adverse = [] } = report;
   const openNotes = notes.filter((n) => !n.done);
   // bez pustych wierszy: tylko odmiany z oceną, odczuciem albo (gdy dołączone) spostrzeżeniem
   const feel = feelAll.filter((f) => f.rating != null || EFFECTS.some(([k]) => f.effects?.[k] != null) || (withNotes && f.notes));
@@ -227,6 +227,19 @@ export default async function Raport({ searchParams }) {
           )}
           {customSym.some((c) => c.days > 0) && (
             <p className="muted small">Własne objawy pacjenta (skala 0–10, kierunek ustawiony przez pacjenta): {customSym.filter((c) => c.days > 0).map((c) => `${c.name} (wyżej = ${c.higher_better ? 'lepiej' : 'gorzej'}): średnio ${av(c.avg)} z ${dniGen(c.days)}`).join('; ')}.</p>
+          )}
+
+          {adverse.length > 0 && brief && <p className="muted small">{adverseBrief(adverse)}</p>}
+          {adverse.length > 0 && !brief && (
+            <>
+              <h3>Zdarzenia niepożądane</h3>
+              <ul className="list">
+                {adverseItems(adverse).map((a, i) => (
+                  <li key={i} className="list-row"><span className="lr-main"><span>{a.head}</span>{a.note && <span className="lr-sub dn adverse-note">{a.note}</span>}</span></li>
+                ))}
+              </ul>
+              <p className="muted small">{ADVERSE_INFO}</p>
+            </>
           )}
 
           <h3>Recepty w okresie</h3>

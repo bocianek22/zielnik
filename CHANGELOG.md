@@ -8,6 +8,10 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.71.0] - 2026-10
+### Dodano
+- **Zdarzenia niepożądane (POM-62):** w Dzienniku sekcja „Zdarzenia niepożądane”: data (bez przyszłości), nasilenie słowne (łagodne, umiarkowane, silne) i opis pacjenta z dyktowaniem; opis szyfrowany (`adverse_events.note`), tylko dla właściciela, usunięcie z „Cofnij”. Stała informacja: 112 przy nagłych lub silnych objawach, rozmowa z lekarzem lub farmaceutą albo zgłoszenie do URPL (urpl.gov.pl), bez porad i bez wiązania z odmianą. Zdarzenia widać w karcie dnia i w wyszukiwarce notatek; w raporcie dla lekarza data i nasilenie (pełny: lista, skrócony: jedno zdanie z najwyżej 5 najnowszymi), opis tylko z „Dołącz moje spostrzeżenia”. Eksport, kopia i przywracanie z kopii (bez duplikatów, bez dat z przyszłości).
+
 ## [0.70.0] - 2026-10
 ### Dodano
 - **„Ukryj nazwy” (POM-60):** przełącznik trybu dyskretnego w menu „Więcej” (arkusz na telefonie i menu na komputerze; stała nazwa z `aria-pressed`). W profilu opcja per urządzenie „Włączaj sam po wyjściu z aplikacji”: tryb włącza się, gdy strona schodzi do tła (inna aplikacja, blokada ekranu, zamknięcie karty), a odsłonięte nazwy znów się zasłaniają; po powrocie nazwy są rozmyte. Podgląd w przełączniku aplikacji chroni w APK „Ochrona ekranu” (0.69.0).
