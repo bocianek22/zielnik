@@ -161,3 +161,17 @@ test('poprawki po przeglądzie: same czynniki bez pustego wpisu objawów, „bez
   assert.equal((await call(C, 'factors/[id]', 'PATCH', { name: long }, { id: String(kawa.id) })).status, 400);
   assert.equal(ok(await call(C, 'factors/[id]', 'PATCH', { name: '☕'.repeat(30) }, { id: String(kawa.id) })).def.name, '☕'.repeat(30));
 });
+
+test('raport dla lekarza: czynniki dnia tylko przy „Dołącz moje spostrzeżenia”, liczba dni w okresie', { skip }, async () => {
+  const C = ids.celina;
+  const { doctorReport } = await import('../../lib/report.js');
+  const from = await ago(30), to = await ago(0);
+  const without = await doctorReport(C, from, to);
+  assert.deepEqual(without.factors, [], 'bez opcji czynniki nie są czytane');
+  const withN = await doctorReport(C, from, to, { withNotes: true });
+  const stres = withN.factors.find((f) => f.name === 'stres');
+  assert.equal(stres.days, 6);
+  assert.ok(withN.factors.every((f) => f.days > 0), 'czynniki bez dni w okresie pominięte');
+  // inne konto
+  assert.equal((await doctorReport(ids.ania, from, to, { withNotes: true })).factors.some((f) => f.name === 'stres'), false);
+});

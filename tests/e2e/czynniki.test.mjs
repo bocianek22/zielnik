@@ -56,5 +56,13 @@ test('Czynniki dnia: dodanie, zaznaczenie przy wpisie, zapis i odczyt, obserwacj
     await go(page, '/obserwacje');
     await page.getByRole('heading', { name: 'Czynniki dnia' }).waitFor({ timeout: 15000 });
     assert.match(await page.locator('main').innerText(), /stres/);
+
+    // raport: czynniki tylko przy „Dołącz moje spostrzeżenia”
+    await go(page, '/raport');
+    await page.locator('main h1').first().waitFor({ timeout: 15000 });
+    assert.doesNotMatch(await page.locator('main').innerText(), /Czynniki dnia zaznaczane/);
+    await go(page, '/raport?notes=1');
+    await page.getByText(/Czynniki dnia zaznaczane przez pacjenta/).waitFor({ timeout: 15000 });
+    assert.match(await page.getByText(/Czynniki dnia zaznaczane przez pacjenta/).innerText(), /stres \(1 dzień\)/);
   } catch (e) { await shot(page, 'czynniki'); throw e; }
 });

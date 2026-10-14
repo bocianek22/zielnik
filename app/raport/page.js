@@ -60,7 +60,7 @@ export default async function Raport({ searchParams }) {
   const [report, notes] = await Promise.all([
     doctorReport(me.id, from, to, { withNotes }), listNotes(me.id),
   ]);
-  const { usage, weekly, purchases, feel: feelAll, sym, customSym, totals, rx, rxSum, strainSym, whenUsed } = report;
+  const { usage, weekly, purchases, feel: feelAll, sym, customSym, totals, rx, rxSum, strainSym, whenUsed, factors = [] } = report;
   const openNotes = notes.filter((n) => !n.done);
   // bez pustych wierszy: tylko odmiany z oceną, odczuciem albo (gdy dołączone) spostrzeżeniem
   const feel = feelAll.filter((f) => f.rating != null || EFFECTS.some(([k]) => f.effects?.[k] != null) || (withNotes && f.notes));
@@ -127,7 +127,7 @@ export default async function Raport({ searchParams }) {
             <form className="row report-range" method="get">
               <div className="field"><label htmlFor="from">Od</label><input id="from" name="from" type="date" lang="pl" className="input" defaultValue={from} max={today} /></div>
               <div className="field"><label htmlFor="to">Do</label><input id="to" name="to" type="date" lang="pl" className="input" defaultValue={to} max={today} /></div>
-              <label className="check"><input type="checkbox" name="notes" value="1" defaultChecked={withNotes} /> Dołącz moje spostrzeżenia (notatki przy odmianach i o partiach)</label>
+              <label className="check"><input type="checkbox" name="notes" value="1" defaultChecked={withNotes} /> Dołącz moje spostrzeżenia (notatki przy odmianach i o partiach, czynniki dnia)</label>
               <button className="btn ghost">Pokaż raport</button>
             </form>
           </details>
@@ -198,6 +198,9 @@ export default async function Raport({ searchParams }) {
           )}
           <p className="muted small">Tygodnie od poniedziałku, pierwszy i ostatni mogą być niepełne. Ból i lęk: wyższa wartość oznacza gorzej. Sen i nastrój: wyższa wartość oznacza lepiej.
             {sym.days > 0 && ` Cały okres (${dniGen(sym.days)} z wpisem): ${SYMPTOMS.map((s) => `${s.short} ${av(sym[s.key])}`).join(', ')}.`}</p>
+          {factors.length > 0 && (
+            <p className="muted small">Czynniki dnia zaznaczane przez pacjenta (liczba dni w okresie, bez ocen): <span className="dn">{factors.map((f) => `${f.name} (${f.days === 1 ? "1 dzień" : `${f.days} dni`})`).join(', ')}</span>.</p>
+          )}
           {customSym.some((c) => c.days > 0) && (
             <p className="muted small">Własne objawy pacjenta (skala 0–10, kierunek ustawiony przez pacjenta): {customSym.filter((c) => c.days > 0).map((c) => `${c.name} (wyżej = ${c.higher_better ? 'lepiej' : 'gorzej'}): średnio ${av(c.avg)} z ${dniGen(c.days)}`).join('; ')}.</p>
           )}
