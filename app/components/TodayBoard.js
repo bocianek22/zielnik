@@ -6,6 +6,7 @@ import Icon from './Icon';
 import Bump from './Bump';
 import TodayPanel, { unitsOf } from './TodayPanel';
 import TodayLayout from './TodayLayout';
+import LocalReminderSync from './LocalReminderSync';
 import QuickActions from './QuickActions';
 import { unitOf } from '@/lib/units';
 import { plural } from './charts/fmt';
@@ -107,7 +108,13 @@ export default function TodayBoard({ usage = { perDay: 0, perDayMl: 0, cost: 0 }
   const onAdd = () => router.push(mine === 0 ? '/odmiany?new=1' : '/odmiany');
 
   if (series.length === 0) return null;
+  // POM-49/51: lokalne przypomnienia w APK (dziś bez przypomnienia o dzienniku, gdy wpis już jest; termin najbliższej
+  // recepty z resztą do wykupienia; prognoza zapasu suszu)
+  const hasToday = !!symptoms && ['pain', 'sleep', 'anxiety', 'mood'].some((k) => symptoms[k] != null);
+  const rxUntil = prescriptions.items.find((r) => r.days_left >= 0)?.valid_until ?? null;
   return (
+    <>
+      <LocalReminderSync hasToday={hasToday} rxUntil={rxUntil} stockDays={daysLeft} />
       <TodayPanel stock={stockU} dailyUse={{ g: dailyUse, ml: usage.perDayMl || 0 }} forecast={usage.forecast} bought={boughtU} low={low} series={series} prescriptions={prescriptions} symptoms={symptoms} noUse={noUse} streak={streak} hidden={hidden} lowStrain={lowStrain}
         fresh={fresh} hasOwn={mine > 0} onAdd={onAdd} settings={(
           <details className="prefs">
@@ -133,5 +140,6 @@ export default function TodayBoard({ usage = { perDay: 0, perDayMl: 0, cost: 0 }
             </div>
           </details>
         )} />
+    </>
   );
 }

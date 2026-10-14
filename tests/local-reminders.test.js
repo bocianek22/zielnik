@@ -36,8 +36,25 @@ test('planLocal: wizyta dzień wcześniej o 18:00, tylko w przyszłości', () =>
 });
 
 test('parseLocalSettings: domyślnie wszystko wyłączone, złe dane bezpiecznie', () => {
-  assert.deepEqual(parseLocalSettings(null), { symptoms: false, hour: 21, visit: false });
-  assert.deepEqual(parseLocalSettings('{"symptoms":true,"hour":19}'), { symptoms: true, hour: 19, visit: false });
-  assert.deepEqual(parseLocalSettings('{"hour":3,"visit":"tak"}'), { symptoms: false, hour: 21, visit: false });
-  assert.deepEqual(parseLocalSettings('nie json'), { symptoms: false, hour: 21, visit: false });
+  assert.deepEqual(parseLocalSettings(null), { symptoms: false, hour: 21, visit: false, rx: false, stock: false });
+  assert.deepEqual(parseLocalSettings('{"symptoms":true,"hour":19,"rx":true}'), { symptoms: true, hour: 19, visit: false, rx: true, stock: false });
+  assert.deepEqual(parseLocalSettings('{"hour":3,"visit":"tak"}'), { symptoms: false, hour: 21, visit: false, rx: false, stock: false });
+  assert.deepEqual(parseLocalSettings('nie json'), { symptoms: false, hour: 21, visit: false, rx: false, stock: false });
+});
+
+test('planLocal: recepta 3 dni przed końcem ważności, zapas 2 dni przed końcem prognozy, neutralna treść', () => {
+  const now = new Date('2026-10-14T10:00:00Z');
+  const [rx] = planLocal({ now, settings: { rx: true }, rxUntil: '2026-10-30' });
+  assert.equal(rx.id, ID_BASE.rx);
+  assert.equal(rx.at.toISOString(), '2026-10-27T17:00:00.000Z'); // 18:00 CET (po zmianie czasu)
+  assert.equal(rx.url, '/recepty');
+  assert.deepEqual(planLocal({ now, settings: { rx: true }, rxUntil: '2026-10-15' }), [], 'termin przypomnienia już minął');
+  const [st] = planLocal({ now, settings: { stock: true }, stockDays: 6 });
+  assert.equal(st.id, ID_BASE.stock);
+  assert.equal(st.at.toISOString(), '2026-10-18T16:00:00.000Z');
+  assert.deepEqual(planLocal({ now, settings: { stock: true }, stockDays: 1 }), []);
+  assert.deepEqual(planLocal({ now, settings: { stock: true }, stockDays: null }), []);
+  assert.deepEqual(planLocal({ now, settings: {}, rxUntil: '2026-10-30', stockDays: 6 }), [], 'domyślnie wyłączone');
+  for (const n of [rx, st]) assert.doesNotMatch(n.body + n.title, /recept|zapas|konop|odmian|gram|apte/i);
+  assert.ok(ALL_IDS.includes(ID_BASE.rx) && ALL_IDS.includes(ID_BASE.stock));
 });
