@@ -8,6 +8,10 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.72.0] - 2026-10
+### Dodano
+- **Zdarzenia niepożądane na wykresie objawów (POM-62, ciąg dalszy):** dzień ze zdarzeniem niepożądanym ma pod wykresami w Dzienniku znacznik w kształcie rombu (obok wizyty, zakupu i nowej partii), a odczyt dnia i tabela dla czytnika ekranu mówią „zdarzenie niepożądane”. Tylko dzień, bez nasilenia i opisu.
+
 ## [0.71.0] - 2026-10
 ### Dodano
 - **Zdarzenia niepożądane (POM-62):** w Dzienniku sekcja „Zdarzenia niepożądane”: data (bez przyszłości), nasilenie słowne (łagodne, umiarkowane, silne) i opis pacjenta z dyktowaniem; opis szyfrowany (`adverse_events.note`), tylko dla właściciela, usunięcie z „Cofnij”. Stała informacja: 112 przy nagłych lub silnych objawach, rozmowa z lekarzem lub farmaceutą albo zgłoszenie do URPL (urpl.gov.pl), bez porad i bez wiązania z odmianą. Zdarzenia widać w karcie dnia i w wyszukiwarce notatek; w raporcie dla lekarza data i nasilenie (pełny: lista, skrócony: jedno zdanie z najwyżej 5 najnowszymi), opis tylko z „Dołącz moje spostrzeżenia”. Eksport, kopia i przywracanie z kopii (bez duplikatów, bez dat z przyszłości).
