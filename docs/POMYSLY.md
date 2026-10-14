@@ -78,8 +78,8 @@ Reguła: brak sprzeczności z zasadami oceny, dane tylko własne, każdy dotyka 
 | POM-50 | „Rok objawów”: siatka dni dla wybranego objawu, karta dnia po dotknięciu | 4 | S/M | P | – | zrobiony (0.64.0) | – |
 | POM-51 | Lokalne przypomnienia o terminie recepty i zapasie (APK) | 4 | S | P | POM-49 | zrobiony (0.64.0) | – |
 | POM-52 | Dziennik wizyt (data, notatka „co ustalono”, następna wizyta) | 4 | M | P | – | zrobione (0.65.0) | MON-4 |
-| POM-53 | Znaczniki zdarzeń na wykresie objawów (wizyty, wykupy, partie) | 3 | S/M | Pr | POM-52 | nowy (0.66) | – |
-| POM-54 | Wzorce wg dnia tygodnia w „Moich obserwacjach” | 3 | S | Pr | – | nowy (0.66) | – |
+| POM-53 | Znaczniki zdarzeń na wykresie objawów (wizyty, wykupy, partie) | 3 | S/M | Pr | POM-52 | zrobione (0.66.0) | – |
+| POM-54 | Wzorce wg dnia tygodnia w „Moich obserwacjach” | 3 | S | Pr | – | zrobione (0.66.0) | – |
 | POM-R1 | Seria dni z użyciem / odznaki za zużycie | – | – | Pr | – | **odrzucony** | – |
 | POM-R2 | Podpowiedź dawki („spróbuj 0,3 g”) | – | – | Pr | – | **odrzucony** | – |
 | POM-R3 | „Inni z bólem wybierają X” (wnioski z danych społeczności) | – | – | P, Pr | – | **odrzucony** | MON-7 |

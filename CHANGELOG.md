@@ -8,6 +8,11 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.66.0] - 2026-10
+### Dodano
+- **Znaczniki zdarzeń na wykresie objawów (POM-53):** w Dzienniku pod wykresami z 30 dni pasek znaczników na tej samej osi dni: wizyta (kółko), zakup (kwadrat), zakup z nową partią (kwadrat z kropką). Kształty zamiast kolorów; wybrany dzień w odczycie i tabela dla czytnika ekranu wymieniają zdarzenia. Serwer zwraca tylko daty i rodzaj (bez notatek, ilości i nazw), tylko własne.
+- **Dni tygodnia w „Moich obserwacjach” (POM-54):** średnia wybranego objawu (także własnego) w każdy dzień tygodnia, w stałej kolejności Pn–Nd, neutralnym kolorem, bez wyróżniania „najlepszego” dnia; średnia od 5 dni w komórce, poniżej tylko liczba dni. Sekcja działa także bez zapisów zużycia.
+
 ## [0.65.0] - 2026-10
 ### Dodano
 - **Dziennik wizyt (POM-52):** w Raporcie sekcja „Wizyty”: data wizyty, notatka „co ustalono” (szyfrowana, z dyktowaniem) i opcjonalnie data następnej wizyty, która od razu trafia do przypomnień. Usunięcie z „Cofnij”. Notatki z wizyt widać w karcie dnia i w wyszukiwarce („Moje notatki”), są w eksporcie, kopii i przywracaniu z kopii (bez duplikatów); nie trafiają do wydruku raportu. Nowa tabela `visits` (tylko własne, kasowana z kontem).
