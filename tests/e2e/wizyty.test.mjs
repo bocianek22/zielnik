@@ -24,12 +24,13 @@ test('Wizyty: zapis z notatką i następną wizytą, usunięcie i „Cofnij”',
     const box = page.locator('#wizyty');
     await box.waitFor({ timeout: 15000 });
     await box.locator('#vi-day').fill('2026-10-02');
-    await box.locator('#vi-next').fill('2027-01-15');
+    const next = new Date(Date.now() + 90 * 864e5).toISOString().slice(0, 10);
+    await box.locator('#vi-next').fill(next);
     await box.locator('#vi-note').fill('e2e wizyta: dawka bez zmian');
     const save = box.getByRole('button', { name: 'Zapisz wizytę' });
     await interactive(save);
     await save.click();
-    await page.getByRole('status').filter({ hasText: 'Zapisano wizytę i datę następnej.' }).waitFor();
+    await page.getByRole('status').filter({ hasText: 'Zapisano wizytę i datę następnej' }).waitFor();
     const row = box.locator('.visits-list li').filter({ hasText: 'e2e wizyta' });
     await row.waitFor();
     const over = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);

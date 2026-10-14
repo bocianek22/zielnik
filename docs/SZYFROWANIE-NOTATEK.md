@@ -14,7 +14,7 @@
   - przy wielu urządzeniach i w APK trzeba by synchronizować klucz.
 
 ## Zakres
-- **Szyfrowane kolumny:** `symptom_log.note`, `user_strain.notes`, `prescriptions.note`, `strain_tests.note`, `purchases.batch_note` (notatka o partii, POM-32), `group_messages.body` (czat grup, SPO-2), `doctor_notes.text`.
+- **Szyfrowane kolumny:** `symptom_log.note`, `user_strain.notes`, `prescriptions.note`, `strain_tests.note`, `purchases.batch_note` (notatka o partii, POM-32), `group_messages.body` (czat grup, SPO-2), `doctor_notes.text`, `visits.note` (dziennik wizyt, POM-52).
 - **Poza zakresem:**
   - `symptom_custom.name` (unikalny indeks);
   - `beta_feedback.body` i `reports.note` (czyta je admin);

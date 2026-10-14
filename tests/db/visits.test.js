@@ -10,7 +10,7 @@ const skip = !URL_ ? 'brak TEST_DATABASE_URL'
 
 const KEY = `t1:${Buffer.alloc(32, 7).toString('base64')}`;
 const savedKey = process.env.DATA_ENCRYPTION_KEY;
-let q, jar, pool, createSession, searchNotes;
+let q, jar, pool, createSession, searchNotes, addDaysIso, todayPL;
 const ids = {};
 
 async function call(uid, route, method, body, params = {}) {
@@ -37,6 +37,7 @@ before(async () => {
   const db = await import('../../lib/db.js');
   ({ createSession } = await import('../../lib/auth.js'));
   ({ searchNotes } = await import('../../lib/notes-search.js'));
+  ({ addDaysIso, todayPL } = await import('../../lib/date.js'));
   await db.ensureDb();
   q = db.sql();
   await q`INSERT INTO invites (code, max_uses) VALUES ('TEST', 10)`;
@@ -70,7 +71,7 @@ test('wizyty: zapis szyfrowany, lista tylko własna, walidacja, usuwanie tylko w
   assert.ok(note.startsWith('zenc1:'), 'notatka zaszyfrowana w bazie');
   assert.deepEqual(ok(await get(B, 'visits')).visits, []);
   assert.equal((await call(A, 'visits', 'POST', { day: '2026-02-31' })).status, 400);
-  assert.equal((await call(A, 'visits', 'POST', { day: '2030-01-01' })).status, 400, 'najwyżej rok naprzód');
+  assert.equal((await call(A, 'visits', 'POST', { day: addDaysIso(todayPL(), 400) })).status, 400, 'najwyżej rok naprzód');
   assert.equal((await call(A, 'visits', 'POST', { day: '2026-10-02', note: 'x'.repeat(1001) })).status, 400);
   const id = r.visits[0].id;
   assert.equal((await call(B, 'visits/[id]', 'DELETE', null, { id: String(id) })).status, 404);
@@ -79,13 +80,31 @@ test('wizyty: zapis szyfrowany, lista tylko własna, walidacja, usuwanie tylko w
 
 test('wizyty: następna wizyta trafia do przypomnień, wyszukiwarka i karta dnia widzą notatkę', { skip }, async () => {
   const A = ids.ania;
-  ok(await call(A, 'visits', 'POST', { day: '2026-10-05', note: 'Zmiana pory przyjmowania', nextVisit: '2027-01-10' }));
-  const [p] = await q`SELECT to_char(next_visit_on, 'YYYY-MM-DD') AS d FROM push_prefs WHERE user_id = ${A}`;
-  assert.equal(p.d, '2027-01-10');
+  const next = addDaysIso(todayPL(), 90);
+  const r = ok(await call(A, 'visits', 'POST', { day: '2026-10-05', note: 'Zmiana pory przyjmowania', nextVisit: next }));
+  assert.equal(r.notifyVisit, false, 'klient wie, że przypomnienie o wizycie jest wyłączone');
+  const nextOf = async () => (await q`SELECT to_char(next_visit_on, 'YYYY-MM-DD') AS d FROM push_prefs WHERE user_id = ${A}`)[0].d;
+  assert.equal(await nextOf(), next);
+  // stara wizyta z „następną” w przeszłości nie nadpisuje przyszłej daty i nie zapisuje się (400, bez częściowego zapisu)
+  const before = (await q`SELECT count(*)::int AS n FROM visits WHERE user_id = ${A}`)[0].n;
+  assert.equal((await call(A, 'visits', 'POST', { day: '2025-03-01', nextVisit: '2025-06-01' })).status, 400);
+  assert.equal((await call(A, 'visits', 'POST', { day: '2026-10-06', nextVisit: '2027-02-31' })).status, 400);
+  assert.equal((await call(A, 'visits', 'POST', { day: next, nextVisit: next })).status, 400, 'następna po dniu tej wizyty');
+  assert.equal((await q`SELECT count(*)::int AS n FROM visits WHERE user_id = ${A}`)[0].n, before);
+  assert.equal(await nextOf(), next);
   const hits = await searchNotes(A, 'pory przyjmowania');
   assert.equal(hits.find((h) => h.kind === 'visit')?.day, '2026-10-05');
   assert.equal(ok(await get(A, 'day?d=2026-10-05')).visits[0].note, 'Zmiana pory przyjmowania');
   assert.equal((await searchNotes(ids.bartek, 'pory przyjmowania')).length, 0);
+});
+
+test('wizyty: nieczytelna notatka (inny klucz) wraca pusta z flagą, a nie jako znacznik do odesłania', { skip }, async () => {
+  const A = ids.ania;
+  process.env.DATA_ENCRYPTION_KEY = `t9:${Buffer.alloc(32, 9).toString('base64')}`;
+  try {
+    const list = ok(await get(A, 'visits')).visits;
+    assert.ok(list.length > 0 && list.every((v) => v.note === '' && v.noteLocked === true), JSON.stringify(list));
+  } finally { process.env.DATA_ENCRYPTION_KEY = KEY; }
 });
 
 test('wizyty: eksport i import kopii (bez duplikatów), usuwanie konta kasuje wizyty', { skip }, async () => {
