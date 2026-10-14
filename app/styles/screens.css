@@ -38,4 +38,4 @@
    są komponentami bazowymi w globals.css ===== */
 
 /* POM-52: dziennik wizyt w Raporcie */
-.visits-list .visit-note { white-space: pre-wrap; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.visits-list .visit-note, .adverse-list .adverse-note, .report-sheet .adverse-note { white-space: pre-wrap; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }

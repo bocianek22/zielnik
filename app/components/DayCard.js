@@ -86,7 +86,7 @@ export default function DayCard({ day, onClose }) {
         )}
         {data?.adverse?.length > 0 && (
           <section aria-labelledby="dc-a">
-            <h3 id="dc-a" className="section-label">Zdarzenie niepożądane</h3>
+            <h3 id="dc-a" className="section-label">{data.adverse.length > 1 ? 'Zdarzenia niepożądane' : 'Zdarzenie niepożądane'}</h3>
             {data.adverse.map((v, i) => (
               <p key={i} className="dc-note">
                 <strong>Nasilenie: {severityLabel(v.severity)}</strong>

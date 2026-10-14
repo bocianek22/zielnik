@@ -235,7 +235,7 @@ export default async function Raport({ searchParams }) {
               <h3>Zdarzenia niepożądane</h3>
               <ul className="list">
                 {adverseItems(adverse).map((a, i) => (
-                  <li key={i} className="list-row"><span className="lr-main"><span>{a.head}</span>{a.note && <span className="lr-sub dn">{a.note}</span>}</span></li>
+                  <li key={i} className="list-row"><span className="lr-main"><span>{a.head}</span>{a.note && <span className="lr-sub dn adverse-note">{a.note}</span>}</span></li>
                 ))}
               </ul>
               <p className="muted small">{ADVERSE_INFO}</p>

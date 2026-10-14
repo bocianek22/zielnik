@@ -207,7 +207,7 @@ Wnioski:
 ## Szyfrowanie notatek w bazie (POM-28)
 Projekt i uzasadnienie wyboru: `docs/SZYFROWANIE-NOTATEK.md`. Moduł `lib/data-crypto.js`, przepisanie danych `scripts/encrypt-notes.mjs`.
 
-**Zakres.** Szyfrowane są `symptom_log.note`, `user_strain.notes`, `prescriptions.note`, `strain_tests.note`, `purchases.batch_note` (notatka o partii, POM-32), `group_messages.body` (czat grup, SPO-2) `visits.note` (dziennik wizyt, POM-52) i `adverse_events.note` (zdarzenia niepożądane, POM-62). `doctor_notes.text` zostaje jawne do decyzji właściciela (CHECK 1..200 vs szyfrogram; w kodzie komentarz TODO). Daty, liczby, skale, widoczność i nazwy odmian zostają jawne.
+**Zakres.** Szyfrowane są `symptom_log.note`, `user_strain.notes`, `prescriptions.note`, `strain_tests.note`, `purchases.batch_note` (notatka o partii, POM-32), `group_messages.body` (czat grup, SPO-2), `visits.note` (dziennik wizyt, POM-52) i `adverse_events.note` (zdarzenia niepożądane, POM-62). `doctor_notes.text` zostaje jawne do decyzji właściciela (CHECK 1..200 vs szyfrogram; w kodzie komentarz TODO). Daty, liczby, skale, widoczność i nazwy odmian zostają jawne.
 
 **Model zagrożeń.**
 | Zagrożenie | Efekt |

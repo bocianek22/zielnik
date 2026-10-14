@@ -125,7 +125,7 @@ test('wersja skrócona (POM-56): bez list o nieograniczonej długości, najwyże
     report: { ...big, usage: [...Array.from({ length: 6 }, (_, i) => ({ name: `Susz ${i}`, days: 5, grams: 20, unit: 'g' })), { name: 'Olej główny', days: 25, grams: 10, unit: 'ml' }] } });
   assert.ok(JSON.stringify(mix).includes('Olej główny'));
   for (const gone of ['opis zdarzenia', 'Tydzień po tygodniu', 'Zakupy', 'Odczucia pacjenta', 'Pory dnia', 'Objawy w dniach z odmianą', 'Wystawiona']) assert.ok(!all.includes(gone), gone);
-  for (const kept of ['Podsumowanie', 'Recepty w okresie', 'Zużycie według odmian', 'Pozostałe odmiany (9)', 'Cały okres', 'czynnik dnia 8', 'Wersja skrócona', '12 zdarzeń, 10 października 2026 (silne)', 'i 7 wcześniej']) assert.ok(all.includes(kept), kept);
+  for (const kept of ['Podsumowanie', 'Recepty w okresie', 'Zużycie według odmian', 'Pozostałe odmiany (9)', 'Cały okres', 'czynnik dnia 8', 'Wersja skrócona', '12 zdarzeń, 10 października 2026 (silne)', 'i 7 wcześniejszych']) assert.ok(all.includes(kept), kept);
   const notes = (n) => Array.from({ length: n }, (_, i) => ({ text: `Punkt ${i + 1}: ${'zapytać o szczegóły leczenia i dalszy plan '.repeat(5).slice(0, 190)}` }));
   const { PDFDocument } = await import('pdf-lib');
   const pages = async (n) => (await PDFDocument.load(await buildReportPdf({ ...m, title: 'Raport' }, notes(n), fonts()))).getPageCount();

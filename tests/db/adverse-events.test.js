@@ -120,9 +120,9 @@ test('zdarzenia: eksport i import kopii (bez duplikatów, bez przyszłych dat), 
   assert.ok(exp.adverseEvents.every((v) => !('id' in v)));
   const { importBackup } = await import('../../lib/import-backup-db.js');
   const sec = (r, k) => r.sections.find((s) => s.key === k) ?? { added: 0, existing: 0, invalid: 0 };
-  const bad = { ...exp, adverseEvents: [...exp.adverseEvents, { day: addDaysIso(todayPL(), 5), severity: 'silne', note: '' }, { day: d1, severity: 'zle', note: '' }] };
+  const bad = { ...exp, adverseEvents: [...exp.adverseEvents, { day: addDaysIso(todayPL(), 5), severity: 'silne', note: '' }, { day: addDaysIso(todayPL(), 1), severity: 'silne', note: '' }, { day: d1, severity: 'zle', note: '' }] };
   const r1 = sec(await importBackup(B, bad), 'adverseEvents');
-  assert.equal(r1.added, 2); assert.equal(r1.invalid, 2);
+  assert.equal(r1.added, 2); assert.equal(r1.invalid, 3);
   assert.equal(sec(await importBackup(B, exp), 'adverseEvents').existing, 2);
   const listB = ok(await get(B, 'adverse')).events;
   assert.equal(listB.length, 2);

@@ -24,7 +24,7 @@ export default function AdverseLog({ initial }) {
 
   async function add(e) {
     e.preventDefault();
-    if (!severity) { setErr('Wybierz nasilenie.'); return; }
+    if (!severity) { setErr('Wybierz nasilenie.'); e.currentTarget.querySelector('#ae-sev button')?.focus(); return; }
     setBusy(true); setErr('');
     try {
       setEvents((await api('/api/adverse', 'POST', { day, severity, note })).events);
@@ -48,7 +48,7 @@ export default function AdverseLog({ initial }) {
       <SecHead cat="journal" icon="alert" id="zdarzenia-h">Zdarzenia niepożądane</SecHead>
       <p className="muted small">Zapisz, jeśli pojawiło się coś niepokojącego, np. kołatanie serca, zawroty głowy albo silny niepokój. Opis jest szyfrowany i widzisz go tylko Ty. W raporcie dla lekarza jest data i nasilenie, a opis tylko po zaznaczeniu „Dołącz moje spostrzeżenia”.</p>
       <p className="alert note small">
-        Przy nagłych albo silnych objawach dzwoń pod <a href="tel:112">112</a>. O działaniu niepożądanym możesz powiedzieć lekarzowi albo farmaceucie lub zgłosić je do URPL
+        W nagłej sytuacji albo przy silnych objawach zadzwoń pod <a href="tel:112">112</a>. O działaniu niepożądanym możesz powiedzieć lekarzowi albo farmaceucie lub zgłosić je do URPL
         (<a href="https://urpl.gov.pl" target="_blank" rel="noopener noreferrer">urpl.gov.pl</a>). Aplikacja nie udziela porad medycznych.
       </p>
       <form className="stack" onSubmit={add}>
@@ -56,7 +56,7 @@ export default function AdverseLog({ initial }) {
           <input id="ae-day" className="input" type="date" required max={todayIso()} value={day} onChange={(e) => setDay(e.target.value)} /></div>
         <div className="field">
           <span id="ae-sev-l" className="label">Nasilenie</span>
-          <div className="seg" role="group" aria-labelledby="ae-sev-l">
+          <div id="ae-sev" className="seg" role="group" aria-labelledby="ae-sev-l">
             {SEVERITIES.map(([v, l]) => (
               <button key={v} type="button" aria-pressed={severity === v} className={severity === v ? 'on' : ''} onClick={() => setSeverity(v)}>{l}</button>
             ))}
