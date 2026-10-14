@@ -259,4 +259,4 @@
 
 /* „Rok objawów” (POM-50): wybór objawu przewija się w poziomie zamiast łamać siatkę */
 .sym-year-pick { flex-wrap: nowrap; overflow-x: auto; max-width: 100%; }
-.sym-year-pick button { white-space: nowrap; }
+.sym-year-pick button { white-space: nowrap; min-width: var(--tap); }
