@@ -19,6 +19,8 @@ export async function populate(q, { v, o, a }) {
   await q`INSERT INTO doctor_notes (user_id, text) VALUES (${v}, 'zapytać o dawkę')`;
   await q`INSERT INTO visits (user_id, day, note) VALUES (${v}, current_date, 'ustalono kontrolę')`;
   await q`INSERT INTO adverse_events (user_id, day, severity, note) VALUES (${v}, current_date, 'lagodne', 'zawroty głowy')`;
+  const [md] = await q`INSERT INTO measure_defs (user_id, slot, name, unit) VALUES (${v}, 1, 'Tętno', 'ud./min') RETURNING id`;
+  await q`INSERT INTO measure_values (def_id, user_id, day, value) VALUES (${md.id}, ${v}, current_date, 72)`;
   await q`INSERT INTO beta_feedback (user_id, kind, body) VALUES (${v}, 'pomysł', 'uwaga testowa')`;
   await q`INSERT INTO consent_log (user_id, version, terms, health) VALUES (${v}, 'test', TRUE, TRUE)`;
   await q`INSERT INTO no_use_days (user_id, day) VALUES (${v}, current_date)`;

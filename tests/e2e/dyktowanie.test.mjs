@@ -51,7 +51,8 @@ test('Dyktowanie: „Do omówienia” – informacja przy pierwszym użyciu, pot
   try {
     const btn = notes(page).getByRole('button', { name: 'Dyktuj' });
     await btn.waitFor({ timeout: 15000 });
-    assert.ok((await btn.boundingBox()).height >= 44, 'przycisk niższy niż 44 px');
+    // zaokrąglenie: na ułamkowej pozycji (subpiksele) 44 px mierzy się jako 43,9999
+    assert.ok(Math.round((await btn.boundingBox()).height) >= 44, 'przycisk niższy niż 44 px');
     assert.equal(await btn.getAttribute('aria-pressed'), 'false');
     const input = page.locator('#dn-new');
     await input.fill('Zapytać:');
