@@ -84,7 +84,7 @@ Reguła: brak sprzeczności z zasadami oceny, dane tylko własne, każdy dotyka 
 | POM-56 | Raport na jednej stronie: „Podsumowanie na wizytę” (wersja skrócona) | 5 | S/M | P | – | zrobione (0.67.0) | MON-4 |
 | POM-57 | Zaszyfrowany eksport hasłem i przypomnienie o kopii | 4 | M | P, T | – | zrobione (0.67.0; przypomnienie o kopii w APK: później) | PRA-8 |
 | POM-58 | Karta terapii na wyjazd i kontrolę (recepty, ważność, lista kontrolna) | 4 | S/M | P, Pr | ⚖️ (teksty listy) | zrobione (0.68.0; teksty listy do przejrzenia przez prawnika) | PAC-4 |
-| POM-59 | Ochrona ekranu w APK (blokada zrzutów) i „Ukryj teraz” | 3 | S/M | P | nowe APK | nowy (0.69) | KON-11 |
+| POM-59 | Ochrona ekranu w APK (blokada zrzutów) i „Ukryj teraz” | 3 | S/M | P | nowe APK | zrobione: ochrona ekranu (0.69.0, APK 0.7.0); „Ukryj teraz” później | KON-11 |
 | POM-R1 | Seria dni z użyciem / odznaki za zużycie | – | – | Pr | – | **odrzucony** | – |
 | POM-R2 | Podpowiedź dawki („spróbuj 0,3 g”) | – | – | Pr | – | **odrzucony** | – |
 | POM-R3 | „Inni z bólem wybierają X” (wnioski z danych społeczności) | – | – | P, Pr | – | **odrzucony** | MON-7 |

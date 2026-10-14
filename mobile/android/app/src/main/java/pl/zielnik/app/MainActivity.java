@@ -26,6 +26,9 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(WidgetPlugin.class);
         registerPlugin(SharePlugin.class);
         registerPlugin(PrintPlugin.class); // przed super.onCreate: tam powstaje most z listą wtyczek
+        registerPlugin(ScreenPlugin.class);
+        // ochrona ekranu (POM-59) przed pierwszym kadrem: inaczej podgląd w przełączniku mógłby pokazać treść
+        ScreenPlugin.apply(this, ScreenPlugin.isSecure(this));
         super.onCreate(savedInstanceState);
         // Wygląd natywny zamiast przeglądarkowego: WebView rysuje własne paski przewijania i poświatę przy
         // przewinięciu poza krawędź - w aplikacji ich nie chcemy (CSS tego nie ukryje).

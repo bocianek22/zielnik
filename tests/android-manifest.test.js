@@ -97,3 +97,14 @@ test('udostępnianie PDF: provider nieeksportowany z grantUriPermissions, ście�
   const perms = [...manifest.matchAll(/<uses-permission android:name="([^"]+)"/g)].map((m) => m[1]).sort();
   assert.deepEqual(perms, ['android.permission.INTERNET', 'android.permission.POST_NOTIFICATIONS']);
 });
+
+test('ochrona ekranu (POM-59): wtyczka ZielnikScreen zarejestrowana, FLAG_SECURE nakładana przed super.onCreate', () => {
+  const main = read('java/pl/zielnik/app/MainActivity.java');
+  assert.match(main, /registerPlugin\(ScreenPlugin\.class\)/);
+  const apply = main.indexOf('ScreenPlugin.apply(');
+  assert.ok(apply > 0 && apply < main.indexOf('super.onCreate('), 'flaga przed pierwszym kadrem');
+  const plugin = read('java/pl/zielnik/app/ScreenPlugin.java');
+  assert.match(plugin, /@CapacitorPlugin\(name = "ZielnikScreen"\)/);
+  assert.match(plugin, /FLAG_SECURE/);
+  assert.match(plugin, /\.commit\(\)/, 'zapis synchroniczny: ubicie procesu tuż po włączeniu nie gubi ustawienia');
+});
