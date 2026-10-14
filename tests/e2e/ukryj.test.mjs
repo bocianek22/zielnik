@@ -10,7 +10,7 @@ after(async () => { await browser?.close(); });
 
 const discreet = (page) => page.evaluate(() => document.documentElement.dataset.discreet === '1');
 
-test('Ukryj nazwy teraz: przycisk w arkuszu „Więcej” przełącza tryb dyskretny w obie strony', async () => {
+test('Ukryj nazwy: przełącznik w arkuszu „Więcej” (stała nazwa, aria-pressed) działa w obie strony', async () => {
   const { ctx } = await phone(browser);
   const page = await ctx.newPage();
   try {
@@ -19,13 +19,13 @@ test('Ukryj nazwy teraz: przycisk w arkuszu „Więcej” przełącza tryb dyskr
     const more = page.locator('.bottomnav button', { hasText: 'Więcej' });
     await interactive(more);
     await more.click();
-    const hide = page.locator('nav.sheet').getByRole('button', { name: 'Ukryj nazwy teraz' });
+    const hide = page.locator('nav.sheet').getByRole('button', { name: /^Ukryj nazwy/ });
+    assert.equal(await hide.getAttribute('aria-pressed'), 'false');
     await hide.click();
     assert.equal(await discreet(page), true);
     assert.equal(await page.title(), 'Notatnik');
-    const show = page.locator('nav.sheet').getByRole('button', { name: 'Pokaż nazwy' });
-    assert.equal(await show.getAttribute('aria-pressed'), 'true');
-    await show.click();
+    assert.equal(await hide.getAttribute('aria-pressed'), 'true');
+    await hide.click();
     assert.equal(await discreet(page), false);
   } catch (e) { await shot(page, 'ukryj-teraz'); throw e; } finally { await ctx.close(); }
 });
@@ -65,6 +65,7 @@ test('Ostatnia kopia: po pobraniu danych profil pokazuje dzisiejszą datę', asy
     await page.locator('#moje-dane > summary').click();
     const line = page.locator('.last-backup');
     assert.match(await line.innerText(), /nie pobrano jeszcze kopii/);
+    // zapis daty dopiero po udanym pobraniu (fetch + plik), nie przy samym kliknięciu
     const link = page.getByRole('link', { name: 'Pobierz dane (JSON)' });
     await interactive(link);
     await Promise.all([page.waitForEvent('download'), link.click()]);

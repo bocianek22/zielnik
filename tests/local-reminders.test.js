@@ -36,10 +36,10 @@ test('planLocal: wizyta dzień wcześniej o 18:00, tylko w przyszłości', () =>
 });
 
 test('parseLocalSettings: domyślnie wszystko wyłączone, złe dane bezpiecznie', () => {
-  assert.deepEqual(parseLocalSettings(null), { symptoms: false, hour: 21, visit: false, rx: false, stock: false, backup: false });
-  assert.deepEqual(parseLocalSettings('{"symptoms":true,"hour":19,"rx":true}'), { symptoms: true, hour: 19, visit: false, rx: true, stock: false, backup: false });
-  assert.deepEqual(parseLocalSettings('{"hour":3,"visit":"tak"}'), { symptoms: false, hour: 21, visit: false, rx: false, stock: false, backup: false });
-  assert.deepEqual(parseLocalSettings('nie json'), { symptoms: false, hour: 21, visit: false, rx: false, stock: false, backup: false });
+  assert.deepEqual(parseLocalSettings(null), { symptoms: false, hour: 21, visit: false, rx: false, stock: false });
+  assert.deepEqual(parseLocalSettings('{"symptoms":true,"hour":19,"rx":true}'), { symptoms: true, hour: 19, visit: false, rx: true, stock: false });
+  assert.deepEqual(parseLocalSettings('{"hour":3,"visit":"tak"}'), { symptoms: false, hour: 21, visit: false, rx: false, stock: false });
+  assert.deepEqual(parseLocalSettings('nie json'), { symptoms: false, hour: 21, visit: false, rx: false, stock: false });
 });
 
 test('planLocal: recepta 3 dni przed końcem ważności, zapas 2 dni przed końcem prognozy, neutralna treść', () => {
@@ -57,22 +57,4 @@ test('planLocal: recepta 3 dni przed końcem ważności, zapas 2 dni przed końc
   assert.deepEqual(planLocal({ now, settings: {}, rxUntil: '2026-10-30', stockDays: 6 }), [], 'domyślnie wyłączone');
   for (const n of [rx, st]) assert.doesNotMatch(n.body + n.title, /recept|zapas|konop|odmian|gram|apte/i);
   assert.ok(ALL_IDS.includes(ID_BASE.rx) && ALL_IDS.includes(ID_BASE.stock));
-});
-
-test('kopia danych (POM-61): 30 dni po ostatniej kopii o 18:00; bez kopii albo po terminie najbliższa 18:00; wyłączone = nic', () => {
-  const now = new Date('2026-10-14T10:00:00Z'); // 12:00 w Warszawie
-  const one = (lastBackup, extra = {}) => planLocal({ now, settings: { backup: true }, lastBackup, ...extra });
-  const [a] = one('2026-10-01');
-  assert.equal(a.id, ID_BASE.backup);
-  assert.equal(a.at.toISOString(), warsawAt('2026-10-31', 18).toISOString());
-  assert.equal(a.url, '/profil#moje-dane');
-  assert.doesNotMatch(a.body, /kopi|konop|zielnik/i, 'treść neutralna');
-  assert.equal(one(null)[0].at.toISOString(), warsawAt('2026-10-14', 18).toISOString(), 'bez kopii: dziś 18:00');
-  assert.equal(one('2026-08-01')[0].at.toISOString(), warsawAt('2026-10-14', 18).toISOString(), 'po terminie: dziś 18:00');
-  const late = planLocal({ now: new Date('2026-10-14T17:00:00Z'), settings: { backup: true }, lastBackup: null });
-  assert.equal(late[0].at.toISOString(), warsawAt('2026-10-15', 18).toISOString(), 'po 18:00: jutro');
-  assert.deepEqual(planLocal({ now, settings: { backup: false }, lastBackup: null }), []);
-  assert.ok(ALL_IDS.includes(ID_BASE.backup));
-  assert.equal(parseLocalSettings('{"backup":true}').backup, true);
-  assert.equal(parseLocalSettings('{"backup":"tak"}').backup, false);
 });

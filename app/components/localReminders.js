@@ -1,8 +1,7 @@
 'use client';
 import { api } from '@/lib/api';
 import { plugin, listen } from './native/bridge';
-import { planLocal, parseLocalSettings, ALL_IDS, ID_BASE } from '@/lib/local-reminders';
-import { lastBackup } from '@/lib/last-backup';
+import { planLocal, parseLocalSettings, ALL_IDS } from '@/lib/local-reminders';
 
 // POM-49: lokalne przypomnienia w APK przez @capacitor/local-notifications (powłoka mobile/ od 0.6.0). W przeglądarce
 // i w starszym APK wtyczki nie ma: wszystkie funkcje nic nie robią. Ustawienia zostają na tym telefonie (Preferences).
@@ -54,21 +53,11 @@ export async function syncLocal({ hasToday = false, nextVisit, settings = null, 
   const ctx = await context(Object.keys(given).length ? given : null);
   if (nextVisit === undefined) nextVisit = s.visit ? (await api('/api/push/config').catch(() => null))?.prefs?.nextVisit ?? null : null;
   await L.cancel({ notifications: ALL_IDS.map((id) => ({ id })) }).catch(() => {});
-  const plan = planLocal({ settings: s, hasToday, nextVisit, rxUntil: ctx.rxUntil ?? null, stockDays: ctx.stockDays ?? null, lastBackup: lastBackup() });
+  const plan = planLocal({ settings: s, hasToday, nextVisit, rxUntil: ctx.rxUntil ?? null, stockDays: ctx.stockDays ?? null });
   if (!plan.length) return;
   await L.schedule({
     notifications: plan.map((n) => ({ id: n.id, title: n.title, body: n.body, schedule: { at: n.at, allowWhileIdle: true }, extra: { url: n.url } })),
   });
-}
-
-// Po pobraniu kopii (POM-61): przekłada tylko przypomnienie o kopii, reszty harmonogramu nie rusza
-export async function rescheduleBackup() {
-  const L = LN();
-  if (!L) return;
-  const s = await getLocalSettings();
-  await L.cancel({ notifications: [{ id: ID_BASE.backup }] }).catch(() => {});
-  const n = planLocal({ settings: { backup: s.backup }, lastBackup: lastBackup() })[0];
-  if (n) await L.schedule({ notifications: [{ id: n.id, title: n.title, body: n.body, schedule: { at: n.at, allowWhileIdle: true }, extra: { url: n.url } }] }).catch(() => {});
 }
 
 // Dotknięcie powiadomienia otwiera wskazany ekran (tylko adresy wewnętrzne)
