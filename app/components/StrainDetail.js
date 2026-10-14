@@ -113,6 +113,7 @@ function MyStats({ stats, unit }) {
 export default function StrainDetail({ strain, options, tastes, mates, tests, stats, batches = [], feel = null, me, proposals = [], proposing = false }) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
+  const [photoMenu, setPhotoMenu] = useState(false);
   const [opts, setOpts] = useState(options);
   const serverMine = strain.entries.find((e) => e.userId === me.id);
   // stan „Mój wpis” z szybkich zapisów (także czekających w kolejce offline) do czasu odświeżenia z serwera
@@ -191,10 +192,10 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, st
                 <Lightbox className="dhero-img dn-img" src={photo} alt={`Zdjęcie: ${strain.name}`} attr={strain.photo_attr}
                   fallback={<div className="dhero-fallback" aria-hidden="true"><Illustration art="jar" size={132} /></div>} />
                 <PhotoCredit attr={strain.photo_attr} />
-                <details className="photo-menu">
-                  <summary aria-label="Opcje zdjęcia"><Icon name="more" size={20} /></summary>
-                  <div className="photo-menu-list"><ReportButton type="photo" refId={strain.id} label="Zgłoś zdjęcie" /></div>
-                </details>
+                {/* lista pod zdjęciem w przepływie: formularz zgłoszenia jest wyższy niż zdjęcie, a .dhero ma overflow: hidden */}
+                <button type="button" className="photo-menu" aria-label="Opcje zdjęcia" aria-expanded={photoMenu} aria-controls="photo-menu-list"
+                  onClick={() => setPhotoMenu((v) => !v)}><Icon name="more" size={20} /></button>
+                {photoMenu && <div className="photo-menu-list" id="photo-menu-list"><ReportButton type="photo" refId={strain.id} label="Zgłoś zdjęcie" /></div>}
               </div>
             )}
           </header>

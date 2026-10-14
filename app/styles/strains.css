@@ -203,3 +203,7 @@
 .feel-table td b { display: block; font-size: var(--fs-xl); font-weight: 600; color: var(--text); line-height: 1.2; }
 .feel-table td b.few { color: var(--text-3); }
 .feel-table td span { display: block; font-size: var(--fs-xs); color: var(--text-2); }
+
+/* otwarty arkusz „…”: tło pod nim się nie przewija (jak arkusze systemowe) */
+html:has(.row-sheet), body:has(.row-sheet) { overflow: hidden; }
+.rs-backdrop { touch-action: none; }
