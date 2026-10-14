@@ -42,6 +42,8 @@ Wersje: `@capacitor/core|cli|android|ios` 8.5.2, `@capacitor/app` 8.1.2, `browse
 - **Widżet „Zapas i Zużyłem”** (Android, POM-13, projekt: `docs/WIDZET-ANDROID.md`): 2×1 na ekranie głównym, „Starczy na N dni” i przycisk „Zapisz” (`/?zuzylem=1`; dotknięcie reszty widżetu otwiera `/`). Strona przy każdym otwarciu panelu „Dziś” zapisuje przez wtyczkę `ZielnikWidget` (`WidgetPlugin.java`, `bridge.js`: `widgetSet`/`widgetClear`) do SharedPreferences `zielnik_widget` tylko datę końca zapasu (`until`), znacznik czasu i flagę blokady; widżet (`StockWidget.java`, `WidgetDays.java`) sam odlicza dni, bez sieci. Dane starsze niż 7 dni to „–”; przy włączonej blokadzie aplikacji widżet pokazuje „Sprawdź zapas” (bez liczby); bez nazw odmian i bez słów „konopie”/„Zielnik” w jego napisach. Wylogowanie, automatyczne wylogowanie, usunięcie konta, zmiana konta i ekran `/login` czyszczą dane widżetu. Testy: `tests/widget.test.js`, `tests/android-manifest.test.js`, `tests/shortcuts.test.js`, `WidgetDaysTest.java` (CI: `testDebugUnitTest`).
 - Service worker PWA w aplikacji jest wyłączany (`RegisterSW.js`), bo powłoka ma własną stronę offline i push.
 
+- **Przypomnienia na tym telefonie** (od 0.6.0, POM-49): wtyczka `@capacitor/local-notifications`. Strona (`app/components/localReminders.js`) planuje powiadomienia na tydzień naprzód z ustawień zapisanych w `Preferences` (`zielnik.localrem`): wieczór (19–22) bez dzisiejszego, jeśli wpis objawów już jest, i dzień przed wizytą o 18:00. Działa bez serwera push i bez crona co godzinę. Harmonogram układa się od nowa przy każdym otwarciu „Dziś” i po zapisie dzisiejszego wpisu. Treść neutralna („Masz wpis do uzupełnienia”), mała ikona `ic_stat_note` (notatnik). Uprawnienie `POST_NOTIFICATIONS` (Android 13+) jest pytane przy włączeniu; dokładna godzina nie jest gwarantowana (oszczędzanie baterii). Starsze APK nie mają wtyczki, więc sekcji w profilu nie widać.
+
 ## Budowanie
 Wymagania: Node 22, JDK 21, Android SDK (platforma 36). Najprościej przez GitHub Actions.
 
@@ -124,4 +126,5 @@ Następne kroki: konto Apple Developer (99 USD/rok), w Xcode zespół i podpis, 
 - [ ] Ekran startowy zielony bez białego mignięcia (Android 12+ i starszy), ikona adaptacyjna w różnych kształtach, ikona tematyczna (Android 13+: Ustawienia, tapeta i styl, ikony tematyczne).
 - [ ] Tryb samolotowy w trakcie pracy: pasek „Brak połączenia”; przy starcie bez sieci strona błędu z przyciskiem, po włączeniu sieci wraca sama.
 - [ ] Klawiatura: przy otwartej klawiaturze dolny pasek znika, pole jest widoczne nad klawiaturą; po schowaniu klawiatury przyciskiem wstecz pasek wraca.
-- [ ] Profil: na dole „Wersja aplikacji: 0.5.0”.
+- [ ] Profil → „Przypomnienia na tym telefonie” (APK 0.6.0): włączenie pyta o zgodę na powiadomienia; przypomnienie przychodzi o wybranej godzinie, a po dzisiejszym wpisie objawów już nie; dotknięcie otwiera „Dziś” przy objawach; przypomnienie o wizycie dzień wcześniej o 18:00 (otwiera raport); ikona notatnika na pasku stanu.
+- [ ] Profil: na dole „Wersja aplikacji: 0.6.0”.

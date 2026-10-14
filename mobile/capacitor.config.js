@@ -50,5 +50,7 @@ module.exports = {
     SystemBars: { insetsHandling: 'css', style: 'DARK', initialViewportFitValueHint: 'cover' },
     StatusBar: { style: 'DARK', backgroundColor: '#1d3b27', overlaysWebView: false },
     PushNotifications: { presentationOptions: ['badge', 'sound', 'alert'] },
+    // POM-49: przypomnienia planowane na telefonie; neutralna ikona notatnika (tryb dyskretny)
+    LocalNotifications: { smallIcon: 'ic_stat_note', iconColor: '#2f6b45' },
   },
 };

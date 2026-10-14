@@ -6,6 +6,7 @@ import Header from '../components/Header';
 import ProfileForm from './ProfileForm';
 import PushSettings from './PushSettings';
 import ReminderSettings from './ReminderSettings';
+import LocalReminderSettings from './LocalReminderSettings';
 import DiscreetSettings from './DiscreetSettings';
 import NativeLock from './NativeLock';
 import WebLockSettings from './WebLockSettings';
@@ -34,6 +35,7 @@ export default async function Profil() {
             <WebLockSettings />
             <PushSettings />
             <ReminderSettings />
+            <LocalReminderSettings />
             <DiscreetSettings />
             <section className="card" aria-labelledby="theme-h">
               <SecHead icon="sun" id="theme-h">Wygląd</SecHead>
