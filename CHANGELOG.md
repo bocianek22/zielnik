@@ -8,6 +8,11 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.61.0] - 2026-10
+### Dodano
+- **Czynniki dnia (POM-47):** do 8 własnych etykiet kontekstu dnia (np. stres, ruch, kofeina; podpowiedzi albo własna nazwa) w Dzienniku, zaznaczane przy wpisie dnia przyciskami (`aria-pressed`). Nowe tabele `day_factors` i `day_factor_marks` (addytywnie), `/api/factors`, pole `factors` w `PUT /api/symptoms` (cudze identyfikatory odpadają na złączeniu). Czynniki widać w zwiniętym wpisie dnia i w karcie dnia. „Moje obserwacje” → „Czynniki dnia”: średnie objawów w dniach z czynnikiem i bez niego (`lib/factor-obs.js`; od pierwszego zaznaczenia, próg 5 dni, sen zestawiany z poprzednim dniem), bez rankingu „co pomaga”. Eksport konta i import kopii (`dayFactors`, `dayFactorMarks`); kopia obejmuje tabele automatycznie.
+- **Własny układ panelu „Dziś” (POM-48):** w „Szczegóły i ustawienia” przełączniki kart: wykres 14 dni z prognozą, szybki wpis objawów, regularność wpisów, lista recept. Zapis na koncie (`users.today_hidden`, `/api/today-layout`), więc działa po zmianie telefonu; w eksporcie konta. Kafle, „Do zrobienia” (z pilną receptą) i „Dziś bez zużycia” zostają zawsze; przy ukrytym wpisie objawów skróty prowadzą do Dziennika.
+
 ## [0.60.0] - 2026-10
 ### Dodano
 - **Karta dnia:** wybór dnia w kalendarzu Historii (dotyk, mysz, Enter) i „Szczegóły dnia” otwierają arkusz ze wszystkim z tego dnia: zużycie z porą, sposobem i godziną, wykupione, objawy (także własne) z notatką, „dzień bez zużycia”, skrót „Dodaj/Zmień wpis objawów” do Dziennika na ten dzień (`?dzien=`). `GET /api/day` (`lib/day-card.js`): tylko własne dane, dzień polski, ostatnie 2 lata. Bez ocen dnia i porównań; w trybie dyskretnym nazwy i notatka rozmyte.

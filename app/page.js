@@ -4,6 +4,7 @@ import { dailyUse, purchaseStats } from '@/lib/strains';
 import { dailyUsageSeries, homeSummary, prescriptionCountdown, todaySymptoms } from '@/lib/stats';
 import { noUseToday } from '@/lib/no-use';
 import { symptomStreak } from '@/lib/streak';
+import { todayHidden } from '@/lib/today-layout';
 import { onboardingOpen } from '@/lib/onboarding';
 import Header from './components/Header';
 import HomeStore from './components/HomeStore';
@@ -34,9 +35,9 @@ export default async function Home({ searchParams }) {
     );
   }
 
-  const [daily, bought, series, summary, prescriptions, symptoms, noUse, streak] = await Promise.all([
+  const [daily, bought, series, summary, prescriptions, symptoms, noUse, streak, hidden] = await Promise.all([
     dailyUse(user.id), purchaseStats(user.id), dailyUsageSeries(user.id, 14), homeSummary(user.id), prescriptionCountdown(user.id), todaySymptoms(user.id),
-    noUseToday(user.id), symptomStreak(user.id),
+    noUseToday(user.id), symptomStreak(user.id), todayHidden(user.id),
   ]);
   // data w nagłówku w czasie polskim (serwer działa w UTC)
   const date = new Date().toLocaleDateString('pl-PL', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Europe/Warsaw' });
@@ -51,7 +52,7 @@ export default async function Home({ searchParams }) {
             <h1>Dziś</h1>
             <TodayHero usage={daily} />
           </header>
-          <TodayBoard usage={daily} bought={bought} prescriptions={prescriptions} symptoms={symptoms} noUse={noUse}
+          <TodayBoard usage={daily} bought={bought} prescriptions={prescriptions} symptoms={symptoms} noUse={noUse} hidden={hidden}
             streak={<SymptomStreak data={streak} className="streak-home" />} />
         </HomeStore>
       </main>

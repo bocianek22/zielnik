@@ -7,6 +7,8 @@ import { fmtQty } from '@/lib/units';
 import Header from '../components/Header';
 import Icon from '../components/Icon';
 import ObservationsBoard from './ObservationsBoard';
+import FactorsObs from './FactorsObs';
+import { factorObservations } from '@/lib/factor-obs';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,7 +35,7 @@ export default async function Obserwacje({ searchParams }) {
   if (user.must_change_password) redirect('/change-password');
   const sp = (await searchParams) || {};
   const period = normPeriod(sp.okres);
-  const data = await observations(user.id, period);
+  const [data, fobs] = await Promise.all([observations(user.id, period), factorObservations(user.id, period)]);
   const anyGroup = Object.values(data.symptoms).some((s) => s.days > 0);
 
   return (
@@ -93,6 +95,13 @@ export default async function Obserwacje({ searchParams }) {
                 <p className="muted small">Susz w gramach, olej i pen w mililitrach. Jednostek nie sumujemy.</p>
               </>
             )}
+          </>
+        )}
+
+        {fobs.factors.length > 0 && (
+          <>
+            <SecHead cat="journal" icon="zap">Czynniki dnia</SecHead>
+            <FactorsObs data={fobs} />
           </>
         )}
 

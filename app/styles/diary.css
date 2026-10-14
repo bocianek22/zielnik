@@ -79,17 +79,17 @@
 .obs-rules ul { margin: 0; padding-left: 1.1em; display: grid; gap: var(--s-2); font-size: var(--fs-sm); color: var(--text-2); max-width: 68ch; }
 
 /* Własne objawy (POM-07) */
-.sym-custom { padding: 0; }
-.sym-custom > summary { cursor: pointer; list-style: none; min-height: 52px; padding: var(--s-3) var(--s-4); display: flex; align-items: center; gap: var(--s-3); font-weight: 600; }
-.sym-custom > summary::-webkit-details-marker { display: none; }
-.sym-custom > summary .lr-main { flex: 1; min-width: 0; }
-.sym-custom > summary .lr-sub { display: block; font-weight: 400; font-size: var(--fs-sm); color: var(--text-2); }
-.sym-custom > summary .lr-chev { flex: none; color: var(--text-3); transition: transform var(--dur-1, .12s) var(--ease, ease); }
-.sym-custom[open] > summary .lr-chev { transform: rotate(90deg); }
-.sym-custom > :not(summary) { margin: 0 var(--s-4) var(--s-4); }
-.sym-custom > ul.list { margin-inline: 0; }
-.sym-custom p { margin-top: 0; }
-.sym-custom[open] { display: grid; gap: var(--s-3); }
+.sym-custom, .factor-manager { padding: 0; }
+.sym-custom > summary, .factor-manager > summary { cursor: pointer; list-style: none; min-height: 52px; padding: var(--s-3) var(--s-4); display: flex; align-items: center; gap: var(--s-3); font-weight: 600; }
+.sym-custom > summary::-webkit-details-marker, .factor-manager > summary::-webkit-details-marker { display: none; }
+.sym-custom > summary .lr-main, .factor-manager > summary .lr-main { flex: 1; min-width: 0; }
+.sym-custom > summary .lr-sub, .factor-manager > summary .lr-sub { display: block; font-weight: 400; font-size: var(--fs-sm); color: var(--text-2); }
+.sym-custom > summary .lr-chev, .factor-manager > summary .lr-chev { flex: none; color: var(--text-3); transition: transform var(--dur-1, .12s) var(--ease, ease); }
+.sym-custom[open] > summary .lr-chev, .factor-manager[open] > summary .lr-chev { transform: rotate(90deg); }
+.sym-custom > :not(summary), .factor-manager > :not(summary) { margin: 0 var(--s-4) var(--s-4); }
+.sym-custom > ul.list, .factor-manager > ul.list { margin-inline: 0; }
+.sym-custom p, .factor-manager p { margin-top: 0; }
+.sym-custom[open], .factor-manager[open] { display: grid; gap: var(--s-3); }
 /* Wpis z dziś zapisany: formularz zwinięty do jednego wiersza */
 .sym-today { display: grid; gap: var(--s-3); padding: var(--s-4); }
 .sym-today-head { display: flex; align-items: center; gap: var(--s-3); }
@@ -100,9 +100,17 @@
 .sym-tiles li { display: grid; justify-items: center; gap: 2px; padding: var(--s-3) var(--s-1); border-radius: var(--r-lg); background: var(--surface); min-width: 0; }
 .sym-tiles b { font-size: 1.75rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums lining-nums; color: var(--c-ink); }
 .sym-tiles span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-sm); font-weight: 600; color: var(--text-2); }
-.sym-custom-row { flex-wrap: wrap; }
-.sym-custom-row form { flex: 1 1 100%; }
+.sym-custom-row, .factor-manager-row { flex-wrap: wrap; }
+.sym-custom-row form, .factor-manager-row form { flex: 1 1 100%; }
 .sym-skel { min-height: 520px; background: linear-gradient(var(--surface-2), var(--surface-2)) var(--s-4) var(--s-4) / calc(100% - 2 * var(--s-4)) 60% no-repeat, var(--surface); }
 .sym-today-head .ic-dot { background: var(--surface); }
 .tint .btn.soft { background: var(--surface); }
 .sym-tiles span::first-letter { text-transform: uppercase; }
+
+/* Czynniki dnia (POM-47): chipy w formularzu wpisu, przełączane (aria-pressed) */
+.sym-factors { border: 0; margin: 0; padding: 0; display: grid; gap: var(--s-2); }
+.sym-factors legend { padding: 0; font-weight: 600; margin-bottom: var(--s-2); }
+.sym-factors .chip { min-height: var(--tap); gap: 4px; }
+.factor-manager .chips { margin: var(--s-2) 0; }
+.factor-manager .chip { gap: 4px; }
+.sym-fx { margin: var(--s-2) 0 0; color: var(--text-2); }

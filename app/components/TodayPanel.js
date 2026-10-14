@@ -113,7 +113,7 @@ const notesOf = ({ unit, dailyUse, bought }) => {
 const SYM_CORE = ['pain', 'sleep', 'anxiety', 'mood'];
 
 // stock, dailyUse, bought: { g, ml }; low: próg „Kończy się” w gramach (tylko susz); lowStrain: { name, current, unit } | null
-export default function TodayPanel({ stock, dailyUse, forecast, bought, low, series, prescriptions, symptoms, noUse = false, streak = null, lowStrain = null, settings, fresh, hasOwn = false, onAdd }) {
+export default function TodayPanel({ stock, dailyUse, forecast, bought, low, series, prescriptions, symptoms, noUse = false, streak = null, hidden = [], lowStrain = null, settings, fresh, hasOwn = false, onAdd }) {
   const today = series.at(-1).day;
   const units = unitsOf(stock, dailyUse);
   const u1 = units[0];
@@ -135,13 +135,15 @@ export default function TodayPanel({ stock, dailyUse, forecast, bought, low, ser
     const action = shortcutAction(search, hash);
     if (!action) return;
     if (action === 'use') window.history.replaceState(window.history.state, '', withoutUseParam(pathname, search, hash));
+    // szybki wpis ukryty (POM-48): skrót i przypomnienie „#objawy” prowadzą do Dziennika
+    if (action !== 'use' && hidden.includes('symptoms')) { window.location.replace('/dziennik'); return; }
     const target = action === 'use'
       ? document.querySelector('.today-quick .quick-btn[aria-expanded="false"]')
       : document.getElementById('objawy');
     if (!target) return;
     target.scrollIntoView({ block: action === 'use' ? 'center' : 'start' });
     if (action === 'use') target.click();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- tylko przy wejściu na stronę
 
   const rx0 = prescriptions.items[0];
   const rxU = (r) => (r.unit === 'ml' ? 'ml' : 'g');
@@ -151,6 +153,8 @@ export default function TodayPanel({ stock, dailyUse, forecast, bought, low, ser
   const daysWarn = warnU && daysOf(stock[warnU], dailyUse[warnU]);
   const reason = lowStrain || warnU;
 
+  // szybki wpis ukryty (POM-48): skróty prowadzą do Dziennika
+  const symHref = hidden.includes('symptoms') ? '/dziennik' : '#objawy';
   const tiles = [
     // recepta: pełny kafel tylko gdy jest ważna recepta z resztą do wykupienia
     rx0 && rx0.days_left >= 0
@@ -162,7 +166,7 @@ export default function TodayPanel({ stock, dailyUse, forecast, bought, low, ser
         : <Tile key="rx" href="/recepty" cat="rx" icon="file" label="Recepta" value="–" sub="Dodaj receptę" />,
     sym?.mood != null
       ? <Tile key="mood" href="/dziennik" cat="journal" solid icon="smile" label="Nastrój" value={<>{sym.mood}<small>/10</small></>} sub={parts.length ? parts.join(' · ') : 'dziś w dzienniku'} />
-      : <Tile key="mood" href="#objawy" cat="journal" icon="smile" label="Nastrój" value="–" sub={parts.length ? parts.join(' · ') : 'Wpisz objawy dnia'} />,
+      : <Tile key="mood" href={symHref} cat="journal" icon="smile" label="Nastrój" value="–" sub={parts.length ? parts.join(' · ') : 'Wpisz objawy dnia'} />,
     <Tile key="today" href="/historia" cat="stock" icon="chart" label="Dziś zużyto"
       value={<>{n2(usedNow)}<small>{u1}</small></>}
       sub={noUseOn && !usedToday ? 'oznaczone: bez zużycia' : dailyUse[u1] > 0 ? `średnio ${n2(dailyUse[u1])} ${u1}` : 'jeszcze bez średniej'} />,
@@ -182,7 +186,7 @@ export default function TodayPanel({ stock, dailyUse, forecast, bought, low, ser
     reason && { key: 'low', cat: 'stock', warn: true, icon: 'alert', title: 'Kończy się zapas',
       sub: lowStrain ? <><span className="dn">{lowStrain.name}</span>: {n2(lowStrain.current)} {lowStrain.unit}</> : daysWarn != null ? `Zapas ${what(warnU)} starczy na ${daysWarn} ${days(daysWarn)}` : `Zapas ${what(warnU)}: ${n2(stock[warnU])} ${warnU}`, href: '/odmiany' },
     filled < SYM_CORE.length && { key: 'sym', cat: 'journal', icon: 'pulse', title: filled ? 'Uzupełnij objawy dnia' : 'Wpisz objawy dnia',
-      sub: filled ? `Zapisano ${filled} z ${SYM_CORE.length}` : 'Jedno dotknięcie zapisuje wpis', href: '#objawy' },
+      sub: filled ? `Zapisano ${filled} z ${SYM_CORE.length}` : 'Jedno dotknięcie zapisuje wpis', href: symHref },
   ].filter(Boolean);
 
   const rx = prescriptions.items.length > 0 && <Prescriptions items={prescriptions.items} total={prescriptions.total} />;
@@ -198,7 +202,7 @@ export default function TodayPanel({ stock, dailyUse, forecast, bought, low, ser
         <>
           <div className="kpi-grid">{tiles}</div>
 
-          <section className="card today-chart" data-cat="stock" aria-labelledby="usage-h">
+          {!hidden.includes('chart') && <section className="card today-chart" data-cat="stock" aria-labelledby="usage-h">
             <UsageDays series={series} />
             {/* POM-38: tylko gdy dziś nie zapisano zużycia (zapis „Zużyłem” zdejmuje znacznik na serwerze) */}
             {!usedToday && <NoUseToday day={today} on={noUseOn} setOn={setNoUseOn} />}
@@ -220,16 +224,18 @@ export default function TodayPanel({ stock, dailyUse, forecast, bought, low, ser
                 ))}
               </details>
             ) : <p className="today-note">Zapisuj zużycie przyciskiem „Zużyłem”, a policzę, na ile dni starczy zapasu.</p>}
-          </section>
+          </section>}
 
+          {/* wykres ukryty (POM-48): „Dziś bez zużycia” zostaje, bo zasila obserwacje (POM-38) */}
+          {hidden.includes('chart') && !usedToday && <section className="card today-nouse" data-cat="stock"><NoUseToday day={today} on={noUseOn} setOn={setNoUseOn} /></section>}
           {todo.length > 0 && <Todo items={todo} />}
         </>
       )}
 
-      <SymptomsQuick day={today} initial={symptoms} onChange={setSym} />
-      {streak}
+      {!hidden.includes('symptoms') && <SymptomsQuick day={today} initial={symptoms} onChange={setSym} />}
+      {!hidden.includes('streak') && streak}
 
-      {rx}
+      {!hidden.includes('rx') && rx}
 
       {!fresh && <section className="card prefs-card">{settings}</section>}
     </div>
