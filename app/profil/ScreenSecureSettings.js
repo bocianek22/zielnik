@@ -32,7 +32,7 @@ export default function ScreenSecureSettings() {
   return (
     <section className="card stack" aria-labelledby="screen-h">
       <SecHead icon="shield" id="screen-h">Ochrona ekranu</SecHead>
-      <p className="muted">Blokuje zrzuty i nagrywanie ekranu oraz ukrywa treść w podglądzie ostatnich aplikacji. Jeśli robisz zrzuty dla lekarza, zostaw wyłączone (raport wydrukujesz albo zapiszesz jako PDF).</p>
+      <p className="muted">Blokuje zrzuty i nagrywanie ekranu oraz ukrywa treść w podglądzie ostatnich aplikacji. Nie obejmuje systemowych okien druku i udostępniania. Jeśli robisz zrzuty dla lekarza, zostaw wyłączone (raport wydrukujesz albo zapiszesz jako PDF).</p>
       <label className="switch-row native-check">
         <span>Blokuj zrzuty ekranu i podgląd w przełączniku</span>
         <input type="checkbox" className="switch" role="switch" checked={on} disabled={busy} onChange={toggle} />

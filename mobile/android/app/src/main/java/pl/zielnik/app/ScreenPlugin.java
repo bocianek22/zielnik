@@ -47,7 +47,7 @@ public class ScreenPlugin extends Plugin {
         }
         SharedPreferences.Editor ed = getContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit();
         ed.putBoolean(KEY_SECURE, on);
-        ed.apply();
+        ed.commit(); // synchronicznie: ubicie procesu tuż po włączeniu nie może zgubić ustawienia
         getBridge().executeOnMainThread(() -> {
             apply(getActivity(), on);
             JSObject ret = new JSObject();
