@@ -42,7 +42,11 @@ test('Raport skrócony: sekcje, zachowanie trybu przy zmianie okresu, 320 px, ax
     assert.ok(!(await heads()).includes('Tydzień po tygodniu'));
     const over = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
     assert.ok(over <= 0, `poziome przewijanie o ${over} px`);
-    await page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished.catch(() => {})))); // axe w trakcie animacji wejścia widzi półprzezroczysty tekst
+    // axe w trakcie animacji wejścia widzi półprzezroczysty tekst (jak w dostepnosc.test.mjs)
+    await page.evaluate(() => Promise.race([
+      Promise.all(document.getAnimations().filter((a) => a.effect?.getComputedTiming().endTime !== Infinity).map((a) => a.finished.catch(() => {}))),
+      new Promise((r) => setTimeout(r, 3000)),
+    ]));
     const res = await new AxeBuilder({ page }).include('.report-filter').include('.report-sheet').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
     const bad = res.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
     assert.deepEqual(bad.map((v) => `${v.id}: ${v.nodes.map((n) => `${n.target} ${n.failureSummary}`).join(' | ')}`), []);
