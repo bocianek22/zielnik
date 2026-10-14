@@ -72,8 +72,8 @@ Reguła: brak sprzeczności z zasadami oceny, dane tylko własne, każdy dotyka 
 | POM-44 | Opiekun / pełnomocnik (tylko odczyt) | 3 | L | P, Pr | ⚖️ | duplikat POM-29 (rozwinięcie po 1.0) | PAC-15 |
 | POM-45 | „Cofnij” po usunięciu (recepta, wpis dnia, „Do omówienia”) | 4 | S | P | – | zrobiony (0.60.0) | – |
 | POM-46 | Karta dnia z kalendarza Historii | 4 | S/M | P | – | zrobiony (0.60.0) | – |
-| POM-47 | Czynniki dnia (stres, ruch, kofeina…) i „dni z czynnikiem / bez” w obserwacjach | 4 | M | P | – | nowy (0.61) | – |
-| POM-48 | Własny układ panelu „Dziś” (pokaż/ukryj, kolejność kart) | 3 | S | – | – | nowy (0.61) | – |
+| POM-47 | Czynniki dnia (stres, ruch, kofeina…) i „dni z czynnikiem / bez” w obserwacjach | 4 | M | P | – | zrobiony (0.61.0) | – |
+| POM-48 | Własny układ panelu „Dziś” (pokaż/ukryj, kolejność kart) | 3 | S | – | – | zrobiony (0.61.0: pokaż/ukryj; bez zmiany kolejności) | – |
 | POM-49 | Lokalne przypomnienia w APK (bez serwera i Vercel Pro) | 4 | M | P | – | nowy (0.62, nowe APK) | POM-05, POM-15 |
 | POM-R1 | Seria dni z użyciem / odznaki za zużycie | – | – | Pr | – | **odrzucony** | – |
 | POM-R2 | Podpowiedź dawki („spróbuj 0,3 g”) | – | – | Pr | – | **odrzucony** | – |
