@@ -134,6 +134,8 @@
 .sp-ev.on i { border-color: var(--text); }
 .sp-ev.on .ev-buy.batch { background: var(--text); }
 .sp-events.two { height: 26px; }
+.sp-events.three { height: 36px; }
+.sp-ev .ev-adv { width: 7px; height: 7px; margin: 1px 0; transform: rotate(45deg); } /* romb: zdarzenie niepożądane (POM-62) */
 .sp-lbl.l { left: 0; } .sp-lbl.r { right: 0; } .sp-lbl.c { transform: translateX(-50%); }
 .sp-lbl.strong { color: var(--text-2); font-weight: 600; }
 .sp-cap { margin: var(--s-3) 0 0; font-size: var(--fs-xs); color: var(--text-3); line-height: 1.45; }

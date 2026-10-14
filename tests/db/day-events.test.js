@@ -53,13 +53,19 @@ test('zdarzenia: wizyty i zakupy z okna, nowa partia, bez przyszłych wizyt i cu
   const d5 = addDaysIso(t, -5);
   await q`INSERT INTO purchases (user_id, strain_name, grams, created_at, batch_no) VALUES (${A}, 'X', 10, ${at(d5)}::timestamptz, 'P-1')`;
 
+  // zdarzenia niepożądane (POM-62): tylko dzień, bez nasilenia i opisu; cudze i spoza okna pominięte
+  const d1 = addDaysIso(t, -1);
+  await q`INSERT INTO adverse_events (user_id, day, severity, note) VALUES (${A}, ${d3}::date, 'silne', ''), (${A}, ${d1}::date, 'lagodne', ''),
+    (${A}, ${old}::date, 'lagodne', ''), (${B}, ${d5}::date, 'silne', '')`;
+
   const ev = await dayEvents(A, 60);
   assert.deepEqual(ev, [
-    { day: d10, visit: false, purchase: true, batch: true },
-    { day: d5, visit: false, purchase: true, batch: false },
-    { day: d3, visit: true, purchase: true, batch: false },
+    { day: d10, visit: false, purchase: true, batch: true, adverse: false },
+    { day: d5, visit: false, purchase: true, batch: false, adverse: false },
+    { day: d3, visit: true, purchase: true, batch: false, adverse: true },
+    { day: d1, visit: false, purchase: false, batch: false, adverse: true },
   ]);
-  assert.deepEqual((await dayEvents(B, 60)).map((e) => e.day), [d10, d3]);
+  assert.deepEqual((await dayEvents(B, 60)).map((e) => e.day), [d10, d5, d3]);
 
   jar.clear(); await createSession(A);
   const mod = await import('../../app/api/symptoms/route.js');

@@ -1,4 +1,4 @@
-// Znaczniki zdarzeń na wykresie objawów (POM-53): wizyta sprzed 3 dni widoczna jako znacznik pod wykresami, w odczycie
+// Znaczniki zdarzeń na wykresie objawów (POM-53): wizyta i zdarzenie niepożądane (POM-62) sprzed 3 dni widoczna jako znacznik pod wykresami, w odczycie
 // wybranego dnia i w tabeli dla czytnika ekranu; 320 px. Konto bartek (dane tworzone w teście).
 // Uruchomienie: npm run test:e2e (E2E_FILES=tests/e2e/zdarzenia.test.mjs).
 import { test, before, after } from 'node:test';
@@ -20,6 +20,8 @@ test('Wykres objawów: znacznik wizyty, odczyt dnia i tabela', async () => {
     const day = await page.evaluate(() => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Warsaw' }).format(new Date(Date.now() - 3 * 864e5)));
     const st = await page.evaluate((d) => fetch('/api/visits', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ day: d, note: '' }) }).then((r) => r.status), day);
     assert.equal(st, 200);
+    const st2 = await page.evaluate((d) => fetch('/api/adverse', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ day: d, severity: 'lagodne', note: '' }) }).then((r) => r.status), day);
+    assert.equal(st2, 200);
     await go(page, '/dziennik');
     const mark = page.locator('.sp-events .ev-visit');
     await mark.first().waitFor({ timeout: 15000 });
@@ -29,6 +31,8 @@ test('Wykres objawów: znacznik wizyty, odczyt dnia i tabela', async () => {
     await page.keyboard.press('End');
     for (let k = 0; k < 3; k++) await page.keyboard.press('ArrowLeft');
     assert.match(await page.locator('.sp-read').first().innerText(), /wizyta/);
+    assert.match(await page.locator('.sp-read').first().innerText(), /zdarzenie niepożądane/);
+    assert.equal(await page.locator('.sp-events .ev-adv').count() > 0, true);
     assert.match(await page.locator('.sp table').first().innerText(), /wizyta/);
     const over = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
     assert.ok(over <= 0, `poziome przewijanie o ${over} px`);
