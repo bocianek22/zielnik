@@ -21,14 +21,20 @@ export default function DiscreetGuard() {
       document.querySelectorAll('.dn').forEach((el) => {
         if (el.closest('[aria-hidden="true"]')) return; // np. kompaktowy pasek tytułu: bez fokusu w ukrytym poddrzewie
         const hidden = on && !el.dataset.dnOpen;
-        const native = el.matches('a,button');
+        // sama nazwa w linku (wiersz odmiany): opis na linku, bez zagnieżdżonego role="button"
+        const host = el.parentElement?.closest('a,button');
+        const own = host && host.textContent.trim() === el.textContent.trim() ? host : null;
+        const target = own || el;
+        const native = target.matches('a,button');
         if (hidden && !el.dataset.dnLabelled) {
           el.dataset.dnLabelled = '1';
-          el.setAttribute('aria-label', HIDDEN_LABEL);
+          target.setAttribute('aria-label', HIDDEN_LABEL);
+          if (own) own.dataset.dnHost = '1';
           if (!native) { el.setAttribute('role', 'button'); el.tabIndex = 0; }
         } else if (!hidden && el.dataset.dnLabelled) {
           delete el.dataset.dnLabelled;
-          el.removeAttribute('aria-label');
+          target.removeAttribute('aria-label');
+          if (own) delete own.dataset.dnHost;
           if (!native) { el.removeAttribute('role'); el.removeAttribute('tabindex'); }
         }
       });
@@ -48,11 +54,12 @@ export default function DiscreetGuard() {
         lastBrandTap = now;
       }
       if (!isDiscreet()) return;
-      const dn = e.target.closest?.('.dn,.dn-img');
+      // link z samą ukrytą nazwą: jego ::after (cały wiersz) leży nad tekstem, więc cel to link
+      const dn = e.target.closest?.('.dn,.dn-img') || e.target.closest?.('[data-dn-host]')?.querySelector('.dn');
       if (dn && !dn.dataset.dnOpen) { e.preventDefault(); e.stopImmediatePropagation(); reveal(dn); } // także przed innymi nasłuchami capture (przejście ekranu w aplikacji)
     };
     const onKey = (e) => {
-      const dn = e.target.closest?.('.dn,.dn-img');
+      const dn = e.target.closest?.('.dn,.dn-img') || e.target.closest?.('[data-dn-host]')?.querySelector('.dn');
       if (isDiscreet() && dn && !dn.dataset.dnOpen && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); e.stopPropagation(); reveal(dn); }
     };
     document.addEventListener('click', onClick, true);

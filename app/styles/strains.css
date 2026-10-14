@@ -71,9 +71,7 @@
 .strain-head h3 a { color: inherit; text-decoration: none; }
 /* cały nagłówek wiersza jest celem dotyku (przejście do szczegółów); zdjęcie z podglądem leży nad nim */
 .strain-head h3 a::after { content: ''; position: absolute; inset: 0; }
-/* rozmycie trybu dyskretnego na samym tekście: filter na linku zawęziłby ::after do nazwy */
-html[data-discreet] .strain-head h3 a.dn { filter: none; }
-html[data-discreet] .strain-head h3 a.dn:not([data-dn-open]) > span { filter: blur(7px); }
+/* tryb dyskretny: .dn na tekście w linku, nie na linku (filter na linku zawęziłby ::after do samej nazwy) */
 .strain-head h3 a:hover { text-decoration: underline; text-decoration-color: var(--sep-strong); text-underline-offset: 4px; }
 .photo-link { position: relative; z-index: 1; flex-shrink: 0; }
 .strain-meta { margin: 0; color: var(--text-2); font-size: var(--fs-sm); line-height: 1.4; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

@@ -281,7 +281,7 @@ export default function StrainCard({ strain, meId, low, cmpOn, onCmp, onEdit, on
           <RowPhoto src={photoSrc} alt={`Zdjęcie: ${strain.name}`} fallback={thumb} />
         ) : thumb}
         <div className="strain-title">
-          <h3><Link href={`/strains/${strain.id}`} className="dn"><span>{strain.name}</span></Link></h3>
+          <h3><Link href={`/strains/${strain.id}`}><span className="dn">{strain.name}</span></Link></h3>
           <p className="strain-meta">
             <span className="dn">{strain.producer}</span>
             {strain.kind && <span className={`kind kind-${strain.kind}`}><i className="kind-dot" aria-hidden="true" />{cap(strain.kind)}</span>}
