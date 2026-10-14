@@ -7,6 +7,8 @@ import SymptomStreak from '../components/SymptomStreak';
 import Header from '../components/Header';
 import Icon from '../components/Icon';
 import SymptomsBoard from './SymptomsBoard';
+import SymptomYear from '../components/charts/SymptomYear';
+import { symptomCalendar } from '@/lib/symptom-calendar';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,7 +16,7 @@ export default async function Dziennik({ searchParams }) {
   const user = await getUser();
   if (!user) redirect('/login');
   if (user.must_change_password) redirect('/change-password');
-  const streak = await symptomStreak(user.id);
+  const [streak, year] = await Promise.all([symptomStreak(user.id), symptomCalendar(user.id)]);
   // ?dzien=RRRR-MM-DD (karta dnia w Historii): wpis z tego dnia; niepoprawna lub przyszła data = dziś
   const raw = String((await searchParams)?.dzien || '');
   const initialDay = isIsoDay(raw) && raw <= todayPL() ? raw : null;
@@ -37,6 +39,7 @@ export default async function Dziennik({ searchParams }) {
         </header>
         <SymptomStreak data={streak} className="streak-diary" />
         <SymptomsBoard key={initialDay || 'dzis'} initialDay={initialDay} />
+        <SymptomYear data={year} />
       </main>
     </>
   );

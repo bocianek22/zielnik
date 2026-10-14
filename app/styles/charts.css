@@ -256,3 +256,7 @@
 .sp-how > summary::after { content: ''; width: 8px; height: 8px; margin-left: var(--s-2); border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) translateY(-2px); }
 .sp-how[open] > summary::after { transform: rotate(-135deg); }
 .sp-how .sp-cap { margin-top: 0; padding-bottom: var(--s-2); font-size: var(--fs-sm); color: var(--text-2); }
+
+/* „Rok objawów” (POM-50): wybór objawu przewija się w poziomie zamiast łamać siatkę */
+.sym-year-pick { flex-wrap: nowrap; overflow-x: auto; max-width: 100%; }
+.sym-year-pick button { white-space: nowrap; }
