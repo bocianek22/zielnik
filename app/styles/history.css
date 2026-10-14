@@ -170,3 +170,8 @@
 .dc-nouse { display: flex; gap: var(--s-2); align-items: center; margin: var(--s-2) 0; }
 .dc-actions { margin-top: var(--s-4); }
 .cal-open { margin-top: var(--s-3); }
+
+/* Karta terapii (POM-58); druk (bez ramek, nazwy jawne) jak raport, z platform.css */
+.travel-card h3 { margin: var(--s-6) 0 var(--s-2); font-size: var(--fs-lg); }
+.travel-check { margin: 0; padding-left: 1.2em; display: grid; gap: var(--s-2); }
+@media print { .travel-card { font-size: 10pt; } }

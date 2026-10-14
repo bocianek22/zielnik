@@ -27,7 +27,7 @@ export default async function Recepty() {
             </div>
           </div>
         </header>
-        <p className="muted rx-note">To notatnik dla Ciebie, nie dokument medyczny. <Link href="/pomoc#faq">Więcej</Link></p>
+        <p className="muted rx-note">To notatnik dla Ciebie, nie dokument medyczny. <Link href="/pomoc#faq">Więcej</Link> · <Link href="/recepty/karta">Karta terapii na wyjazd</Link></p>
         <div className="stack">
           <PharmacyCard rx={rx.items} pools={pools} />
           <Prescriptions />
