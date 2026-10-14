@@ -22,7 +22,7 @@ test('Karta terapii: recepty, zapas, lista przypominająca, 320 px, axe', async 
     const card = page.locator('.travel-card');
     await card.waitFor({ timeout: 15000 });
     const heads = await card.locator('h3').allInnerTexts();
-    assert.deepEqual(heads, ['Ważne recepty', 'Zapas (według zapisów w aplikacji)', 'Przed wyjazdem']);
+    assert.deepEqual(heads, ['Recepty (według zapisów)', 'Zapas (według zapisów w aplikacji)', 'Przed wyjazdem']);
     assert.ok(await card.locator('tbody tr').count() > 0, 'ania ma ważną receptę');
     assert.match(await card.innerText(), /nie porada prawna/);
     const over = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
@@ -46,5 +46,10 @@ test('Karta terapii w trybie dyskretnym: na ekranie nazwy rozmyte, w druku jawne
     // rozmycie znika z przejściem (filter .2s): czekamy na stan końcowy
     await page.waitForFunction((el) => getComputedStyle(el).filter === 'none', await name.elementHandle(), { timeout: 5000 });
     assert.equal(await page.locator('.travel-page .hero').isVisible(), false, 'nagłówek strony nie trafia do druku');
+    // ciemny motyw: na białej kartce tekst czarny (style druku raportu)
+    await page.evaluate(() => { document.documentElement.dataset.theme = 'dark'; });
+    for (const sel of ['.travel-card h3', '.travel-card .lr-value', '.travel-card th']) {
+      assert.equal(await page.locator(sel).first().evaluate((e) => getComputedStyle(e).color), 'rgb(0, 0, 0)', sel);
+    }
   } catch (e) { await shot(page, 'karta-terapii-dyskretny'); throw e; } finally { await ctx.close(); }
 });

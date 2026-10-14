@@ -10,7 +10,7 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [0.68.0] - 2026-10
 ### Dodano
-- **Karta terapii na wyjazd (POM-58):** Recepty → „Karta terapii na wyjazd”: ważne recepty (wystawienie, termin, przepisano, do wykupienia), obecny zapas według odmian i neutralna lista przypominająca przed wyjazdem (oryginalne opakowania, recepta, ilość na czas wyjazdu, sprawdzenie przepisów w oficjalnych źródłach) z zastrzeżeniem, że to nie porada prawna. Druk lub zapis PDF (także w APK); na ekranie w trybie dyskretnym nazwy rozmyte, na wydruku jawne. Bez notatek recept i cen; tylko dane właściciela.
+- **Karta terapii na wyjazd (POM-58):** Recepty → „Karta terapii na wyjazd”: recepty z terminem od dziś i bez zapisanego terminu (wystawienie, termin, przepisano), obecny zapas według odmian i neutralna lista przypominająca przed wyjazdem (oryginalne opakowania, recepta, sprawdzenie przepisów w oficjalnych źródłach) z zastrzeżeniem, że to nie porada prawna. Druk lub zapis PDF (także w APK); na ekranie w trybie dyskretnym nazwy rozmyte, na wydruku jawne. Bez notatek recept, cen i szacunków „do wykupienia”; tylko dane właściciela. Wydruk czytelny także z ciemnym motywem.
 
 ## [0.67.0] - 2026-10
 ### Dodano
