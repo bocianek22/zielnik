@@ -81,6 +81,7 @@ Waga: K = krytyczna, W = wysoka, Ś = średnia, N = niska. Status: ✅ naprawion
 | `symptoms` | GET, PUT, DELETE | U, tylko własne | OK (uwaga dla osobnego agenta) |
 | `prescriptions` | GET, POST, DELETE | U, tylko własne | OK po #13 |
 | `visits`, `visits/[id]` (POM-52) | GET, POST, DELETE | U, `intId`, `user_id` w każdym zapytaniu (cudza = 404), 60 zapisów/h, data z kalendarza (2000..rok naprzód), notatka ≤ 1000 znaków szyfrowana (AAD `visits.note\|user_id\|id`), limit 500 w tym samym INSERT; następna wizyta walidowana jak w profilu (bez dat z przeszłości); bez `can_see` (tylko właściciel), nie trafia do wydruku raportu | OK (`tests/db/visits.test.js`) |
+| `adverse`, `adverse/[id]` (POM-62) | GET, POST, DELETE | U, `intId`, `user_id` w każdym zapytaniu (cudze = 404), 60 zapisów/h, data z kalendarza (2000..dziś, bez przyszłości), nasilenie ze słownika, opis ≤ 1000 znaków szyfrowany (AAD `adverse_events.note\|user_id\|id`), limit 500 w tym samym INSERT; bez `can_see` (tylko właściciel); w raporcie opis tylko z „Dołącz moje spostrzeżenia” | OK (`tests/db/adverse-events.test.js`) |
 | `profile` | PUT | U | OK po #6 i #17 |
 | `users/[id]/avatar` | GET | U, `can_see` profilu | OK po #9 |
 | `users/search` | GET | U, z pominięciem blokad | 👤 (lista nazw dla zalogowanych) |
@@ -206,7 +207,7 @@ Wnioski:
 ## Szyfrowanie notatek w bazie (POM-28)
 Projekt i uzasadnienie wyboru: `docs/SZYFROWANIE-NOTATEK.md`. Moduł `lib/data-crypto.js`, przepisanie danych `scripts/encrypt-notes.mjs`.
 
-**Zakres.** Szyfrowane są `symptom_log.note`, `user_strain.notes`, `prescriptions.note`, `strain_tests.note`, `purchases.batch_note` (notatka o partii, POM-32), `group_messages.body` (czat grup, SPO-2) i `visits.note` (dziennik wizyt, POM-52). `doctor_notes.text` zostaje jawne do decyzji właściciela (CHECK 1..200 vs szyfrogram; w kodzie komentarz TODO). Daty, liczby, skale, widoczność i nazwy odmian zostają jawne.
+**Zakres.** Szyfrowane są `symptom_log.note`, `user_strain.notes`, `prescriptions.note`, `strain_tests.note`, `purchases.batch_note` (notatka o partii, POM-32), `group_messages.body` (czat grup, SPO-2) `visits.note` (dziennik wizyt, POM-52) i `adverse_events.note` (zdarzenia niepożądane, POM-62). `doctor_notes.text` zostaje jawne do decyzji właściciela (CHECK 1..200 vs szyfrogram; w kodzie komentarz TODO). Daty, liczby, skale, widoczność i nazwy odmian zostają jawne.
 
 **Model zagrożeń.**
 | Zagrożenie | Efekt |

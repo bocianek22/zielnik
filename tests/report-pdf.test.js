@@ -114,6 +114,7 @@ test('wersja skrócona (POM-56): bez list o nieograniczonej długości, najwyże
     rx: Array.from({ length: 12 }, (_, i) => ({ ...report.rx[0], id: i })),
     customSym: [1, 2, 3].map((i) => ({ name: `Własny objaw ${i} o dłuższej nazwie`, higher_better: i === 1, days: 20, avg: 5.5 })),
     factors: Array.from({ length: 8 }, (_, i) => ({ name: `czynnik dnia ${i + 1}`, days: 12 })),
+    adverse: Array.from({ length: 12 }, (_, i) => ({ day: `2026-10-${String(10 - (i % 9)).padStart(2, '0')}`, severity: 'silne', note: `opis zdarzenia ${i} `.repeat(60) })),
     totals: { used: { g: 300, ml: 40 }, bought: { g: 350, ml: 50 }, cost: 4000 },
     rxSum: { ...report.rxSum, prescribed: { g: 400, ml: 60 } },
   };
@@ -123,11 +124,18 @@ test('wersja skrócona (POM-56): bez list o nieograniczonej długości, najwyże
   const mix = buildReportModel({ patient: 'A', from: '2026-09-11', to: '2026-10-10', today: '2026-10-10', withNotes: false, minSymptomDays: 5, short: true,
     report: { ...big, usage: [...Array.from({ length: 6 }, (_, i) => ({ name: `Susz ${i}`, days: 5, grams: 20, unit: 'g' })), { name: 'Olej główny', days: 25, grams: 10, unit: 'ml' }] } });
   assert.ok(JSON.stringify(mix).includes('Olej główny'));
-  for (const gone of ['Tydzień po tygodniu', 'Zakupy', 'Odczucia pacjenta', 'Pory dnia', 'Objawy w dniach z odmianą', 'Wystawiona']) assert.ok(!all.includes(gone), gone);
-  for (const kept of ['Podsumowanie', 'Recepty w okresie', 'Zużycie według odmian', 'Pozostałe odmiany (9)', 'Cały okres', 'czynnik dnia 8', 'Wersja skrócona']) assert.ok(all.includes(kept), kept);
+  for (const gone of ['opis zdarzenia', 'Tydzień po tygodniu', 'Zakupy', 'Odczucia pacjenta', 'Pory dnia', 'Objawy w dniach z odmianą', 'Wystawiona']) assert.ok(!all.includes(gone), gone);
+  for (const kept of ['Podsumowanie', 'Recepty w okresie', 'Zużycie według odmian', 'Pozostałe odmiany (9)', 'Cały okres', 'czynnik dnia 8', 'Wersja skrócona', '12 zdarzeń, 10 października 2026 (silne)', 'i 7 wcześniej']) assert.ok(all.includes(kept), kept);
   const notes = (n) => Array.from({ length: n }, (_, i) => ({ text: `Punkt ${i + 1}: ${'zapytać o szczegóły leczenia i dalszy plan '.repeat(5).slice(0, 190)}` }));
   const { PDFDocument } = await import('pdf-lib');
   const pages = async (n) => (await PDFDocument.load(await buildReportPdf({ ...m, title: 'Raport' }, notes(n), fonts()))).getPageCount();
   assert.equal(await pages(0), 1, 'dużo danych bez punktów „Do omówienia”: jedna strona');
   assert.ok(await pages(10) <= 2, 'najgorszy przypadek (10 punktów po 200 znaków) najwyżej 2 strony');
+});
+
+test('zdarzenia niepożądane (POM-62): pełny raport z opisem tylko gdy jest w danych, bez zdarzeń bez sekcji', () => {
+  const adverse = [{ day: '2026-10-08', severity: 'silne', note: 'Zawroty\ngłowy' }, { day: '2026-10-01', severity: 'lagodne', note: '' }];
+  const all = JSON.stringify(buildReportModel({ patient: 'A', from: '2026-09-11', to: '2026-10-10', today: '2026-10-10', withNotes: true, report: { ...report, adverse }, minSymptomDays: 5 }));
+  for (const t of ['Zdarzenia niepożądane', '8 października 2026, nasilenie: silne: Zawroty głowy', '1 października 2026, nasilenie: łagodne', 'nie jest oceną związku z leczeniem']) assert.ok(all.includes(t), t);
+  assert.ok(!JSON.stringify(model()).includes('Zdarzenia niepożądane'));
 });
