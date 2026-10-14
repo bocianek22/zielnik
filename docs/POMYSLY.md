@@ -41,13 +41,13 @@ Reguła: brak sprzeczności z zasadami oceny, dane tylko własne, każdy dotyka 
 | POM-13 | Widżet Androida „Zapas i Zużyłem” | 4 | L | P | – | nowy | MOB-16 |
 | POM-14 | Zapisy offline z kolejką | 4 | M/L | P, T | POM-02 | zrobiony (0.36.0) | MOB-8 |
 | POM-15 | Przypomnienie o wizycie i kontroli recepty | 4 | S | P | 🔑 | nowy | PAC-16 |
-| POM-16 | Recepta: podział na pozycje i powiązanie zakupów | 3 | M | T | – | nowy | PAC-4 |
+| POM-16 | Recepta: podział na pozycje i powiązanie zakupów | 3 | M | T | – | zrobiony (0.48.0: `purchases.prescription_id`, wybór recepty przy „Wykupiłem”) | PAC-4 |
 | POM-17 | Wyszukiwanie bez polskich znaków i w moich notatkach | 3 | S/M | P | – | zrobiony (0.34.0: bez polskich znaków; 0.59.0: „Moje notatki” na `/szukaj`) | – |
 | POM-18 | Porównanie z moimi statystykami i objawami | 3 | S | P | POM-06 | zrobiony (0.44.0: statystyki; 0.58.0: „Samopoczucie po tej odmianie”) | – |
-| POM-19 | Kreator pierwszego uruchomienia | 4 | M | – | – | nowy | UX-6 |
+| POM-19 | Kreator pierwszego uruchomienia | 4 | M | – | – | zrobiony (0.48.0; ilustracje kroków 0.59.0) | UX-6 |
 | POM-20 | Puste stany prowadzące do pierwszego wpisu | 3 | S | – | – | zrobiony (0.37.0: Dziś, dziennik, recepty, Historia, raport) | UX-5 |
 | POM-21 | Dostępność wykresów i formularzy | 4 | S/M | – | – | częściowo (0.33.0: wykres objawów kreska + kształt + tabela dla czytnika; zostają suwaki, kolory, axe) | UX-2 |
-| POM-22 | Większy tekst i tryb „duże cele” | 3 | S | – | – | nowy | UX-2 |
+| POM-22 | Większy tekst i tryb „duże cele” | 3 | S | – | – | zrobiony (0.46.0) | UX-2 |
 | POM-23 | Wydajność ekranu głównego (dane „Dziś” bez pełnej listy) | 3 | M | T | – | zrobiony (0.39.0) | PLA-5, MOB-9 |
 | POM-24 | Budżety Lighthouse w CI | 3 | S | – | – | w toku (fala 1, `PLAN-PAZDZIERNIK.md`; zmierzy POM-23) | PLA-16, MOB-15 |
 | POM-25 | Blokada PIN/biometrią także w PWA i automatyczne wylogowanie | 4 | M | P | – | zrobiony (0.38.0; zmiana PIN: POM-33) | KON-11 |

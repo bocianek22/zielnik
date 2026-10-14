@@ -6,6 +6,7 @@ import { unitOf } from '@/lib/units';
 import { strainItems, catalogItems } from '@/lib/searchItems';
 import { parseNum, decimalProps } from './num';
 import SearchSuggest from './SearchSuggest';
+import Illustration from './Illustration';
 import Icon from './Icon';
 import RxForm from '../recepty/RxForm';
 import PushSettings from '../profil/PushSettings';
@@ -182,6 +183,8 @@ export default function Onboarding() {
     catch (e) { setErr(e.message); setBusy(false); }
   }
 
+  // Design 3.1, P3 #20: ilustracja kroku (dekoracja, aria-hidden w Illustration)
+  const ARTS = ['jar', 'rx', 'journal', 'chart'];
   const titles = [
     'Jaką odmianę masz teraz?',
     'Masz receptę?',
@@ -212,6 +215,7 @@ export default function Onboarding() {
         ))}
       </ol>
       <section className="card stack onb-card" aria-labelledby="onb-h">
+        <Illustration art={ARTS[step]} size={96} className="onb-ill" />
         <p className="onb-count">{step < 3 ? `Krok ${step + 1} z 3` : 'Koniec'}</p>
         <h2 id="onb-h" ref={head} tabIndex={-1}>{titles[step]}</h2>
         {lead[step] && <p className="muted">{lead[step]}</p>}
