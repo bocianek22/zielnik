@@ -105,3 +105,29 @@ test('layoutReport: komórka wyższa niż strona jest przycięta ze znacznikiem,
   assert.ok(texts.some((o) => o.text === '… (pełny tekst w aplikacji)'));
   assert.ok(texts.some((o) => o.text === 'krótko'), 'następny wiersz nie ginie');
 });
+
+test('wersja skrócona (POM-56): bez list o nieograniczonej długości, najwyżej 5 odmian; bez punktów 1 strona, najgorszy przypadek 2', async () => {
+  const strains = Array.from({ length: 14 }, (_, i) => ({ name: `Bardzo długa nazwa odmiany numer ${i + 1} z dopiskiem`, producer: 'Producent', thc: 20, cbd: 1, days: 30 - i, grams: 10 + i, unit: i % 3 ? 'g' : 'ml' }));
+  const big = {
+    ...report, usage: strains,
+    weekly: Array.from({ length: 13 }, () => report.weekly[0]), purchases: Array.from({ length: 30 }, () => report.purchases[0]),
+    rx: Array.from({ length: 12 }, (_, i) => ({ ...report.rx[0], id: i })),
+    customSym: [1, 2, 3].map((i) => ({ name: `Własny objaw ${i} o dłuższej nazwie`, higher_better: i === 1, days: 20, avg: 5.5 })),
+    factors: Array.from({ length: 8 }, (_, i) => ({ name: `czynnik dnia ${i + 1}`, days: 12 })),
+    totals: { used: { g: 300, ml: 40 }, bought: { g: 350, ml: 50 }, cost: 4000 },
+    rxSum: { ...report.rxSum, prescribed: { g: 400, ml: 60 } },
+  };
+  const m = buildReportModel({ patient: 'Zażółć Gęślą', from: '2026-07-13', to: '2026-10-10', today: '2026-10-10', withNotes: true, report: big, minSymptomDays: 5, short: true });
+  const all = JSON.stringify(m);
+  // najczęstsze po dniach użycia, bez względu na jednostkę (olej nie spada za susz)
+  const mix = buildReportModel({ patient: 'A', from: '2026-09-11', to: '2026-10-10', today: '2026-10-10', withNotes: false, minSymptomDays: 5, short: true,
+    report: { ...big, usage: [...Array.from({ length: 6 }, (_, i) => ({ name: `Susz ${i}`, days: 5, grams: 20, unit: 'g' })), { name: 'Olej główny', days: 25, grams: 10, unit: 'ml' }] } });
+  assert.ok(JSON.stringify(mix).includes('Olej główny'));
+  for (const gone of ['Tydzień po tygodniu', 'Zakupy', 'Odczucia pacjenta', 'Pory dnia', 'Objawy w dniach z odmianą', 'Wystawiona']) assert.ok(!all.includes(gone), gone);
+  for (const kept of ['Podsumowanie', 'Recepty w okresie', 'Zużycie według odmian', 'Pozostałe odmiany (9)', 'Cały okres', 'czynnik dnia 8', 'Wersja skrócona']) assert.ok(all.includes(kept), kept);
+  const notes = (n) => Array.from({ length: n }, (_, i) => ({ text: `Punkt ${i + 1}: ${'zapytać o szczegóły leczenia i dalszy plan '.repeat(5).slice(0, 190)}` }));
+  const { PDFDocument } = await import('pdf-lib');
+  const pages = async (n) => (await PDFDocument.load(await buildReportPdf({ ...m, title: 'Raport' }, notes(n), fonts()))).getPageCount();
+  assert.equal(await pages(0), 1, 'dużo danych bez punktów „Do omówienia”: jedna strona');
+  assert.ok(await pages(10) <= 2, 'najgorszy przypadek (10 punktów po 200 znaków) najwyżej 2 strony');
+});

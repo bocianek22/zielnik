@@ -17,7 +17,7 @@ import ReportNotes from './ReportNotes';
 import { listNotes } from '@/lib/doctor-notes';
 import { formatDay, todayPL, addDaysIso } from '@/lib/date';
 import { doctorReport, MIN_SYMPTOM_DAYS } from '@/lib/report';
-import { buildReportModel } from '@/lib/report-pdf-model';
+import { buildReportModel, shortUsage, restLine } from '@/lib/report-pdf-model';
 import { batchSummary } from '@/lib/batch-meta';
 import { METHODS, PERIODS, periodLabel } from '@/lib/usage-meta';
 
@@ -57,7 +57,9 @@ export default async function Raport({ searchParams }) {
   if (Date.parse(to) - Date.parse(from) >= MAX_DAYS * 864e5) from = addDaysIso(to, -(MAX_DAYS - 1));
   const withNotes = sp.notes === '1';
   const visit = sp.okres === 'wizyta';
-  const notesQs = withNotes ? '&notes=1' : '';
+  // wersja skrócona (POM-56): te same sekcje co w lib/report-pdf-model.js (short), bez list o nieograniczonej długości
+  const brief = sp.krotki === '1';
+  const notesQs = `${withNotes ? '&notes=1' : ''}${brief ? '&krotki=1' : ''}`;
 
   const [report, notes, visits] = await Promise.all([
     doctorReport(me.id, from, to, { withNotes }), listNotes(me.id), listVisits(me.id),
@@ -99,6 +101,8 @@ export default async function Raport({ searchParams }) {
   // objawy przy odmianach: średnia tylko przy co najmniej MIN_SYMPTOM_DAYS dniach z wpisem
   const symCell = (s, k) => (s[`n_${k}`] >= MIN_SYMPTOM_DAYS ? `${nf(s[k])} (${dniGen(s[`n_${k}`])})` : s[`n_${k}`] ? `za mało dni (${s[`n_${k}`]})` : '–');
 
+  const modeHref = (b) => `/raport?from=${from}&to=${to}${visit ? '&okres=wizyta' : ''}${withNotes ? '&notes=1' : ''}${b ? '&krotki=1' : ''}`;
+  const { shown: briefUsage, rest: briefRest } = shortUsage(usage);
   const presetHref = (n) => `/raport?from=${addDaysIso(today, -(n - 1))}&to=${today}${notesQs}`;
   const presetOn = (n) => !visit && to === today && from === addDaysIso(today, -(n - 1));
   const custom = !visit && !PRESETS.some(([n]) => presetOn(n));
@@ -123,17 +127,25 @@ export default async function Raport({ searchParams }) {
               <Link key={n} className={`chip${presetOn(n) ? ' on' : ''}`} href={presetHref(n)} aria-current={presetOn(n) ? 'page' : undefined}>{l}</Link>
             ))}
           </nav>
-          <VisitPeriod today={today} value={visit ? from : ''} notes={withNotes} />
+          <VisitPeriod today={today} value={visit ? from : ''} notes={withNotes} brief={brief} />
           <details className="report-more" open={custom || undefined}>
             <summary>Własny zakres dat i opcje<Icon name="chevronDown" size={20} className="report-more-chev" /></summary>
             <form className="row report-range" method="get">
               <div className="field"><label htmlFor="from">Od</label><input id="from" name="from" type="date" lang="pl" className="input" defaultValue={from} max={today} /></div>
               <div className="field"><label htmlFor="to">Do</label><input id="to" name="to" type="date" lang="pl" className="input" defaultValue={to} max={today} /></div>
               <label className="check"><input type="checkbox" name="notes" value="1" defaultChecked={withNotes} /> Dołącz moje spostrzeżenia (notatki przy odmianach i o partiach, czynniki dnia)</label>
+              {brief && <input type="hidden" name="krotki" value="1" />}
               <button className="btn ghost">Pokaż raport</button>
             </form>
           </details>
-          <ReportActions from={from} to={to} notes={openNotes} model={buildReportModel({ patient: plan?.display_name || me.username, from, to, today, withNotes, report, minSymptomDays: MIN_SYMPTOM_DAYS })} />
+          <nav className="seg report-mode" aria-label="Wersja raportu">
+            {[[false, 'Pełny'], [true, 'Skrócony']].map(([b, l]) => (
+              <Link key={l} href={modeHref(b)} className={b === brief ? 'on' : ''} aria-current={b === brief ? 'page' : undefined} replace scroll={false}>{l}</Link>
+            ))}
+          </nav>
+          {brief && <p className="muted small">Skrócony: podsumowanie, objawy z całego okresu, recepty i najczęstsze odmiany; zwykle mieści się na jednej stronie.</p>}
+          {/* key: gotowy PDF (pod Safari) liczony dla danego okresu i wersji; po zmianie trybu bez przeładowania nowy */}
+          <ReportActions key={`${from}|${to}|${brief}|${withNotes}`} from={from} to={to} notes={openNotes} model={buildReportModel({ patient: plan?.display_name || me.username, from, to, today, withNotes, report, minSymptomDays: MIN_SYMPTOM_DAYS, short: brief })} />
           <p className="muted small">PDF powstaje na tym urządzeniu, a dane nie trafiają na serwer.</p>
           <details className="report-more">
             <summary>O pliku PDF<Icon name="chevronDown" size={20} className="report-more-chev" /></summary>
@@ -171,6 +183,14 @@ export default async function Raport({ searchParams }) {
           </div>
           <p className="muted small">Liczba użytych odmian: {usage.length}. Dni z wpisem objawów: {sym.days} z {daysSpan}.{cost > 0 && ` Koszt zakupów: ok. ${nf(cost, 2)} zł.`}</p>
 
+          {brief ? (
+            <>
+              <h3>Objawy</h3>
+              <p className="muted small">{sym.days > 0
+                ? `Cały okres (${dniGen(sym.days)} z wpisem), średnie 0–10: ${SYMPTOMS.map((s) => `${s.short} ${av(sym[s.key])}`).join(', ')}. Ból i lęk: wyższa wartość oznacza gorzej. Sen i nastrój: wyższa wartość oznacza lepiej.`
+                : 'Brak wpisów objawów w tym okresie.'}</p>
+            </>
+          ) : (<>
           <h3>Tydzień po tygodniu</h3>
           {!anyWeekData ? <p className="muted">Brak zapisów w tym okresie.</p> : (
             <>
@@ -201,6 +221,7 @@ export default async function Raport({ searchParams }) {
           )}
           <p className="muted small">Tygodnie od poniedziałku, pierwszy i ostatni mogą być niepełne. Ból i lęk: wyższa wartość oznacza gorzej. Sen i nastrój: wyższa wartość oznacza lepiej.
             {sym.days > 0 && ` Cały okres (${dniGen(sym.days)} z wpisem): ${SYMPTOMS.map((s) => `${s.short} ${av(sym[s.key])}`).join(', ')}.`}</p>
+          </>)}
           {factors.length > 0 && (
             <p className="muted small">Czynniki dnia zaznaczane przez pacjenta (liczba dni w okresie, bez ocen): <span className="dn">{factors.map((f) => `${f.name} (${f.days === 1 ? "1 dzień" : `${f.days} dni`})`).join(', ')}</span>.</p>
           )}
@@ -219,7 +240,7 @@ export default async function Raport({ searchParams }) {
                 <div><dt>Niewykorzystane (wygasłe)</dt><dd>{rxQty(rxSum.unused)}</dd></div>
                 <div><dt>Do wykupienia (ważne)</dt><dd>{rxQty(rxSum.left)}</dd></div>
               </dl>
-              <ul className="list report-narrow">
+              {!brief && <><ul className="list report-narrow">
                 {rx.map((r) => (
                   <li key={r.id} className="list-row"><span className="lr-main"><span>{day(r.issued_on)}</span>
                     <span className="lr-sub">{r.valid_until ? `Ważna do ${day(r.valid_until)}` : 'Bez terminu ważności'} · wykupiono {nf(r.bought, 2)} {r.unit}</span>
@@ -229,13 +250,22 @@ export default async function Raport({ searchParams }) {
               </ul>
               <div className="table-wrap report-wide"><table className="cmp"><thead><tr><th>Wystawiona</th><th>Ważna do</th><th className="num">Przepisano</th><th className="num">Wykupiono</th><th>Stan na {short(to)}</th></tr></thead>
                 <tbody>{rx.map((r) => (<tr key={r.id}><td>{day(r.issued_on)}</td><td>{r.valid_until ? day(r.valid_until) : 'bez terminu'}</td>
-                  <td className="num">{nf(r.grams, 2)} {r.unit}</td><td className="num">{nf(r.bought, 2)} {r.unit}</td><td>{rxState(r)}</td></tr>))}</tbody></table></div>
+                  <td className="num">{nf(r.grams, 2)} {r.unit}</td><td className="num">{nf(r.bought, 2)} {r.unit}</td><td>{rxState(r)}</td></tr>))}</tbody></table></div></>}
             </>
           )}
           <p className="muted small">Wykup liczony z zakupów zapisanych przez pacjenta w okresie ważności recepty, do {day(to)}; susz w gramach, olej i pen w ml osobno.</p>
 
           <h3>Zużycie według odmian</h3>
-          {usage.length === 0 ? <p className="muted">Brak zapisanego zużycia w tym okresie.</p> : (
+          {usage.length === 0 ? <p className="muted">Brak zapisanego zużycia w tym okresie.</p> : brief ? (
+            <>
+              <ul className="list">
+                {briefUsage.map((u, i) => (
+                  <li key={i} className="list-row"><span className="lr-main"><span className="dn">{u.name}</span><span className="lr-sub">{dni(u.days)} użycia</span></span><span className="lr-value">{nf(u.grams, 2)} {u.unit}</span></li>
+                ))}
+              </ul>
+              {briefRest.length > 0 && <p className="muted small">{restLine(briefRest)}</p>}
+            </>
+          ) : (
             <>
               <ul className="list report-narrow">
                 {usage.map((u, i) => (
@@ -247,6 +277,8 @@ export default async function Raport({ searchParams }) {
             </>
           )}
 
+          {brief && <p className="muted small">Wersja skrócona. Pełny raport (tydzień po tygodniu, zakupy, objawy przy odmianach, odczucia) jest w aplikacji.</p>}
+          {!brief && <>
           {whenUsed.period.length > 0 && (
             <>
               <h3>Pory dnia i sposób przyjęcia</h3>
@@ -288,6 +320,7 @@ export default async function Raport({ searchParams }) {
             <div className="table-wrap report-wide"><table className="cmp"><thead><tr><th>Odmiana</th><th>Ocena</th>{EFFECTS.map(([, l]) => <th key={l}>{l}</th>)}{withNotes && <th>Spostrzeżenia</th>}</tr></thead>
               <tbody>{feel.map((f, i) => (<tr key={i}><td><span className="dn">{f.name}</span></td><td>{f.rating != null ? nf(f.rating) : '–'}</td>{EFFECTS.map(([k]) => <td key={k}>{fx(f.effects, k) != null ? nf(fx(f.effects, k)) : '–'}</td>)}{withNotes && <td>{f.notes || '–'}</td>}</tr>))}</tbody></table></div>
             <p className="muted small">Ogólne oceny odmian wpisane przez pacjenta, niezwiązane z okresem raportu.</p></>)}
+          </>}
         </section>
         )}
         <p className="muted small no-print"><Link href="/historia">Historia zakupów i zużycia</Link> · <Link href="/recepty">Recepty</Link> · <Link href="/dziennik">Dziennik objawów</Link></p>

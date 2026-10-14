@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { api } from '@/lib/api';
 import Icon from '@/app/components/Icon';
+import { isEncryptedBackup, decryptBackup } from '@/lib/backup-crypto';
 
 const MAX = 4 * 1024 * 1024; // jak MAX_BODY na serwerze (Vercel: najwyżej 4,5 MB treści)
 
@@ -46,20 +47,40 @@ export default function RestoreForm() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [locked, setLocked] = useState(null); // { file, name }: zaszyfrowana kopia czeka na hasło (POM-57)
+  const [pw, setPw] = useState('');
 
   async function pick(e) {
     const file = e.target.files?.[0];
     e.target.value = '';
-    setData(null); setPreview(null); setResult(null); setError('');
+    setData(null); setPreview(null); setResult(null); setError(''); setLocked(null); setPw('');
     if (!file) return;
     if (file.size > 40e6) return setError('Plik jest bardzo duży. Użyj pliku „Pobierz dane (JSON)” bez zdjęć.');
     let d;
     try { d = JSON.parse(await file.text()); } catch { return setError('Nie udało się odczytać pliku (oczekiwano pliku JSON z eksportu).'); }
+    if (isEncryptedBackup(d)) return setLocked({ file: d, name: file.name });
+    await check(d, file.name);
+  }
+
+  async function unlock(e) {
+    e.preventDefault();
+    setError(''); setBusy(true);
+    let d;
+    try { d = JSON.parse(await decryptBackup(locked.file, pw)); }
+    catch (err) { setBusy(false); return setError(err instanceof SyntaxError ? 'Odszyfrowany plik nie jest kopią danych.' : err.message); }
+    setBusy(false); setPw('');
+    const name = locked.name;
+    setLocked(null);
+    await check(d, name);
+  }
+
+  async function check(raw, fileName) {
+    let d = raw;
     if (!d || typeof d !== 'object' || Array.isArray(d)) return setError('To nie jest plik eksportu danych.');
     d = slim(d);
     if (new Blob([JSON.stringify({ dryRun: true, data: d })]).size > MAX) return setError('Plik jest za duży (najwyżej 4 MB bez zdjęć).');
     setBusy(true);
-    try { setPreview(await api('/api/account/import', 'POST', { dryRun: true, data: d })); setData(d); setName(file.name); }
+    try { setPreview(await api('/api/account/import', 'POST', { dryRun: true, data: d })); setData(d); setName(fileName); }
     catch (err) { setError(err.message); }
     setBusy(false);
   }
@@ -77,7 +98,16 @@ export default function RestoreForm() {
       <div className="card stack">
         <p className="import-help">Wybierz plik pobrany w profilu („Pobierz dane (JSON)”). Najpierw zobaczysz podsumowanie, nic nie zostanie zapisane, dopóki nie klikniesz „Importuj”. Odzyskasz własne wpisy: oceny, stany, notatki, zużycie, zakupy, recepty, testy, dziennik i punkty do omówienia (jako prywatne). Pozycje, które już masz, zostają bez zmian, więc ten sam plik można wgrać ponownie. Odmiany spoza katalogu, znajomi, grupy, zdjęcia i dane innych osób nie są przenoszone.</p>
         <label className="btn ghost block file-btn"><Icon name="download" size={20} className="flip" />Wybierz plik JSON<input type="file" accept=".json,application/json" className="sr-only" disabled={busy} onChange={pick} /></label>
+        <p className="muted small">Kopię zabezpieczoną hasłem odszyfrujemy na tym urządzeniu; hasło nie trafia na serwer.</p>
       </div>
+      {locked && (
+        <form className="card stack restore-unlock" onSubmit={unlock}>
+          <p>Plik <b>{locked.name}</b> jest zabezpieczony hasłem.</p>
+          <div className="field"><label htmlFor="restore-pw">Hasło do pliku</label>
+            <input id="restore-pw" className="input" type="password" autoComplete="off" value={pw} onChange={(e) => setPw(e.target.value)} autoFocus /></div>
+          <div><button className="btn" disabled={busy || !pw}>{busy ? 'Odszyfrowuję…' : 'Odszyfruj i pokaż podgląd'}</button></div>
+        </form>
+      )}
       <div aria-live="polite">{preview && (
         <>
           <h2 className="section-label">Podgląd: {name}</h2>

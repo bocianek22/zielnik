@@ -1,4 +1,5 @@
 'use client';
+import EncryptedExport from './EncryptedExport';
 import { clearQueue } from '@/lib/offline-client';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -130,6 +131,8 @@ export default function ProfileForm({ me, initial, children }) {
           <div className="field"><label htmlFor="csv-do">do</label><input id="csv-do" className="input" type="date" lang="pl" value={csvTo} min={csvFrom || undefined} onChange={(e) => setCsvTo(e.target.value)} /></div>
         </div>
         <p className="muted">Pusty zakres dat oznacza cały dziennik. Plik otwiera się w Excelu (separator „;”, przecinek dziesiętny).</p>
+        <p className="muted">Plik „Pobierz dane (JSON)” jest czytelny dla każdego, kto go otworzy. Jeśli trzymasz kopię na Dysku lub w poczcie, zabezpiecz ją hasłem.</p>
+        <EncryptedExport />
       </SettingsGroup>
 
       <EmailSettings isAdmin={me.isAdmin} />

@@ -1,6 +1,6 @@
 # Pomysły na rozwój Zielnika
 
-Lista prowadzona przez agenta „innowacje” (`.claude/agents/innowacje.md`). Stan na wersję **0.44.0** (0.39: własne objawy POM-07 i lżejszy ekran główny POM-23; 0.40: zmień PIN, `safe()` w trasach auth; 0.41: dzień bez zużycia; 0.42: karta „W aptece”; 0.43: „Do omówienia z lekarzem”; 0.44: statystyki w porównaniu). Pierwsza runda: 2026-10-03, odświeżenia: 2026-10-04 i 2026-10-08.
+Lista prowadzona przez agenta „innowacje” (`.claude/agents/innowacje.md`). Stan na wersję **0.66.0** (0.65–0.66: wizyty POM-52, znaczniki zdarzeń POM-53, dni tygodnia POM-54; runda POM-55..59: 2026-10-14; wcześniej 0.39: własne objawy POM-07 i lżejszy ekran główny POM-23; 0.40: zmień PIN, `safe()` w trasach auth; 0.41: dzień bez zużycia; 0.42: karta „W aptece”; 0.43: „Do omówienia z lekarzem”; 0.44: statystyki w porównaniu). Pierwsza runda: 2026-10-03, odświeżenia: 2026-10-04 i 2026-10-08.
 
 Oznaczenia: **wartość** dla pacjenta 1-5 · **koszt** S (godziny) / M (dzień-dwa) / L (tydzień i więcej) · **ryzyko**: P prywatność / danych zdrowotnych, Pr prawo, T techniczne · **zależności**: 🌐 domena, ⚖️ prawnik, 💳 płatności, 📧 e-mail, 🔑 klucze w Vercel (VAPID/FCM), ⏱ cron co godzinę (`PUSH_CRON_HOURLY=1`, plan Vercel Pro, PLA-3). Identyfikatory `POM-xx` są nowe; przy pokrywaniu się z `ROADMAP.md` podano powiązany punkt i zawężenie.
 
@@ -80,6 +80,11 @@ Reguła: brak sprzeczności z zasadami oceny, dane tylko własne, każdy dotyka 
 | POM-52 | Dziennik wizyt (data, notatka „co ustalono”, następna wizyta) | 4 | M | P | – | zrobione (0.65.0) | MON-4 |
 | POM-53 | Znaczniki zdarzeń na wykresie objawów (wizyty, wykupy, partie) | 3 | S/M | Pr | POM-52 | zrobione (0.66.0) | – |
 | POM-54 | Wzorce wg dnia tygodnia w „Moich obserwacjach” | 3 | S | Pr | – | zrobione (0.66.0) | – |
+| POM-55 | Korekta zapasu po zważeniu („Policzyłem: zostało X g”) | 4 | S/M | P, T | – | odłożony: stan zapasu edytuje się już w karcie odmiany; wróci, gdy będzie potrzebny dziennik korekt | PAC-7 |
+| POM-56 | Raport na jednej stronie: „Podsumowanie na wizytę” (wersja skrócona) | 5 | S/M | P | – | zrobione (0.67.0) | MON-4 |
+| POM-57 | Zaszyfrowany eksport hasłem i przypomnienie o kopii | 4 | M | P, T | – | zrobione (0.67.0; przypomnienie o kopii w APK: później) | PRA-8 |
+| POM-58 | Karta terapii na wyjazd i kontrolę (recepty, ważność, lista kontrolna) | 4 | S/M | P, Pr | ⚖️ (teksty listy) | nowy (0.68) | PAC-4 |
+| POM-59 | Ochrona ekranu w APK (blokada zrzutów) i „Ukryj teraz” | 3 | S/M | P | nowe APK | nowy (0.69) | KON-11 |
 | POM-R1 | Seria dni z użyciem / odznaki za zużycie | – | – | Pr | – | **odrzucony** | – |
 | POM-R2 | Podpowiedź dawki („spróbuj 0,3 g”) | – | – | Pr | – | **odrzucony** | – |
 | POM-R3 | „Inni z bólem wybierają X” (wnioski z danych społeczności) | – | – | P, Pr | – | **odrzucony** | MON-7 |
@@ -401,3 +406,11 @@ Reguła: brak sprzeczności z zasadami oceny, dane tylko własne, każdy dotyka 
 - **POM-R2 Podpowiedź dawki.** Porada medyczna; dawkowanie ustala lekarz. Szybkie wartości w „Zużyłem” (0,1-1 g) zostają jako skrót klawiatury, bez sugestii.
 - **POM-R3 Wnioski z danych społeczności („inni z bólem wybierają X”).** Łączy dane zdrowotne wielu osób, tworzy przekaz o skuteczności konkretnych produktów leczniczych (ryzyko reklamy, PRA-3) i wymaga zgody na badania (MON-7). Wnioski tylko z własnych danych (POM-06).
 - **POM-R4 Linki do aptek, ceny i „kup teraz”.** Ryzyko reklamy aptek i produktów leczniczych; aplikacja natywna już ukrywa ceny (`isNativeApp`). Do ponownej oceny tylko po opinii prawnika (PRA-3).
+
+### POM-55..59 (runda 2026-10, wersje 0.67–0.69)
+- **POM-55 Korekta zapasu po zważeniu:** przycisk „Policzyłem” w odmianie: stan faktyczny, zapisana różnica jako „Korekta zapasu” (Historia, karta dnia, „Cofnij”). Korekta nie jest zużyciem: pomijana w średnich, serii, obserwacjach, raporcie i prognozie dawek; w CSV osobny wiersz. Eksport, kopia, import. Test: korekta zmienia zapas, nie sumę zużycia ani dni z użyciem; cudzy id = 404.
+- **POM-56 Raport na jednej stronie:** przełącznik „Skrócony (1 strona)”: okres, zużycie, dni bez zużycia, objawy (początek/koniec/zakres, bez ocen), wizyty i partie, otwarte „Do omówienia”. Ta sama ścieżka HTML/PDF/wydruk; notatki i czynniki tylko z „Dołącz moje spostrzeżenia”. Bez nowych danych. Test: bez notatek bez opcji, tylko dane właściciela; E2E: jedna strona A4.
+- **POM-57 Zaszyfrowany eksport:** WebCrypto (PBKDF2 + AES-GCM) w przeglądarce, plik `.zielnik`, hasło nie trafia na serwer; import rozpoznaje plik. Przypomnienie w APK o kopii co 90 dni (`users.last_export_at`). Jasny komunikat: zgubione hasło = brak odzysku.
+- **POM-58 Karta terapii na wyjazd:** aktywne recepty i ważność na jednym ekranie/PDF (offline), neutralna lista kontrolna z linkami urzędowymi, bez stwierdzeń o legalności; teksty do przejrzenia przez prawnika. Tryb dyskretny: nazwy jawne tylko po świadomym „Pokaż nazwy”.
+- **POM-59 Ochrona ekranu w APK:** opcjonalny `FLAG_SECURE` (domyślnie wyłączony) i skrót „Ukryj teraz” (tryb dyskretny na sesję); ustawienie lokalne. Wymaga nowego APK.
+
