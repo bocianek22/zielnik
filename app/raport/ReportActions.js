@@ -78,7 +78,7 @@ export default function ReportActions({ from, to, model, modelEn = null, notes: 
         setTimeout(() => URL.revokeObjectURL(url), 60000);
       }
     } catch (e) {
-      if (e?.name !== 'AbortError') setErr(kind === 'native' ? 'Nie udało się udostępnić PDF. Spróbuj „Drukuj”.' : kind === 'share' ? 'Nie udało się udostępnić PDF. Spróbuj „Pobierz PDF”.' : 'Nie udało się utworzyć PDF. Spróbuj „Drukuj” i „Zapisz jako PDF”.');
+      if (e?.name !== 'AbortError') setErr(m !== model ? 'Nie udało się utworzyć PDF po angielsku. Spróbuj ponownie.' : kind === 'native' ? 'Nie udało się udostępnić PDF. Spróbuj „Drukuj”.' : kind === 'share' ? 'Nie udało się udostępnić PDF. Spróbuj „Pobierz PDF”.' : 'Nie udało się utworzyć PDF. Spróbuj „Drukuj” i „Zapisz jako PDF”.');
     } finally { setBusy(null); }
   };
 
@@ -92,8 +92,9 @@ export default function ReportActions({ from, to, model, modelEn = null, notes: 
         <Icon name="file" size={18} />{busy === 'download' ? 'Tworzę PDF…' : 'Pobierz PDF'}</button>}
       {pdf && caps.share && <button type="button" className="btn ghost" onClick={run('share')} disabled={busy != null} aria-busy={busy === 'share' || undefined}>
         <Icon name="share" size={18} />{busy === 'share' ? 'Tworzę PDF…' : 'Udostępnij PDF'}</button>}
-      {modelEn && (caps?.nativeShare || pdf) && <button type="button" className="btn ghost" lang="pl" onClick={run(caps.nativeShare ? 'native' : 'download', modelEn)} disabled={busy != null} aria-busy={busy === 'en' || undefined}>
-        <Icon name="file" size={18} />{busy === 'en' ? 'Tworzę PDF…' : 'PDF po angielsku'}</button>}
+      {modelEn && (caps?.nativeShare || pdf) && <button type="button" className="btn ghost" onClick={run(caps.nativeShare ? 'native' : 'download', modelEn)} disabled={busy != null} aria-busy={busy === 'en' || undefined}>
+        <Icon name={caps.nativeShare ? 'share' : 'file'} size={18} />{busy === 'en' ? 'Tworzę PDF…' : 'PDF po angielsku'}</button>}
+      {modelEn && (caps?.nativeShare || pdf) && <p className="muted small">„PDF po angielsku”: ta sama treść raportu skróconego z angielskimi etykietami (na wyjazd albo dla lekarza za granicą).</p>}
       {err && <div className="alert error" role="alert">{err}</div>}
     </div>
   );

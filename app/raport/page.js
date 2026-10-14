@@ -144,7 +144,7 @@ export default async function Raport({ searchParams }) {
               <Link key={l} href={modeHref(b)} className={b === brief ? 'on' : ''} aria-current={b === brief ? 'page' : undefined} replace scroll={false}>{l}</Link>
             ))}
           </nav>
-          {brief && <p className="muted small">Skrócony: podsumowanie, objawy z całego okresu, recepty i najczęstsze odmiany; zwykle mieści się na jednej stronie. „PDF po angielsku” to ta sama treść z angielskimi etykietami (na wyjazd albo dla lekarza za granicą).</p>}
+          {brief && <p className="muted small">Skrócony: podsumowanie, objawy z całego okresu, recepty i najczęstsze odmiany; zwykle mieści się na jednej stronie.</p>}
           {/* key: gotowy PDF (pod Safari) liczony dla danego okresu i wersji; po zmianie trybu bez przeładowania nowy */}
           <ReportActions key={`${from}|${to}|${brief}|${withNotes}`} from={from} to={to} notes={openNotes} model={buildReportModel({ patient: plan?.display_name || me.username, from, to, today, withNotes, report, minSymptomDays: MIN_SYMPTOM_DAYS, short: brief })}
             modelEn={brief ? buildBriefModelEn({ patient: plan?.display_name || me.username, from, to, today, report }) : null} />
