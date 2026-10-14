@@ -8,6 +8,10 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.62.0] - 2026-10
+### Dodano
+- **Przypomnienia na tym telefonie (POM-49, APK 0.6.0):** profil → „Przypomnienia na tym telefonie” w aplikacji na Androida: wieczorne przypomnienie o dzienniku (19–22, pomijane, gdy dziś jest już wpis objawów) i przypomnienie dzień przed wizytą (18:00). Harmonogram liczony na telefonie (`lib/local-reminders.js`, `@capacitor/local-notifications`), więc działa bez serwera powiadomień, kluczy push i crona co godzinę (Vercel Pro). Ustawienia zostają na urządzeniu; treść neutralna, ikona notatnika. Po zapisie dzisiejszego wpisu (Dziennik, szybki wpis) dzisiejsze przypomnienie znika. Starsze APK i przeglądarka bez zmian.
+
 ## [0.61.0] - 2026-10
 ### Dodano
 - **Czynniki dnia (POM-47):** do 8 własnych etykiet kontekstu dnia (np. stres, ruch, kofeina; podpowiedzi albo własna nazwa) w Dzienniku, zaznaczane przy wpisie dnia przyciskami (`aria-pressed`). Nowe tabele `day_factors` i `day_factor_marks` (addytywnie), `/api/factors`, pole `factors` w `PUT /api/symptoms` (cudze identyfikatory odpadają na złączeniu). Czynniki widać w zwiniętym wpisie dnia i w karcie dnia. „Moje obserwacje” → „Czynniki dnia”: średnie objawów w dniach z czynnikiem i bez niego (`lib/factor-obs.js`; od pierwszego zaznaczenia, próg 5 dni, sen zestawiany z poprzednim dniem), bez rankingu „co pomaga”. Eksport konta i import kopii (`dayFactors`, `dayFactorMarks`); kopia obejmuje tabele automatycznie.

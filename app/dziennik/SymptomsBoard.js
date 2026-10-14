@@ -7,6 +7,7 @@ import DictateButton from '../components/DictateButton';
 import Toast from '../components/Toast';
 import useUndoDelete from '../components/useUndoDelete';
 import FactorManager from './FactorManager';
+import { syncLocal } from '../components/localReminders';
 import Illustration from '../components/Illustration';
 import SymptomsChart from '../components/charts/SymptomsChart';
 import { addDays } from '../components/charts/fmt';
@@ -135,7 +136,7 @@ export default function SymptomsBoard({ initialDay = null }) {
     if (saving) return;
     setSaving(true);
     const custom = Object.fromEntries(defs.map((d) => [d.id, f[`c${d.id}`] ?? '']));
-    try { const d = await api('/api/symptoms', 'PUT', { day, ...f, ...(defs.length ? { custom } : {}) }); setData(d); setMsg(d.noteError ? { text: `Zapisano wartości. ${d.noteError}`, error: true } : { text: 'Zapisano.' }); if (day === todayIso()) focusNext.current = 'sym-today-h'; setEditing(false); } catch (err) { setMsg({ text: err.message, error: true }); }
+    try { const d = await api('/api/symptoms', 'PUT', { day, ...f, ...(defs.length ? { custom } : {}) }); setData(d); setMsg(d.noteError ? { text: `Zapisano wartości. ${d.noteError}`, error: true } : { text: 'Zapisano.' }); if (day === todayIso()) { focusNext.current = 'sym-today-h'; syncLocal({ hasToday: true }).catch(() => {}); } setEditing(false); } catch (err) { setMsg({ text: err.message, error: true }); }
     setSaving(false);
   }
   // usunięcie od razu, „Cofnij” zapisuje dzień z migawki; nieczytelnej (zaszyfrowanej bez klucza) notatki nie da się
