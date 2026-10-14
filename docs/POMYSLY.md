@@ -65,16 +65,21 @@ Reguła: brak sprzeczności z zasadami oceny, dane tylko własne, każdy dotyka 
 | POM-37 | Karta „Co zostało na recepcie” (apteka, wizyta) | 4 | S/M | P | – | zrobiony (0.42.0) | PAC-4 |
 | POM-38 | „Dzień bez zużycia” i nadrabianie wpisów | 4 | S/M | P | – | zrobiony (0.41.0) | PAC-7 |
 | POM-39 | Inne leki w raporcie dla lekarza (opcjonalna lista) | 3 | M | P, Pr | ⚖️ | nowy | PAC-5 |
-| POM-40 | PDF raportu i udostępnienie z APK | 4 | M | P | – | nowy (po 1.0) | MON-4, MOB |
-| POM-41 | Import kopii i CSV na nowe konto | 3 | M | P, T | – | nowy (po 1.0) | – |
-| POM-42 | Przegląd okresu („Mój miesiąc / kwartał”) | 3 | S/M | P | POM-06 | nowy (po 1.0) | PAC-7 |
-| POM-43 | Dyktowanie notatek | 3 | M | P | – | nowy (po 1.0) | UX-2 |
+| POM-40 | PDF raportu i udostępnienie z APK | 4 | M | P | – | zrobiony (0.55.0) | MON-4, MOB |
+| POM-41 | Import kopii i CSV na nowe konto | 3 | M | P, T | – | zrobiony (0.52.0) | – |
+| POM-42 | Przegląd okresu („Mój miesiąc / kwartał”) | 3 | S/M | P | POM-06 | zrobiony (0.53.0) | PAC-7 |
+| POM-43 | Dyktowanie notatek | 3 | M | P | – | zrobiony (0.56.0) | UX-2 |
 | POM-44 | Opiekun / pełnomocnik (tylko odczyt) | 3 | L | P, Pr | ⚖️ | duplikat POM-29 (rozwinięcie po 1.0) | PAC-15 |
 | POM-45 | „Cofnij” po usunięciu (recepta, wpis dnia, „Do omówienia”) | 4 | S | P | – | zrobiony (0.60.0) | – |
 | POM-46 | Karta dnia z kalendarza Historii | 4 | S/M | P | – | zrobiony (0.60.0) | – |
 | POM-47 | Czynniki dnia (stres, ruch, kofeina…) i „dni z czynnikiem / bez” w obserwacjach | 4 | M | P | – | zrobiony (0.61.0) | – |
 | POM-48 | Własny układ panelu „Dziś” (pokaż/ukryj, kolejność kart) | 3 | S | – | – | zrobiony (0.61.0: pokaż/ukryj; bez zmiany kolejności) | – |
 | POM-49 | Lokalne przypomnienia w APK (bez serwera i Vercel Pro) | 4 | M | P | – | zrobiony (0.62.0, APK 0.6.0) | POM-05, POM-15 |
+| POM-50 | „Rok objawów”: siatka dni dla wybranego objawu, karta dnia po dotknięciu | 4 | S/M | P | – | zrobiony (0.64.0) | – |
+| POM-51 | Lokalne przypomnienia o terminie recepty i zapasie (APK) | 4 | S | P | POM-49 | zrobiony (0.64.0) | – |
+| POM-52 | Dziennik wizyt (data, notatka „co ustalono”, następna wizyta) | 4 | M | P | – | nowy (0.65) | MON-4 |
+| POM-53 | Znaczniki zdarzeń na wykresie objawów (wizyty, wykupy, partie) | 3 | S/M | Pr | POM-52 | nowy (0.66) | – |
+| POM-54 | Wzorce wg dnia tygodnia w „Moich obserwacjach” | 3 | S | Pr | – | nowy (0.66) | – |
 | POM-R1 | Seria dni z użyciem / odznaki za zużycie | – | – | Pr | – | **odrzucony** | – |
 | POM-R2 | Podpowiedź dawki („spróbuj 0,3 g”) | – | – | Pr | – | **odrzucony** | – |
 | POM-R3 | „Inni z bólem wybierają X” (wnioski z danych społeczności) | – | – | P, Pr | – | **odrzucony** | MON-7 |

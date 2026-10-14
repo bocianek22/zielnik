@@ -8,6 +8,11 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.64.0] - 2026-10
+### Dodano
+- **Rok objawów (POM-50):** w Dzienniku siatka dni (kwartał albo rok) dla wybranego objawu, także własnego: stała skala 0–10 w jednej barwie (kolor nie znaczy „lepiej/gorzej”), dzień bez wpisu pusty. Wybór dnia stuknięciem, myszą lub strzałkami, „Szczegóły dnia” i Enter otwierają kartę dnia; tabela dla czytnika ekranu. `lib/symptom-calendar.js`: tylko własne dane, czas polski.
+- **Przypomnienia o recepcie i zapasie na telefonie (POM-51, APK od 0.6.0):** w „Przypomnienia na tym telefonie” dwa nowe przełączniki: 3 dni przed końcem ważności najbliższej recepty i 2 dni przed końcem zapasu według prognozy (18:00, neutralna treść). Terminy telefon bierze z ekranu „Dziś” i zapamiętuje.
+
 ## [0.63.0] - 2026-10
 ### Dodano
 - **Czynniki dnia w raporcie dla lekarza:** przy „Dołącz moje spostrzeżenia” raport (HTML i PDF) zawiera linię z czynnikami zaznaczanymi przez pacjenta i liczbą dni w okresie (bez średnich i ocen); bez tej opcji czynniki nie są nawet czytane z bazy. W trybie dyskretnym nazwy rozmyte.

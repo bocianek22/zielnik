@@ -11,7 +11,6 @@ import HomeStore from './components/HomeStore';
 import TodayBoard, { TodayHero } from './components/TodayBoard';
 import Onboarding from './components/Onboarding';
 import SymptomStreak from './components/SymptomStreak';
-import LocalReminderSync from './components/LocalReminderSync';
 
 export const dynamic = 'force-dynamic';
 
@@ -55,8 +54,7 @@ export default async function Home({ searchParams }) {
           </header>
           <TodayBoard usage={daily} bought={bought} prescriptions={prescriptions} symptoms={symptoms} noUse={noUse} hidden={hidden}
             streak={<SymptomStreak data={streak} className="streak-home" />} />
-          {/* POM-49: lokalne przypomnienia w APK; dziś bez przypomnienia, gdy wpis objawów już jest */}
-          <LocalReminderSync hasToday={!!symptoms && ['pain', 'sleep', 'anxiety', 'mood'].some((k) => symptoms[k] != null)} />
+
         </HomeStore>
       </main>
     </>

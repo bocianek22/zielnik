@@ -31,14 +31,29 @@ export async function ensurePermission() {
 
 // Układa przypomnienia od nowa: najpierw usuwa wszystkie nasze, potem planuje według ustawień.
 // hasToday: dziś jest już wpis objawów (bez dzisiejszego przypomnienia); nextVisit: data wizyty z ustawień konta.
+// Ostatnio znane z „Dziś” dane do przypomnień o recepcie i zapasie (POM-51): ponowne ułożenie z innego ekranu ich nie gubi
+const CTX = 'zielnik.localrem.ctx';
+async function context(patch) {
+  const P = plugin('Preferences');
+  let ctx = {};
+  try { ctx = JSON.parse((await P?.get({ key: CTX }))?.value || '{}') || {}; } catch { ctx = {}; }
+  if (patch) { ctx = { ...ctx, ...patch }; await P?.set({ key: CTX, value: JSON.stringify(ctx) }).catch(() => {}); }
+  return ctx;
+}
+
 // nextVisit pominięte: dociągane z ustawień konta, gdy przypomnienie o wizycie jest włączone.
-export async function syncLocal({ hasToday = false, nextVisit, settings = null } = {}) {
+// rxUntil, stockDays pominięte: ostatnio zapamiętane (podaje je ekran „Dziś”).
+export async function syncLocal({ hasToday = false, nextVisit, settings = null, rxUntil, stockDays } = {}) {
   const L = LN();
   if (!L) return;
   const s = settings ?? await getLocalSettings();
+  const given = {};
+  if (rxUntil !== undefined) given.rxUntil = rxUntil;
+  if (stockDays !== undefined) given.stockDays = stockDays;
+  const ctx = await context(Object.keys(given).length ? given : null);
   if (nextVisit === undefined) nextVisit = s.visit ? (await api('/api/push/config').catch(() => null))?.prefs?.nextVisit ?? null : null;
   await L.cancel({ notifications: ALL_IDS.map((id) => ({ id })) }).catch(() => {});
-  const plan = planLocal({ settings: s, hasToday, nextVisit });
+  const plan = planLocal({ settings: s, hasToday, nextVisit, rxUntil: ctx.rxUntil ?? null, stockDays: ctx.stockDays ?? null });
   if (!plan.length) return;
   await L.schedule({
     notifications: plan.map((n) => ({ id: n.id, title: n.title, body: n.body, schedule: { at: n.at, allowWhileIdle: true }, extra: { url: n.url } })),
