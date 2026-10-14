@@ -8,6 +8,10 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.74.0] - 2026-10
+### Dodano
+- **Karta terapii po angielsku (POM-64, część):** na karcie terapii przełącznik „Polski / English”; wersja angielska tłumaczy etykiety, listę „Before you travel” i zastrzeżenie, daty („8 October 2026”) i liczby, a dane (pacjent, nazwy odmian i producentów) zostają bez zmian. Sekcja ma `lang="en"` (czytnik ekranu), reszta strony po polsku, tryb dyskretny i wydruk jak w wersji polskiej. Teksty w `lib/travel-card-text.js` (test pilnuje tych samych kluczy w obu językach). Raport skrócony po angielsku w osobnym wydaniu.
+
 ## [0.73.0] - 2026-10
 ### Dodano
 - **Własne pomiary (POM-63):** w Dzienniku karta „Pomiary”: do 3 pomiarów z własną nazwą i jednostką (podpowiedzi: tętno, waga, ciśnienie skurczowe i rozkurczowe jako dwa pomiary, temperatura), jedna wartość dziennie, przecinek dziesiętny, wyczyszczone pole usuwa wartość dnia; zapisywane są tylko zmienione pola. Bez norm, kolorów i ocen. Pomiary widać w karcie dnia, w raporcie dla lekarza (pełny: najmniej, średnio, najwięcej z okresu; skrócony: średnie jedną linią), w eksporcie, kopii i przywracaniu z kopii (bez duplikatów, bez dat z przyszłości). Nowe tabele `measure_defs` i `measure_values`, trasy `/api/measures`.
