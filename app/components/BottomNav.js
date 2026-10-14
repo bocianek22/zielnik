@@ -6,6 +6,8 @@ import useSheetDrag from './useSheetDrag';
 import { usePathname, useRouter } from 'next/navigation';
 import NavBadge from './NavBadge';
 import ThemeToggle from './ThemeToggle';
+import HideNowRow from './HideNowRow';
+import DiscreetAuto from './DiscreetAuto';
 import LogoutButton from './LogoutButton';
 import Icon from './Icon';
 import { isActive } from './TopNav';
@@ -48,6 +50,7 @@ export default function BottomNav({ isAdmin }) {
   };
   return (
     <>
+      <DiscreetAuto />
       {(open || fab) && <div className="sheet-backdrop" onClick={closeAll} aria-hidden="true" />}
       {fab && (
         <div className="fab-menu list" role="menu" ref={fabRef}>
@@ -78,6 +81,7 @@ export default function BottomNav({ isAdmin }) {
                       <Link key={i.href} href={i.href === '/uwagi' && path ? `/uwagi?ekran=${encodeURIComponent(screenOf(path))}` : i.href} className="list-row" aria-current={isActive(path, i.href) ? 'page' : undefined}>{inner}</Link>
                     );
                   })}
+                  {g === 'account' && <HideNowRow />}
                   {g === 'account' && <ThemeToggle variant="row" />}
                   {g === 'account' && (
                     <LogoutButton className="list-row logout"><Icon name="logout" /><span className="lr-main">Wyloguj</span></LogoutButton>

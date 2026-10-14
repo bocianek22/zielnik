@@ -1,13 +1,17 @@
 'use client';
 import Icon from '../components/Icon';
-import { useEffect, useState } from 'react';
-import { isDiscreet, setDiscreet } from '@/lib/discreet';
+import { useState, useSyncExternalStore } from 'react';
+import { isDiscreet, setDiscreet, discreetAuto, setDiscreetAuto } from '@/lib/discreet';
+
+const subscribe = (cb) => { window.addEventListener('zielnik:discreet', cb); return () => window.removeEventListener('zielnik:discreet', cb); };
 
 // Tryb dyskretny dla tego urządzenia: neutralny tytuł karty i rozmyte nazwy odmian, producentów i terpenów
 export default function DiscreetSettings() {
-  const [on, setOn] = useState(false);
-  useEffect(() => { setOn(isDiscreet()); }, []);
-  function toggle(e) { setOn(e.target.checked); setDiscreet(e.target.checked); }
+  const on = useSyncExternalStore(subscribe, isDiscreet, () => false);
+  const stored = useSyncExternalStore(subscribe, discreetAuto, () => false);
+  const [auto, setAuto] = useState(null); // null = jak zapisane na urządzeniu
+  function toggle(e) { setDiscreet(e.target.checked); }
+  function toggleAuto(e) { setAuto(e.target.checked); setDiscreetAuto(e.target.checked); }
   return (
     <section className="card stack">
       <div className="sec-head switch-row">
@@ -19,9 +23,13 @@ export default function DiscreetSettings() {
       <ul className="muted small">
         <li>Karta przeglądarki nazywa się wtedy „Notatnik”.</li>
         <li>Nazwy odmian, producentów i terpenów są rozmyte. Dotknij nazwy, żeby pokazać ją na 5 sekund.</li>
-        <li>Szybkie przełączanie: dwa szybkie dotknięcia logo w nagłówku.</li>
+        <li>Szybkie przełączanie: „Ukryj nazwy teraz” w menu „Więcej” albo dwa szybkie dotknięcia logo w nagłówku.</li>
         <li>Ikona i nazwa na ekranie głównym telefonu pozostają bez zmian (ustawia je system, nie da się ich zmienić dla jednego użytkownika). Powiadomienia i tak mają neutralną treść.</li>
       </ul>
+      <label className="switch-row">
+        <span>Włączaj sam po wyjściu z aplikacji (przełączenie na inną aplikację, zablokowanie ekranu)</span>
+        <input type="checkbox" className="switch" role="switch" checked={auto ?? stored} onChange={toggleAuto} />
+      </label>
     </section>
   );
 }

@@ -85,6 +85,11 @@ Reguła: brak sprzeczności z zasadami oceny, dane tylko własne, każdy dotyka 
 | POM-57 | Zaszyfrowany eksport hasłem i przypomnienie o kopii | 4 | M | P, T | – | zrobione (0.67.0; przypomnienie o kopii w APK: później) | PRA-8 |
 | POM-58 | Karta terapii na wyjazd i kontrolę (recepty, ważność, lista kontrolna) | 4 | S/M | P, Pr | ⚖️ (teksty listy) | zrobione (0.68.0; teksty listy do przejrzenia przez prawnika) | PAC-4 |
 | POM-59 | Ochrona ekranu w APK (blokada zrzutów) i „Ukryj teraz” | 3 | S/M | P | nowe APK | zrobione: ochrona ekranu (0.69.0, APK 0.7.0); „Ukryj teraz” później | KON-11 |
+| POM-60 | „Ukryj teraz” i dyskrecja po powrocie do aplikacji (menu „Więcej”, opcja per urządzenie) | 3 | S | P | – | zrobione (0.70.0) | KON-11 |
+| POM-61 | „Ostatnia kopia” w profilu i przypomnienie o kopii w APK (lokalne, co 30 dni) | 3 | S | P | POM-49, POM-57 | zrobione (0.70.0) | PRA-8 |
+| POM-62 | Zdarzenia niepożądane: osobny dziennik (data, opis szyfrowany, nasilenie słowne, odmiana) + link do oficjalnego zgłoszenia | 4 | M | P, Pr | ⚖️ (tekst informacyjny) | nowy (0.71) | PAC-1 |
+| POM-63 | Własne pomiary z jednostką (ciśnienie, tętno, waga) obok objawów 0–10, bez norm i ocen | 3 | M | P | – | nowy (0.72) | PAC-6, PAC-14 |
+| POM-64 | Karta terapii i raport skrócony po angielsku (wydruk/PDF) | 3 | S/M | P, Pr | ⚖️ (teksty listy) | nowy (0.72) | PAC-4 |
 | POM-R1 | Seria dni z użyciem / odznaki za zużycie | – | – | Pr | – | **odrzucony** | – |
 | POM-R2 | Podpowiedź dawki („spróbuj 0,3 g”) | – | – | Pr | – | **odrzucony** | – |
 | POM-R3 | „Inni z bólem wybierają X” (wnioski z danych społeczności) | – | – | P, Pr | – | **odrzucony** | MON-7 |
@@ -413,4 +418,11 @@ Reguła: brak sprzeczności z zasadami oceny, dane tylko własne, każdy dotyka 
 - **POM-57 Zaszyfrowany eksport:** WebCrypto (PBKDF2 + AES-GCM) w przeglądarce, plik `.zielnik`, hasło nie trafia na serwer; import rozpoznaje plik. Przypomnienie w APK o kopii co 90 dni (`users.last_export_at`). Jasny komunikat: zgubione hasło = brak odzysku.
 - **POM-58 Karta terapii na wyjazd:** aktywne recepty i ważność na jednym ekranie/PDF (offline), neutralna lista kontrolna z linkami urzędowymi, bez stwierdzeń o legalności; teksty do przejrzenia przez prawnika. Tryb dyskretny: nazwy jawne tylko po świadomym „Pokaż nazwy”.
 - **POM-59 Ochrona ekranu w APK:** opcjonalny `FLAG_SECURE` (domyślnie wyłączony) i skrót „Ukryj teraz” (tryb dyskretny na sesję); ustawienie lokalne. Wymaga nowego APK.
+
+### POM-60..64 (runda 2026-10-14, wersje 0.70–0.72)
+- **POM-60 „Ukryj teraz”:** widoczny przycisk w arkuszu „Więcej” (dziś tylko dwudotyk logo i profil) i opcja per urządzenie „włącz dyskrecję po powrocie do aplikacji”. Bez zmian w bazie. Bez „PIN-u przymusu” ani fałszywego profilu.
+- **POM-61 „Ostatnia kopia”:** data ostatniego pobrania kopii (JSON lub zaszyfrowanej) tylko na urządzeniu, w profilu „Ostatnia kopia: …”; w APK opcjonalne przypomnienie co 30 dni (neutralna treść). Serwer nie dowiaduje się niczego nowego.
+- **POM-62 Zdarzenia niepożądane:** tabela `adverse_events` (opis szyfrowany jak `visits.note`, nasilenie słowne, opcjonalnie odmiana/partia), karta dnia, znaczniki, wyszukiwarka, eksport/kopia/import, raport (opisy tylko z „Dołącz moje spostrzeżenia”). Stały tekst: 112 w nagłych przypadkach, zgłoszenie do URPL na oficjalnej stronie; bez sugerowania związku z odmianą. Tekst do przeglądu prawnika.
+- **POM-63 Własne pomiary:** do 3 pomiarów z jednostką, bez norm i kolorów; raport min/śr./maks.
+- **POM-64 Wersja angielska:** tylko etykiety wydruku karty i raportu skróconego, dane bez tłumaczenia; teksty listy do ⚖️.
 
