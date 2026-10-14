@@ -26,4 +26,7 @@ test('kopia szyfrowana: złe hasło, zmieniony szyfrogram, obcy format i krótki
   await assert.rejects(decryptBackup({ format: 'inny' }, 'dobre-haslo'), /Nieznany format/);
   await assert.rejects(encryptBackup(plain, 'x'.repeat(PASSWORD_MIN - 1)), /co najmniej/);
   assert.equal(isEncryptedBackup({ symptoms: [] }), false);
+  // ta sama litera zapisana inaczej (NFC/NFD) to to samo hasło
+  const nfc = JSON.parse(await encryptBackup(plain, 'zażółć-gęślą'.normalize('NFC')));
+  assert.equal(await decryptBackup(nfc, 'zażółć-gęślą'.normalize('NFD')), plain);
 });

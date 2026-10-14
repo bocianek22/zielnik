@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { encryptBackup, PASSWORD_MIN } from '@/lib/backup-crypto';
 import { isNative } from '../components/native/bridge';
 
@@ -13,6 +13,10 @@ export default function EncryptedExport() {
   const [err, setErr] = useState('');
   const [ok, setOk] = useState('');
   const [native, setNative] = useState(false);
+  const openBtn = useRef(null);
+  const refocus = useRef(false);
+  // po „Anuluj” fokus wraca na przycisk otwierający (inaczej czytnik zaczyna od początku strony)
+  useEffect(() => { if (!open && refocus.current) { refocus.current = false; openBtn.current?.focus(); } }, [open]);
   // w APK WebView nie zapisuje pliku z adresu blob:, więc tę opcję pokazujemy tylko w przeglądarce
   useEffect(() => { if (isNative()) setNative(true); }, []); // eslint-disable-line react-hooks/set-state-in-effect
 
@@ -36,19 +40,19 @@ export default function EncryptedExport() {
   }
 
   if (native) return <p className="muted small">Kopię zabezpieczoną hasłem zapiszesz w przeglądarce na telefonie lub komputerze (profil, „Moje dane”).</p>;
-  if (!open) return <div><button type="button" className="btn ghost" onClick={() => setOpen(true)}>Pobierz kopię zabezpieczoną hasłem</button></div>;
+  if (!open) return <div><button ref={openBtn} type="button" className="btn ghost" onClick={() => setOpen(true)}>Pobierz kopię zabezpieczoną hasłem</button></div>;
   return (
     <form className="card stack enc-export" onSubmit={save} aria-labelledby="enc-h">
       <h3 id="enc-h">Kopia zabezpieczona hasłem</h3>
       <p className="muted small">Plik szyfrujemy na tym urządzeniu; hasło nie trafia na serwer. Bez hasła nikt, także my, nie otworzy kopii, a zapomnianego hasła nie da się odzyskać. Zdjęcia nie są dołączane.</p>
       <div className="field"><label htmlFor="enc-pw">Hasło do pliku (co najmniej {PASSWORD_MIN} znaków)</label>
-        <input id="enc-pw" className="input" type="password" autoComplete="new-password" value={pw} onChange={(e) => setPw(e.target.value)} /></div>
+        <input id="enc-pw" className="input" type="password" autoComplete="new-password" autoFocus aria-invalid={!!err || undefined} aria-describedby={err ? 'enc-err' : undefined} value={pw} onChange={(e) => setPw(e.target.value)} /></div>
       <div className="field"><label htmlFor="enc-pw2">Powtórz hasło</label>
-        <input id="enc-pw2" className="input" type="password" autoComplete="new-password" value={pw2} onChange={(e) => setPw2(e.target.value)} /></div>
-      {err && <p className="alert error" role="alert">{err}</p>}
+        <input id="enc-pw2" className="input" type="password" autoComplete="new-password" aria-invalid={!!err || undefined} aria-describedby={err ? 'enc-err' : undefined} value={pw2} onChange={(e) => setPw2(e.target.value)} /></div>
+      {err && <p id="enc-err" className="alert error" role="alert">{err}</p>}
       {ok && <p className="alert ok" role="status">{ok}</p>}
       <div className="row"><button className="btn" disabled={busy}>{busy ? 'Szyfruję…' : 'Zapisz zaszyfrowaną kopię'}</button>
-        <button type="button" className="btn ghost" onClick={() => { setOpen(false); setPw(''); setPw2(''); setErr(''); }}>Anuluj</button></div>
+        <button type="button" className="btn ghost" onClick={() => { refocus.current = true; setOpen(false); setPw(''); setPw2(''); setErr(''); }}>Anuluj</button></div>
     </form>
   );
 }

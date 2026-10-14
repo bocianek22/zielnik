@@ -43,7 +43,9 @@ test('Kopia z hasłem: zapis w profilu, złe i dobre hasło przy przywracaniu', 
     await page.getByRole('status').filter({ hasText: 'Zapisano zaszyfrowaną kopię' }).waitFor();
 
     await go(page, '/import');
-    await page.locator('#kopia input[type="file"]').setInputFiles(path);
+    const file = page.locator('#kopia input[type="file"]');
+    await interactive(file); // plik wybrany przed hydratacją nie wywoła onChange
+    await file.setInputFiles(path);
     await page.fill('#restore-pw', 'zle-haslo-123');
     await page.getByRole('button', { name: 'Odszyfruj i pokaż podgląd' }).click();
     await page.getByRole('alert').filter({ hasText: 'Złe hasło' }).waitFor();

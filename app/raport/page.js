@@ -144,7 +144,8 @@ export default async function Raport({ searchParams }) {
             ))}
           </nav>
           {brief && <p className="muted small">Skrócony: podsumowanie, objawy z całego okresu, recepty i najczęstsze odmiany; zwykle mieści się na jednej stronie.</p>}
-          <ReportActions from={from} to={to} notes={openNotes} model={buildReportModel({ patient: plan?.display_name || me.username, from, to, today, withNotes, report, minSymptomDays: MIN_SYMPTOM_DAYS, short: brief })} />
+          {/* key: gotowy PDF (pod Safari) liczony dla danego okresu i wersji; po zmianie trybu bez przeładowania nowy */}
+          <ReportActions key={`${from}|${to}|${brief}|${withNotes}`} from={from} to={to} notes={openNotes} model={buildReportModel({ patient: plan?.display_name || me.username, from, to, today, withNotes, report, minSymptomDays: MIN_SYMPTOM_DAYS, short: brief })} />
           <p className="muted small">PDF powstaje na tym urządzeniu, a dane nie trafiają na serwer.</p>
           <details className="report-more">
             <summary>O pliku PDF<Icon name="chevronDown" size={20} className="report-more-chev" /></summary>
