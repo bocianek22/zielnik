@@ -2,6 +2,7 @@
 import { useMemo, useRef, useState } from 'react';
 import SecHead from '../SecHead';
 import Frame from './Frame';
+import DayCard from '../DayCard';
 import { addDays, longDay, num, plural, weekday } from './fmt';
 import { dayState, levelOf, monthLabels, quarters, thresholds } from './calendar-grid';
 
@@ -21,6 +22,8 @@ export default function Calendar({ data, empty }) {
   const [mode, setMode] = useState('q');
   const [pick, setPick] = useState(null);
   const [sel, setSel] = useState(null);
+  const [chosen, setChosen] = useState(null); // dzień wybrany stuknięciem lub kliknięciem (przycisk „Szczegóły dnia”)
+  const [card, setCard] = useState(null);
   const touch = useRef(null);
   const unit = pick ?? (hasMl && !hasG ? 'ml' : 'g');
   const th = useMemo(() => thresholds(rows.map((r) => (unit === 'ml' ? r.ml : r.g))), [rows, unit]);
@@ -47,7 +50,7 @@ export default function Calendar({ data, empty }) {
     return el?.closest?.('[data-d]')?.dataset.d ?? null;
   };
   const down = (e) => {
-    if (e.pointerType === 'mouse') { const d = at(e); if (d) setSel(d); return; }
+    if (e.pointerType === 'mouse') { const d = at(e); if (d) { setSel(d); setChosen(d); } return; }
     touch.current = { x: e.clientX, y: e.clientY, h: false, moved: false };
   };
   const move = (e) => {
@@ -64,7 +67,7 @@ export default function Calendar({ data, empty }) {
     touch.current = null;
     if (e.pointerType === 'mouse' || !t || t.moved) return;
     const d = at(e);
-    if (d) setSel(d === cur ? null : d);
+    if (d) { setSel(d === cur ? null : d); setChosen(d === cur ? null : d); }
   };
   const onKey = (e) => {
     const from = cur ?? today;
@@ -75,7 +78,8 @@ export default function Calendar({ data, empty }) {
       setSel(next < first ? first : next > today ? today : next);
     } else if (e.key === 'Home') { e.preventDefault(); setSel(first); }
     else if (e.key === 'End') { e.preventDefault(); setSel(today); }
-    else if (e.key === 'Escape') setSel(null);
+    else if (e.key === 'Escape') { setSel(null); setChosen(null); }
+    else if (e.key === 'Enter' && cur) { e.preventDefault(); setChosen(cur); setCard(cur); }
   };
 
   const read = cur == null
@@ -117,7 +121,7 @@ export default function Calendar({ data, empty }) {
           )}
         </div>
         <div className="cal-scrub" data-mode={mode} tabIndex={0} role="group"
-          aria-label={`Kalendarz zużycia (${name}), ${mode === 'y' ? 'ostatni rok' : 'ostatnie 13 tygodni'}: ${usedDays} ${plural(usedDays, 'dzień', 'dni')} ze zużyciem, ${noUseDays} ${plural(noUseDays, 'dzień', 'dni')} bez zużycia. Strzałkami wybierzesz dzień.`}
+          aria-label={`Kalendarz zużycia (${name}), ${mode === 'y' ? 'ostatni rok' : 'ostatnie 13 tygodni'}: ${usedDays} ${plural(usedDays, 'dzień', 'dni')} ze zużyciem, ${noUseDays} ${plural(noUseDays, 'dzień', 'dni')} bez zużycia. Strzałkami wybierzesz dzień, Enter otworzy jego szczegóły.`}
           onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={() => { touch.current = null; }}
           onPointerLeave={(e) => { if (e.pointerType === 'mouse') setSel(null); }} onKeyDown={onKey}>
           {blocks.map((b) => (
@@ -137,6 +141,12 @@ export default function Calendar({ data, empty }) {
             </div>
           ))}
         </div>
+        {chosen && chosen >= first && (
+          <button type="button" className="btn soft small cal-open" onClick={() => setCard(chosen)}>
+            Szczegóły dnia: {weekday(chosen)} {longDay(chosen)}
+          </button>
+        )}
+        {card && <DayCard key={card} day={card} onClose={() => setCard(null)} />}
       </Frame>
     </>
   );

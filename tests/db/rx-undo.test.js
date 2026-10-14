@@ -9,7 +9,6 @@ const skip = !URL_ ? 'brak TEST_DATABASE_URL'
   : !local && process.env.ALLOW_REMOTE_TEST_DB !== '1' ? 'TEST_DATABASE_URL nie wskazuje na localhost (ustaw ALLOW_REMOTE_TEST_DB=1)' : false;
 
 const KEY = `t1:${Buffer.alloc(32, 7).toString('base64')}`;
-const OTHER = `t9:${Buffer.alloc(32, 9).toString('base64')}`;
 const savedKey = process.env.DATA_ENCRYPTION_KEY;
 let q, jar, pool, createSession;
 const ids = {};
@@ -47,6 +46,11 @@ before(async () => {
   for (const u of await q`SELECT id, username FROM users`) ids[u.username] = u.id;
 });
 
+
+after(async () => {
+  if (savedKey == null) delete process.env.DATA_ENCRYPTION_KEY; else process.env.DATA_ENCRYPTION_KEY = savedKey;
+  if (pool) await pool.end();
+});
 
 const ok = (r) => { assert.ok(r.status < 400, JSON.stringify(r.json)); return r.json; };
 

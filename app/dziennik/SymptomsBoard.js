@@ -91,16 +91,26 @@ function merged0(data) {
   return [...m.values()];
 }
 
-export default function SymptomsBoard() {
+export default function SymptomsBoard({ initialDay = null }) {
   const [data, setData] = useState({ rows: [], usage: [], custom: [], customValues: [] });
-  const [day, setDay] = useState(todayIso());
+  const [day, setDay] = useState(initialDay || todayIso());
   const [f, setF] = useState({ pain: '', sleep: '', anxiety: '', mood: '', note: '' });
   const [msg, setMsg] = useState(null);
   const [saving, setSaving] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [editing, setEditing] = useState(false);
 
-  useEffect(() => { api('/api/symptoms').then((d) => { setData(d); setLoaded(true); }).catch((e) => setMsg({ text: e.message, error: true })); }, []);
+  // dzień spoza 60 dni (data wybrana w polu albo ?dzien= z karty dnia) doczytujemy osobno, żeby zapis nie nadpisał wpisu „w ciemno”
+  const old = day < addDays(todayIso(), -59);
+  const want = old ? day : '';
+  const [got, setGot] = useState(null); // dla jakiego zakresu przyszły dane ('' = ostatnie 60 dni)
+  const ready = got === want;
+  useEffect(() => {
+    let live = true;
+    api(want ? `/api/symptoms?day=${want}` : '/api/symptoms').then((d) => { if (live) { setData(d); setLoaded(true); setGot(want); } })
+      .catch((e) => { if (live) setMsg({ text: e.message, error: true }); });
+    return () => { live = false; };
+  }, [want]);
   // własne objawy (POM-07) traktujemy jak wbudowane: klucz c<id>, wartości dołączone do wierszy dni
   const defs = useMemo(() => data.custom ?? [], [data]);
   const all = useMemo(() => [...SYMPTOMS, ...defs.map(customMeta)], [defs]);
@@ -200,7 +210,7 @@ export default function SymptomsBoard() {
             <input id="sy-note" className="input" maxLength={500} value={f.note} onChange={(e) => setF({ ...f, note: e.target.value })} />
             <DictateButton value={f.note} onChange={(note) => setF((p) => ({ ...p, note }))} max={500} />
             {existing?.noteLocked && !f.note && <small>Zapisana notatka jest zaszyfrowana i chwilowo nieczytelna (brak klucza na serwerze). Zostanie zachowana; wpisany tu nowy tekst ją zastąpi.</small>}</div>
-              <div className="sym-actions"><button className="btn" aria-busy={saving || undefined} disabled={saving}>Zapisz wpis</button>{existing && <button type="button" className="btn danger" onClick={remove}>Usuń wpis</button>}</div>
+              <div className="sym-actions"><button className="btn" aria-busy={saving || undefined} disabled={saving || !ready}>Zapisz wpis</button>{existing && <button type="button" className="btn danger" onClick={remove}>Usuń wpis</button>}</div>
         </form>
       )}
       <h2 className="section-title">Ostatnie 30 dni</h2>

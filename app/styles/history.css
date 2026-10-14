@@ -158,3 +158,15 @@
 .hist-page > .section-title { margin-top: var(--s-6); }
 .hist-page > .hero + .section-title { margin-top: var(--s-5); }
 .hist-page > .section-title + .list, .hist-page > .section-title + .card { margin-top: 0; }
+
+/* Karta dnia (0.60.0): arkusz z wpisami jednego dnia */
+.day-card .dc-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-2); }
+.day-card section { margin-top: var(--s-3); }
+.dc-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-2); }
+.dc-list li { display: grid; gap: 2px; padding: var(--s-2) 0; border-bottom: 1px solid var(--sep); overflow-wrap: anywhere; }
+.dc-meta { display: flex; flex-wrap: wrap; gap: var(--s-2); align-items: baseline; color: var(--text-2); font-size: var(--fs-sm); }
+.dc-meta b { color: var(--text); }
+.dc-note { margin: var(--s-2) 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.dc-nouse { display: flex; gap: var(--s-2); align-items: center; margin: var(--s-2) 0; }
+.dc-actions { margin-top: var(--s-4); }
+.cal-open { margin-top: var(--s-3); }

@@ -11,10 +11,13 @@ import { planNoteDb } from '@/lib/notes';
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const FIELDS = ['pain', 'sleep', 'anxiety', 'mood'];
 
-async function load(me, days = 60) {
+// extraDay: dzień spoza okna `days` (dziennik otwarty na starszej dacie): bez niego formularz byłby pusty, a zapis
+// nadpisałby istniejący wpis
+async function load(me, days = 60, extraDay = null) {
   const q = sql();
   const rows = await q`SELECT to_char(day, 'YYYY-MM-DD') AS day, pain, sleep, anxiety, mood, note FROM symptom_log
-                       WHERE user_id = ${me}::int AND day >= (now() AT TIME ZONE 'Europe/Warsaw')::date - ${days}::int ORDER BY day`;
+                       WHERE user_id = ${me}::int AND (day >= (now() AT TIME ZONE 'Europe/Warsaw')::date - ${days}::int OR day = ${extraDay}::date)
+                       ORDER BY day`;
   // zużycie dzienne: gramy (susz) i ml (olej, pen) osobno
   const usage = await q`SELECT to_char((l.created_at AT TIME ZONE 'Europe/Warsaw')::date, 'YYYY-MM-DD') AS day,
                                COALESCE(SUM(l.grams) FILTER (WHERE form_unit(s.form) = 'g'), 0)::float8 AS grams,
@@ -23,14 +26,15 @@ async function load(me, days = 60) {
                         WHERE l.user_id = ${me}::int AND (l.created_at AT TIME ZONE 'Europe/Warsaw')::date >= (now() AT TIME ZONE 'Europe/Warsaw')::date - ${days}::int
                         GROUP BY 1 ORDER BY 1`;
   // własne objawy (POM-07): definicje i wartości (osobno od wierszy, bo dzień może mieć tylko własne)
-  const [custom, customVals] = await Promise.all([listCustom(me), customValues(me, days)]);
+  const [custom, customVals] = await Promise.all([listCustom(me), customValues(me, days, extraDay)]);
   return { rows: rows.map((r) => openEditable('symptom_log', 'note', rowScope('symptom_log', { user_id: me, day: r.day }), r, 'note')), usage, custom, customValues: customVals };
 }
 
-export const GET = safe(async () => {
+export const GET = safe(async (req) => {
   const { user, res } = await requireUser();
   if (res) return res;
-  return NextResponse.json(await load(user.id));
+  const d = new URL(req.url).searchParams.get('day') || '';
+  return NextResponse.json(await load(user.id, 60, DATE.test(d) && !Number.isNaN(Date.parse(d)) ? d : null));
 });
 
 // { day, pain, sleep, anxiety, mood, note } - zapis (lub nadpisanie) wpisu dnia
@@ -78,7 +82,7 @@ export const PUT = safe(async (req) => {
               ON CONFLICT (user_id, day) DO UPDATE SET pain = EXCLUDED.pain, sleep = EXCLUDED.sleep, anxiety = EXCLUDED.anxiety,
                 mood = EXCLUDED.mood, note = CASE WHEN ${plan.keep}::boolean THEN symptom_log.note ELSE EXCLUDED.note END, updated_at = now()`);
   await q.transaction(ops);
-  return NextResponse.json({ ...(await load(user.id)), ...(plan.unavailable && { noteError: NOTE_UNAVAILABLE_MSG }) });
+  return NextResponse.json({ ...(await load(user.id, 60, day)), ...(plan.unavailable && { noteError: NOTE_UNAVAILABLE_MSG }) });
 });
 
 export const DELETE = safe(async (req) => {
@@ -91,5 +95,5 @@ export const DELETE = safe(async (req) => {
     q`DELETE FROM symptom_values WHERE user_id = ${user.id}::int AND day = ${day}::date`,
     q`DELETE FROM symptom_log WHERE user_id = ${user.id} AND day = ${day}::date`,
   ]);
-  return NextResponse.json(await load(user.id));
+  return NextResponse.json(await load(user.id, 60, day));
 });
