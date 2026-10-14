@@ -76,6 +76,8 @@ export const GET = safe(async (req) => {
     dayFactors: await q`SELECT name, created_at AS "createdAt" FROM day_factors WHERE user_id = ${me} ORDER BY slot`,
     dayFactorMarks: await q`SELECT to_char(m.day, 'YYYY-MM-DD') AS day, f.name AS factor FROM day_factor_marks m
       JOIN day_factors f ON f.id = m.factor_id WHERE m.user_id = ${me} ORDER BY m.day, f.slot`,
+    visits: openRows(await q`SELECT id, to_char(day, 'YYYY-MM-DD') AS day, note FROM visits WHERE user_id = ${me} ORDER BY day`,
+      'visits', 'note', (r) => rowScope('visits', { user_id: me, id: r.id })).map(({ id: _id, ...v }) => v),
     doctorNotes: await q`SELECT text, done, created_at AS "createdAt", done_at AS "doneAt" FROM doctor_notes WHERE user_id = ${me} ORDER BY created_at`,
     noUseDays: (await q`SELECT to_char(day, 'YYYY-MM-DD') AS day FROM no_use_days WHERE user_id = ${me} ORDER BY day`).map((r) => r.day),
     blocked: await q`SELECT u.username FROM blocks b JOIN users u ON u.id = b.blocked WHERE b.blocker = ${me}`,

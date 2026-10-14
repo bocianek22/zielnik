@@ -11,6 +11,8 @@ import Icon from '../components/Icon';
 import ReportActions from './ReportActions';
 import VisitPeriod from './VisitPeriod';
 import DoctorNotes from './DoctorNotes';
+import VisitsLog from './VisitsLog';
+import { listVisits } from '@/lib/visits';
 import ReportNotes from './ReportNotes';
 import { listNotes } from '@/lib/doctor-notes';
 import { formatDay, todayPL, addDaysIso } from '@/lib/date';
@@ -57,8 +59,8 @@ export default async function Raport({ searchParams }) {
   const visit = sp.okres === 'wizyta';
   const notesQs = withNotes ? '&notes=1' : '';
 
-  const [report, notes] = await Promise.all([
-    doctorReport(me.id, from, to, { withNotes }), listNotes(me.id),
+  const [report, notes, visits] = await Promise.all([
+    doctorReport(me.id, from, to, { withNotes }), listNotes(me.id), listVisits(me.id),
   ]);
   const { usage, weekly, purchases, feel: feelAll, sym, customSym, totals, rx, rxSum, strainSym, whenUsed, factors = [] } = report;
   const openNotes = notes.filter((n) => !n.done);
@@ -140,6 +142,7 @@ export default async function Raport({ searchParams }) {
         </div>
 
         <DoctorNotes initial={notes} />
+        <VisitsLog initial={visits} />
 
         {noData ? (
           <div className="card empty no-print">

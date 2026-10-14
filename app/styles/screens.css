@@ -36,3 +36,6 @@
 
 /* ===== Design 3, S3: hero obszaru (.hero.cat-hero), .hero-top, .hero-actions, .priv-note, .pill-trend i kółko w karcie tonalnej
    są komponentami bazowymi w globals.css ===== */
+
+/* POM-52: dziennik wizyt w Raporcie */
+.visits-list .visit-note { white-space: pre-wrap; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }

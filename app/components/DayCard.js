@@ -27,7 +27,7 @@ export default function DayCard({ day, onClose }) {
   const sym = data?.symptoms;
   const vals = sym ? [...SYMPTOMS.filter((s) => sym[s.key] != null).map((s) => ({ key: s.key, label: s.short, value: sym[s.key] })),
     ...sym.custom.map((c) => ({ key: `c${c.id}`, label: c.name, value: c.value, custom: true }))] : [];
-  const empty = data && !data.usage.length && !data.purchases.length && !sym && !data.noUse && !data.factors?.length;
+  const empty = data && !data.usage.length && !data.purchases.length && !sym && !data.noUse && !data.factors?.length && !data.visits?.length;
   const title = `${weekday(day)} ${longDay(day)}`;
 
   return createPortal(
@@ -75,6 +75,12 @@ export default function DayCard({ day, onClose }) {
             )}
             {sym.note && <p className="dc-note dn">{sym.note}</p>}
             {sym.noteLocked && <p className="muted small">Notatka jest zaszyfrowana i chwilowo nieczytelna.</p>}
+          </section>
+        )}
+        {data?.visits?.length > 0 && (
+          <section aria-labelledby="dc-v">
+            <h3 id="dc-v" className="section-label">Wizyta</h3>
+            {data.visits.map((v, i) => v.note ? <p key={i} className="dc-note dn">{v.note}</p> : <p key={i} className="muted small">{v.noteLocked ? 'Notatka jest zaszyfrowana i chwilowo nieczytelna.' : 'Bez notatki.'}</p>)}
           </section>
         )}
         {data?.factors?.length > 0 && (
