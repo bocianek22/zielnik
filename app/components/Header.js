@@ -5,6 +5,7 @@ import LogoutButton from './LogoutButton';
 import OfflineQueue from './OfflineQueue';
 import NavBadge from './NavBadge';
 import MoreMenu from './MoreMenu';
+import HideNowRow from './HideNowRow';
 import ThemeToggle from './ThemeToggle';
 import BottomNav from './BottomNav';
 import CompactTitle from './CompactTitle';
@@ -37,6 +38,7 @@ export default function Header({ user }) {
               : <Link key={i.href} href={i.href}>{i.label}{i.badge && <NavBadge kind={i.badge} />}</Link>))}
             <hr />
             <ThemeToggle />
+            <HideNowRow variant="link" />
             <span className="ver">Zielnik v{VERSION}</span>
           </MoreMenu>
         </nav>

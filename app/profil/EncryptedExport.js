@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { encryptBackup, PASSWORD_MIN } from '@/lib/backup-crypto';
 import { isNative } from '../components/native/bridge';
+import { backupTaken } from './LastBackup';
 
 // POM-57: kopia zaszyfrowana hasłem na tym urządzeniu. Eksport (bez zdjęć) pobieramy jak zwykle, szyfrujemy w przeglądarce
 // i zapisujemy plik; hasło nie opuszcza urządzenia. Zgubione hasło = kopii nie da się otworzyć (mówimy to wprost).
@@ -35,6 +36,7 @@ export default function EncryptedExport() {
       const a = Object.assign(document.createElement('a'), { href: url, download: `kopia-zaszyfrowana-${day}.json` });
       document.body.append(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 10000);
+      backupTaken();
       setPw(''); setPw2(''); setOk('Zapisano zaszyfrowaną kopię. Przechowuj hasło osobno.');
     } catch (e2) { setErr(e2.message); } finally { setBusy(false); }
   }

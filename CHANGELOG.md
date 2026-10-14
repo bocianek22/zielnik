@@ -8,6 +8,11 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.70.0] - 2026-10
+### Dodano
+- **„Ukryj nazwy” (POM-60):** przełącznik trybu dyskretnego w menu „Więcej” (arkusz na telefonie i menu na komputerze; stała nazwa z `aria-pressed`). W profilu opcja per urządzenie „Włączaj sam po wyjściu z aplikacji”: tryb włącza się, gdy strona schodzi do tła (inna aplikacja, blokada ekranu, zamknięcie karty), a odsłonięte nazwy znów się zasłaniają; po powrocie nazwy są rozmyte. Podgląd w przełączniku aplikacji chroni w APK „Ochrona ekranu” (0.69.0).
+- **„Ostatnia kopia” (POM-61):** w profilu („Moje dane”) data ostatniej kopii pobranej w tej przeglądarce (JSON albo zabezpieczona hasłem), zapisywana dopiero po udanym pobraniu i czyszczona przy wylogowaniu; tylko na urządzeniu. Przypomnienie o kopii w APK odłożone, dopóki aplikacja nie zapisuje plików (pobieranie w WebView nie działa).
+
 ## [0.69.0] - 2026-10
 ### Dodano
 - **Ochrona ekranu w aplikacji na Androida (POM-59, APK 0.7.0):** w profilu przełącznik „Blokuj zrzuty ekranu i podgląd w przełączniku” (`FLAG_SECURE`): bez zrzutów i nagrań ekranu, pusty podgląd w ostatnich aplikacjach. Domyślnie wyłączony (zrzuty dla lekarza), ustawienie tylko na telefonie i nakładane już przy starcie aplikacji. Nowa wtyczka `ZielnikScreen`; w przeglądarce i starszym APK sekcji nie widać.

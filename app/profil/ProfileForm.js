@@ -1,5 +1,6 @@
 'use client';
 import EncryptedExport from './EncryptedExport';
+import LastBackup, { JsonBackupLink } from './LastBackup';
 import { clearQueue } from '@/lib/offline-client';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -116,9 +117,10 @@ export default function ProfileForm({ me, initial, children }) {
       <h2 className="section-label">Dane i konto</h2>
       <SettingsGroup icon="download" title="Moje dane" value="Eksport i kopia" id="moje-dane">
         <p className="muted">Pobierz kopię wszystkich swoich danych: profil, oceny, opinie, zużycie, zakupy, testy, znajomych i grupy.</p>
+        <LastBackup />
         <p className="muted">Dokumenty: <Link href="/regulamin">regulamin bety</Link> i <Link href="/prywatnosc">polityka prywatności</Link>.</p>
         <div className="list inset">
-          <a className="list-row" href="/api/account/export"><Icon name="download" /><span className="lr-main">Pobierz dane (JSON)</span></a>
+          <JsonBackupLink />
           <a className="list-row" href="/api/account/export?photos=1"><Icon name="download" /><span className="lr-main">Pobierz ze zdjęciami</span></a>
           <a className="list-row" href="/api/export"><Icon name="download" /><span className="lr-main">Moje odmiany (CSV)</span></a>
           <Link className="list-row" href="/import#kopia"><Icon name="download" /><span className="lr-main">Przywróć z kopii (plik JSON)</span></Link>
