@@ -90,8 +90,13 @@ export const PUT = safe(async (req) => {
       SELECT id, ${user.id}::int, ${day}::date, v FROM inp WHERE v IS NOT NULL
       ON CONFLICT (custom_id, day) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`);
   }
+  // same czynniki (bez wartości i notatki) nie tworzą pustego wpisu objawów: ten liczyłby się do serii regularności
+  // i wyciszał przypomnienie o dzienniku; istniejący wpis dnia dalej się aktualizuje (np. wyczyszczone wartości)
+  const onlyFactors = fx && FIELDS.every((f) => v[f] == null) && !plan.value && !plan.keep && !cv?.some((x) => x.v != null);
   // obie tabele w jednej transakcji: bez zapisu częściowego
-  ops.push(q`INSERT INTO symptom_log (user_id, day, pain, sleep, anxiety, mood, note)
+  if (onlyFactors) ops.push(q`UPDATE symptom_log SET pain = NULL, sleep = NULL, anxiety = NULL, mood = NULL, note = '', updated_at = now()
+    WHERE user_id = ${user.id} AND day = ${day}::date`);
+  else ops.push(q`INSERT INTO symptom_log (user_id, day, pain, sleep, anxiety, mood, note)
               VALUES (${user.id}, ${day}::date, ${v.pain}, ${v.sleep}, ${v.anxiety}, ${v.mood}, ${plan.value})
               ON CONFLICT (user_id, day) DO UPDATE SET pain = EXCLUDED.pain, sleep = EXCLUDED.sleep, anxiety = EXCLUDED.anxiety,
                 mood = EXCLUDED.mood, note = CASE WHEN ${plan.keep}::boolean THEN symptom_log.note ELSE EXCLUDED.note END, updated_at = now()`);

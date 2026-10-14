@@ -135,13 +135,15 @@ export default function TodayPanel({ stock, dailyUse, forecast, bought, low, ser
     const action = shortcutAction(search, hash);
     if (!action) return;
     if (action === 'use') window.history.replaceState(window.history.state, '', withoutUseParam(pathname, search, hash));
+    // szybki wpis ukryty (POM-48): skrót i przypomnienie „#objawy” prowadzą do Dziennika
+    if (action !== 'use' && hidden.includes('symptoms')) { window.location.replace('/dziennik'); return; }
     const target = action === 'use'
       ? document.querySelector('.today-quick .quick-btn[aria-expanded="false"]')
       : document.getElementById('objawy');
     if (!target) return;
     target.scrollIntoView({ block: action === 'use' ? 'center' : 'start' });
     if (action === 'use') target.click();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- tylko przy wejściu na stronę
 
   const rx0 = prescriptions.items[0];
   const rxU = (r) => (r.unit === 'ml' ? 'ml' : 'g');

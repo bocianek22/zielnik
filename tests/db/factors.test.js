@@ -143,3 +143,21 @@ test('eksport i import kopii przenoszą czynniki i znaczniki (bez duplikatów pr
   assert.equal(sec(r2, 'factorMarks').added, 0);
   assert.equal(sec(r2, 'factorMarks').existing, 6);
 });
+
+test('poprawki po przeglądzie: same czynniki bez pustego wpisu objawów, „bez” od pierwszego znacznika tego czynnika, emoji w nazwie', { skip }, async () => {
+  const C = ids.celina;
+  const { factorObservations } = await import('../../lib/factor-obs.js');
+  const kawa = ok(await call(C, 'factors', 'POST', { name: 'kofeina' })).def;
+  const d0 = await ago(0);
+  // dzień tylko z czynnikiem: znacznik jest, wiersza objawów (seria, przypomnienie) nie ma
+  ok(await call(C, 'symptoms', 'PUT', { day: d0, factors: [kawa.id] }));
+  assert.equal((await q`SELECT count(*)::int AS n FROM symptom_log WHERE user_id = ${C} AND day = ${d0}::date`)[0].n, 0);
+  assert.equal((await q`SELECT count(*)::int AS n FROM day_factor_marks WHERE factor_id = ${kawa.id}`)[0].n, 1);
+  // „kofeina” zaznaczona dopiero dziś: dni z wpisami sprzed tego nie trafiają do „bez kofeiny”
+  const f = (await factorObservations(C, 90)).factors.find((x) => x.id === kawa.id);
+  assert.deepEqual(f.rows, [], 'brak dni z wpisem objawów od pierwszego znacznika kofeiny');
+  // nazwa z emoji przycinana po znakach, zmiana nazwy pilnuje długości
+  const long = '☕'.repeat(31);
+  assert.equal((await call(C, 'factors/[id]', 'PATCH', { name: long }, { id: String(kawa.id) })).status, 400);
+  assert.equal(ok(await call(C, 'factors/[id]', 'PATCH', { name: '☕'.repeat(30) }, { id: String(kawa.id) })).def.name, '☕'.repeat(30));
+});
