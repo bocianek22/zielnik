@@ -8,6 +8,14 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.60.0] - 2026-10
+### Dodano
+- **Karta dnia:** wybór dnia w kalendarzu Historii (dotyk, mysz, Enter) i „Szczegóły dnia” otwierają arkusz ze wszystkim z tego dnia: zużycie z porą, sposobem i godziną, wykupione, objawy (także własne) z notatką, „dzień bez zużycia”, skrót „Dodaj/Zmień wpis objawów” do Dziennika na ten dzień (`?dzien=`). `GET /api/day` (`lib/day-card.js`): tylko własne dane, dzień polski, ostatnie 2 lata. Bez ocen dnia i porównań; w trybie dyskretnym nazwy i notatka rozmyte.
+- **„Cofnij” po usunięciu** recepty, wpisu dnia w Dzienniku i punktu „Do omówienia z lekarzem” (zamiast okna potwierdzenia): usunięcie trafia do bazy od razu, „Cofnij” przez 8 s odtwarza wpis z migawki (`useUndoDelete`). Recepta: `DELETE` zwraca własne powiązane zakupy, `POST` z `relink` wiąże je z odtworzoną receptą (tylko własne i niepowiązane), więc wykup się nie zmienia. Przy nieczytelnej notatce (brak klucza) zostaje pytanie, bez „Cofnij”.
+- Kreator pierwszego uruchomienia: ilustracja każdego kroku (Design 3.1, P3 #20).
+### Poprawiono
+- Dziennik na dacie starszej niż 60 dni: wpis z tego dnia jest doczytywany (`GET /api/symptoms?day=`), a „Zapisz wpis” czeka na dane; wcześniej formularz był pusty i zapis nadpisywał istniejący wpis.
+
 ## [0.59.0] - 2026-10
 ### Dodano
 - **Moje notatki w wyszukiwarce (POM-17):** grupa „Moje notatki” na `/szukaj` (od 2 znaków): notatka dnia w dzienniku, odczucia przy odmianie, recepty, notatki o partii i „Do omówienia z lekarzem”. `lib/notes-search.js`: tylko `user_id` z sesji, dopasowanie w JS po odszyfrowaniu (POM-28), bez polskich znaków i wielkości liter, wszystkie słowa zapytania; z serwera wychodzi tylko wycinek ok. 90 znaków z wyróżnieniem (`lib/notes-snippet.js`), w trybie dyskretnym rozmyty. Notatki zablokowane (brak klucza) są pomijane.

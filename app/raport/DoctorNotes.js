@@ -4,6 +4,8 @@ import DictateButton from '../components/DictateButton';
 import { useState } from 'react';
 import { api } from '@/lib/api';
 import { NOTES_EVENT } from './ReportNotes';
+import Toast from '../components/Toast';
+import useUndoDelete from '../components/useUndoDelete';
 
 const MAX = 10, LEN = 200;
 
@@ -14,14 +16,16 @@ export default function DoctorNotes({ initial }) {
   const [text, setText] = useState('');
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
+  const undo = useUndoDelete();
   const open = notes.filter((n) => !n.done), done = notes.filter((n) => n.done);
+  const publish = (list) => window.dispatchEvent(new CustomEvent(NOTES_EVENT, { detail: list.filter((n) => !n.done) }));
 
   async function run(p) {
     setBusy(true); setErr('');
     try {
       const { notes: list } = await p;
       setNotes(list);
-      window.dispatchEvent(new CustomEvent(NOTES_EVENT, { detail: list.filter((n) => !n.done) }));
+      publish(list);
       return true;
     } catch (e) { setErr(e.message); return false; } finally { setBusy(false); }
   }
@@ -30,7 +34,17 @@ export default function DoctorNotes({ initial }) {
     if (await run(api('/api/doctor-notes', 'POST', { text }))) setText('');
   }
   const toggle = (n) => run(api(`/api/doctor-notes/${n.id}`, 'PATCH', { done: !n.done }));
-  const remove = (n) => { if (confirm('Usunąć ten punkt?')) run(api(`/api/doctor-notes/${n.id}`, 'DELETE')); };
+  // usunięcie od razu, „Cofnij” dodaje punkt z tym samym tekstem (i odhacza, jeśli był omówiony)
+  async function remove(n) {
+    if (!(await run(api(`/api/doctor-notes/${n.id}`, 'DELETE')))) return;
+    undo.offer('Usunięto punkt.', async () => {
+      const { notes: list } = await api('/api/doctor-notes', 'POST', { text: n.text });
+      // przywrócony punkt to najnowszy z tym tekstem (przy powtórzonym tekście nie odhaczamy innego)
+      const back = n.done && list.filter((x) => x.text === n.text && !x.done).sort((a, b) => b.id - a.id)[0];
+      const final = back ? (await api(`/api/doctor-notes/${back.id}`, 'PATCH', { done: true })).notes : list;
+      setNotes(final); publish(final);
+    });
+  }
 
   return (
     <div className="card stack doctor-notes no-print" data-cat="learn" aria-labelledby="dn-h">
@@ -70,7 +84,8 @@ export default function DoctorNotes({ initial }) {
           </ul>
         </details>
       )}
-      {err && <p className="alert error" role="alert">{err}</p>}
+      {(err || undo.error) && <p className="alert error" role="alert">{err || undo.error}</p>}
+      <Toast text={undo.toast?.text || ''} action={undo.toast?.action} />
     </div>
   );
 }

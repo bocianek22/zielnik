@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getUser } from '@/lib/auth';
 import { symptomStreak } from '@/lib/streak';
+import { todayPL, isIsoDay } from '@/lib/date';
 import SymptomStreak from '../components/SymptomStreak';
 import Header from '../components/Header';
 import Icon from '../components/Icon';
@@ -9,11 +10,14 @@ import SymptomsBoard from './SymptomsBoard';
 
 export const dynamic = 'force-dynamic';
 
-export default async function Dziennik() {
+export default async function Dziennik({ searchParams }) {
   const user = await getUser();
   if (!user) redirect('/login');
   if (user.must_change_password) redirect('/change-password');
   const streak = await symptomStreak(user.id);
+  // ?dzien=RRRR-MM-DD (karta dnia w Historii): wpis z tego dnia; niepoprawna lub przyszła data = dziś
+  const raw = String((await searchParams)?.dzien || '');
+  const initialDay = isIsoDay(raw) && raw <= todayPL() ? raw : null;
   return (
     <>
       <Header user={user} />
@@ -32,7 +36,7 @@ export default async function Dziennik() {
           </nav>
         </header>
         <SymptomStreak data={streak} className="streak-diary" />
-        <SymptomsBoard />
+        <SymptomsBoard key={initialDay || 'dzis'} initialDay={initialDay} />
       </main>
     </>
   );

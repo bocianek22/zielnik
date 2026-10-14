@@ -207,3 +207,5 @@ a.kpi-tile:active { filter: brightness(.96); }
 .streak-text b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
 .streak-home { padding: 0 var(--s-2); }
 .streak-diary { margin-bottom: var(--s-4); }
+.onb-ill { display: block; margin: 0 auto calc(-1 * var(--s-2)); }
+@media (max-height: 640px) { .onb-ill { display: none; } }

@@ -5,6 +5,7 @@ import { SYMPTOMS, customMeta, CUSTOM_MAX, CUSTOM_NAME_MAX } from '@/lib/symptom
 import Icon from '../components/Icon';
 import DictateButton from '../components/DictateButton';
 import Toast from '../components/Toast';
+import useUndoDelete from '../components/useUndoDelete';
 import Illustration from '../components/Illustration';
 import SymptomsChart from '../components/charts/SymptomsChart';
 import { addDays } from '../components/charts/fmt';
@@ -83,24 +84,40 @@ function CustomManager({ defs, onChange }) {
   );
 }
 
-export default function SymptomsBoard() {
+// dni z wartościami wbudowanych i własnych objawów (POM-07: klucz c<id>)
+function merged0(data) {
+  const m = new Map(data.rows.map((r) => [r.day, { ...r }]));
+  for (const v of data.customValues ?? []) { const r = m.get(v.day) ?? { day: v.day }; r[`c${v.id}`] = v.value; m.set(v.day, r); }
+  return [...m.values()];
+}
+
+export default function SymptomsBoard({ initialDay = null }) {
   const [data, setData] = useState({ rows: [], usage: [], custom: [], customValues: [] });
-  const [day, setDay] = useState(todayIso());
+  const [day, setDay] = useState(initialDay || todayIso());
   const [f, setF] = useState({ pain: '', sleep: '', anxiety: '', mood: '', note: '' });
   const [msg, setMsg] = useState(null);
   const [saving, setSaving] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [editing, setEditing] = useState(false);
 
-  useEffect(() => { api('/api/symptoms').then((d) => { setData(d); setLoaded(true); }).catch((e) => setMsg({ text: e.message, error: true })); }, []);
+  // dzień spoza 60 dni (data wybrana w polu albo ?dzien= z karty dnia) doczytujemy osobno, żeby zapis nie nadpisał wpisu „w ciemno”
+  const old = day < addDays(todayIso(), -59);
+  const want = old ? day : '';
+  const [got, setGot] = useState(null); // dla jakiego zakresu przyszły dane ('' = ostatnie 60 dni)
+  const ready = got === want;
+  const wantRef = useRef(want);
+  useEffect(() => { wantRef.current = want; }, [want]);
+  useEffect(() => {
+    let live = true;
+    api(want ? `/api/symptoms?day=${want}` : '/api/symptoms').then((d) => { if (live) { setData(d); setLoaded(true); setGot(want); } })
+      .catch((e) => { if (live) setMsg({ text: e.message, error: true }); });
+    return () => { live = false; };
+  }, [want]);
   // własne objawy (POM-07) traktujemy jak wbudowane: klucz c<id>, wartości dołączone do wierszy dni
   const defs = useMemo(() => data.custom ?? [], [data]);
   const all = useMemo(() => [...SYMPTOMS, ...defs.map(customMeta)], [defs]);
-  const merged = useMemo(() => {
-    const m = new Map(data.rows.map((r) => [r.day, { ...r }]));
-    for (const v of data.customValues ?? []) { const r = m.get(v.day) ?? { day: v.day }; r[`c${v.id}`] = v.value; m.set(v.day, r); }
-    return [...m.values()];
-  }, [data]);
+  const undo = useUndoDelete();
+  const merged = useMemo(() => merged0(data), [data]);
   const existing = useMemo(() => merged.find((r) => r.day === day), [merged, day]);
   useEffect(() => {
     setF({ pain: existing?.pain ?? '', sleep: existing?.sleep ?? '', anxiety: existing?.anxiety ?? '', mood: existing?.mood ?? '', note: existing?.note ?? '',
@@ -116,9 +133,25 @@ export default function SymptomsBoard() {
     try { const d = await api('/api/symptoms', 'PUT', { day, ...f, ...(defs.length ? { custom } : {}) }); setData(d); setMsg(d.noteError ? { text: `Zapisano wartości. ${d.noteError}`, error: true } : { text: 'Zapisano.' }); if (day === todayIso()) focusNext.current = 'sym-today-h'; setEditing(false); } catch (err) { setMsg({ text: err.message, error: true }); }
     setSaving(false);
   }
+  // usunięcie od razu, „Cofnij” zapisuje dzień z migawki; nieczytelnej (zaszyfrowanej bez klucza) notatki nie da się
+  // odtworzyć, więc wtedy zostaje pytanie i bez „Cofnij”
   async function remove() {
-    if (!confirm('Usunąć wpis z tego dnia?')) return;
-    try { setData(await api('/api/symptoms', 'DELETE', { day })); setMsg({ text: 'Usunięto.' }); setEditing(false); } catch (err) { setMsg({ text: err.message, error: true }); }
+    const snap = existing;
+    if (snap?.noteLocked && !confirm('Usunąć wpis z tego dnia?')) return;
+    try {
+      setData(await api('/api/symptoms', 'DELETE', { day })); setMsg(null); setEditing(false);
+      if (snap && !snap.noteLocked) {
+        const custom = Object.fromEntries(defs.map((d) => [d.id, snap[`c${d.id}`] ?? '']));
+        undo.offer('Usunięto wpis z tego dnia.', async () => {
+          const d = await api('/api/symptoms', 'PUT', {
+            day: snap.day, pain: snap.pain ?? '', sleep: snap.sleep ?? '', anxiety: snap.anxiety ?? '', mood: snap.mood ?? '', note: snap.note ?? '',
+            ...(defs.length ? { custom } : {}) });
+          // w międzyczasie wybrany inny stary dzień: jego wpis musi być w danych, inaczej zapis nadpisałby go „w ciemno”
+          const w = wantRef.current;
+          setData(w && w !== snap.day ? await api(`/api/symptoms?day=${w}`) : d);
+        });
+      } else setMsg({ text: 'Usunięto.' });
+    } catch (err) { setMsg({ text: err.message, error: true }); }
   }
 
   const folded = loaded && existing && day === todayIso() && !editing;
@@ -133,8 +166,8 @@ export default function SymptomsBoard() {
   return (
     <div className="stack">
       {!folded && <h2 className="section-title" id="sym-entry-h">Wpis objawów</h2>}
-      {msg?.error && <div className="alert error" role="alert">{msg.text}</div>}
-      <Toast text={msg && !msg.error ? msg.text : ''} onClose={() => setMsg(null)} />
+      {(msg?.error || undo.error) && <div className="alert error" role="alert">{msg?.error ? msg.text : undo.error}</div>}
+      {undo.toast ? <Toast text={undo.toast.text} action={undo.toast.action} /> : <Toast text={msg && !msg.error ? msg.text : ''} onClose={() => setMsg(null)} />}
       {folded ? (
       <section className="card tint sym-today" data-cat="journal" aria-labelledby="sym-today-h">
         <div className="sym-today-head">
@@ -184,7 +217,7 @@ export default function SymptomsBoard() {
             <input id="sy-note" className="input" maxLength={500} value={f.note} onChange={(e) => setF({ ...f, note: e.target.value })} />
             <DictateButton value={f.note} onChange={(note) => setF((p) => ({ ...p, note }))} max={500} />
             {existing?.noteLocked && !f.note && <small>Zapisana notatka jest zaszyfrowana i chwilowo nieczytelna (brak klucza na serwerze). Zostanie zachowana; wpisany tu nowy tekst ją zastąpi.</small>}</div>
-              <div className="sym-actions"><button className="btn" aria-busy={saving || undefined} disabled={saving}>Zapisz wpis</button>{existing && <button type="button" className="btn danger" onClick={remove}>Usuń wpis</button>}</div>
+              <div className="sym-actions"><button className="btn" aria-busy={saving || undefined} disabled={saving || !ready}>Zapisz wpis</button>{existing && <button type="button" className="btn danger" onClick={remove}>Usuń wpis</button>}</div>
         </form>
       )}
       <h2 className="section-title">Ostatnie 30 dni</h2>
