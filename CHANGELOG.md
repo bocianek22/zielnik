@@ -8,6 +8,13 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.67.0] - 2026-10
+### Dodano
+- **Raport w wersji skróconej (POM-56):** przełącznik „Pełny/Skrócony” w Raporcie. Skrócony: podsumowanie, objawy z całego okresu (średnie 0–10), zestawienie recept, najczęstsze odmiany (do 5, reszta jednym zdaniem), punkty „Do omówienia”; bez tabeli tygodni, zakupów, odczuć, pór dnia i objawów przy odmianach. Ta sama treść na stronie, w PDF i na wydruku; zwykle jedna strona. Tryb zostaje przy zmianie okresu (gotowe okresy, od wizyty, własny zakres).
+- **Kopia danych zabezpieczona hasłem (POM-57):** w profilu („Moje dane”) zapis kopii zaszyfrowanej na urządzeniu (WebCrypto: PBKDF2-SHA-256, 600 000 iteracji, AES-GCM 256); hasło nie trafia na serwer, zgubionego nie da się odzyskać. „Przywróć z kopii” rozpoznaje taki plik i prosi o hasło, a odszyfrowanie odbywa się na urządzeniu. W aplikacji na Androida opcja tylko w przeglądarce.
+### Zmieniono
+- Testy E2E: `go()` czeka na koniec animacji wejścia, więc axe nie zgłasza fałszywych błędów kontrastu.
+
 ## [0.66.0] - 2026-10
 ### Dodano
 - **Znaczniki zdarzeń na wykresie objawów (POM-53):** w Dzienniku pod wykresami z 30 dni pasek znaczników na tej samej osi dni: wizyta (kółko), zakup (kwadrat), zakup nowej partii (wypełniony kwadrat, przy pierwszym zakupie z danym numerem partii). Kształty zamiast kolorów; wybrany dzień w odczycie i tabela dla czytnika ekranu wymieniają zdarzenia. Serwer zwraca tylko daty i rodzaj (bez notatek, ilości i nazw), tylko własne.
