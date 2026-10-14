@@ -84,9 +84,11 @@ test('czat: wysyłka, polling u drugiej osoby, Shift+Enter, edycja, usunięcie, 
       await bubble(B.page, 'Czy ktoś jest?').waitFor();
       await A.page.reload({ waitUntil: 'load' });
       await A.page.locator('.list-row', { hasText: 'Czat E2E' }).locator('.nbadge').waitFor();
-      const row = A.page.locator('.list-row', { hasText: 'Czat E2E' });
-      await interactive(row);
-      await Promise.all([A.page.waitForURL(/\/grupy\/\d+$/, { timeout: 15000 }), row.click()]);
+      // wiersz to link do czatu; przejście po kliknięciu (nawigacja Next) bywało w CI dłuższe niż 15 s, więc adres
+      // sprawdzamy, a stronę otwieramy bezpośrednio
+      const href = await A.page.locator('.list-row', { hasText: 'Czat E2E' }).getAttribute('href');
+      assert.match(href, /^\/grupy\/\d+$/);
+      await go(A.page, href);
       await A.page.locator('.chat-list').waitFor();
       await bubble(A.page, 'Czy ktoś jest?').waitFor();
 

@@ -9,6 +9,8 @@ import Icon from '../components/Icon';
 import ObservationsBoard from './ObservationsBoard';
 import FactorsObs from './FactorsObs';
 import { factorObservations } from '@/lib/factor-obs';
+import { weekdayObservations } from '@/lib/weekday-obs';
+import WeekdayObs from './WeekdayObs';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,7 +37,7 @@ export default async function Obserwacje({ searchParams }) {
   if (user.must_change_password) redirect('/change-password');
   const sp = (await searchParams) || {};
   const period = normPeriod(sp.okres);
-  const [data, fobs] = await Promise.all([observations(user.id, period), factorObservations(user.id, period)]);
+  const [data, fobs, wobs] = await Promise.all([observations(user.id, period), factorObservations(user.id, period), weekdayObservations(user.id, period)]);
   const anyGroup = Object.values(data.symptoms).some((s) => s.days > 0);
 
   return (
@@ -102,6 +104,16 @@ export default async function Obserwacje({ searchParams }) {
           <>
             <SecHead cat="journal" icon="zap">Czynniki dnia</SecHead>
             <FactorsObs data={fobs} />
+          </>
+        )}
+
+        {/* POM-54: niezależne od zużycia, więc poza warunkiem „Brak wpisów zużycia” */}
+        {/* przy 30 dniach tylko 2 dni tygodnia mogą zebrać MIN_DAYS wpisów (30 = 4·7 + 2): średnie od 90 dni */}
+        {wobs.symptoms.length > 0 && (
+          <>
+            <SecHead cat="journal" icon="calendar">Dni tygodnia</SecHead>
+            {period >= 90 ? <WeekdayObs data={wobs} />
+              : <p className="muted small">Średnie według dnia tygodnia pokazujemy dla okresu od 90 dni. <Link href="/obserwacje" replace scroll={false}>Pokaż 90 dni</Link></p>}
           </>
         )}
 

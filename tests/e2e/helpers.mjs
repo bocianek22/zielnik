@@ -4,6 +4,24 @@ import { createRequire } from 'node:module';
 import { existsSync, mkdirSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import pg from 'pg';
+import AxeBuilder from '@axe-core/playwright';
+
+// axe w trakcie animacji (wejście kart `card-in`, komponenty dorysowane po pobraniu danych, przejścia ekranu) mierzy
+// kontrast półprzezroczystego tekstu i zgłasza fałszywe błędy. Na czas pomiaru wyłączamy animacje i przejścia
+// (stan końcowy), potem przywracamy. Działa dla każdego testu, bo wszystkie importują ten plik.
+const analyze = AxeBuilder.prototype.analyze;
+AxeBuilder.prototype.analyze = async function analyzeStill(...args) {
+  const page = this.page;
+  const id = await page.evaluate(() => {
+    const st = document.createElement('style');
+    st.id = `axe-still-${Math.random().toString(36).slice(2)}`;
+    st.textContent = '*,*::before,*::after{animation:none!important;transition:none!important}';
+    document.head.append(st);
+    return st.id;
+  }).catch(() => null);
+  try { return await analyze.apply(this, args); }
+  finally { if (id) await page.evaluate((i) => document.getElementById(i)?.remove(), id).catch(() => {}); }
+};
 
 export const BASE = process.env.E2E_BASE || 'http://localhost:4610';
 export const SHOTS = process.env.E2E_SHOTS || 'zrzuty/e2e';
@@ -89,6 +107,18 @@ export async function interactive(locator) {
 export async function go(page, path) {
   await page.goto(`${BASE}${path}`, { waitUntil: 'load' });
   await hydrated(page);
+  await settled(page);
+}
+
+// Koniec animacji wejścia (karty `card-in`, przejście między ekranami): axe uruchomiony w ich trakcie mierzy kontrast
+// półprzezroczystego tekstu i zgłasza fałszywe błędy. Nieskończone animacje (wskaźnik ładowania) pomijamy; najwyżej 3 s.
+export async function settled(page) {
+  await page.evaluate(async () => {
+    const until = Date.now() + 3000;
+    const busy = () => document.getAnimations().some((a) => a.playState === 'running' && a.effect?.getComputedTiming().endTime !== Infinity);
+    while (busy() && Date.now() < until) await new Promise((r) => setTimeout(r, 50));
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  }).catch(() => {}); // strona mogła przejść dalej (przekierowanie) w trakcie czekania
 }
 
 // Ścieżka do Chromium dla narzędzi spoza Playwrighta (Lighthouse): CHROME_PATH, lokalny /opt/pw-browsers albo przeglądarka Playwrighta

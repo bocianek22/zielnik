@@ -3,7 +3,7 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import AxeBuilder from '@axe-core/playwright';
-import { BASE, launch, phone, login, shot, go } from './helpers.mjs';
+import { BASE, launch, phone, login, shot, go, settled } from './helpers.mjs';
 
 let browser;
 let session;
@@ -36,6 +36,7 @@ async function open(storageState, theme, big) {
 }
 
 async function violations(page) {
+  await settled(page); // wiadomości czatu i karty wchodzą z animacją (helpers.mjs)
   const r = await new AxeBuilder({ page }).withTags(TAGS).analyze();
   return r.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical')
     .map((v) => `${v.id} (${v.impact}): ${v.nodes.slice(0, 4).map((n) => n.target.join(' ')).join(' | ')}`);

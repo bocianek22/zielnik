@@ -59,6 +59,24 @@ function Axis({ xs }) {
   );
 }
 
+// POM-53: zdarzenia (wizyta, zakup, nowa partia) jako znaczniki pod wykresami, na tej samej osi dni. Kształty, nie kolory
+// (okrąg = wizyta, kwadrat = zakup, wypełniony kwadrat = nowa partia); pasek jest dekoracją, treść jest w odczycie dnia i tabeli.
+const EV_TEXT = { visit: 'wizyta', purchase: 'zakup', batch: 'nowa partia' };
+const evParts = (e) => (e ? [e.visit && EV_TEXT.visit, e.purchase && (e.batch ? `${EV_TEXT.purchase} (${EV_TEXT.batch})` : EV_TEXT.purchase)].filter(Boolean) : []);
+function Events({ xs, ev, sel }) {
+  if (!xs.some((d) => ev[d])) return null;
+  return (
+    <div className={`sp-events${xs.some((d) => ev[d]?.visit && ev[d]?.purchase) ? ' two' : ''}`} aria-hidden="true">
+      {xs.map((d, k) => ev[d] && (
+        <span key={d} className={`sp-ev${sel === k ? ' on' : ''}`} style={{ left: pct(k) }}>
+          {ev[d].visit && <i className="ev-visit" />}
+          {ev[d].purchase && <i className={`ev-buy${ev[d].batch ? ' batch' : ''}`} />}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 // jeden objaw: nagłówek (nazwa, kierunek skali, wartość wybranego dnia) i wykres 72 px na skali 0–10
 function Panel({ s, d, sel }) {
   const H = 72, y = (v) => 70 - 6.8 * v;
@@ -167,12 +185,13 @@ function Together({ list, data, focus, setFocus, sel, setSel }) {
   );
 }
 
-export default function SymptomsChart({ rows, usage, all, end }) {
+export default function SymptomsChart({ rows, usage, events = [], all, end }) {
   const [mode, setMode] = useState('osobno');
   const [focus, setFocus] = useState(null);
   const [sel, setSel] = useState(null);
   useWide(() => setMode('osobno'));
 
+  const ev = useMemo(() => Object.fromEntries(events.map((e) => [e.day, e])), [events]);
   const { xs, byDay, use, useMl, data, lastAny } = useMemo(() => {
     const xs = Array.from({ length: N }, (_, i) => addDays(end, -(N - 1 - i)));
     const byDay = Object.fromEntries(rows.map((r) => [r.day, r]));
@@ -198,22 +217,24 @@ export default function SymptomsChart({ rows, usage, all, end }) {
     ...all.filter((s) => data[s.key].vals[i] != null).map((s) => <Fragment key={s.key}><span className={dn(s)}>{s.short}</span> {data[s.key].vals[i]}</Fragment>),
     ...(use[day] > 0 ? [<Fragment key="g">zużycie {num(use[day], 1)} g</Fragment>] : []),
     ...(useMl[day] > 0 ? [<Fragment key="ml">{num(useMl[day], 1)} ml</Fragment>] : []),
+    ...evParts(ev[day]).map((t) => <Fragment key={t}>{t}</Fragment>),
   ];
   const read = (
     <><b>{day === end ? 'Dziś' : longDay(day)}:</b>{' '}
       {parts.length ? parts.map((p, k) => <Fragment key={k}>{k > 0 && ', '}{p}</Fragment>) : 'brak wpisów'}</>
   );
-  const listed = xs.filter((d) => byDay[d] || use[d] || useMl[d]).reverse();
+  const listed = xs.filter((d) => byDay[d] || use[d] || useMl[d] || ev[d]).reverse();
   const table = (
     <table>
-      <caption>Wpisy objawów i zużycie z ostatnich 30 dni, od najnowszego</caption>
-      <thead><tr><th scope="col">Dzień</th>{all.map((s) => <th key={s.key} scope="col">{s.label} (0–10)</th>)}<th scope="col">Zużycie</th></tr></thead>
+      <caption>Wpisy objawów, zużycie i zdarzenia z ostatnich 30 dni, od najnowszego</caption>
+      <thead><tr><th scope="col">Dzień</th>{all.map((s) => <th key={s.key} scope="col">{s.label} (0–10)</th>)}<th scope="col">Zużycie</th><th scope="col">Zdarzenia</th></tr></thead>
       <tbody>
-        {listed.length === 0 && <tr><td colSpan={all.length + 2}>Brak wpisów w ostatnich 30 dniach.</td></tr>}
+        {listed.length === 0 && <tr><td colSpan={all.length + 3}>Brak wpisów w ostatnich 30 dniach.</td></tr>}
         {listed.map((d) => (
           <tr key={d}><th scope="row">{d === end ? 'dziś' : longDay(d)}</th>
             {all.map((s) => <td key={s.key}>{byDay[d]?.[s.key] ?? 'nie wpisano'}</td>)}
-            <td>{[use[d] > 0 && `${num(use[d], 1)} g`, useMl[d] > 0 && `${num(useMl[d], 1)} ml`].filter(Boolean).join(', ') || 'brak'}</td></tr>
+            <td>{[use[d] > 0 && `${num(use[d], 1)} g`, useMl[d] > 0 && `${num(useMl[d], 1)} ml`].filter(Boolean).join(', ') || 'brak'}</td>
+            <td>{evParts(ev[d]).join(', ') || 'brak'}</td></tr>
         ))}
       </tbody>
     </table>
@@ -230,7 +251,7 @@ export default function SymptomsChart({ rows, usage, all, end }) {
       {mode === 'razem' && hasSym ? (
         <>
           <Together list={all} data={data} focus={focus} setFocus={setFocus} sel={sel} setSel={setSel} xs={xs} />
-          <UsagePanelWrap xs={xs} use={use} sel={sel} setSel={setSel} label={scrubLabel} />
+          <UsagePanelWrap xs={xs} use={use} ev={ev} sel={sel} setSel={setSel} label={scrubLabel} />
         </>
       ) : (
         <Scrub className="sp-scrub" n={N} sel={sel} onSel={setSel} role="group" label={scrubLabel}>
@@ -238,6 +259,7 @@ export default function SymptomsChart({ rows, usage, all, end }) {
             ? all.map((s) => <Panel key={s.key} s={s} d={data[s.key]} sel={sel} />)
             : <p className="sp-none">Brak wpisów objawów w ostatnich 30 dniach.</p>}
           <UsagePanel xs={xs} use={use} sel={sel} />
+          <Events xs={xs} ev={ev} sel={sel} />
           <Axis xs={xs} />
         </Scrub>
       )}
@@ -246,6 +268,7 @@ export default function SymptomsChart({ rows, usage, all, end }) {
         <p className="sp-cap">
           {hasSym ? 'Kropki to wpisy. Linia to średnia z 7 dni, liczona tylko wtedy, gdy w tych 7 dniach są co najmniej 4 wpisy; pasmo to zakres z 7 dni (od najniższego do najwyższego wpisu). Linia nie łączy dni, między którymi są co najmniej 3 dni bez wpisu. ' : ''}
           Zużycie ma własną skalę i jest osobno.
+          {xs.some((d) => ev[d]) && ' Pod wykresami znaczniki dni z wizytą (kółko), zakupem (kwadrat) i zakupem nowej partii (wypełniony kwadrat).'}
         </p>
       </details>
     </Frame>
@@ -253,10 +276,11 @@ export default function SymptomsChart({ rows, usage, all, end }) {
 }
 
 // w widoku „Razem” panel zużycia ma własny Scrub (ta sama oś dni), bo pierwszy Scrub obejmuje tylko wykres objawów
-function UsagePanelWrap({ xs, use, sel, setSel, label }) {
+function UsagePanelWrap({ xs, use, ev, sel, setSel, label }) {
   return (
     <Scrub className="sp-scrub sp-usewrap" n={N} sel={sel} onSel={setSel} role="group" label={label}>
       <UsagePanel xs={xs} use={use} sel={sel} />
+      <Events xs={xs} ev={ev} sel={sel} />
       <Axis xs={xs} />
     </Scrub>
   );

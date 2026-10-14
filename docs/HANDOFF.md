@@ -52,8 +52,9 @@ Tryb awaryjny (rozmowa bez dostępu do repozytorium):
 - Wybór bramki płatności i platformy wpłat (`DONATE_URL`), decyzja o `PREMIUM_ENFORCED`.
 - Źródło danych do katalogu (`CATALOG_FEED_URL`), plan Vercel Pro przy działalności komercyjnej.
 
-## 6. Następne kroki (aktualne dla wersji 0.65.0)
+## 6. Następne kroki (aktualne dla wersji 0.66.0)
 Pełna lista z uzasadnieniem: `docs/PRZEGLAD-2026-10.md`; aplikacje natywne: `docs/APLIKACJE-NATYWNE.md`; system projektowy: `docs/DESIGN.md`. Praca z podziałem na subagentów (`.claude/agents/`): koordynator scala gałęzie, uruchamia kontrole, zleca przegląd (reviewer) i prowadzi CHANGELOG/wersję. Przebieg pracy nocnej: `docs/PLAN-NOC.md`.
+1. **Znaczniki zdarzeń i dni tygodnia (0.66.0):** Dziennik → wykres 30 dni: znaczniki wizyty/zakupu/partii pod wykresami (dotyk na 320 px, tryb ciemny, TalkBack czyta zdarzenia w odczycie dnia); „Moje obserwacje” → „Dni tygodnia” (wybór objawu, własny objaw rozmyty w trybie dyskretnym, okres 90 dni). Dalej: nowa runda propozycji w `docs/POMYSLY.md` (agent innowacje).
 1. **Dziennik wizyt (0.65.0):** Raport → „Wizyty”: zapis wizyty z notatką (dyktowanie), następna wizyta pojawia się w przypomnieniach (profil), „Cofnij” po usunięciu, tryb dyskretny (notatka rozmyta), karta dnia i wyszukiwarka; eksport i przywracanie z kopii. Dalej: POM-53 znaczniki zdarzeń na wykresie objawów (wizyty, wykupy, partie), POM-54 wzorce wg dnia tygodnia.
 1. **Rok objawów i przypomnienia rx/zapas (0.64.0):** Dziennik → „Rok objawów” (wybór objawu, kwartał/rok, stuknięcie dnia i karta dnia, 320 px, TalkBack); APK 0.6.0 → profil → „Przypomnienia na tym telefonie” → termin recepty i zapas (po otwarciu „Dziś”). Dalej wg propozycji: POM-52 dziennik wizyt (nowa tabela, szyfrowana notatka, eksport/kopia/import), POM-53 znaczniki zdarzeń na wykresie objawów, POM-54 wzorce wg dnia tygodnia.
 1. **Raport z czynnikami (0.63.0):** Raport → „Dołącz moje spostrzeżenia” → linia „Czynniki dnia zaznaczane przez pacjenta” w podglądzie, PDF i wydruku; bez opcji brak linii.

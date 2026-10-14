@@ -9,6 +9,7 @@ import { openEditable, rowScope, NOTE_UNAVAILABLE_MSG } from '@/lib/data-crypto'
 import { planNoteDb } from '@/lib/notes';
 import { isIsoDay } from '@/lib/date';
 import { listFactors, factorMarks, FACTOR_MAX } from '@/lib/factors';
+import { dayEvents } from '@/lib/day-events';
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const FIELDS = ['pain', 'sleep', 'anxiety', 'mood'];
@@ -29,9 +30,10 @@ async function load(me, days = 60, extraDay = null) {
                         GROUP BY 1 ORDER BY 1`;
   // własne objawy (POM-07): definicje i wartości (osobno od wierszy, bo dzień może mieć tylko własne)
   // czynniki dnia (POM-47): definicje i znaczniki
-  const [custom, customVals, factors, marks] = await Promise.all([listCustom(me), customValues(me, days, extraDay), listFactors(me), factorMarks(me, days, extraDay)]);
+  // zdarzenia na wykresie (POM-53): wizyty i zakupy, same daty
+  const [custom, customVals, factors, marks, events] = await Promise.all([listCustom(me), customValues(me, days, extraDay), listFactors(me), factorMarks(me, days, extraDay), dayEvents(me, days)]);
   return { rows: rows.map((r) => openEditable('symptom_log', 'note', rowScope('symptom_log', { user_id: me, day: r.day }), r, 'note')), usage, custom, customValues: customVals,
-    factors, factorMarks: marks };
+    factors, factorMarks: marks, events };
 }
 
 export const GET = safe(async (req) => {
