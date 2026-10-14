@@ -7,6 +7,7 @@ import { listCustom, customValues } from '@/lib/symptoms-custom';
 import { CUSTOM_MAX } from '@/lib/symptoms';
 import { openEditable, rowScope, NOTE_UNAVAILABLE_MSG } from '@/lib/data-crypto';
 import { planNoteDb } from '@/lib/notes';
+import { isIsoDay } from '@/lib/date';
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const FIELDS = ['pain', 'sleep', 'anxiety', 'mood'];
@@ -34,7 +35,7 @@ export const GET = safe(async (req) => {
   const { user, res } = await requireUser();
   if (res) return res;
   const d = new URL(req.url).searchParams.get('day') || '';
-  return NextResponse.json(await load(user.id, 60, DATE.test(d) && !Number.isNaN(Date.parse(d)) ? d : null));
+  return NextResponse.json(await load(user.id, 60, isIsoDay(d) ? d : null));
 });
 
 // { day, pain, sleep, anxiety, mood, note } - zapis (lub nadpisanie) wpisu dnia

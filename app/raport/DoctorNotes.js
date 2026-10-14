@@ -39,7 +39,8 @@ export default function DoctorNotes({ initial }) {
     if (!(await run(api(`/api/doctor-notes/${n.id}`, 'DELETE')))) return;
     undo.offer('Usunięto punkt.', async () => {
       const { notes: list } = await api('/api/doctor-notes', 'POST', { text: n.text });
-      const back = n.done && list.find((x) => x.text === n.text && !x.done);
+      // przywrócony punkt to najnowszy z tym tekstem (przy powtórzonym tekście nie odhaczamy innego)
+      const back = n.done && list.filter((x) => x.text === n.text && !x.done).sort((a, b) => b.id - a.id)[0];
       const final = back ? (await api(`/api/doctor-notes/${back.id}`, 'PATCH', { done: true })).notes : list;
       setNotes(final); publish(final);
     });

@@ -42,3 +42,10 @@ test('isoPL i addDaysIso', () => {
   assert.equal(addDaysIso('2026-03-01', -1), '2026-02-28');
   assert.equal(addDaysIso('2026-10-25', 1), '2026-10-26');
 });
+
+test('isIsoDay: tylko istniejące dni kalendarza', async () => {
+  const { isIsoDay } = await import('../lib/date.js');
+  assert.equal(isIsoDay('2026-10-14'), true);
+  assert.equal(isIsoDay('2028-02-29'), true);
+  for (const d of ['2026-02-31', '2026-02-29', '2026-13-01', '2026-1-01', '', null, '2026-10-14T00:00']) assert.equal(isIsoDay(d), false, String(d));
+});

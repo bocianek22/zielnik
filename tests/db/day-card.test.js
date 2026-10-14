@@ -114,3 +114,9 @@ test('dziennik: GET /api/symptoms?day= dołącza dzień sprzed 60 dni, zapis i u
   const del = ok(await call(A, 'symptoms', 'DELETE', { day: old }));
   assert.equal(del.rows.some((r) => r.day === old), false);
 });
+
+test('nieistniejący dzień (2026-02-31) to 400, a nie błąd bazy', { skip }, async () => {
+  assert.equal((await get(ids.ania, 'day?d=2026-02-31')).status, 400);
+  const r = ok(await get(ids.ania, 'symptoms?day=2026-02-31'));
+  assert.ok(Array.isArray(r.rows));
+});

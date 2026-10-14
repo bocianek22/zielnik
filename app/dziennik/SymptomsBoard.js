@@ -105,6 +105,8 @@ export default function SymptomsBoard({ initialDay = null }) {
   const want = old ? day : '';
   const [got, setGot] = useState(null); // dla jakiego zakresu przyszły dane ('' = ostatnie 60 dni)
   const ready = got === want;
+  const wantRef = useRef(want);
+  useEffect(() => { wantRef.current = want; }, [want]);
   useEffect(() => {
     let live = true;
     api(want ? `/api/symptoms?day=${want}` : '/api/symptoms').then((d) => { if (live) { setData(d); setLoaded(true); setGot(want); } })
@@ -140,9 +142,14 @@ export default function SymptomsBoard({ initialDay = null }) {
       setData(await api('/api/symptoms', 'DELETE', { day })); setMsg(null); setEditing(false);
       if (snap && !snap.noteLocked) {
         const custom = Object.fromEntries(defs.map((d) => [d.id, snap[`c${d.id}`] ?? '']));
-        undo.offer('Usunięto wpis z tego dnia.', async () => setData(await api('/api/symptoms', 'PUT', {
-          day: snap.day, pain: snap.pain ?? '', sleep: snap.sleep ?? '', anxiety: snap.anxiety ?? '', mood: snap.mood ?? '', note: snap.note ?? '',
-          ...(defs.length ? { custom } : {}) })));
+        undo.offer('Usunięto wpis z tego dnia.', async () => {
+          const d = await api('/api/symptoms', 'PUT', {
+            day: snap.day, pain: snap.pain ?? '', sleep: snap.sleep ?? '', anxiety: snap.anxiety ?? '', mood: snap.mood ?? '', note: snap.note ?? '',
+            ...(defs.length ? { custom } : {}) });
+          // w międzyczasie wybrany inny stary dzień: jego wpis musi być w danych, inaczej zapis nadpisałby go „w ciemno”
+          const w = wantRef.current;
+          setData(w && w !== snap.day ? await api(`/api/symptoms?day=${w}`) : d);
+        });
       } else setMsg({ text: 'Usunięto.' });
     } catch (err) { setMsg({ text: err.message, error: true }); }
   }

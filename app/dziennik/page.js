@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getUser } from '@/lib/auth';
 import { symptomStreak } from '@/lib/streak';
-import { todayPL } from '@/lib/date';
+import { todayPL, isIsoDay } from '@/lib/date';
 import SymptomStreak from '../components/SymptomStreak';
 import Header from '../components/Header';
 import Icon from '../components/Icon';
@@ -17,7 +17,7 @@ export default async function Dziennik({ searchParams }) {
   const streak = await symptomStreak(user.id);
   // ?dzien=RRRR-MM-DD (karta dnia w Historii): wpis z tego dnia; niepoprawna lub przyszła data = dziś
   const raw = String((await searchParams)?.dzien || '');
-  const initialDay = /^\d{4}-\d{2}-\d{2}$/.test(raw) && !Number.isNaN(Date.parse(raw)) && raw <= todayPL() ? raw : null;
+  const initialDay = isIsoDay(raw) && raw <= todayPL() ? raw : null;
   return (
     <>
       <Header user={user} />

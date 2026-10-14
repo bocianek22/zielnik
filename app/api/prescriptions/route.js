@@ -27,7 +27,10 @@ export const POST = safe(async (req) => {
   const { user, res } = await requireUser();
   if (res) return res;
   const b = await jsonBody(req);
-  if (!(await hit(`rx-new:${user.id}`, 30, 3600))) return bad('Zbyt wiele nowych recept. Spróbuj ponownie później.', 429);
+  const relink = (Array.isArray(b.relink) ? b.relink : []).slice(0, 500).map(intId).filter(Boolean);
+  // „Cofnij” po usunięciu (relink) ma osobny limit: usunięcie poszło już na serwer, więc odtworzenie nie może przegrać
+  // z limitem nowych recept
+  if (!(await hit(`${relink.length ? 'rx-undo' : 'rx-new'}:${user.id}`, 30, 3600))) return bad('Zbyt wiele nowych recept. Spróbuj ponownie później.', 429);
   const issued = String(b.issuedOn ?? '');
   const valid = String(b.validUntil ?? '') || null;
   const grams = parseNumber(b.grams, 0.1, 100000);
@@ -40,13 +43,13 @@ export const POST = safe(async (req) => {
   const [{ rid }] = await sql()`SELECT nextval(pg_get_serial_sequence('prescriptions', 'id'))::int AS rid`;
   const plan = planNote('prescriptions', 'note', rowScope('prescriptions', { user_id: user.id, id: rid }), note);
   if (plan.unavailable) return bad(NOTE_UNAVAILABLE_REJECT_MSG, 422);
-  await sql()`INSERT INTO prescriptions (id, user_id, issued_on, valid_until, grams, unit, note)
-              VALUES (${rid}, ${user.id}, ${issued}::date, ${valid}::date, ${grams}, ${normUnit(b.unit)}, ${plan.value})`;
-  const relink = (Array.isArray(b.relink) ? b.relink : []).slice(0, 500).map(intId).filter(Boolean);
-  if (relink.length) {
-    await sql()`UPDATE purchases SET prescription_id = ${rid}
-      WHERE user_id = ${user.id} AND id = ANY(${relink}::int[]) AND prescription_id IS NULL`;
-  }
+  const q = sql();
+  await q.transaction([
+    q`INSERT INTO prescriptions (id, user_id, issued_on, valid_until, grams, unit, note)
+      VALUES (${rid}, ${user.id}, ${issued}::date, ${valid}::date, ${grams}, ${normUnit(b.unit)}, ${plan.value})`,
+    q`UPDATE purchases SET prescription_id = ${rid}
+      WHERE user_id = ${user.id} AND id = ANY(${relink}::int[]) AND prescription_id IS NULL`,
+  ]);
   return NextResponse.json({ prescriptions: await list(user.id) });
 });
 
@@ -55,7 +58,9 @@ export const DELETE = safe(async (req) => {
   if (res) return res;
   const { id } = await jsonBody(req);
   // powiązane zakupy (prescription_id przejdzie w NULL) wracają do klienta, żeby „Cofnij” mogło je powiązać z odtworzoną receptą
-  const linked = await sql()`SELECT id FROM purchases WHERE prescription_id = ${intId(id)} AND user_id = ${user.id}`;
-  const gone = await sql()`DELETE FROM prescriptions WHERE id = ${intId(id)} AND user_id = ${user.id} RETURNING id`;
-  return NextResponse.json({ prescriptions: await list(user.id), relink: gone.length ? linked.map((r) => r.id) : [] });
+  // jedno zapytanie: lista zakupów jest z tej samej migawki co usunięcie (zakup dopięty w międzyczasie nie umknie)
+  const gone = await sql()`WITH d AS (DELETE FROM prescriptions WHERE id = ${intId(id)} AND user_id = ${user.id} RETURNING id)
+    SELECT p.id FROM purchases p JOIN d ON p.prescription_id = d.id WHERE p.user_id = ${user.id}
+    UNION ALL SELECT NULL FROM d`;
+  return NextResponse.json({ prescriptions: await list(user.id), relink: gone.filter((r) => r.id != null).map((r) => r.id) });
 });
