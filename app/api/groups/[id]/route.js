@@ -47,8 +47,11 @@ export const POST = safe(async (req, { params }) => {
       WHERE g.id = ${gid}::int AND (g.invite_policy = 'all' OR c.role IN ('owner', 'moderator'))
       ON CONFLICT DO NOTHING RETURNING user_id`;
     if (!ins.length) {
-      const [g] = await q`SELECT invite_policy FROM groups WHERE id = ${gid}::int`;
-      if (g?.invite_policy === 'staff' && m.role === 'member') return bad('W tej grupie zapraszać mogą tylko właściciel i moderatorzy.', 403);
+      // bez wstawienia: albo osoba już jest w grupie, albo rola lub zasada zmieniły się w trakcie (odczyt aktualny, nie z początku żądania)
+      const [g] = await q`SELECT g.invite_policy, c.role FROM groups g
+        LEFT JOIN group_members c ON c.group_id = g.id AND c.user_id = ${user.id}::int AND c.status = 'active' WHERE g.id = ${gid}::int`;
+      if (!g?.role) return bad('Nie należysz do tej grupy.', 403);
+      if (g.invite_policy === 'staff' && g.role === 'member') return bad('W tej grupie zapraszać mogą tylko właściciel i moderatorzy.', 403);
     }
     return NextResponse.json({ ok: true });
   }

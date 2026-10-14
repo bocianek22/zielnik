@@ -14,7 +14,7 @@ before(async () => {
 after(async () => { await browser?.close(); await pool?.end(); });
 
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
-const serious = async (page) => (await new AxeBuilder({ page }).withTags(TAGS).analyze())
+const serious = async (page) => (await page.waitForFunction(() => document.title.trim() !== ''), await new AxeBuilder({ page }).withTags(TAGS).analyze())
   .violations.filter((v) => v.impact === 'serious' || v.impact === 'critical')
   .map((v) => `${v.id}: ${v.nodes.slice(0, 3).map((n) => n.target.join(' ')).join(' | ')}`);
 

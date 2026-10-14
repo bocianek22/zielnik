@@ -26,6 +26,8 @@ export BETA_GROUP_URL=https://grupa.example.test/beta
 export DATA_ENCRYPTION_KEY="${DATA_ENCRYPTION_KEY:-e2e1:$(printf 'zielnik-e2e-klucz-tylko-testy-32' | base64)}"
 # dane administratora w dokumentach: bez nich ekran zgody się nie pokazuje (tests/e2e/zgoda.test.mjs)
 export LEGAL_ADMIN_NAME='Administrator Testowy' LEGAL_CONTACT_EMAIL='kontakt@example.test'
+# dane z seed.mjs są „z dziś” (czas polski): przebieg zaczęty tuż przed północą kończyłby się już następnego dnia
+W=$(TZ=Europe/Warsaw date +%H%M); if [ "$W" -ge 2345 ]; then S=$(( (2400 - W) / 100 * 3600 + ((60 - 10#${W:2}) % 60) * 60 + 30 )); echo "czekam ${S}s do północy (czas polski)"; sleep "$S"; fi
 scripts/dev/serve.sh "$PORT" "$DB"
 node scripts/dev/seed.mjs "$DB" --port "$PORT" | tail -1
 export E2E_DB_URL="${ADMIN%/*}/$DB" # testy, które muszą ustawić stan konta w bazie (np. stara wersja zgody)

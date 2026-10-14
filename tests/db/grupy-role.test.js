@@ -156,6 +156,11 @@ test('zasada zapraszania: zmieniają ją właściciel i moderator; przy „staff
   assert.equal(r.status, 403);
   assert.match(r.json.error, /tylko właściciel i moderatorzy/);
   assert.equal((await q`SELECT 1 FROM group_members WHERE group_id = ${G} AND user_id = ${ids.adm}`).length, 0);
+  // zaproszenie kogoś, kto już jest w grupie, też nie przechodzi zwykłemu członkowi przy „staff” (bez fałszywego ok)
+  await q`INSERT INTO friendships (requester, addressee, status) VALUES (${ids.celina}, ${ids.ewa}, 'accepted') ON CONFLICT DO NOTHING`;
+  const dup = await act(ids.celina, { action: 'invite', username: 'ewa' });
+  assert.equal(dup.status, 403);
+  assert.match(dup.json.error, /tylko właściciel i moderatorzy/);
   // moderator zaprasza, a potem usuwa oczekujące zaproszenie
   assert.equal((await act(ids.bartek, { action: 'invite', username: 'adm' })).status, 200);
   assert.equal((await q`SELECT status FROM group_members WHERE group_id = ${G} AND user_id = ${ids.adm}`)[0].status, 'invited');

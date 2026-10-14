@@ -71,6 +71,7 @@
 .strain-head h3 a { color: inherit; text-decoration: none; }
 /* cały nagłówek wiersza jest celem dotyku (przejście do szczegółów); zdjęcie z podglądem leży nad nim */
 .strain-head h3 a::after { content: ''; position: absolute; inset: 0; }
+/* tryb dyskretny: .dn na tekście w linku, nie na linku (filter na linku zawęziłby ::after do samej nazwy) */
 .strain-head h3 a:hover { text-decoration: underline; text-decoration-color: var(--sep-strong); text-underline-offset: 4px; }
 .photo-link { position: relative; z-index: 1; flex-shrink: 0; }
 .strain-meta { margin: 0; color: var(--text-2); font-size: var(--fs-sm); line-height: 1.4; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -192,3 +193,13 @@
 
 /* telefon: pola w jednym rzędzie wyrównane do dołu, gdy etykieta zawija się do dwóch linii */
 @media (max-width: 760px) { .entry { align-items: end; } .entry-who { align-self: start; } }
+
+/* POM-18: „Samopoczucie po tej odmianie” (opis, bez kolorów lepiej/gorzej) */
+.feel-table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); margin-bottom: var(--s-3); }
+.feel-table th, .feel-table td { padding: var(--s-2) var(--s-2); text-align: left; vertical-align: top; border-bottom: 1px solid var(--sep); }
+.feel-table thead th { color: var(--text-2); font-weight: 600; font-size: var(--fs-xs); }
+.feel-table tbody th { font-weight: 600; color: var(--text); }
+.feel-table td { font-variant-numeric: tabular-nums; }
+.feel-table td b { display: block; font-size: var(--fs-xl); font-weight: 600; color: var(--text); line-height: 1.2; }
+.feel-table td b.few { color: var(--text-3); }
+.feel-table td span { display: block; font-size: var(--fs-xs); color: var(--text-2); }

@@ -9,6 +9,7 @@ export default function GroupActions({ groupId, isOwner, kickId, kickName = 'cz�
   const router = useRouter();
   const [username, setUsername] = useState('');
   const [msg, setMsg] = useState('');
+  const [busy, setBusy] = useState(false);
   async function act(body, after) {
     try { await api(`/api/groups/${groupId}`, 'POST', body); setMsg(''); after ? after() : router.refresh(); }
     catch (e) { setMsg(e.message); }
@@ -31,10 +32,10 @@ export default function GroupActions({ groupId, isOwner, kickId, kickName = 'cz�
     return (
       <div className="group-policy card tint" data-cat="social">
         <p className="muted" id="g-policy">Kto może zapraszać</p>
-        <div className="seg" role="radiogroup" aria-labelledby="g-policy">
+        <div className="seg" role="group" aria-labelledby="g-policy">
           {[['all', 'Wszyscy członkowie'], ['staff', 'Właściciel i moderatorzy']].map(([v, label]) => (
-            <button key={v} type="button" role="radio" aria-checked={policy === v} className={policy === v ? 'on' : ''}
-              onClick={() => policy !== v && act({ action: 'invitePolicy', policy: v })}>{label}</button>))}
+            <button key={v} type="button" aria-pressed={policy === v} className={policy === v ? 'on' : ''} disabled={busy}
+              onClick={() => { if (policy === v) return; setBusy(true); act({ action: 'invitePolicy', policy: v }).finally(() => setBusy(false)); }}>{label}</button>))}
         </div>
         {msg && <p className="field-err" role="alert">{msg}</p>}
       </div>

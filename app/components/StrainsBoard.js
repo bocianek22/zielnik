@@ -37,6 +37,11 @@ function FormSheet({ children }) {
     return () => mq.removeEventListener('change', sync);
   }, []);
   useFocusTrap(ref, sheet && !sent);
+  // wejście z menu „…” (przycisk znika razem z kartą): fokus trafia do formularza, nie zostaje na <body>
+  useEffect(() => {
+    if (document.activeElement && document.activeElement !== document.body) return;
+    ref.current?.querySelector('input:not([type=hidden]), select, textarea')?.focus({ preventScroll: true });
+  }, []);
   return <div ref={ref} style={{ display: 'contents' }}>{cloneElement(children, { onSent: () => setSent(true) })}</div>;
 }
 

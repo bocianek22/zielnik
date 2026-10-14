@@ -13,7 +13,7 @@ before(async () => {
 });
 after(async () => { await browser?.close(); await pool?.end(); });
 
-const serious = async (page) => (await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze())
+const serious = async (page) => (await page.waitForFunction(() => document.title.trim() !== ''), await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze())
   .violations.filter((v) => v.impact === 'serious' || v.impact === 'critical')
   .map((v) => `${v.id}: ${v.nodes.slice(0, 3).map((n) => n.target.join(' ')).join(' | ')}`);
 
@@ -78,15 +78,15 @@ test('role w grupie: nadanie moderatora, moderator bez usuwania wiadomości wła
       assert.equal((await pool.query(`SELECT role FROM group_members WHERE group_id = $1 AND user_id = (SELECT id FROM users WHERE username = 'bartek')`, [gid])).rows[0].role, 'member');
 
       // zasada zapraszania: właścicielka ogranicza do siebie i moderatorów; zwykły członek widzi informację zamiast formularza
-      const staffOnly = A.page.getByRole('radio', { name: 'Właściciel i moderatorzy' });
+      const staffOnly = A.page.getByRole('button', { name: 'Właściciel i moderatorzy' });
       await interactive(staffOnly);
       await staffOnly.click();
-      await A.page.locator('[role=radio][aria-checked=true]', { hasText: 'Właściciel i moderatorzy' }).waitFor();
+      await A.page.locator('[aria-pressed=true]', { hasText: 'Właściciel i moderatorzy' }).waitFor();
       assert.deepEqual(await serious(A.page), []);
       await go(B.page, `/grupy/${gid}`);
       await B.page.getByText('W tej grupie zapraszać mogą tylko właściciel i moderatorzy.').waitFor();
       assert.equal(await B.page.locator('#g-invite').count(), 0, 'zwykły członek nie ma formularza zaproszenia');
-      assert.equal(await B.page.getByRole('radiogroup').count(), 0, 'zwykły członek nie zmienia zasady');
+      assert.equal(await B.page.getByRole('button', { name: 'Właściciel i moderatorzy' }).count(), 0, 'zwykły członek nie zmienia zasady');
 
       assert.deepEqual(A.problems.left(), []);
       assert.deepEqual(B.problems.left(), []);
