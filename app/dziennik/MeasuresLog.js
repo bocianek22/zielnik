@@ -1,8 +1,8 @@
 'use client';
 import { useState } from 'react';
 import { api } from '@/lib/api';
-import { formatDay } from '@/lib/date';
-import { MEASURE_MAX, MEASURE_NAME_MAX, MEASURE_UNIT_MAX, fmtMeasure } from '@/lib/measures-meta';
+import { formatDay, addDaysIso } from '@/lib/date';
+import { MEASURE_MAX, MEASURE_NAME_MAX, MEASURE_UNIT_MAX, fmtMeasure, parseMeasure } from '@/lib/measures-meta';
 import SecHead from '../components/SecHead';
 import Toast from '../components/Toast';
 import Icon from '../components/Icon';
@@ -12,7 +12,8 @@ const HINTS = [['Tętno', 'ud./min'], ['Waga', 'kg'], ['Ciśnienie skurczowe', '
 const RECENT = 10;
 
 // POM-63: własne pomiary z jednostką (do 3), jedna wartość dziennie. Bez norm, kolorów i ocen. Formularz wysyła tylko
-// pola zmienione przez pacjenta, więc starszy dzień spoza listy nie traci zapisanej wartości po cichu.
+// pola zmienione przez pacjenta; dzień starszy niż lista 30 dni dociągamy osobno, żeby pola pokazały zapisane wartości.
+// Zmiana dnia zostawia wpisane wartości (pacjent zwykle poprawia datę po wpisaniu).
 export default function MeasuresLog({ initial }) {
   const [defs, setDefs] = useState(initial.defs);
   const [values, setValues] = useState(initial.values);
@@ -24,8 +25,14 @@ export default function MeasuresLog({ initial }) {
   const [err, setErr] = useState('');
   const [msg, setMsg] = useState('');
   const [manage, setManage] = useState(initial.defs.length === 0);
+  const [older, setOlder] = useState([]); // wartości dni sprzed 30 dni, dociągnięte przy wyborze dnia
+  const [bad, setBad] = useState([]); // id pól z niepoprawną liczbą
 
-  const stored = (id) => values.find((v) => v.day === day && v.id === id);
+  const stored = (id) => values.find((v) => v.day === day && v.id === id) || older.find((v) => v.day === day && v.id === id);
+  async function loadDay(d) {
+    if (d >= addDaysIso(todayIso(), -29)) return;
+    try { const r = await api(`/api/measures?day=${d}`); setOlder((p) => [...p.filter((v) => v.day !== d), ...r.day]); } catch { /* pola zostaną puste */ }
+  }
   const shown = (id) => (id in draft ? draft[id] : stored(id) ? fmtMeasure(stored(id).value) : '');
 
   async function run(fn) {
@@ -36,7 +43,11 @@ export default function MeasuresLog({ initial }) {
     e.preventDefault();
     const changed = Object.fromEntries(Object.entries(draft).map(([k, v]) => [k, v.trim()]));
     if (!Object.keys(changed).length) { setMsg('Nic się nie zmieniło.'); return; }
+    const wrong = Object.entries(changed).filter(([, v]) => Number.isNaN(parseMeasure(v))).map(([k]) => Number(k));
+    setBad(wrong);
+    if (wrong.length) { setErr(`Wpisz liczbę, np. 72,5: ${wrong.map((id) => defs.find((d) => d.id === id)?.name).join(', ')}.`); return; }
     if (await run(async () => setValues((await api('/api/measures/values', 'PUT', { day, values: changed })).values))) {
+      await loadDay(day);
       setDraft({}); setMsg('Zapisano pomiary.');
     }
   }
@@ -66,19 +77,20 @@ export default function MeasuresLog({ initial }) {
       {defs.length > 0 && (
         <form className="stack" onSubmit={save}>
           <div className="field"><label htmlFor="ms-day">Dzień</label>
-            <input id="ms-day" className="input" type="date" required max={todayIso()} value={day} onChange={(e) => { setDay(e.target.value); setDraft({}); }} /></div>
+            <input id="ms-day" className="input" type="date" required max={todayIso()} value={day} onChange={(e) => { setDay(e.target.value); loadDay(e.target.value); }} /></div>
           {defs.map((d) => (
             <div key={d.id} className="field">
               <label htmlFor={`ms-v${d.id}`}><span className="dn">{d.name}</span>{d.unit && ` (${d.unit})`}</label>
               <input id={`ms-v${d.id}`} className="input" type="text" inputMode="decimal" autoComplete="off" maxLength={12}
-                value={shown(d.id)} onChange={(e) => setDraft((p) => ({ ...p, [d.id]: e.target.value }))} placeholder="np. 72,5" />
+                value={shown(d.id)} onChange={(e) => setDraft((p) => ({ ...p, [d.id]: e.target.value }))} placeholder="np. 72,5"
+                aria-invalid={bad.includes(d.id) || undefined} aria-describedby={bad.includes(d.id) ? 'ms-err' : undefined} />
             </div>
           ))}
           <p className="muted small">Wyczyszczone pole usuwa wartość z tego dnia.</p>
           <div><button className="btn" disabled={busy || !day}>Zapisz pomiary</button></div>
         </form>
       )}
-      {err && <p className="alert error" role="alert">{err}</p>}
+      {err && <p id="ms-err" className="alert error" role="alert">{err}</p>}
       {days.length > 0 && (
         <ul className="list measures-list" aria-label="Ostatnie pomiary">
           {days.map((dy) => (

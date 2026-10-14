@@ -20,6 +20,7 @@ export const DELETE = safe(async (_req, { params }) => {
   const { user, res } = await requireUser();
   if (res) return res;
   const id = intId((await params).id);
+  if (!(await hit(`measures:${user.id}`, 120, 3600))) return bad('Zbyt wiele zapisów. Spróbuj ponownie później.', 429);
   const removed = id ? await deleteMeasure(user.id, id) : null;
   if (removed == null) return bad('Nie znaleziono pomiaru.', 404);
   const [defs, values] = await Promise.all([listMeasures(user.id), measureValues(user.id)]);

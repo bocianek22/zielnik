@@ -69,6 +69,8 @@ test('pomiary: definicje tylko własne, limit 3, unikalna nazwa, walidacja', { s
   assert.deepEqual(r.defs.map((d) => [d.name, d.unit, d.slot]), [['Waga', 'kg', 1]]);
   assert.equal((await call(A, 'measures', 'POST', { name: 'waga', unit: '' })).status, 409, 'ta sama nazwa bez względu na wielkość liter');
   assert.equal((await call(A, 'measures', 'POST', { name: '' })).status, 400);
+  assert.equal((await call(A, 'measures', 'POST', { name: '\u0001\u0002' })).status, 400, 'same znaki sterujące to pusta nazwa');
+  assert.equal((await call(A, 'measures/[id]', 'PATCH', { name: '\u0001' }, { id: String(r.def.id) })).status, 400);
   assert.equal((await call(A, 'measures', 'POST', { name: 'x'.repeat(41) })).status, 400);
   assert.equal((await call(A, 'measures', 'POST', { name: 'Coś', unit: 'x'.repeat(13) })).status, 400);
   ok(await call(A, 'measures', 'POST', { name: 'Tętno', unit: 'ud./min' }));
@@ -100,6 +102,13 @@ test('pomiary: wartości z przecinkiem, nadpisanie dnia, pusta usuwa, bez przysz
   assert.equal((await put(A, addDaysIso(t, 1), { [waga.id]: '70' })).status, 400, 'bez przyszłości');
   assert.equal((await put(A, t, { [waga.id]: '7O' })).status, 400, 'nie liczba');
   assert.equal((await put(A, t, { [waga.id]: '2000000' })).status, 400, 'poza granicami');
+  assert.equal((await put(A, t, { 99999999999: '1' })).status, 400, 'id poza INT');
+  // dzień sprzed 30 dni: zapis i odczyt przez ?day=, wpis ',5' to 0,5
+  const old = addDaysIso(t, -40);
+  ok(await put(A, old, { [tetno.id]: ',5' }));
+  assert.deepEqual(ok(await get(A, `measures?day=${old}`)).day.map((x) => [x.id, x.value]), [[tetno.id, 0.5]]);
+  assert.deepEqual(ok(await get(B, `measures?day=${old}`)).day, []);
+  ok(await put(A, old, { [tetno.id]: '' }));
   ok(await put(B, t, { [waga.id]: '99' }));
   assert.equal((await q`SELECT count(*)::int AS n FROM measure_values WHERE user_id = ${B}`)[0].n, 0, 'cudza definicja nic nie zapisuje');
   assert.deepEqual(ok(await get(B, 'measures')).values, []);
