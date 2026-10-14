@@ -89,6 +89,18 @@ export async function interactive(locator) {
 export async function go(page, path) {
   await page.goto(`${BASE}${path}`, { waitUntil: 'load' });
   await hydrated(page);
+  await settled(page);
+}
+
+// Koniec animacji wejścia (karty `card-in`, przejście między ekranami): axe uruchomiony w ich trakcie mierzy kontrast
+// półprzezroczystego tekstu i zgłasza fałszywe błędy. Nieskończone animacje (wskaźnik ładowania) pomijamy; najwyżej 3 s.
+export async function settled(page) {
+  await page.evaluate(async () => {
+    const until = Date.now() + 3000;
+    const busy = () => document.getAnimations().some((a) => a.playState === 'running' && a.effect?.getComputedTiming().endTime !== Infinity);
+    while (busy() && Date.now() < until) await new Promise((r) => setTimeout(r, 50));
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  }).catch(() => {}); // strona mogła przejść dalej (przekierowanie) w trakcie czekania
 }
 
 // Ścieżka do Chromium dla narzędzi spoza Playwrighta (Lighthouse): CHROME_PATH, lokalny /opt/pw-browsers albo przeglądarka Playwrighta

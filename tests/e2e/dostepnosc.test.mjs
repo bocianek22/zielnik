@@ -3,7 +3,7 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import AxeBuilder from '@axe-core/playwright';
-import { BASE, launch, phone, login, shot, go } from './helpers.mjs';
+import { BASE, launch, phone, login, shot, go, settled } from './helpers.mjs';
 
 let browser;
 let session;
@@ -36,12 +36,7 @@ async function open(storageState, theme, big) {
 }
 
 async function violations(page) {
-  // axe w trakcie animacji wejścia (karty, wiadomości czatu) mierzy kontrast półprzezroczystego tekstu: czekamy na koniec
-  // skończonych animacji (nieskończone, np. wskaźnik ładowania, pomijamy), najwyżej 3 s
-  await page.evaluate(() => Promise.race([
-    Promise.all(document.getAnimations().filter((a) => a.effect?.getComputedTiming().endTime !== Infinity).map((a) => a.finished.catch(() => {}))),
-    new Promise((r) => setTimeout(r, 3000)),
-  ]));
+  await settled(page); // wiadomości czatu i karty wchodzą z animacją (helpers.mjs)
   const r = await new AxeBuilder({ page }).withTags(TAGS).analyze();
   return r.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical')
     .map((v) => `${v.id} (${v.impact}): ${v.nodes.slice(0, 4).map((n) => n.target.join(' ')).join(' | ')}`);
