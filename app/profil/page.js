@@ -7,6 +7,7 @@ import ProfileForm from './ProfileForm';
 import PushSettings from './PushSettings';
 import ReminderSettings from './ReminderSettings';
 import LocalReminderSettings from './LocalReminderSettings';
+import ScreenSecureSettings from './ScreenSecureSettings';
 import DiscreetSettings from './DiscreetSettings';
 import NativeLock from './NativeLock';
 import WebLockSettings from './WebLockSettings';
@@ -32,6 +33,7 @@ export default async function Profil() {
           <ProfileForm me={{ id: user.id, username: user.username, isAdmin: user.is_admin }} initial={p}>
             <h2 className="section-label">Aplikacja na tym urządzeniu</h2>
             <NativeLock />
+            <ScreenSecureSettings />
             <WebLockSettings />
             <PushSettings />
             <ReminderSettings />

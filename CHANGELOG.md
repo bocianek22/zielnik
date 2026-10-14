@@ -8,6 +8,10 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.69.0] - 2026-10
+### Dodano
+- **Ochrona ekranu w aplikacji na Androida (POM-59, APK 0.7.0):** w profilu przełącznik „Blokuj zrzuty ekranu i podgląd w przełączniku” (`FLAG_SECURE`): bez zrzutów i nagrań ekranu, pusty podgląd w ostatnich aplikacjach. Domyślnie wyłączony (zrzuty dla lekarza), ustawienie tylko na telefonie i nakładane już przy starcie aplikacji. Nowa wtyczka `ZielnikScreen`; w przeglądarce i starszym APK sekcji nie widać.
+
 ## [0.68.0] - 2026-10
 ### Dodano
 - **Karta terapii na wyjazd (POM-58):** Recepty → „Karta terapii na wyjazd”: recepty z terminem od dziś i bez zapisanego terminu (wystawienie, termin, przepisano), obecny zapas według odmian i neutralna lista przypominająca przed wyjazdem (oryginalne opakowania, recepta, sprawdzenie przepisów w oficjalnych źródłach) z zastrzeżeniem, że to nie porada prawna. Druk lub zapis PDF (także w APK); na ekranie w trybie dyskretnym nazwy rozmyte, na wydruku jawne. Bez notatek recept, cen i szacunków „do wykupienia”; tylko dane właściciela. Wydruk czytelny także z ciemnym motywem.
