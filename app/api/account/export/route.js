@@ -80,6 +80,9 @@ export const GET = safe(async (req) => {
       'visits', 'note', (r) => rowScope('visits', { user_id: me, id: r.id })).map(({ id: _id, ...v }) => v),
     adverseEvents: openRows(await q`SELECT id, to_char(day, 'YYYY-MM-DD') AS day, severity, note FROM adverse_events WHERE user_id = ${me} ORDER BY day, id`,
       'adverse_events', 'note', (r) => rowScope('adverse_events', { user_id: me, id: r.id })).map(({ id: _id, ...v }) => v),
+    measures: await q`SELECT name, unit, created_at AS "createdAt" FROM measure_defs WHERE user_id = ${me} ORDER BY slot`,
+    measureValues: await q`SELECT to_char(v.day, 'YYYY-MM-DD') AS day, d.name AS measure, v.value::float8 AS value FROM measure_values v
+      JOIN measure_defs d ON d.id = v.def_id WHERE v.user_id = ${me} ORDER BY v.day, d.slot`,
     doctorNotes: await q`SELECT text, done, created_at AS "createdAt", done_at AS "doneAt" FROM doctor_notes WHERE user_id = ${me} ORDER BY created_at`,
     noUseDays: (await q`SELECT to_char(day, 'YYYY-MM-DD') AS day FROM no_use_days WHERE user_id = ${me} ORDER BY day`).map((r) => r.day),
     blocked: await q`SELECT u.username FROM blocks b JOIN users u ON u.id = b.blocked WHERE b.blocker = ${me}`,

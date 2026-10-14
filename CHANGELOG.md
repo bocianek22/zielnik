@@ -8,6 +8,12 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.73.0] - 2026-10
+### Dodano
+- **Własne pomiary (POM-63):** w Dzienniku karta „Pomiary”: do 3 pomiarów z własną nazwą i jednostką (podpowiedzi: tętno, waga, ciśnienie skurczowe i rozkurczowe jako dwa pomiary, temperatura), jedna wartość dziennie, przecinek dziesiętny, wyczyszczone pole usuwa wartość dnia; zapisywane są tylko zmienione pola. Bez norm, kolorów i ocen. Pomiary widać w karcie dnia, w raporcie dla lekarza (pełny: najmniej, średnio, najwięcej z okresu; skrócony: średnie jedną linią), w eksporcie, kopii i przywracaniu z kopii (bez duplikatów, bez dat z przyszłości). Nowe tabele `measure_defs` i `measure_values`, trasy `/api/measures`.
+### Poprawiono
+- Raport z samymi pomiarami albo samymi zdarzeniami niepożądanymi w okresie nie pokazuje już „Brak zapisów w tym okresie”.
+
 ## [0.72.0] - 2026-10
 ### Dodano
 - **Zdarzenia niepożądane na wykresie objawów (POM-62, ciąg dalszy):** dzień ze zdarzeniem niepożądanym ma pod wykresami w Dzienniku znacznik w kształcie rombu (obok wizyty, zakupu i nowej partii), a odczyt dnia i tabela dla czytnika ekranu mówią „zdarzenie niepożądane”. Tylko dzień, bez nasilenia i opisu.

@@ -114,6 +114,7 @@ test('wersja skrócona (POM-56): bez list o nieograniczonej długości, najwyże
     rx: Array.from({ length: 12 }, (_, i) => ({ ...report.rx[0], id: i })),
     customSym: [1, 2, 3].map((i) => ({ name: `Własny objaw ${i} o dłuższej nazwie`, higher_better: i === 1, days: 20, avg: 5.5 })),
     factors: Array.from({ length: 8 }, (_, i) => ({ name: `czynnik dnia ${i + 1}`, days: 12 })),
+    measures: [['Ciśnienie skurczowe', 'mmHg'], ['Ciśnienie rozkurczowe', 'mmHg'], ['Tętno', 'ud./min']].map(([name, unit]) => ({ name, unit, days: 60, min: 61.5, avg: 78.333, max: 142 })),
     adverse: Array.from({ length: 12 }, (_, i) => ({ day: `2026-10-${String(10 - (i % 9)).padStart(2, '0')}`, severity: 'silne', note: `opis zdarzenia ${i} `.repeat(60) })),
     totals: { used: { g: 300, ml: 40 }, bought: { g: 350, ml: 50 }, cost: 4000 },
     rxSum: { ...report.rxSum, prescribed: { g: 400, ml: 60 } },
@@ -125,7 +126,7 @@ test('wersja skrócona (POM-56): bez list o nieograniczonej długości, najwyże
     report: { ...big, usage: [...Array.from({ length: 6 }, (_, i) => ({ name: `Susz ${i}`, days: 5, grams: 20, unit: 'g' })), { name: 'Olej główny', days: 25, grams: 10, unit: 'ml' }] } });
   assert.ok(JSON.stringify(mix).includes('Olej główny'));
   for (const gone of ['opis zdarzenia', 'Tydzień po tygodniu', 'Zakupy', 'Odczucia pacjenta', 'Pory dnia', 'Objawy w dniach z odmianą', 'Wystawiona']) assert.ok(!all.includes(gone), gone);
-  for (const kept of ['Podsumowanie', 'Recepty w okresie', 'Zużycie według odmian', 'Pozostałe odmiany (9)', 'Cały okres', 'czynnik dnia 8', 'Wersja skrócona', '12 zdarzeń, 10 października 2026 (silne)', 'i 7 wcześniejszych']) assert.ok(all.includes(kept), kept);
+  for (const kept of ['Podsumowanie', 'Recepty w okresie', 'Zużycie według odmian', 'Pozostałe odmiany (9)', 'Cały okres', 'czynnik dnia 8', 'Wersja skrócona', '12 zdarzeń, 10 października 2026 (silne)', 'średnie z okresu: Ciśnienie skurczowe 78,33 mmHg; Ciśnienie rozkurczowe 78,33 mmHg', 'i 7 wcześniejszych']) assert.ok(all.includes(kept), kept);
   const notes = (n) => Array.from({ length: n }, (_, i) => ({ text: `Punkt ${i + 1}: ${'zapytać o szczegóły leczenia i dalszy plan '.repeat(5).slice(0, 190)}` }));
   const { PDFDocument } = await import('pdf-lib');
   const pages = async (n) => (await PDFDocument.load(await buildReportPdf({ ...m, title: 'Raport' }, notes(n), fonts()))).getPageCount();
@@ -138,4 +139,11 @@ test('zdarzenia niepożądane (POM-62): pełny raport z opisem tylko gdy jest w 
   const all = JSON.stringify(buildReportModel({ patient: 'A', from: '2026-09-11', to: '2026-10-10', today: '2026-10-10', withNotes: true, report: { ...report, adverse }, minSymptomDays: 5 }));
   for (const t of ['Zdarzenia niepożądane', '8 października 2026, nasilenie: silne: Zawroty głowy', '1 października 2026, nasilenie: łagodne', 'nie jest oceną związku z leczeniem']) assert.ok(all.includes(t), t);
   assert.ok(!JSON.stringify(model()).includes('Zdarzenia niepożądane'));
+});
+
+test('własne pomiary (POM-63): pełny raport z najmniejszą, średnią i największą wartością', () => {
+  const measures = [{ name: 'Waga', unit: 'kg', days: 1, min: 72.5, avg: 72.5, max: 72.5 }, { name: 'Bez jednostki', unit: '', days: 3, min: 1, avg: 2, max: 3 }];
+  const all = JSON.stringify(buildReportModel({ patient: 'A', from: '2026-09-11', to: '2026-10-10', today: '2026-10-10', withNotes: false, report: { ...report, measures }, minSymptomDays: 5 }));
+  for (const t of ['Waga: najmniej 72,5 kg, średnio 72,5 kg, najwięcej 72,5 kg (1 dzień)', 'Bez jednostki: najmniej 1, średnio 2, najwięcej 3 (3 dni)']) assert.ok(all.includes(t), t);
+  assert.ok(!JSON.stringify(model()).includes('Pomiary'));
 });

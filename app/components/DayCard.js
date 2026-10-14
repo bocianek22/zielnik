@@ -6,6 +6,7 @@ import { api } from '@/lib/api';
 import { SYMPTOMS } from '@/lib/symptoms';
 import { METHODS, PERIODS } from '@/lib/usage-meta';
 import { severityLabel } from '@/lib/adverse-meta';
+import { fmtMeasure } from '@/lib/measures-meta';
 import { longDay, num, weekday } from './charts/fmt';
 import useFocusTrap from './useFocusTrap';
 import useSheetDrag from './useSheetDrag';
@@ -28,7 +29,7 @@ export default function DayCard({ day, onClose }) {
   const sym = data?.symptoms;
   const vals = sym ? [...SYMPTOMS.filter((s) => sym[s.key] != null).map((s) => ({ key: s.key, label: s.short, value: sym[s.key] })),
     ...sym.custom.map((c) => ({ key: `c${c.id}`, label: c.name, value: c.value, custom: true }))] : [];
-  const empty = data && !data.usage.length && !data.purchases.length && !sym && !data.noUse && !data.factors?.length && !data.visits?.length && !data.adverse?.length;
+  const empty = data && !data.usage.length && !data.purchases.length && !sym && !data.noUse && !data.factors?.length && !data.visits?.length && !data.adverse?.length && !data.measures?.length;
   const title = `${weekday(day)} ${longDay(day)}`;
 
   return createPortal(
@@ -82,6 +83,17 @@ export default function DayCard({ day, onClose }) {
           <section aria-labelledby="dc-v">
             <h3 id="dc-v" className="section-label">Wizyta</h3>
             {data.visits.map((v, i) => v.note ? <p key={i} className="dc-note dn">{v.note}</p> : <p key={i} className="muted small">{v.noteLocked ? 'Notatka jest zaszyfrowana i chwilowo nieczytelna.' : 'Bez notatki.'}</p>)}
+          </section>
+        )}
+        {data?.measures?.length > 0 && (
+          <section aria-labelledby="dc-m">
+            <h3 id="dc-m" className="section-label">Pomiary</h3>
+            <ul className="dc-list">
+              {data.measures.map((m) => (
+                <li key={m.name}><span className="dn">{m.name}</span>
+                  <span className="dc-meta"><b className="qty">{fmtMeasure(m.value)}{m.unit && <span className="unit">{m.unit}</span>}</b></span></li>
+              ))}
+            </ul>
           </section>
         )}
         {data?.adverse?.length > 0 && (

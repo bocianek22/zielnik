@@ -39,3 +39,7 @@
 
 /* POM-52: dziennik wizyt w Raporcie */
 .visits-list .visit-note, .adverse-list .adverse-note, .report-sheet .adverse-note { white-space: pre-wrap; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* POM-63: własne pomiary w Dzienniku */
+.measures-list .measure-val + .measure-val::before { content: ' · '; }
+.measures-manage > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; gap: var(--s-2); font-weight: 600; }
