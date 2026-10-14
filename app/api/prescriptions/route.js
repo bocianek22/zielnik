@@ -20,7 +20,9 @@ export const GET = safe(async () => {
   return NextResponse.json({ prescriptions: await list(user.id) });
 });
 
-// { issuedOn, validUntil?, grams, unit? ('g' | 'ml'), note? }
+// { issuedOn, validUntil?, grams, unit? ('g' | 'ml'), note?, relink? }
+// relink: identyfikatory zakupów do ponownego powiązania (tylko „Cofnij” po usunięciu tej recepty): wyłącznie własne
+// i niepowiązane z żadną receptą (usunięcie recepty zostawia je z prescription_id = NULL)
 export const POST = safe(async (req) => {
   const { user, res } = await requireUser();
   if (res) return res;
@@ -40,6 +42,11 @@ export const POST = safe(async (req) => {
   if (plan.unavailable) return bad(NOTE_UNAVAILABLE_REJECT_MSG, 422);
   await sql()`INSERT INTO prescriptions (id, user_id, issued_on, valid_until, grams, unit, note)
               VALUES (${rid}, ${user.id}, ${issued}::date, ${valid}::date, ${grams}, ${normUnit(b.unit)}, ${plan.value})`;
+  const relink = (Array.isArray(b.relink) ? b.relink : []).slice(0, 500).map(intId).filter(Boolean);
+  if (relink.length) {
+    await sql()`UPDATE purchases SET prescription_id = ${rid}
+      WHERE user_id = ${user.id} AND id = ANY(${relink}::int[]) AND prescription_id IS NULL`;
+  }
   return NextResponse.json({ prescriptions: await list(user.id) });
 });
 
@@ -47,6 +54,8 @@ export const DELETE = safe(async (req) => {
   const { user, res } = await requireUser();
   if (res) return res;
   const { id } = await jsonBody(req);
-  await sql()`DELETE FROM prescriptions WHERE id = ${intId(id)} AND user_id = ${user.id}`;
-  return NextResponse.json({ prescriptions: await list(user.id) });
+  // powiązane zakupy (prescription_id przejdzie w NULL) wracają do klienta, żeby „Cofnij” mogło je powiązać z odtworzoną receptą
+  const linked = await sql()`SELECT id FROM purchases WHERE prescription_id = ${intId(id)} AND user_id = ${user.id}`;
+  const gone = await sql()`DELETE FROM prescriptions WHERE id = ${intId(id)} AND user_id = ${user.id} RETURNING id`;
+  return NextResponse.json({ prescriptions: await list(user.id), relink: gone.length ? linked.map((r) => r.id) : [] });
 });

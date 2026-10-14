@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
+import { LOCKED_NOTE } from '@/lib/locked-note';
 import useNativeRefresh from '@/app/components/native/useNativeRefresh';
 import Icon from '@/app/components/Icon';
 import { formatDay } from '@/lib/date';
@@ -8,6 +9,8 @@ import Link from 'next/link';
 import EmptyState from '@/app/components/EmptyState';
 import Skeleton from '@/app/components/Skeleton';
 import RxForm from './RxForm';
+import Toast from '@/app/components/Toast';
+import useUndoDelete from '@/app/components/useUndoDelete';
 
 const daysLeft = (iso) => Math.ceil((new Date(`${iso}T23:59:59`) - Date.now()) / 864e5);
 const nf = (n) => Number(n).toLocaleString('pl-PL', { maximumFractionDigits: 2 });
@@ -28,15 +31,25 @@ export default function Prescriptions() {
     return () => window.removeEventListener('zielnik:purchase', on);
   }, []);
 
-  async function remove(id) {
-    if (confirm('Usunąć tę receptę z listy?')) setList((await api('/api/prescriptions', 'DELETE', { id })).prescriptions);
+  // usunięcie od razu, „Cofnij” odtwarza receptę z migawki i wiąże z nią z powrotem jej zakupy (relink)
+  const undo = useUndoDelete();
+  async function remove(p) {
+    const locked = p.note === LOCKED_NOTE; // nieczytelnej notatki nie da się odtworzyć: wtedy pytanie zamiast „Cofnij”
+    if (locked && !confirm('Usunąć tę receptę z listy?')) return;
+    try {
+      const r = await api('/api/prescriptions', 'DELETE', { id: p.id });
+      setList(r.prescriptions);
+      if (!locked) undo.offer('Usunięto receptę.', async () => setList((await api('/api/prescriptions', 'POST',
+        { issuedOn: p.issued_on, validUntil: p.valid_until || '', grams: p.grams, unit: p.unit, note: p.note, relink: r.relink })).prescriptions));
+    } catch (e) { setMsg(e.message); }
   }
-  const showForm = open || list?.length === 0;
+  const shown = list;
+  const showForm = open || shown?.length === 0;
 
   return (
     <div className="stack">
       {msg && !showForm && <div className="alert error" role="alert">{msg}</div>}
-      {list === null ? <Skeleton variant="cards" rows={2} /> : list.length === 0 ? (
+      {shown === null ? <Skeleton variant="cards" rows={2} /> : shown.length === 0 ? (
         <EmptyState art="rx" cat="rx" title="Brak recept"
           action={<button type="button" className="btn" onClick={() => { const el = document.getElementById('rx-from'); el?.scrollIntoView({ block: 'center' }); el?.focus({ preventScroll: true }); }}>Dodaj receptę</button>}>
           Dodaj pierwszą, a zobaczysz tu, ile zostało do wykupienia.
@@ -45,7 +58,7 @@ export default function Prescriptions() {
         <>
           <h2 className="section-title">Twoje recepty</h2>
           <ul className="rx-list">
-            {list.map((p) => {
+            {shown.map((p) => {
               const left = Math.max(p.grams - p.bought, 0);
               const u = uOf(p);
               const d = p.valid_until ? daysLeft(p.valid_until) : null;
@@ -70,7 +83,7 @@ export default function Prescriptions() {
                   <p className="rx-amount">Wykupiono <b>{nf(p.bought)} {u}</b>, zostało <b>{nf(left)} {u}</b>{expired && !done && ' (niewykorzystane)'}</p>
                   {p.estimated > 0 && <p className="muted rx-est">Szacunek: {nf(p.estimated)} {u} bez przypisania. <Link href="/historia">Przypisz w Historii</Link></p>}
                   <p className="rx-dates">Wystawiona {fmt(p.issued_on)}{p.valid_until && (expired || d <= 7) ? `, ważna do ${fmt(p.valid_until)}` : ''}</p>
-                  <div className="rx-foot"><button type="button" className="btn text small" onClick={() => remove(p.id)} aria-label={`Usuń receptę ${nf(p.grams)} ${u}`}>Usuń</button></div>
+                  <div className="rx-foot"><button type="button" className="btn text small" onClick={() => remove(p)} aria-label={`Usuń receptę ${nf(p.grams)} ${u}`}>Usuń</button></div>
                 </li>
               );
             })}
@@ -78,10 +91,12 @@ export default function Prescriptions() {
         </>
       )}
 
-      <details className="card rx-add" open={showForm} onToggle={(e) => { if (list?.length) setOpen(e.currentTarget.open); }}>
+      <details className="card rx-add" open={showForm} onToggle={(e) => { if (shown?.length) setOpen(e.currentTarget.open); }}>
         <summary><Icon name="plus" size={20} />Nowa recepta</summary>
         <RxForm onAdded={(l) => { setList(l); setMsg(''); setOpen(false); }} />
       </details>
+      {undo.error && <div className="alert error" role="alert">{undo.error}</div>}
+      <Toast text={undo.toast?.text || ''} action={undo.toast?.action} />
     </div>
   );
 }
