@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import { PAGE, CONTENT_W, wrapText, columnWidths, layoutReport } from '../lib/report-pdf-layout.js';
 import { buildReportModel, pdfFileName, notesBlocks } from '../lib/report-pdf-model.js';
 import { buildReportPdf } from '../lib/report-pdf.js';
+import { buildBriefModelEn } from '../lib/report-pdf-en.js';
 
 const measure = (t, size) => t.length * size * 0.5; // makieta: stała szerokość znaku
 const fonts = () => ['Regular', 'Bold'].map((w) => new Uint8Array(fs.readFileSync(new URL(`../public/fonts/Figtree-${w}.ttf`, import.meta.url))));
@@ -132,6 +133,24 @@ test('wersja skrócona (POM-56): bez list o nieograniczonej długości, najwyże
   const pages = async (n) => (await PDFDocument.load(await buildReportPdf({ ...m, title: 'Raport' }, notes(n), fonts()))).getPageCount();
   assert.equal(await pages(0), 1, 'dużo danych bez punktów „Do omówienia”: jedna strona');
   assert.ok(await pages(10) <= 2, 'najgorszy przypadek (10 punktów po 200 znaków) najwyżej 2 strony');
+  // wersja angielska (POM-64): ta sama treść, też jedna strona; bez polskich etykiet (dane pacjenta mogą mieć polskie znaki)
+  const en = buildBriefModelEn({ patient: 'Zażółć Gęślą', from: '2026-07-13', to: '2026-10-10', today: '2026-10-10', report: big });
+  const enAll = JSON.stringify(en);
+  for (const pl of ['Recepty w okresie', 'Zużycie według odmian', 'Wersja skrócona', 'Pozostałe odmiany', 'nasilenie', 'Podsumowanie', 'Objawy', 'Pomiary', 'Wygenerowano', 'średnio', ' z okresu']) assert.ok(!enAll.includes(pl), pl);
+  for (const t of ['Summary', 'Prescriptions in the period', 'Use by strain', 'Other strains (9)', '10 October 2026 (severe)', 'and 7 earlier', 'Generated 10 October 2026', 'czynnik dnia 8']) assert.ok(enAll.includes(t), t);
+  assert.equal(en.blocks.filter((x) => x.type === 'h3').length, m.blocks.filter((x) => x.type === 'h3').length, 'te same sekcje co po polsku');
+  const pagesEn = async (n) => (await PDFDocument.load(await buildReportPdf({ ...en, title: 'Report' }, notes(n), fonts()))).getPageCount();
+  assert.equal(await pagesEn(0), 1, 'po angielsku też jedna strona');
+  assert.ok(await pagesEn(10) <= 2);
+});
+
+test('raport po angielsku: nagłówek punktów i stopka po angielsku, polski bez zmian', () => {
+  const pages = (mdl, notes) => layoutReport([...mdl.intro, ...notesBlocks(notes, mdl.notesHead), ...mdl.blocks], { measure });
+  const en = buildBriefModelEn({ patient: 'A', from: '2026-09-11', to: '2026-10-10', today: '2026-10-10', report });
+  const txt = (pg) => JSON.stringify(pg);
+  assert.ok(txt(pages(en, [{ text: 'x' }])).includes('To discuss with the doctor'));
+  assert.ok(txt(pages(model(), [{ text: 'x' }])).includes('Do omówienia z lekarzem'));
+  assert.equal(en.fileName, 'report-2026-10-10.pdf');
 });
 
 test('zdarzenia niepożądane (POM-62): pełny raport z opisem tylko gdy jest w danych, bez zdarzeń bez sekcji', () => {

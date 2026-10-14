@@ -17,6 +17,7 @@ import ReportNotes from './ReportNotes';
 import { listNotes } from '@/lib/doctor-notes';
 import { formatDay, todayPL, addDaysIso } from '@/lib/date';
 import { doctorReport, MIN_SYMPTOM_DAYS } from '@/lib/report';
+import { buildBriefModelEn } from '@/lib/report-pdf-en';
 import { buildReportModel, shortUsage, restLine, adverseItems, adverseBrief, measuresLine, ADVERSE_INFO } from '@/lib/report-pdf-model';
 import { batchSummary } from '@/lib/batch-meta';
 import { METHODS, PERIODS, periodLabel } from '@/lib/usage-meta';
@@ -143,9 +144,10 @@ export default async function Raport({ searchParams }) {
               <Link key={l} href={modeHref(b)} className={b === brief ? 'on' : ''} aria-current={b === brief ? 'page' : undefined} replace scroll={false}>{l}</Link>
             ))}
           </nav>
-          {brief && <p className="muted small">Skrócony: podsumowanie, objawy z całego okresu, recepty i najczęstsze odmiany; zwykle mieści się na jednej stronie.</p>}
+          {brief && <p className="muted small">Skrócony: podsumowanie, objawy z całego okresu, recepty i najczęstsze odmiany; zwykle mieści się na jednej stronie. „PDF po angielsku” to ta sama treść z angielskimi etykietami (na wyjazd albo dla lekarza za granicą).</p>}
           {/* key: gotowy PDF (pod Safari) liczony dla danego okresu i wersji; po zmianie trybu bez przeładowania nowy */}
-          <ReportActions key={`${from}|${to}|${brief}|${withNotes}`} from={from} to={to} notes={openNotes} model={buildReportModel({ patient: plan?.display_name || me.username, from, to, today, withNotes, report, minSymptomDays: MIN_SYMPTOM_DAYS, short: brief })} />
+          <ReportActions key={`${from}|${to}|${brief}|${withNotes}`} from={from} to={to} notes={openNotes} model={buildReportModel({ patient: plan?.display_name || me.username, from, to, today, withNotes, report, minSymptomDays: MIN_SYMPTOM_DAYS, short: brief })}
+            modelEn={brief ? buildBriefModelEn({ patient: plan?.display_name || me.username, from, to, today, report }) : null} />
           <p className="muted small">PDF powstaje na tym urządzeniu, a dane nie trafiają na serwer.</p>
           <details className="report-more">
             <summary>O pliku PDF<Icon name="chevronDown" size={20} className="report-more-chev" /></summary>

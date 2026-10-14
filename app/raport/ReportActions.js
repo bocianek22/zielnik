@@ -11,7 +11,8 @@ import { NOTES_EVENT } from './ReportNotes';
 // ładowane dopiero po kliknięciu). Aplikacja Android: WebView nie pobiera plików z blob: ani nie udostępnia ich (Web Share nie działa),
 // więc wtyczka ZielnikShare przyjmuje PDF (base64) i otwiera systemowe okno „Udostępnij”, a ZielnikPrint zostaje jako „Drukuj”
 // (starsze APK bez ZielnikShare: sam druk, mobile/README.md). Tryb dyskretny sprawdzamy w chwili dotknięcia.
-export default function ReportActions({ from, to, model, notes: initialNotes }) {
+// modelEn (POM-64): raport skrócony po angielsku, tylko jako plik PDF (pobranie, w APK udostępnienie)
+export default function ReportActions({ from, to, model, modelEn = null, notes: initialNotes }) {
   const [caps, setCaps] = useState(null); // { native, share, nativeShare } po zamontowaniu (serwer tego nie wie)
   const [notes, setNotes] = useState(initialNotes);
   const [busy, setBusy] = useState(null); // 'download' | 'share' | 'native'
@@ -40,11 +41,12 @@ export default function ReportActions({ from, to, model, notes: initialNotes }) 
     window.print();
   };
 
-  const bytesOf = async () => {
+  const bytesOf = async (m = model) => {
     const { buildReportPdf } = await import('@/lib/report-pdf');
-    return buildReportPdf({ ...model, title: reportTitle(from, to, isDiscreet()) }, notes);
+    const title = m.lang === 'en' ? (isDiscreet() ? 'Report' : `Report ${from} – ${to}`) : reportTitle(from, to, isDiscreet());
+    return buildReportPdf({ ...m, title }, notes);
   };
-  const make = async () => new File([await bytesOf()], model.fileName, { type: 'application/pdf' });
+  const make = async (m = model) => new File([await bytesOf(m)], m.fileName, { type: 'application/pdf' });
 
   // Safari (iOS) wymaga świeżego gestu przy navigator.share: plik przygotowujemy zawczasu (i po każdej zmianie notatek),
   // a dotknięcie tylko go udostępnia. Tryb dyskretny wpływa na tytuł metadanych, więc przy udostępnianiu sprawdzamy go jeszcze raz.
@@ -60,12 +62,12 @@ export default function ReportActions({ from, to, model, notes: initialNotes }) 
     return () => { live = false; clearTimeout(t); };
   }, [caps, notes]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const run = (kind) => async () => {
-    setErr(''); setBusy(kind);
+  const run = (kind, m = model) => async () => {
+    setErr(''); setBusy(m === model ? kind : 'en');
     try {
-      if (kind === 'native') { await nativeSharePdf(await bytesOf(), model.fileName); return; }
-      const pre = kind === 'share' && ready.current?.discreet === isDiscreet() ? ready.current.file : null;
-      const file = pre || await make();
+      if (kind === 'native') { await nativeSharePdf(await bytesOf(m), m.fileName); return; }
+      const pre = m === model && kind === 'share' && ready.current?.discreet === isDiscreet() ? ready.current.file : null;
+      const file = pre || await make(m);
       if (kind === 'share') {
         await navigator.share({ files: [file], title: 'Raport' });
       } else {
@@ -90,6 +92,8 @@ export default function ReportActions({ from, to, model, notes: initialNotes }) 
         <Icon name="file" size={18} />{busy === 'download' ? 'Tworzę PDF…' : 'Pobierz PDF'}</button>}
       {pdf && caps.share && <button type="button" className="btn ghost" onClick={run('share')} disabled={busy != null} aria-busy={busy === 'share' || undefined}>
         <Icon name="share" size={18} />{busy === 'share' ? 'Tworzę PDF…' : 'Udostępnij PDF'}</button>}
+      {modelEn && (caps?.nativeShare || pdf) && <button type="button" className="btn ghost" lang="pl" onClick={run(caps.nativeShare ? 'native' : 'download', modelEn)} disabled={busy != null} aria-busy={busy === 'en' || undefined}>
+        <Icon name="file" size={18} />{busy === 'en' ? 'Tworzę PDF…' : 'PDF po angielsku'}</button>}
       {err && <div className="alert error" role="alert">{err}</div>}
     </div>
   );
