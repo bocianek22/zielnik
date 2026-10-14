@@ -12,8 +12,7 @@ const dayWord = (n) => (n === 1 ? 'dzień' : 'dni');
 export default function WeekdayObs({ data }) {
   const [key, setKey] = useState(data.symptoms[0]?.key);
   const s = data.symptoms.find((x) => x.key === key) || data.symptoms[0];
-  if (!s) return <p className="muted small">Gdy w dzienniku będą wpisy z kilku tygodni, zobaczysz tu średnie objawów w poszczególne dni tygodnia.</p>;
-  const few = s.days.every((c) => c.avg == null);
+  if (!s) return null;
   return (
     <section className="card stack weekday-obs" aria-labelledby="wd-h">
       <h3 id="wd-h" className="sr-only">Średnie według dnia tygodnia</h3>
@@ -39,8 +38,7 @@ export default function WeekdayObs({ data }) {
         </tbody>
       </table>
       <p className="muted small">
-        Średnią pokazujemy od {data.minDays} dni w danym dniu tygodnia; przy mniejszej liczbie w nawiasie liczba dni.
-        {few && data.period < 90 && ' Wybierz dłuższy okres (90 dni), aby zebrać więcej dni.'} Sen przypisujemy do dnia wpisu (noc przed nim). To opis Twoich zapisów, nie ocena.
+        Średnią pokazujemy od {data.minDays} dni w danym dniu tygodnia; przy mniejszej liczbie w nawiasie liczba dni. Sen przypisujemy do dnia wpisu (noc przed nim). To opis Twoich zapisów, nie ocena.
       </p>
     </section>
   );

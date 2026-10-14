@@ -10,8 +10,8 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [0.66.0] - 2026-10
 ### Dodano
-- **Znaczniki zdarzeń na wykresie objawów (POM-53):** w Dzienniku pod wykresami z 30 dni pasek znaczników na tej samej osi dni: wizyta (kółko), zakup (kwadrat), zakup z nową partią (kwadrat z kropką). Kształty zamiast kolorów; wybrany dzień w odczycie i tabela dla czytnika ekranu wymieniają zdarzenia. Serwer zwraca tylko daty i rodzaj (bez notatek, ilości i nazw), tylko własne.
-- **Dni tygodnia w „Moich obserwacjach” (POM-54):** średnia wybranego objawu (także własnego) w każdy dzień tygodnia, w stałej kolejności Pn–Nd, neutralnym kolorem, bez wyróżniania „najlepszego” dnia; średnia od 5 dni w komórce, poniżej tylko liczba dni. Sekcja działa także bez zapisów zużycia.
+- **Znaczniki zdarzeń na wykresie objawów (POM-53):** w Dzienniku pod wykresami z 30 dni pasek znaczników na tej samej osi dni: wizyta (kółko), zakup (kwadrat), zakup nowej partii (wypełniony kwadrat, przy pierwszym zakupie z danym numerem partii). Kształty zamiast kolorów; wybrany dzień w odczycie i tabela dla czytnika ekranu wymieniają zdarzenia. Serwer zwraca tylko daty i rodzaj (bez notatek, ilości i nazw), tylko własne.
+- **Dni tygodnia w „Moich obserwacjach” (POM-54):** średnia wybranego objawu (także własnego) w każdy dzień tygodnia, w stałej kolejności Pn–Nd, neutralnym kolorem, bez wyróżniania „najlepszego” dnia; średnia od 5 dni w komórce, poniżej tylko liczba dni; dla okresu od 90 dni (przy 30 dniach tylko dwa dni tygodnia mogłyby zebrać 5 wpisów). Sekcja działa także bez zapisów zużycia.
 
 ## [0.65.0] - 2026-10
 ### Dodano

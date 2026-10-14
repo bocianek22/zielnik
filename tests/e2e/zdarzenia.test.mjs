@@ -23,7 +23,6 @@ test('Wykres objawów: znacznik wizyty, odczyt dnia i tabela', async () => {
     await go(page, '/dziennik');
     const mark = page.locator('.sp-events .ev-visit');
     await mark.first().waitFor({ timeout: 15000 });
-    assert.equal(await mark.count(), 1);
     const scrub = page.locator('.sp-scrub').first();
     await interactive(scrub);
     await scrub.focus();

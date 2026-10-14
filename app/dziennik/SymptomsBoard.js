@@ -248,7 +248,7 @@ export default function SymptomsBoard({ initialDay = null }) {
         </form>
       )}
       <h2 className="section-title">Ostatnie 30 dni</h2>
-      {loaded && merged.length === 0 && data.usage.length === 0 ? (
+      {loaded && merged.length === 0 && data.usage.length === 0 && !(data.events || []).length ? (
         <section className="card empty">
           <Illustration art="chart" />
           <h2>Wykres pojawi się po pierwszym wpisie</h2>

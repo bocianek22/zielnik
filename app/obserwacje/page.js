@@ -108,10 +108,12 @@ export default async function Obserwacje({ searchParams }) {
         )}
 
         {/* POM-54: niezależne od zużycia, więc poza warunkiem „Brak wpisów zużycia” */}
+        {/* przy 30 dniach tylko 2 dni tygodnia mogą zebrać MIN_DAYS wpisów (30 = 4·7 + 2): średnie od 90 dni */}
         {wobs.symptoms.length > 0 && (
           <>
             <SecHead cat="journal" icon="calendar">Dni tygodnia</SecHead>
-            <WeekdayObs data={wobs} />
+            {period >= 90 ? <WeekdayObs data={wobs} />
+              : <p className="muted small">Średnie według dnia tygodnia pokazujemy dla okresu od 90 dni. <Link href="/obserwacje" replace scroll={false}>Pokaż 90 dni</Link></p>}
           </>
         )}
 

@@ -125,14 +125,15 @@
 .sp-fewnote, .chart-note { margin: 0 0 var(--s-2); font-size: var(--fs-xs); color: var(--text-2); line-height: 1.4; }
 .sp-axis { position: relative; height: 16px; margin-top: var(--s-2); font-size: var(--fs-xs); color: var(--text-3); font-variant-numeric: tabular-nums; line-height: 16px; }
 .sp-lbl { position: absolute; white-space: nowrap; }
-/* POM-53: znaczniki zdarzeń pod wykresami (kształty zamiast kolorów: kółko = wizyta, kwadrat = zakup, z kropką = nowa partia) */
+/* POM-53: znaczniki zdarzeń pod wykresami (kształty zamiast kolorów: kółko = wizyta, kwadrat = zakup, wypełniony = nowa partia) */
 .sp-events { position: relative; height: 16px; margin-top: var(--s-2); border-top: 1px dashed var(--chart-axis); }
 .sp-ev { position: absolute; top: 3px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 2px; }
 .sp-ev i { display: block; width: 8px; height: 8px; border: 1.5px solid var(--text-2); box-sizing: border-box; }
 .sp-ev .ev-visit { border-radius: 50%; }
-.sp-ev .ev-buy.batch { background: radial-gradient(circle, var(--text-2) 1.5px, transparent 2px); }
+.sp-ev .ev-buy.batch { background: var(--text-2); }
 .sp-ev.on i { border-color: var(--text); }
-.sp-events:has(.ev-visit + .ev-buy) { height: 26px; }
+.sp-ev.on .ev-buy.batch { background: var(--text); }
+.sp-events.two { height: 26px; }
 .sp-lbl.l { left: 0; } .sp-lbl.r { right: 0; } .sp-lbl.c { transform: translateX(-50%); }
 .sp-lbl.strong { color: var(--text-2); font-weight: 600; }
 .sp-cap { margin: var(--s-3) 0 0; font-size: var(--fs-xs); color: var(--text-3); line-height: 1.45; }

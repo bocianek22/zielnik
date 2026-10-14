@@ -49,10 +49,14 @@ test('zdarzenia: wizyty i zakupy z okna, nowa partia, bez przyszłych wizyt i cu
   await q`INSERT INTO purchases (user_id, strain_name, grams, created_at) VALUES (${A}, 'X', 5, ${at(d3)}::timestamptz)`;
   await q`INSERT INTO purchases (user_id, strain_name, grams, created_at, batch_no) VALUES (${A}, 'X', 10, ${at(d10)}::timestamptz, 'P-1')`;
   await q`INSERT INTO purchases (user_id, strain_name, grams, created_at) VALUES (${B}, 'Y', 5, ${at(d3)}::timestamptz)`;
+  // drugi zakup tej samej partii (d5) to zwykły zakup, nie „nowa partia”
+  const d5 = addDaysIso(t, -5);
+  await q`INSERT INTO purchases (user_id, strain_name, grams, created_at, batch_no) VALUES (${A}, 'X', 10, ${at(d5)}::timestamptz, 'P-1')`;
 
   const ev = await dayEvents(A, 60);
   assert.deepEqual(ev, [
     { day: d10, visit: false, purchase: true, batch: true },
+    { day: d5, visit: false, purchase: true, batch: false },
     { day: d3, visit: true, purchase: true, batch: false },
   ]);
   assert.deepEqual((await dayEvents(B, 60)).map((e) => e.day), [d10, d3]);

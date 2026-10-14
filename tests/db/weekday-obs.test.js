@@ -60,7 +60,7 @@ test('dni tygodnia: średnie w stałej kolejności Pn–Nd, próg, własny objaw
   assert.equal(r.symptoms.find((s) => s.key === 'mood'), undefined, 'objaw bez wpisów pominięty');
   // okres 30 dni: najstarsze poniedziałki wypadają z okna
   const r30 = await weekdayObservations(A, 30);
-  assert.ok(r30.symptoms.find((s) => s.key === 'pain').days[0].days < 5);
+  assert.equal(r30.symptoms.find((s) => s.key === 'pain').days[0].days, mondays.filter((d) => d >= addDaysIso(today, -29)).length);
   // B widzi tylko swoje
   const rb = await weekdayObservations(B, 90);
   assert.deepEqual(rb.symptoms.map((s) => s.key), ['pain']);

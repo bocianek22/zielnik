@@ -60,13 +60,13 @@ function Axis({ xs }) {
 }
 
 // POM-53: zdarzenia (wizyta, zakup, nowa partia) jako znaczniki pod wykresami, na tej samej osi dni. Kształty, nie kolory
-// (okrąg = wizyta, kwadrat = zakup, kwadrat z kropką = nowa partia); pasek jest dekoracją, treść jest w odczycie dnia i tabeli.
+// (okrąg = wizyta, kwadrat = zakup, wypełniony kwadrat = nowa partia); pasek jest dekoracją, treść jest w odczycie dnia i tabeli.
 const EV_TEXT = { visit: 'wizyta', purchase: 'zakup', batch: 'nowa partia' };
 const evParts = (e) => (e ? [e.visit && EV_TEXT.visit, e.purchase && (e.batch ? `${EV_TEXT.purchase} (${EV_TEXT.batch})` : EV_TEXT.purchase)].filter(Boolean) : []);
 function Events({ xs, ev, sel }) {
   if (!xs.some((d) => ev[d])) return null;
   return (
-    <div className="sp-events" aria-hidden="true">
+    <div className={`sp-events${xs.some((d) => ev[d]?.visit && ev[d]?.purchase) ? ' two' : ''}`} aria-hidden="true">
       {xs.map((d, k) => ev[d] && (
         <span key={d} className={`sp-ev${sel === k ? ' on' : ''}`} style={{ left: pct(k) }}>
           {ev[d].visit && <i className="ev-visit" />}
@@ -268,7 +268,7 @@ export default function SymptomsChart({ rows, usage, events = [], all, end }) {
         <p className="sp-cap">
           {hasSym ? 'Kropki to wpisy. Linia to średnia z 7 dni, liczona tylko wtedy, gdy w tych 7 dniach są co najmniej 4 wpisy; pasmo to zakres z 7 dni (od najniższego do najwyższego wpisu). Linia nie łączy dni, między którymi są co najmniej 3 dni bez wpisu. ' : ''}
           Zużycie ma własną skalę i jest osobno.
-          {xs.some((d) => ev[d]) && ' Pod wykresami znaczniki dni z wizytą (kółko), zakupem (kwadrat) i zakupem z nową partią (kwadrat z kropką).'}
+          {xs.some((d) => ev[d]) && ' Pod wykresami znaczniki dni z wizytą (kółko), zakupem (kwadrat) i zakupem nowej partii (wypełniony kwadrat).'}
         </p>
       </details>
     </Frame>
