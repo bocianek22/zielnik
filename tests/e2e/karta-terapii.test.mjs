@@ -1,5 +1,5 @@
 // Karta terapii (POM-58): link z Recept, ważne recepty i zapas (dane ani z seed.mjs), lista przypominająca z zastrzeżeniem,
-// 320 px, axe; tryb dyskretny: na ekranie nazwy rozmyte, w druku jawne. Uruchomienie: npm run test:e2e (E2E_FILES=...).
+// 320 px, axe; tryb dyskretny: na ekranie nazwy rozmyte, w druku jawne; wersja angielska (POM-64). Uruchomienie: npm run test:e2e (E2E_FILES=...).
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import AxeBuilder from '@axe-core/playwright';
@@ -52,4 +52,32 @@ test('Karta terapii w trybie dyskretnym: na ekranie nazwy rozmyte, w druku jawne
       assert.equal(await page.locator(sel).first().evaluate((e) => getComputedStyle(e).color), 'rgb(0, 0, 0)', sel);
     }
   } catch (e) { await shot(page, 'karta-terapii-dyskretny'); throw e; } finally { await ctx.close(); }
+});
+
+test('Karta terapii po angielsku (POM-64): etykiety, daty i lang="en", dane bez tłumaczenia, axe; zły język to polski', async () => {
+  const { ctx } = await phone(browser, { discreet: true });
+  const page = await ctx.newPage();
+  try {
+    await login(page, 'ania');
+    await go(page, '/recepty/karta');
+    await page.getByRole('link', { name: 'English' }).waitFor({ timeout: 15000 });
+    assert.equal(await page.getByRole('link', { name: 'English' }).getAttribute('href'), '/recepty/karta?lang=en');
+    await go(page, '/recepty/karta?lang=en');
+    const card = page.locator('section.travel-card[lang="en"]');
+    await card.waitFor({ timeout: 15000 });
+    assert.deepEqual(await card.locator('h3').allInnerTexts(), ['Prescriptions (as recorded)', 'Supply (as recorded in the app)', 'Before you travel']);
+    const text = await card.innerText();
+    assert.match(text, /not legal advice/);
+    assert.match(text, /\d{1,2} (January|February|March|April|May|June|July|August|September|October|November|December) \d{4}/);
+    for (const pl of ['Przed wyjazdem', 'termin nie zapisany', 'Pacjent', 'Stan na', 'października']) assert.ok(!text.includes(pl), pl);
+    assert.equal(await page.getByRole('link', { name: 'English' }).getAttribute('aria-current'), 'page');
+    const name = card.locator('.list-row .dn').first();
+    assert.match(await name.evaluate((e) => getComputedStyle(e).filter), /blur/, 'tryb dyskretny także po angielsku');
+    const res = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+    assert.deepEqual(res.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id), []);
+    await shot(page, 'karta-terapii-en');
+    await go(page, '/recepty/karta?lang=xx');
+    await page.locator('section.travel-card[lang="pl"]').waitFor({ timeout: 15000 });
+    assert.ok((await page.locator('.travel-card h3').allInnerTexts()).includes('Przed wyjazdem'));
+  } catch (e) { await shot(page, 'karta-terapii-en'); throw e; } finally { await ctx.close(); }
 });
