@@ -9,7 +9,6 @@ const skip = !URL_ ? 'brak TEST_DATABASE_URL'
   : !local && process.env.ALLOW_REMOTE_TEST_DB !== '1' ? 'TEST_DATABASE_URL nie wskazuje na localhost (ustaw ALLOW_REMOTE_TEST_DB=1)' : false;
 
 const KEY = `t1:${Buffer.alloc(32, 7).toString('base64')}`;
-const OTHER = `t9:${Buffer.alloc(32, 9).toString('base64')}`;
 const savedKey = process.env.DATA_ENCRYPTION_KEY;
 let q, jar, pool, createSession, searchNotes;
 const ids = {};

@@ -8,6 +8,10 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.65.0] - 2026-10
+### Dodano
+- **Dziennik wizyt (POM-52):** w Raporcie sekcja „Wizyty”: data wizyty, notatka „co ustalono” (szyfrowana, z dyktowaniem) i opcjonalnie data następnej wizyty, która od razu trafia do przypomnień. Usunięcie z „Cofnij”. Notatki z wizyt widać w karcie dnia i w wyszukiwarce („Moje notatki”), są w eksporcie, kopii i przywracaniu z kopii (bez duplikatów); nie trafiają do wydruku raportu. Nowa tabela `visits` (tylko własne, kasowana z kontem).
+
 ## [0.64.0] - 2026-10
 ### Dodano
 - **Rok objawów (POM-50):** w Dzienniku siatka dni (kwartał albo rok) dla wybranego objawu, także własnego: stała skala 0–10 w jednej barwie (kolor nie znaczy „lepiej/gorzej”), dzień bez wpisu pusty. Wybór dnia stuknięciem, myszą lub strzałkami, „Szczegóły dnia” i Enter otwierają kartę dnia; tabela dla czytnika ekranu. `lib/symptom-calendar.js`: tylko własne dane, czas polski.
