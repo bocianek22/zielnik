@@ -6,6 +6,7 @@ import { OwnEntry, dec } from './StrainCard';
 import Icon from './Icon';
 import SecHead from './SecHead';
 import Fold from './Fold';
+import StrainFeel from './StrainFeel';
 import QuickActions from './QuickActions';
 import Illustration from './Illustration';
 import StrainForm from './StrainForm';
@@ -109,7 +110,7 @@ function MyStats({ stats, unit }) {
   );
 }
 
-export default function StrainDetail({ strain, options, tastes, mates, tests, stats, batches = [], me, proposals = [], proposing = false }) {
+export default function StrainDetail({ strain, options, tastes, mates, tests, stats, batches = [], feel = null, me, proposals = [], proposing = false }) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [opts, setOpts] = useState(options);
@@ -221,6 +222,12 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, st
       <MyStats stats={stats} unit={unit} />
 
       <StrainBatches batches={batches} unit={unit} />
+
+      {mine && (
+        <Fold cat="journal" icon="pulse" title="Samopoczucie po tej odmianie" className="dfeel">
+          <StrainFeel feel={feel} />
+        </Fold>
+      )}
 
       <Fold cat="stock" icon="jar" title="Mój wpis" className="dmine">
         {mine && <OwnEntry strainId={strain.id} strainName={strain.name} form={strain.form} entry={mine} mates={mates} hidePrice={me.hidePrices} onSaved={onMineSaved} />}

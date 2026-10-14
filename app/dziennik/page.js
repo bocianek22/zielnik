@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getUser } from '@/lib/auth';
+import { symptomStreak } from '@/lib/streak';
+import SymptomStreak from '../components/SymptomStreak';
 import Header from '../components/Header';
 import Icon from '../components/Icon';
 import SymptomsBoard from './SymptomsBoard';
@@ -11,6 +13,7 @@ export default async function Dziennik() {
   const user = await getUser();
   if (!user) redirect('/login');
   if (user.must_change_password) redirect('/change-password');
+  const streak = await symptomStreak(user.id);
   return (
     <>
       <Header user={user} />
@@ -28,6 +31,7 @@ export default async function Dziennik() {
             <Link href="/obserwacje" className="btn ghost">Moje obserwacje</Link>
           </nav>
         </header>
+        <SymptomStreak data={streak} className="streak-diary" />
         <SymptomsBoard />
       </main>
     </>

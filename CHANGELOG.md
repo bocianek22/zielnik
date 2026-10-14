@@ -8,6 +8,16 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.58.0] - 2026-10
+### Dodano
+- **Seria wpisów bez presji (POM-08):** `lib/streak.js` (jedno zapytanie, dzień polski, wpis = co najmniej jedna wartość objawu, także własnego; sama notatka się nie liczy) i `lib/streak-calc.js`; `SymptomStreak` (komponent serwerowy) na „Dziś” pod szybkim wpisem objawów i w Dzienniku: „Wpisy: N dni z rzędu” albo „N z ostatnich 7 dni” oraz 7 kropek z opisem dla czytnika. Brak dzisiejszego wpisu nie zeruje serii, bez komunikatów o „zerwaniu”, odznak i powiadomień; tekst neutralny w trybie dyskretnym.
+- **Samopoczucie po tej odmianie (POM-18):** zwijana sekcja w karcie odmiany z własnymi średnimi objawów (0–10, 90 dni) w dniach z samą tą odmianą i w dniach bez zużycia; `strainView()` w `lib/observations.js` korzysta z tych samych grup i progu co „Moje obserwacje” (bez nowego SQL). Opis bez ocen lepiej/gorzej, z zastrzeżeniem, że to nie porada.
+### Poprawiono
+- Tryb dyskretny: pasek tytułu bez elementu z fokusem w `aria-hidden`; rozmyta nazwa w wierszu odmiany nie blokuje otwierania szczegółów.
+- Zaproszenie do grupy przy braku wstawienia zwraca aktualny powód (rola, zasada) zamiast fałszywego powodzenia; „Kto może zapraszać” jako przyciski z `aria-pressed`, zablokowane w trakcie zapisu.
+- Recepty: wygasła recepta bez kafla „0 dni”, data ważności przy wygasłych i kończących się; fokus w formularzu po „Edytuj pola wspólne”.
+- E2E: przebieg zaczęty tuż przed północą czasu polskiego czeka na nowy dzień; axe czeka na tytuł strony po `router.refresh`.
+
 ## [0.57.0] - 2026-10
 Design 3.1: dopracowanie interfejsu na wzór najlepszych aplikacji (`docs/DESIGN-3.1.md`, etapy P1, S1, S2).
 ### Dodano

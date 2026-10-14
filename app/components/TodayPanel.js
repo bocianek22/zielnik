@@ -113,7 +113,7 @@ const notesOf = ({ unit, dailyUse, bought }) => {
 const SYM_CORE = ['pain', 'sleep', 'anxiety', 'mood'];
 
 // stock, dailyUse, bought: { g, ml }; low: próg „Kończy się” w gramach (tylko susz); lowStrain: { name, current, unit } | null
-export default function TodayPanel({ stock, dailyUse, forecast, bought, low, series, prescriptions, symptoms, noUse = false, lowStrain = null, settings, fresh, hasOwn = false, onAdd }) {
+export default function TodayPanel({ stock, dailyUse, forecast, bought, low, series, prescriptions, symptoms, noUse = false, streak = null, lowStrain = null, settings, fresh, hasOwn = false, onAdd }) {
   const today = series.at(-1).day;
   const units = unitsOf(stock, dailyUse);
   const u1 = units[0];
@@ -227,6 +227,7 @@ export default function TodayPanel({ stock, dailyUse, forecast, bought, low, ser
       )}
 
       <SymptomsQuick day={today} initial={symptoms} onChange={setSym} />
+      {streak}
 
       {rx}
 

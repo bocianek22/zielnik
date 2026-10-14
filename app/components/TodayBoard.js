@@ -79,7 +79,7 @@ export function TodayHero({ usage = { perDay: 0, perDayMl: 0 } }) {
 
 // Panel „Dziś” z lekkich danych serwera i wspólnego stanu (HomeStore); nie czeka na listę odmian.
 export default function TodayBoard({ usage = { perDay: 0, perDayMl: 0, cost: 0 }, bought = { grams: 0, ml: 0, cost: 0 },
-  prescriptions = { items: [], total: 0, urgent: false }, symptoms = null, noUse = false }) {
+  prescriptions = { items: [], total: 0, urgent: false }, symptoms = null, noUse = false, streak = null }) {
   const { boughtU, series, recent, stock: stockU, remaining: remainingU, mine, low, limit, savePref, setLow, setLimit } = useHome();
   const dailyUse = usage.perDay; // g/dzień (susz); ml/dzień: usage.perDayMl
   const boughtG = boughtU.g;
@@ -106,7 +106,7 @@ export default function TodayBoard({ usage = { perDay: 0, perDayMl: 0, cost: 0 }
 
   if (series.length === 0) return null;
   return (
-      <TodayPanel stock={stockU} dailyUse={{ g: dailyUse, ml: usage.perDayMl || 0 }} forecast={usage.forecast} bought={boughtU} low={low} series={series} prescriptions={prescriptions} symptoms={symptoms} noUse={noUse} lowStrain={lowStrain}
+      <TodayPanel stock={stockU} dailyUse={{ g: dailyUse, ml: usage.perDayMl || 0 }} forecast={usage.forecast} bought={boughtU} low={low} series={series} prescriptions={prescriptions} symptoms={symptoms} noUse={noUse} streak={streak} lowStrain={lowStrain}
         fresh={fresh} hasOwn={mine > 0} onAdd={onAdd} settings={(
           <details className="prefs">
             <summary>Szczegóły i ustawienia <Icon name="chevronDown" size={18} /></summary>
