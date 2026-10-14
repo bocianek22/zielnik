@@ -27,7 +27,7 @@ export default function DayCard({ day, onClose }) {
   const sym = data?.symptoms;
   const vals = sym ? [...SYMPTOMS.filter((s) => sym[s.key] != null).map((s) => ({ key: s.key, label: s.short, value: sym[s.key] })),
     ...sym.custom.map((c) => ({ key: `c${c.id}`, label: c.name, value: c.value, custom: true }))] : [];
-  const empty = data && !data.usage.length && !data.purchases.length && !sym && !data.noUse;
+  const empty = data && !data.usage.length && !data.purchases.length && !sym && !data.noUse && !data.factors?.length;
   const title = `${weekday(day)} ${longDay(day)}`;
 
   return createPortal(
@@ -75,6 +75,12 @@ export default function DayCard({ day, onClose }) {
             )}
             {sym.note && <p className="dc-note dn">{sym.note}</p>}
             {sym.noteLocked && <p className="muted small">Notatka jest zaszyfrowana i chwilowo nieczytelna.</p>}
+          </section>
+        )}
+        {data?.factors?.length > 0 && (
+          <section aria-labelledby="dc-f">
+            <h3 id="dc-f" className="section-label">Czynniki dnia</h3>
+            <p className="chips">{data.factors.map((n) => <span key={n} className="chip tag dn">{n}</span>)}</p>
           </section>
         )}
         {data && (

@@ -8,6 +8,7 @@ import { CUSTOM_MAX } from '@/lib/symptoms';
 import { openEditable, rowScope, NOTE_UNAVAILABLE_MSG } from '@/lib/data-crypto';
 import { planNoteDb } from '@/lib/notes';
 import { isIsoDay } from '@/lib/date';
+import { listFactors, factorMarks, FACTOR_MAX } from '@/lib/factors';
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const FIELDS = ['pain', 'sleep', 'anxiety', 'mood'];
@@ -27,8 +28,10 @@ async function load(me, days = 60, extraDay = null) {
                         WHERE l.user_id = ${me}::int AND (l.created_at AT TIME ZONE 'Europe/Warsaw')::date >= (now() AT TIME ZONE 'Europe/Warsaw')::date - ${days}::int
                         GROUP BY 1 ORDER BY 1`;
   // własne objawy (POM-07): definicje i wartości (osobno od wierszy, bo dzień może mieć tylko własne)
-  const [custom, customVals] = await Promise.all([listCustom(me), customValues(me, days, extraDay)]);
-  return { rows: rows.map((r) => openEditable('symptom_log', 'note', rowScope('symptom_log', { user_id: me, day: r.day }), r, 'note')), usage, custom, customValues: customVals };
+  // czynniki dnia (POM-47): definicje i znaczniki
+  const [custom, customVals, factors, marks] = await Promise.all([listCustom(me), customValues(me, days, extraDay), listFactors(me), factorMarks(me, days, extraDay)]);
+  return { rows: rows.map((r) => openEditable('symptom_log', 'note', rowScope('symptom_log', { user_id: me, day: r.day }), r, 'note')), usage, custom, customValues: customVals,
+    factors, factorMarks: marks };
 }
 
 export const GET = safe(async (req) => {
@@ -38,7 +41,7 @@ export const GET = safe(async (req) => {
   return NextResponse.json(await load(user.id, 60, isIsoDay(d) ? d : null));
 });
 
-// { day, pain, sleep, anxiety, mood, note } - zapis (lub nadpisanie) wpisu dnia
+// { day, pain, sleep, anxiety, mood, note, custom?, factors? } - zapis (lub nadpisanie) wpisu dnia
 export const PUT = safe(async (req) => {
   const { user, res } = await requireUser();
   if (res) return res;
@@ -64,8 +67,18 @@ export const PUT = safe(async (req) => {
     }
     cv = [...byId].map(([id, v]) => ({ id, v }));
   }
+  // { factors: [id, ...] } - komplet czynników dnia (POM-47); bez pola zostają bez zmian
+  const fx = Array.isArray(b.factors)
+    ? [...new Set(b.factors.slice(0, FACTOR_MAX * 4).map(intId).filter(Boolean))].slice(0, FACTOR_MAX) : null;
   const q = sql();
   const ops = [];
+  if (fx) {
+    // cudze i nieistniejące identyfikatory odpadają na złączeniu z day_factors
+    ops.push(q`DELETE FROM day_factor_marks WHERE user_id = ${user.id}::int AND day = ${day}::date AND NOT (factor_id = ANY(${fx}::int[]))`);
+    ops.push(q`INSERT INTO day_factor_marks (factor_id, user_id, day)
+      SELECT f.id, ${user.id}::int, ${day}::date FROM day_factors f WHERE f.user_id = ${user.id}::int AND f.id = ANY(${fx}::int[])
+      ON CONFLICT (factor_id, day) DO NOTHING`);
+  }
   // notatka: nieczytelny szyfrogram i znacznik od klienta nie nadpisują zapisanej wartości (planNote)
   const plan = await planNoteDb('symptom_log', 'note', { user_id: user.id, day }, rowScope('symptom_log', { user_id: user.id, day }), String(b.note ?? '').trim().slice(0, 500));
   if (cv?.length) {
@@ -94,6 +107,7 @@ export const DELETE = safe(async (req) => {
   const q = sql();
   await q.transaction([
     q`DELETE FROM symptom_values WHERE user_id = ${user.id}::int AND day = ${day}::date`,
+    q`DELETE FROM day_factor_marks WHERE user_id = ${user.id}::int AND day = ${day}::date`,
     q`DELETE FROM symptom_log WHERE user_id = ${user.id} AND day = ${day}::date`,
   ]);
   return NextResponse.json(await load(user.id, 60, day));

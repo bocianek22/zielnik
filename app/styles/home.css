@@ -209,3 +209,6 @@ a.kpi-tile:active { filter: brightness(.96); }
 .streak-diary { margin-bottom: var(--s-4); }
 .onb-ill { display: block; margin: 0 auto calc(-1 * var(--s-2)); }
 @media (max-height: 640px) { .onb-ill { display: none; } }
+/* POM-48: wybór kart panelu „Dziś” w „Szczegóły i ustawienia” */
+.today-layout { border: 0; margin: var(--s-3) 0; padding: 0; display: grid; gap: var(--s-1); }
+.today-layout .check { min-height: var(--tap); align-items: center; }

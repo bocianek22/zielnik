@@ -6,6 +6,7 @@ import Icon from '../components/Icon';
 import DictateButton from '../components/DictateButton';
 import Toast from '../components/Toast';
 import useUndoDelete from '../components/useUndoDelete';
+import FactorManager from './FactorManager';
 import Illustration from '../components/Illustration';
 import SymptomsChart from '../components/charts/SymptomsChart';
 import { addDays } from '../components/charts/fmt';
@@ -88,13 +89,15 @@ function CustomManager({ defs, onChange }) {
 function merged0(data) {
   const m = new Map(data.rows.map((r) => [r.day, { ...r }]));
   for (const v of data.customValues ?? []) { const r = m.get(v.day) ?? { day: v.day }; r[`c${v.id}`] = v.value; m.set(v.day, r); }
+  // czynniki dnia (POM-47): lista zaznaczonych id
+  for (const v of data.factorMarks ?? []) { const r = m.get(v.day) ?? { day: v.day }; (r.factors ??= []).push(v.id); m.set(v.day, r); }
   return [...m.values()];
 }
 
 export default function SymptomsBoard({ initialDay = null }) {
   const [data, setData] = useState({ rows: [], usage: [], custom: [], customValues: [] });
   const [day, setDay] = useState(initialDay || todayIso());
-  const [f, setF] = useState({ pain: '', sleep: '', anxiety: '', mood: '', note: '' });
+  const [f, setF] = useState({ pain: '', sleep: '', anxiety: '', mood: '', note: '', factors: [] });
   const [msg, setMsg] = useState(null);
   const [saving, setSaving] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -115,12 +118,14 @@ export default function SymptomsBoard({ initialDay = null }) {
   }, [want]);
   // własne objawy (POM-07) traktujemy jak wbudowane: klucz c<id>, wartości dołączone do wierszy dni
   const defs = useMemo(() => data.custom ?? [], [data]);
+  const factorDefs = useMemo(() => data.factors ?? [], [data]);
   const all = useMemo(() => [...SYMPTOMS, ...defs.map(customMeta)], [defs]);
   const undo = useUndoDelete();
   const merged = useMemo(() => merged0(data), [data]);
   const existing = useMemo(() => merged.find((r) => r.day === day), [merged, day]);
   useEffect(() => {
     setF({ pain: existing?.pain ?? '', sleep: existing?.sleep ?? '', anxiety: existing?.anxiety ?? '', mood: existing?.mood ?? '', note: existing?.note ?? '',
+      factors: existing?.factors ?? [],
       ...Object.fromEntries(all.filter((x) => x.custom).map((x) => [x.key, existing?.[x.key] ?? ''])) });
   }, [existing, day, all]);
   const reload = () => api('/api/symptoms').then(setData);
@@ -145,7 +150,7 @@ export default function SymptomsBoard({ initialDay = null }) {
         undo.offer('Usunięto wpis z tego dnia.', async () => {
           const d = await api('/api/symptoms', 'PUT', {
             day: snap.day, pain: snap.pain ?? '', sleep: snap.sleep ?? '', anxiety: snap.anxiety ?? '', mood: snap.mood ?? '', note: snap.note ?? '',
-            ...(defs.length ? { custom } : {}) });
+            ...(defs.length ? { custom } : {}), factors: snap.factors ?? [] });
           // w międzyczasie wybrany inny stary dzień: jego wpis musi być w danych, inaczej zapis nadpisałby go „w ciemno”
           const w = wantRef.current;
           setData(w && w !== snap.day ? await api(`/api/symptoms?day=${w}`) : d);
@@ -177,11 +182,16 @@ export default function SymptomsBoard({ initialDay = null }) {
         </div>
         {(() => {
           const v = all.filter((x) => existing[x.key] != null);
-          if (!v.length) return <p className="small">Tylko notatka.</p>;
+          const fx = factorDefs.filter((x) => existing.factors?.includes(x.id));
           return (
-            <ul className="sym-tiles">
-              {v.map((x) => <li key={x.key}><b>{existing[x.key]}</b><span className={x.custom ? 'dn' : undefined}>{x.short}</span></li>)}
-            </ul>
+            <>
+              {v.length ? (
+                <ul className="sym-tiles">
+                  {v.map((x) => <li key={x.key}><b>{existing[x.key]}</b><span className={x.custom ? 'dn' : undefined}>{x.short}</span></li>)}
+                </ul>
+              ) : !fx.length && <p className="small">Tylko notatka.</p>}
+              {fx.length > 0 && <p className="small sym-fx">Czynniki: <span className="dn">{fx.map((x) => x.name).join(', ')}</span></p>}
+            </>
           );
         })()}
       </section>
@@ -213,6 +223,22 @@ export default function SymptomsBoard({ initialDay = null }) {
               </div>
             );
           })}
+          {factorDefs.length > 0 && (
+            <fieldset className="sym-factors">
+              <legend>Czynniki dnia</legend>
+              <div className="chips">
+                {factorDefs.map((x) => {
+                  const on = f.factors.includes(x.id);
+                  return (
+                    <button key={x.id} type="button" className={`chip${on ? ' on' : ''}`} aria-pressed={on}
+                      onClick={() => setF((p) => ({ ...p, factors: on ? p.factors.filter((i) => i !== x.id) : [...p.factors, x.id] }))}>
+                      {on && <Icon name="check" size={14} />}<span className="dn">{x.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </fieldset>
+          )}
           <div className="field"><label htmlFor="sy-note">Notatka (opcjonalnie)</label>
             <input id="sy-note" className="input" maxLength={500} value={f.note} onChange={(e) => setF({ ...f, note: e.target.value })} />
             <DictateButton value={f.note} onChange={(note) => setF((p) => ({ ...p, note }))} max={500} />
@@ -236,6 +262,7 @@ export default function SymptomsBoard({ initialDay = null }) {
         <SymptomsChart rows={merged} usage={data.usage} all={all} end={todayIso()} />
       </section>
       )}
+      <FactorManager factors={factorDefs} onChange={async (text) => { try { await reload(); setMsg(text ? { text } : null); } catch (e) { setMsg({ text: e.message, error: true }); } }} />
       <CustomManager defs={defs} onChange={async (text) => { try { await reload(); setMsg(text ? { text } : null); } catch (e) { setMsg({ text: e.message, error: true }); } }} />
       <p className="priv-note"><Icon name="info" size={20} />Dane są prywatne. Średnie z wybranego okresu trafiają do raportu dla lekarza.</p>
     </div>
