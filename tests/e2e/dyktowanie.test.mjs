@@ -43,10 +43,13 @@ async function open(opts, path = '/raport') {
   return { ctx, page };
 }
 
+// na /raport dyktowanie jest też w „Wizytach”, więc przycisk szukamy w sekcji „Do omówienia”
+const notes = (page) => page.locator('.doctor-notes');
+
 test('Dyktowanie: „Do omówienia” – informacja przy pierwszym użyciu, potem tekst trafia do pola (lang pl-PL, wyniki wstępne)', async () => {
   const { ctx, page } = await open({});
   try {
-    const btn = page.getByRole('button', { name: 'Dyktuj' });
+    const btn = notes(page).getByRole('button', { name: 'Dyktuj' });
     await btn.waitFor({ timeout: 15000 });
     assert.ok((await btn.boundingBox()).height >= 44, 'przycisk niższy niż 44 px');
     assert.equal(await btn.getAttribute('aria-pressed'), 'false');
@@ -60,10 +63,10 @@ test('Dyktowanie: „Do omówienia” – informacja przy pierwszym użyciu, pot
     await page.waitForFunction(() => window.__sr.starts === 1);
     await page.waitForFunction(() => document.querySelector('#dn-new').value === 'Zapytać: boli mnie głowa', null, { timeout: 5000 });
     assert.deepEqual(await page.evaluate(() => [window.__sr.lang, window.__sr.interim]), ['pl-PL', true]);
-    await page.getByRole('button', { name: 'Dyktuj' }).waitFor(); // sesja skończona
+    await notes(page).getByRole('button', { name: 'Dyktuj' }).waitFor(); // sesja skończona
     assert.equal(await page.evaluate(() => localStorage.getItem('zielnik.dictate.notice')), '1');
     // kolejne użycie bez informacji, tekst dopisuje się do poprzedniego
-    await page.getByRole('button', { name: 'Dyktuj' }).click();
+    await notes(page).getByRole('button', { name: 'Dyktuj' }).click();
     await page.waitForFunction(() => window.__sr.starts === 2);
     await page.waitForFunction(() => document.querySelector('#dn-new').value === 'Zapytać: boli mnie głowa boli mnie głowa', null, { timeout: 5000 });
     assert.equal(await page.getByText(/Rozpoznawanie mowy wykonuje przeglądarka/).count(), 0);
@@ -95,7 +98,7 @@ test('Dyktowanie: odmowa mikrofonu daje czytelny komunikat, pole bez zmian', asy
   try {
     await page.evaluate(() => localStorage.setItem('zielnik.dictate.notice', '1'));
     await page.locator('#dn-new').fill('Test');
-    await page.getByRole('button', { name: 'Dyktuj' }).click();
+    await notes(page).getByRole('button', { name: 'Dyktuj' }).click();
     const alert = page.getByRole('alert').filter({ hasText: 'mikrofon' });
     await alert.waitFor({ timeout: 5000 });
     assert.match(await alert.innerText(), /Brak zgody na użycie mikrofonu/);
