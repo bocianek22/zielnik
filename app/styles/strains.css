@@ -63,7 +63,7 @@
 
 /* ===== Lista: wiersze w jednej karcie (Design 3.1: wiersz około 96 px, jedno działanie główne, reszta w „…”) ===== */
 .strain-list { padding: 0; overflow: visible; }
-.strain { position: relative; padding: 6px var(--s-4) 2px; }
+.strain { position: relative; padding: 10px var(--s-4) 6px; }
 .strain + .strain, .strain-list > * + .strain, .strain-list > .strain + * { border-top: 1px solid var(--sep); }
 .strain-head { position: relative; display: flex; gap: var(--s-3); align-items: center; min-height: 40px; }
 .strain-title { flex: 1; min-width: 0; }
@@ -97,7 +97,9 @@
 .pill.stock-low { background: var(--warn-soft); color: var(--warn); }
 .pill.stock-none { color: var(--text-2); }
 .strain-foot { display: flex; justify-content: flex-end; }
+/* UI 4: akcje pod nazwą, nie pod miniaturą (40 px + odstęp), więc wiersz czyta się jak jedna kolumna */
 .strain .quick { margin-top: 2px; }
+.strain .quick-btns { margin-left: calc(40px + var(--s-3)); }
 .strain .quick-btns { flex-wrap: nowrap; }
 .strain .quick-btns .btn.quick-btn { min-width: 0; padding-inline: var(--s-3); }
 .strain-desc summary { cursor: pointer; font-weight: 600; font-size: var(--fs-sm); color: var(--accent-text); min-height: var(--tap); display: flex; align-items: center; }

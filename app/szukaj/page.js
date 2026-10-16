@@ -82,7 +82,10 @@ export default async function Szukaj({ searchParams }) {
         <h1>Szukaj</h1>
         <SearchBox key={raw} initial={raw} index={lite} />
         {!q && <p className="search-hint">Podpowiedzi pojawiają się od pierwszej litery. Szukamy w odmianach, katalogu, terpenach, wiedzy, Twoich grupach, a od 2 znaków także w ludziach i Twoich notatkach (widzisz je tylko Ty).</p>}
-        {!q && (
+        {q && total === 0 && (
+          <EmptyState art="search" cat="learn" title="Nic nie znaleziono">Brak wyników dla „{raw}”. Sprawdź pisownię, wpisz krótszą frazę albo zajrzyj na skróty poniżej.</EmptyState>
+        )}
+        {(!q || total === 0) && (
           <nav aria-labelledby="quick-h">
             <h2 className="section-label" id="quick-h">Na skróty</h2>
             <ul className="list">
@@ -95,9 +98,6 @@ export default async function Szukaj({ searchParams }) {
               ))}
             </ul>
           </nav>
-        )}
-        {q && total === 0 && (
-          <EmptyState art="search" cat="learn" title="Nic nie znaleziono">Brak wyników dla „{raw}”. Sprawdź pisownię albo wpisz krótszą frazę.</EmptyState>
         )}
         <Group title="Moje notatki" n={notes.length}>{notes.map((x, i) => (
           <li key={`${x.kind}-${x.href}-${x.day}-${i}`}><Link href={x.href} className="list-row note-hit"><span className="lr-main">

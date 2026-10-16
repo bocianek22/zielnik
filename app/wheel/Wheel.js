@@ -153,7 +153,10 @@ export default function Wheel({ items: all }) {
     <div className="wh">
       {filters}
       {items.length ? wheel : (
-        <EmptyState art="search" cat="strain" title="Brak odmian dla tych filtrów">Zmień rodzaj lub obniż minimalne THC.</EmptyState>
+        <EmptyState art="search" cat="strain" title="Brak odmian dla tych filtrów"
+          action={<button type="button" className="btn ghost" onClick={() => { setKind(''); setMinThc(''); }}>Wyczyść filtry</button>}>
+          Zmień rodzaj lub obniż minimalne THC.
+        </EmptyState>
       )}
     </div>
   );

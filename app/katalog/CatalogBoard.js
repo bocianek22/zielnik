@@ -74,7 +74,10 @@ export default function CatalogBoard({ items, owned, isAdmin }) {
           {isAdmin ? 'Wczytaj plik CSV albo ustaw automatyczne źródło (opis poniżej).' : 'Poproś admina o wczytanie listy.'}
         </EmptyState>
       ) : shown.length === 0 ? (
-        <EmptyState art="search" cat="learn" title="Brak pasujących pozycji">Zmień frazę, postać albo odznacz „Tylko aktualne”.</EmptyState>
+        <EmptyState art="search" cat="learn" title="Brak pasujących pozycji"
+          action={<button type="button" className="btn ghost" onClick={() => { setQuery(''); setFormFilter(''); setOnlyActive(false); }}>Pokaż wszystko</button>}>
+          Zmień frazę, postać albo odznacz „Tylko aktualne”.
+        </EmptyState>
       ) : (
         <>
           <p className="cat-count" aria-live="polite">{shown.length} {shown.length === 1 ? 'pozycja' : shown.length % 10 >= 2 && shown.length % 10 <= 4 && (shown.length % 100 < 12 || shown.length % 100 > 14) ? 'pozycje' : 'pozycji'}</p>
