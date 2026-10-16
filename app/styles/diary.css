@@ -47,7 +47,8 @@
 .rx-amount { margin: 0; font-variant-numeric: tabular-nums; }
 .rx-amount b { font-weight: 700; }
 .rx-dates { margin: 0; font-size: var(--fs-sm); color: var(--text-2); }
-.rx-foot { display: flex; justify-content: flex-end; }
+.rx-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); }
+.rx-foot .btn { flex: none; }
 .rx-foot .btn { margin-right: calc(var(--s-2) * -1); }
 
 /* Moje obserwacje (app/obserwacje, POM-06) */

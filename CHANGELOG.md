@@ -16,6 +16,7 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
   - Grupy: bez grup jeden przycisk „Utwórz grupę” (bez zdublowanego „Nowa grupa” pod nim).
   - Moje obserwacje: „Jak liczymy” zwinięte na końcu strony; „Dni tygodnia” bez żadnej średniej to jedno zdanie zamiast siedmiu pustych pasków (tabela dla czytników ekranu bez zmian).
   - Lista odmian: przyciski „Zużyłem” / „Wykupiłem” wyrównane z nazwą odmiany, trochę więcej oddechu w wierszu.
+  - Recepty: data wystawienia i „Usuń” w jednym wierszu stopki karty.
 
 ## [0.78.0] - 2026-10
 ### Zmieniono
