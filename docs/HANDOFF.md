@@ -52,8 +52,9 @@ Tryb awaryjny (rozmowa bez dostępu do repozytorium):
 - Wybór bramki płatności i platformy wpłat (`DONATE_URL`), decyzja o `PREMIUM_ENFORCED`.
 - Źródło danych do katalogu (`CATALOG_FEED_URL`), plan Vercel Pro przy działalności komercyjnej.
 
-## 6. Następne kroki (aktualne dla wersji 0.79.0)
+## 6. Następne kroki (aktualne dla wersji 0.80.0)
 Pełna lista z uzasadnieniem: `docs/PRZEGLAD-2026-10.md`; aplikacje natywne: `docs/APLIKACJE-NATYWNE.md`; system projektowy: `docs/DESIGN.md`. Praca z podziałem na subagentów (`.claude/agents/`): koordynator scala gałęzie, uruchamia kontrole, zleca przegląd (reviewer) i prowadzi CHANGELOG/wersję. Przebieg pracy nocnej: `docs/PLAN-NOC.md`.
+1. **Szczegóły odmiany (0.80.0, UI 4 część 5):** karta odmiany → „Partie” (zwinięte, liczba partii, edycja notatki po rozwinięciu), wiersz „Sprawdź dostępność w aptekach” (otwiera gdziepolek.pl, w APK w przeglądarce systemowej). Dalej UI 4: spójne nagłówki sekcji, Raport (skróty do sekcji), panel „Dziś” (kolejność kart).
 1. **Puste stany (0.79.0, UI 4 część 4):** Szukaj z frazą bez wyników (skróty pod komunikatem), Koło fortuny i Katalog z filtrami bez wyników („Wyczyść filtry”), Grupy bez grup (jeden przycisk, formularz po dotknięciu), Moje obserwacje („Jak liczymy” zwinięte, dni tygodnia przy małej liczbie wpisów), lista odmian (przyciski pod nazwą, przy 320 px bez wcięcia). Dalej UI 4: spójne nagłówki sekcji (SecHead vs section-title), Recepty (karta recepty: mniej tekstu, „Usuń” w menu), Raport (skróty do sekcji).
 1. **Kafelki w „Więcej” (0.78.0, UI 4 część 3):** telefon → „Więcej”: kafelki 4 w rzędzie (320 px, „Większy tekst”, tryb ciemny, TalkBack czyta nazwy), plakietki znajomych i grup na kafelkach. Dalej UI 4: puste stany z jednym jasnym działaniem, spójne nagłówki sekcji.
 1. **Profil w grupach (0.77.0, UI 4 część 2):** Profil → „Prywatność / Przypomnienia / Wygląd” (rozwijanie, skróty u góry, w APK: blokada i ochrona ekranu w „Prywatność”); Historia → „Porównanie okresów” → „Objawy z dziennika”. Dalej UI 4: spójne nagłówki sekcji, przegląd „Więcej” (kolejność, nazwy), puste stany.

@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { formatDay } from '@/lib/date';
 import { BATCH_EFFECTS, BATCH_NO_MAX, BATCH_NOTE_MAX, hasBatch } from '@/lib/batch-meta';
-import SecHead from './SecHead';
+import Fold from './Fold';
 
 const nf = (n) => Number(n).toLocaleString('pl-PL', { maximumFractionDigits: 2 });
 
@@ -86,8 +86,8 @@ export default function StrainBatches({ batches: serverBatches, unit }) {
   const batches = local.base === serverBatches ? serverBatches.map((b) => (local.map[b.id] ? { ...b, ...local.map[b.id] } : b)) : serverBatches;
   if (!batches.length) return null;
   return (
-    <section className="card strain-batches" data-cat="stock" aria-labelledby="batches-h">
-      <SecHead cat="stock" icon="cart" id="batches-h">Partie</SecHead>
+    // UI 4: zwinięte jak pozostałe sekcje szczegółów (lista zakupów rośnie z czasem); liczba partii w nagłówku
+    <Fold cat="stock" icon="cart" title="Partie" count={batches.length} className="strain-batches">
       <p className="muted small">Zakupy tej odmiany. Dopisz, jak działała dana partia w porównaniu do zwykle. Widzisz to tylko Ty.</p>
       <p className="hist-msg" role="status" aria-live="polite">{msg}</p>
       <ul className="list">
@@ -107,6 +107,6 @@ export default function StrainBatches({ batches: serverBatches, unit }) {
           </li>
         ))}
       </ul>
-    </section>
+    </Fold>
   );
 }

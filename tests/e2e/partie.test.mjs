@@ -52,8 +52,9 @@ test('partia: dodanie notatki w Historii, widok na liście zakupów i karcie odm
       const sid = (await pool.query(`SELECT strain_id FROM purchases WHERE batch_no = 'E2E-77'`)).rows[0].strain_id;
       assert.equal((await pool.query(`SELECT batch_note LIKE 'zenc1:%' AS enc FROM purchases WHERE batch_no = 'E2E-77'`)).rows[0].enc, true, 'notatka zaszyfrowana w bazie');
       await go(pa, `/strains/${sid}`);
-      const card = pa.locator('section.strain-batches');
+      const card = pa.locator('.strain-batches');
       await card.waitFor();
+      await card.locator('summary').click(); // UI 4: sekcja zwinięta
       assert.match(await card.innerText(), /E2E-77/);
       await card.getByRole('button', { name: /^Edytuj notatkę o partii/ }).first().click();
       await card.getByRole('button', { name: 'jak zwykle' }).click();
@@ -66,7 +67,7 @@ test('partia: dodanie notatki w Historii, widok na liście zakupów i karcie odm
       await login(pb, 'bartek');
       await go(pb, `/strains/${sid}`);
       assert.equal(await pb.getByText('E2E-77').count(), 0);
-      assert.equal(await pb.locator('section.strain-batches').count(), 0);
+      assert.equal(await pb.locator('.strain-batches').count(), 0);
       await go(pb, '/historia');
       assert.equal(await pb.getByText('E2E-77').count(), 0);
 

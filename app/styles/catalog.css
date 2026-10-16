@@ -39,6 +39,8 @@
 .pharmacy-link { display: grid; justify-items: start; gap: 2px; margin: var(--s-2) var(--s-1) 0; }
 .pharmacy-link a { display: inline-flex; align-items: center; min-height: var(--tap); color: var(--accent-text); font-weight: 600; }
 .pharmacy-link .small { font-size: var(--fs-sm); }
+.pharmacy-row { padding: var(--s-3) var(--s-4); color: var(--text); text-decoration: none; font-weight: 600; }
+.pharmacy-row .lr-sub { font-weight: 400; }
 
 /* Podpowiedzi wyszukiwania (SearchSuggest): lista pod polem, nad treścią i przyciskiem „+” */
 .suggest { scroll-margin-top: var(--s-2); }
