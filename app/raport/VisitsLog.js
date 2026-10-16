@@ -1,8 +1,8 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { api } from '@/lib/api';
 import { formatDay, addDaysIso, isIsoDay } from '@/lib/date';
-import SecHead from '../components/SecHead';
+import Icon from '../components/Icon';
 import DictateButton from '../components/DictateButton';
 import Toast from '../components/Toast';
 import useUndoDelete from '../components/useUndoDelete';
@@ -23,6 +23,11 @@ export default function VisitsLog({ initial }) {
   const [err, setErr] = useState('');
   const [msg, setMsg] = useState('');
   const undo = useUndoDelete();
+  // zwinięte domyślnie, żeby nad raportem nie było długiego formularza; otwarte z linku /raport#wizyty
+  const [open, setOpen] = useState(false);
+  const box = useRef(null);
+  useEffect(() => { if (window.location.hash === '#wizyty' && box.current) box.current.open = true; }, []); // onToggle ustawi stan
+  const last = visits[0];
 
   async function add(e) {
     e.preventDefault();
@@ -46,8 +51,10 @@ export default function VisitsLog({ initial }) {
   }
 
   return (
-    <section className="card stack visits no-print" data-cat="learn" aria-labelledby="wizyty-h" id="wizyty">
-      <SecHead cat="learn" icon="calendar" id="wizyty-h">Wizyty</SecHead>
+    <details ref={box} className="card fold-card visits no-print" data-cat="learn" id="wizyty" open={open} onToggle={(e) => setOpen(e.currentTarget.open)}>
+      <summary><span className="ic-dot sm" data-cat="learn"><Icon name="calendar" size={18} /></span>
+        <span className="lr-main">Wizyty<span className="lr-sub">{last ? `Ostatnia: ${formatDay(last.day)}` : 'Zapisz datę wizyty i to, co ustalono'}</span></span>
+        <Icon name="chevronRight" size={18} className="lr-chev" /></summary>
       <p className="muted small">Zapisz datę wizyty i to, co ustalono. Notatka jest szyfrowana i widzisz ją tylko Ty; nie trafia do wydruku raportu.</p>
       <form className="stack" onSubmit={add}>
         <div className="row">
@@ -75,6 +82,6 @@ export default function VisitsLog({ initial }) {
       )}
       {undo.error && <p className="alert error" role="alert">{undo.error}</p>}
       {undo.toast ? <Toast text={undo.toast.text} action={undo.toast.action} /> : <Toast text={msg} onClose={() => setMsg('')} />}
-    </section>
+    </details>
   );
 }

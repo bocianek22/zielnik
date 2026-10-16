@@ -13,6 +13,7 @@ const zakupy = (n) => (n === 1 ? 'zakup' : n % 10 >= 2 && n % 10 <= 4 && (n % 10
 const dec = (n) => (n == null || n === '' ? '' : String(Math.round(Number(n) * 100) / 100).replace('.', ','));
 const uOf = (r) => (r?.unit === 'ml' ? 'ml' : 'g'); // jednostka wpisu: susz w g, olej i pen w ml
 const perUnit = (u) => (u === 'ml' ? 'ml' : 'gram');
+const PAGE = 10;
 
 // Zakupy albo zużycie w Historii z korektą: „Popraw” (gramy, data; przy zakupie cena za gram albo łączny koszt)
 // i „Usuń” z potwierdzeniem. Lista (telefon) i tabela (szeroki ekran) są w DOM obie naraz, więc edytor jest jeden,
@@ -33,6 +34,8 @@ export default function Entries({ kind, rows: serverRows, prescriptions = [] }) 
   const [err, setErr] = useState('');
   const [msg, setMsg] = useState('');
   const [offer, setOffer] = useState(null); // { strainId, price, n, name }
+  // krótka lista na start (ostatnie wpisy), reszta po „Pokaż więcej”; edytowany wiersz zawsze widoczny
+  const [shown, setShown] = useState(PAGE);
   const box = useRef(null);
   const back = useRef(null);
   useEffect(() => { if (edit) box.current?.querySelector('input, button')?.focus(); }, [edit]);
@@ -113,6 +116,8 @@ export default function Entries({ kind, rows: serverRows, prescriptions = [] }) 
   const how = (r) => [methodLabel(r.method), periodLabel(r.period || r.autoPeriod)].filter(Boolean).join(', ');
   const noPrice = <span className="badge warn-badge">bez ceny</span>;
   const id = `fix-${kind}`;
+  const ei = edit ? rows.findIndex((r) => r.id === edit.row.id) : -1;
+  const visible = ei >= shown ? [...rows.slice(0, shown), rows[ei]] : rows.slice(0, shown);
 
   return (
     <>
@@ -211,7 +216,7 @@ export default function Entries({ kind, rows: serverRows, prescriptions = [] }) 
         </div>
       )}
       <ul className="list hist-list">
-        {rows.map((r) => (
+        {visible.map((r) => (
           <li key={r.id} className={`list-row${r.id === edit?.row.id ? ' editing' : ''}`}>
             <span className="lr-main"><span className="dn">{r.name}</span><span className="lr-sub">{formatDay(r.at)}{!purchase && how(r) && ` · ${how(r)}`}</span>{purchase && <BatchSummary r={r} />}{actions(r)}</span>
             <span className="lr-value">{nf(r.grams)} {uOf(r)}{purchase && (r.cost != null ? <small>{nf(r.cost)} zł</small> : <small>{noPrice}</small>)}</span>
@@ -220,7 +225,7 @@ export default function Entries({ kind, rows: serverRows, prescriptions = [] }) 
       </ul>
       <div className="card hist-table"><div className="table-wrap"><table className="cmp hist-cmp">
         <thead><tr><th>Data</th><th>Odmiana</th><th className="num">Ilość</th>{!purchase && <th>Sposób i pora</th>}{purchase && <th className="num">Koszt</th>}<th><span className="sr-only">Akcje</span></th></tr></thead>
-        <tbody>{rows.map((r) => (
+        <tbody>{visible.map((r) => (
           <tr key={r.id} className={r.id === edit?.row.id ? 'editing' : undefined}>
             <td>{formatDay(r.at)}</td><td><span className="dn">{r.name}</span>{purchase && <BatchSummary r={r} />}</td><td className="num">{nf(r.grams)} {uOf(r)}</td>
             {!purchase && <td>{how(r)}</td>}
@@ -229,6 +234,11 @@ export default function Entries({ kind, rows: serverRows, prescriptions = [] }) 
           </tr>
         ))}</tbody>
       </table></div></div>
+      {rows.length > visible.length && (
+        <button type="button" className="btn ghost small hist-more" onClick={() => setShown((n) => n + 20)}>
+          Pokaż więcej ({rows.length - visible.length})
+        </button>
+      )}
     </>
   );
 }

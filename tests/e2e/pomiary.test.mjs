@@ -24,6 +24,8 @@ test('Pomiary: dodanie, zapis z przecinkiem, raport, usunięcie', async () => {
     await go(page, '/dziennik');
     const box = page.locator('#pomiary');
     await box.waitFor({ timeout: 15000 });
+    await interactive(box.locator('summary').first());
+    await box.locator('summary').first().click();
     const hint = box.getByRole('button', { name: 'Tętno (ud./min)' });
     await interactive(hint);
     await hint.click();
@@ -58,7 +60,7 @@ test('Pomiary: dodanie, zapis z przecinkiem, raport, usunięcie', async () => {
     await page.locator('.report-sheet').first().getByText(/Glukoza: najmniej 98 mg\/dl/).waitFor({ timeout: 15000 });
 
     await go(page, '/dziennik');
-    await box.locator('.measures-manage summary').click();
+    await box.locator('.measures-manage summary').click(); // karta z pomiarami jest otwarta, zarządzanie zwinięte
     page.once('dialog', (d) => d.accept());
     await box.getByRole('button', { name: 'Usuń pomiar: Glukoza' }).click();
     await page.getByRole('status').filter({ hasText: 'Usunięto pomiar.' }).waitFor();

@@ -74,3 +74,9 @@
 .set-group.danger-zone > summary { color: var(--danger); }
 .set-group.danger-zone .ic-dot { background: var(--danger-soft, var(--surface-2)); color: var(--danger); }
 @media (prefers-reduced-motion: reduce) { .set-group > summary .lr-chev { transition: none; } }
+
+/* UI 4: skróty do sekcji profilu (długa lista ustawień) */
+.settings-jump { margin: 0 0 var(--s-3); }
+.settings-jump .chip { min-height: 40px; text-decoration: none; }
+@media (pointer: coarse) { .settings-jump .chip { min-height: 44px; } }
+.settings [id] { scroll-margin-top: 72px; }

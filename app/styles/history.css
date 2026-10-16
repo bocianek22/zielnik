@@ -175,3 +175,10 @@
 .travel-card h3 { margin: var(--s-6) 0 var(--s-2); font-size: var(--fs-lg); }
 .travel-check { margin: 0; padding-left: 1.2em; display: grid; gap: var(--s-2); }
 @media print { .travel-card { font-size: 10pt; } }
+
+/* UI 4: skróty do sekcji Historii i krótsze listy wpisów */
+.hist-jump { margin: 0 0 var(--s-3); }
+.hist-jump .chip { min-height: 40px; text-decoration: none; }
+@media (pointer: coarse) { .hist-jump .chip { min-height: 44px; } }
+.hist-page [id] { scroll-margin-top: 72px; }
+.hist-more { display: flex; margin: var(--s-2) auto var(--s-4); }

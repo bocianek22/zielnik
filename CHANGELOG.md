@@ -8,6 +8,14 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.76.0] - 2026-10
+### Zmieniono
+- **Porządek na długich ekranach (UI 4, część 1):**
+  - Dziennik: „Pomiary” i „Zdarzenia niepożądane” jako zwijane karty w stylu „Dodaj czynniki dnia” (pomiary otwarte, gdy już je prowadzisz; zdarzenia otwierają się z linku `#zdarzenia`, np. z wyszukiwarki), ekran jest o połowę krótszy.
+  - Raport: „Wizyty” zwinięte nad raportem (z datą ostatniej wizyty w nagłówku), otwierane z `#wizyty`.
+  - Historia: skróty do sekcji (Miesiąc, Kalendarz, Zakupy, Zużycie) i krótsze listy: 10 ostatnich wpisów i „Pokaż więcej”.
+  - Profil: skróty do ustawień (Bezpieczeństwo, Przypomnienia, Tryb dyskretny, Wygląd, Moje dane); skrót do zwiniętej grupy od razu ją otwiera.
+
 ## [0.75.0] - 2026-10
 ### Dodano
 - **Raport skrócony po angielsku (POM-64, koniec):** w Raporcie w wersji „Skrócony” przycisk „PDF po angielsku”: ten sam zakres danych co raport skrócony, etykiety, daty („8 October 2026”), liczby, nagłówek, stopka („Page 1 of 1”) i nagłówek „To discuss with the doctor” po angielsku; dane pacjenta (nazwy odmian, własnych objawów, pomiarów, czynników) bez tłumaczenia. Tylko plik (pobranie, w APK udostępnienie), strona raportu zostaje po polsku. Nowe `lib/report-pdf-en.js` i wspólne formaty wydruków `lib/print-format.js`; test pilnuje jednej strony także po angielsku.

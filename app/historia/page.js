@@ -52,9 +52,13 @@ export default async function Historia() {
         {nothing ? (
           <Empty art="journal" title="Historia jest jeszcze pusta" text="Tu pojawią się zakupy, zużycie i wykres tygodniowy. Zacznij od zapisania pierwszego zużycia w karcie odmiany." />
         ) : (<>
+        <nav className="chips hist-jump" aria-label="Przejdź do sekcji">
+          {[['#miesiac', 'Miesiąc', hasRecap], ['#kalendarz', 'Kalendarz', true], ['#zakupy', 'Zakupy', true], ['#zuzycie', 'Zużycie', true]].filter(([, , on]) => on)
+            .map(([href, label]) => <a key={href} className="chip" href={href}>{label}</a>)}
+        </nav>
         {hasRecap && (
           <>
-            <h2 className="section-title">Twój miesiąc: {monthLabel}</h2>
+            <h2 className="section-title" id="miesiac">Twój miesiąc: {monthLabel}</h2>
             <section className="hist-kpis" data-cat="stock" aria-label={`Podsumowanie: ${monthLabel}`}>
               <div className="kpi-tile"><span className="kt-label">Zużyte</span><span className="kt-value qty">{nf(recap.totalGrams)}<span className="unit">g</span></span>{recap.totalMl > 0 && <span className="kt-sub">{nf(recap.totalMl)} ml</span>}</div>
               <div className="kpi-tile"><span className="kt-label">{recap.activeDays === 1 ? 'Aktywny dzień' : 'Aktywne dni'}</span><span className="kt-value">{recap.activeDays}</span></div>
@@ -76,6 +80,7 @@ export default async function Historia() {
 
         <WeeklyBars weekly={weekly} empty={<Empty art="chart" title="Brak zużycia" text="Wpisuj zużycie w karcie odmiany, a tu pojawi się wykres tygodniowy." />} />
 
+        <div id="kalendarz" />
         <Calendar data={calendar} empty={<Empty art="journal" title="Brak dni w kalendarzu" text="Zapisz zużycie albo oznacz dzień bez zużycia, a zobaczysz tu regularność." />} />
         <Periods periods={periods} />
 
@@ -90,14 +95,14 @@ export default async function Historia() {
           </>
         )}
 
-        <h2 className="section-title">Zakupy</h2>
+        <h2 className="section-title" id="zakupy">Zakupy</h2>
         {purchases.length === 0 ? (
           <Empty art="jar" title="Brak zakupów" text="Dodaj je w karcie odmiany, w polu „Wykupiłem”." />
         ) : (
           <Entries kind="purchase" rows={purchases} prescriptions={rxOptions} />
         )}
 
-        <h2 className="section-title">Zużycie</h2>
+        <h2 className="section-title" id="zuzycie">Zużycie</h2>
         {usage.length === 0 ? (
           <Empty art="journal" title="Brak wpisów" text="Dodaj je w karcie odmiany, w polu „Zużycie”." />
         ) : (
