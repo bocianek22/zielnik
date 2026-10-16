@@ -14,6 +14,17 @@ import Icon from '../components/Icon';
 import EmptyState from '../components/EmptyState';
 import SearchBox from './SearchBox';
 
+// UI 4: pusty ekran wyszukiwania prowadzi do miejsc, których najczęściej się szuka (część jest tylko w „Więcej”)
+const QUICK = [
+  ['/recepty', 'Recepty', 'Ile zostało do wykupienia i do kiedy', 'file', 'rx'],
+  ['/recepty/karta', 'Karta terapii na wyjazd', 'Recepty i zapas do wydruku, także po angielsku', 'file', 'rx'],
+  ['/raport', 'Raport dla lekarza', 'Zestawienie do wizyty, PDF', 'clipboard', 'learn'],
+  ['/historia', 'Historia', 'Zakupy, zużycie, kalendarz', 'clock', 'stock'],
+  ['/obserwacje', 'Moje obserwacje', 'Objawy w dniach z odmianą, dni tygodnia', 'chart', 'journal'],
+  ['/wiedza', 'Wiedza', 'Artykuły i katalog terpenów', 'info', 'learn'],
+  ['/pomoc', 'Pomoc', 'Instalacja, pytania, co nowego', 'book', undefined],
+];
+
 const cap = (t) => (t ? t[0].toUpperCase() + t.slice(1) : '');
 
 // Grupa wyników: nagłówek sekcji i lista wierszy
@@ -71,6 +82,20 @@ export default async function Szukaj({ searchParams }) {
         <h1>Szukaj</h1>
         <SearchBox key={raw} initial={raw} index={lite} />
         {!q && <p className="search-hint">Podpowiedzi pojawiają się od pierwszej litery. Szukamy w odmianach, katalogu, terpenach, wiedzy, Twoich grupach, a od 2 znaków także w ludziach i Twoich notatkach (widzisz je tylko Ty).</p>}
+        {!q && (
+          <nav aria-labelledby="quick-h">
+            <h2 className="section-label" id="quick-h">Na skróty</h2>
+            <ul className="list">
+              {QUICK.map(([href, label, sub, icon, cat]) => (
+                <li key={href}><Link href={href} className="list-row">
+                  <span className="ic-dot sm" data-cat={cat}><Icon name={icon} size={18} /></span>
+                  <span className="lr-main">{label}<span className="lr-sub">{sub}</span></span>
+                  <Icon name="chevronRight" size={20} className="lr-chev" />
+                </Link></li>
+              ))}
+            </ul>
+          </nav>
+        )}
         {q && total === 0 && (
           <EmptyState art="search" cat="learn" title="Nic nie znaleziono">Brak wyników dla „{raw}”. Sprawdź pisownię albo wpisz krótszą frazę.</EmptyState>
         )}

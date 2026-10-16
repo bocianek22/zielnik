@@ -15,6 +15,8 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
   - Raport: „Wizyty” zwinięte nad raportem (z datą ostatniej wizyty w nagłówku), otwierane z `#wizyty`.
   - Historia: skróty do sekcji (Miesiąc, Kalendarz, Zakupy, Zużycie) i krótsze listy: 10 ostatnich wpisów i „Pokaż więcej”.
   - Profil: skróty do ustawień (Bezpieczeństwo, Przypomnienia, Tryb dyskretny, Wygląd, Moje dane); skrót do zwiniętej grupy od razu ją otwiera.
+  - Wiedza: artykuły jako zwijane karty zamiast jednej bardzo długiej strony (link z wyszukiwarki rozwija właściwy artykuł).
+  - Szukaj: pusty ekran ma „Na skróty”: Recepty, Karta terapii, Raport, Historia, Moje obserwacje, Wiedza, Pomoc.
 
 ## [0.75.0] - 2026-10
 ### Dodano
