@@ -67,6 +67,18 @@ export default function BottomNav({ isAdmin }) {
             return (
               <section key={g}>
                 <h2 className="section-label">{title}</h2>
+                {g !== 'account' ? (
+                  // UI 4: miejsca w aplikacji jako siatka kafelków (cały arkusz bez przewijania), konto jako lista
+                  <div className="sheet-grid">
+                    {items.map((i) => (
+                      <Link key={i.href} href={i.href} className="sheet-tile" aria-current={isActive(path, i.href) ? 'page' : undefined}>
+                        <span className="ic-dot sm" data-cat={i.cat}><Icon name={i.icon} size={18} /></span>
+                        <span className="st-label">{i.label}</span>
+                        {i.badge && <NavBadge kind={i.badge} />}
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
                 <div className="list">
                   {items.map((i) => {
                     const inner = (
@@ -87,6 +99,7 @@ export default function BottomNav({ isAdmin }) {
                     <LogoutButton className="list-row logout"><Icon name="logout" /><span className="lr-main">Wyloguj</span></LogoutButton>
                   )}
                 </div>
+                )}
               </section>
             );
           })}
