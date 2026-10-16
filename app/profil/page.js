@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { VERSION } from '@/lib/version';
 import Icon from '../components/Icon';
 import HashOpen from '../components/HashOpen';
+import SettingsGroup from './SettingsGroup';
 import { ThemeChoice, BigChoice } from '../components/ThemeToggle';
 
 export const dynamic = 'force-dynamic';
@@ -32,25 +33,31 @@ export default async function Profil() {
         <h1>Mój profil</h1>
         <HashOpen />
         <nav className="chips settings-jump" aria-label="Przejdź do ustawień">
-          {[['#bezpieczenstwo', 'Bezpieczeństwo'], ['#powiadomienia', 'Przypomnienia'], ['#discreet-h', 'Tryb dyskretny'], ['#theme-h', 'Wygląd'], ['#moje-dane', 'Moje dane']]
+          {[['#bezpieczenstwo', 'Prywatność'], ['#przypomnienia', 'Przypomnienia'], ['#wyglad', 'Wygląd'], ['#moje-dane', 'Moje dane']]
             .map(([href, label]) => <a key={href} className="chip" href={href}>{label}</a>)}
         </nav>
         <div className="stack">
           <ProfileForm me={{ id: user.id, username: user.username, isAdmin: user.is_admin }} initial={p}>
-            <h2 className="section-label" id="bezpieczenstwo">Aplikacja na tym urządzeniu</h2>
-            <NativeLock />
-            <ScreenSecureSettings />
-            <WebLockSettings />
-            <div id="powiadomienia" />
-            <PushSettings />
-            <ReminderSettings />
-            <LocalReminderSettings />
-            <DiscreetSettings />
-            <section className="card" aria-labelledby="theme-h">
-              <SecHead icon="sun" id="theme-h">Wygląd</SecHead>
-              <ThemeChoice />
-              <BigChoice />
-            </section>
+            {/* UI 4: ustawienia urządzenia w trzech zwijanych grupach (skróty u góry i linki z kotwicą otwierają grupę) */}
+            <h2 className="section-label">Aplikacja na tym urządzeniu</h2>
+            <SettingsGroup icon="shield" title="Prywatność" value="Blokada, dyskrecja" id="bezpieczenstwo">
+              <NativeLock />
+              <ScreenSecureSettings />
+              <WebLockSettings />
+              <DiscreetSettings />
+            </SettingsGroup>
+            <SettingsGroup icon="bell" title="Przypomnienia" value="Objawy, wizyta" id="przypomnienia">
+              <PushSettings />
+              <ReminderSettings />
+              <LocalReminderSettings />
+            </SettingsGroup>
+            <SettingsGroup icon="sun" title="Wygląd" value="Motyw, tekst" id="wyglad">
+              <section aria-labelledby="theme-h" className="stack">
+                <h3 id="theme-h" className="sr-only">Wygląd</h3>
+                <ThemeChoice />
+                <BigChoice />
+              </section>
+            </SettingsGroup>
           </ProfileForm>
           <section className="card" aria-labelledby="about-h">
             <SecHead icon="info" id="about-h">O aplikacji</SecHead>

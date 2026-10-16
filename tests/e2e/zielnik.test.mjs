@@ -187,7 +187,7 @@ scenario('Raport: "Do omówienia z lekarzem" (dodaj, arkusz, odhacz)', async (pa
 
 scenario('Profil: blokada PIN (włącz, nowa karta blokuje, odblokuj, zmień PIN, wyłącz)', async (page, ctx, problems) => {
   problems.allow(/40[01]/); // zły PIN w „Zmień PIN” kończy się odpowiedzią 4xx z komunikatem
-  await go(page, '/profil');
+  await go(page, '/profil#bezpieczenstwo');
   const setup = page.locator('.lock-setup');
   await setup.getByRole('switch').first().click();
   await page.fill('#wl-pin', '1234');
@@ -238,7 +238,7 @@ scenario('Profil: blokada PIN (włącz, nowa karta blokuje, odblokuj, zmień PIN
 }, withSession);
 
 scenario('Profil: przypomnienia (wyłączone domyślnie, wieczorne zablokowane bez crona co godzinę, data wizyty zapisuje się)', async (page) => {
-  await go(page, '/profil');
+  await go(page, '/profil#przypomnienia');
   const sec = page.locator('section[aria-labelledby=remind-h]');
   await sec.getByRole('switch').first().waitFor();
   await sec.getByText(/nie są jeszcze włączone na serwerze/).waitFor(); // serwer testowy nie ma kluczy push
@@ -271,7 +271,7 @@ scenario('Profil: przypomnienia (wyłączone domyślnie, wieczorne zablokowane b
 }, withSession);
 
 scenario('tryb dyskretny: nazwy rozmyte, tytuł "Notatnik"',async (page) => {
-  await go(page, '/profil');
+  await go(page, '/profil#bezpieczenstwo');
   const toggle = page.getByRole('switch', { name: 'Tryb dyskretny' });
   await interactive(toggle); // przed hydratacją klik zaznacza samo pole, a setDiscreet() się nie wykonuje
   await toggle.check();
@@ -292,7 +292,7 @@ scenario('tryb dyskretny: nazwy rozmyte, tytuł "Notatnik"',async (page) => {
   await page.locator('.dn').first().tap();
   await page.waitForFunction(() => !/blur/.test(getComputedStyle(document.querySelector('.dn')).filter), null, { timeout: 3000 });
   // wyłączenie przywraca widok
-  await go(page, '/profil');
+  await go(page, '/profil#bezpieczenstwo');
   const off = page.getByRole('switch', { name: 'Tryb dyskretny' });
   await interactive(off);
   await off.uncheck();

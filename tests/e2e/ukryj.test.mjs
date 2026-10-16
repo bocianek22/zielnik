@@ -35,7 +35,7 @@ test('Dyskrecja po wyjściu: z opcją w profilu tryb włącza się, gdy strona s
   const page = await ctx.newPage();
   try {
     await login(page, 'bartek');
-    await go(page, '/profil');
+    await go(page, '/profil#bezpieczenstwo');
     const leave = () => page.evaluate(() => {
       Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'hidden' });
       document.dispatchEvent(new Event('visibilitychange'));

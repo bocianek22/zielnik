@@ -80,3 +80,9 @@
 .settings-jump .chip { min-height: 40px; text-decoration: none; }
 @media (pointer: coarse) { .settings-jump .chip { min-height: 44px; } }
 .settings [id] { scroll-margin-top: 72px; }
+
+/* UI 4: karty ustawień wewnątrz zwijanej grupy bez własnej ramki (jedna karta = jedna grupa), oddzielone kreską */
+.set-body > .card { background: none; border: 0; box-shadow: none; padding: 0; margin: 0; border-radius: 0; }
+.set-body > .card + .card { border-top: 1px solid var(--sep); padding-top: var(--s-4); }
+/* wartość po prawej nie nachodzi na tytuł: skraca się wielokropkiem */
+.set-group > summary .lr-value { flex: 0 1 auto; min-width: 0; max-width: 45%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
