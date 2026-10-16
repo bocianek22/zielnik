@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { api } from '@/lib/api';
 import { formatDay, addDaysIso } from '@/lib/date';
 import { MEASURE_MAX, MEASURE_NAME_MAX, MEASURE_UNIT_MAX, fmtMeasure, parseMeasure } from '@/lib/measures-meta';
-import SecHead from '../components/SecHead';
 import Toast from '../components/Toast';
 import Icon from '../components/Icon';
 
@@ -25,6 +24,8 @@ export default function MeasuresLog({ initial }) {
   const [err, setErr] = useState('');
   const [msg, setMsg] = useState('');
   const [manage, setManage] = useState(initial.defs.length === 0);
+  // bez pomiarów karta jest zwinięta (jak „Dodaj czynniki dnia”); z pomiarami otwarta, bo służy do wpisywania
+  const [open, setOpen] = useState(initial.defs.length > 0);
   const [older, setOlder] = useState([]); // wartości dni sprzed 30 dni, dociągnięte przy wyborze dnia
   const [bad, setBad] = useState([]); // id pól z niepoprawną liczbą
 
@@ -71,8 +72,10 @@ export default function MeasuresLog({ initial }) {
   const unitOf = (id) => defs.find((d) => d.id === id)?.unit;
 
   return (
-    <section className="card stack measures" data-cat="journal" aria-labelledby="pomiary-h" id="pomiary">
-      <SecHead cat="journal" icon="chart" id="pomiary-h">Pomiary</SecHead>
+    <details className="card fold-card measures" data-cat="journal" id="pomiary" open={open} onToggle={(e) => setOpen(e.currentTarget.open)}>
+      <summary><span className="ic-dot sm" data-cat="journal"><Icon name="chart" size={18} /></span>
+        <span className="lr-main">{defs.length ? 'Pomiary' : 'Dodaj pomiar'}<span className="lr-sub">{defs.length ? `${defs.length} z ${MEASURE_MAX}` : 'np. tętno, waga, ciśnienie'}</span></span>
+        <Icon name="chevronRight" size={18} className="lr-chev" /></summary>
       <p className="muted small">Własne pomiary z jednostką, np. tętno, waga albo ciśnienie (skurczowe i rozkurczowe jako dwa pomiary). Jedna wartość dziennie, najwyżej {MEASURE_MAX} pomiary. Bez norm i ocen; w raporcie dla lekarza najmniejsza, średnia i największa wartość z okresu.</p>
       {defs.length > 0 && (
         <form className="stack" onSubmit={save}>
@@ -133,6 +136,6 @@ export default function MeasuresLog({ initial }) {
         ) : <p className="muted small">Masz komplet. Usuń jeden pomiar, aby dodać inny.</p>}
       </details>
       <Toast text={msg} onClose={() => setMsg('')} />
-    </section>
+    </details>
   );
 }

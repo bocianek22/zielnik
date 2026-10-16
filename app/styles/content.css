@@ -79,3 +79,9 @@
 .wn ul { margin: 0; padding-left: var(--s-5); line-height: 1.5; }
 .wn li { margin-bottom: var(--s-1); }
 .wn-actions { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-top: var(--s-4); }
+
+/* UI 4: Wiedza jako lista zwijanych artykułów */
+.read-art { scroll-margin-top: 80px; }
+.read-art > summary .lr-main { font-weight: 600; }
+.read-art .read-article { margin: 0; padding: 0; border: 0; }
+.read-terps { margin-top: var(--s-6); scroll-margin-top: 80px; }

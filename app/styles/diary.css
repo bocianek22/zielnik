@@ -79,16 +79,16 @@
 .obs-rules ul { margin: 0; padding-left: 1.1em; display: grid; gap: var(--s-2); font-size: var(--fs-sm); color: var(--text-2); max-width: 68ch; }
 
 /* Własne objawy (POM-07) */
-.sym-custom, .factor-manager { padding: 0; }
-.sym-custom > summary, .factor-manager > summary { cursor: pointer; list-style: none; min-height: 52px; padding: var(--s-3) var(--s-4); display: flex; align-items: center; gap: var(--s-3); font-weight: 600; }
-.sym-custom > summary::-webkit-details-marker, .factor-manager > summary::-webkit-details-marker { display: none; }
-.sym-custom > summary .lr-main, .factor-manager > summary .lr-main { flex: 1; min-width: 0; }
-.sym-custom > summary .lr-sub, .factor-manager > summary .lr-sub { display: block; font-weight: 400; font-size: var(--fs-sm); color: var(--text-2); }
-.sym-custom > summary .lr-chev, .factor-manager > summary .lr-chev { flex: none; color: var(--text-3); transition: transform var(--dur-1, .12s) var(--ease, ease); }
-.sym-custom[open] > summary .lr-chev, .factor-manager[open] > summary .lr-chev { transform: rotate(90deg); }
-.sym-custom > :not(summary), .factor-manager > :not(summary) { margin: 0 var(--s-4) var(--s-4); }
-.sym-custom > ul.list, .factor-manager > ul.list { margin-inline: 0; }
-.sym-custom p, .factor-manager p { margin-top: 0; }
+.sym-custom, .factor-manager, .fold-card { padding: 0; }
+.sym-custom > summary, .factor-manager > summary, .fold-card > summary { cursor: pointer; list-style: none; min-height: 52px; padding: var(--s-3) var(--s-4); display: flex; align-items: center; gap: var(--s-3); font-weight: 600; }
+.sym-custom > summary::-webkit-details-marker, .factor-manager > summary::-webkit-details-marker, .fold-card > summary::-webkit-details-marker { display: none; }
+.sym-custom > summary .lr-main, .factor-manager > summary .lr-main, .fold-card > summary .lr-main { flex: 1; min-width: 0; }
+.sym-custom > summary .lr-sub, .factor-manager > summary .lr-sub, .fold-card > summary .lr-sub { display: block; font-weight: 400; font-size: var(--fs-sm); color: var(--text-2); }
+.sym-custom > summary .lr-chev, .factor-manager > summary .lr-chev, .fold-card > summary .lr-chev { flex: none; color: var(--text-3); transition: transform var(--dur-1, .12s) var(--ease, ease); }
+.sym-custom[open] > summary .lr-chev, .factor-manager[open] > summary .lr-chev, .fold-card[open] > summary .lr-chev { transform: rotate(90deg); }
+.sym-custom > :not(summary), .factor-manager > :not(summary), .fold-card > :not(summary) { margin: 0 var(--s-4) var(--s-4); }
+.sym-custom > ul.list, .factor-manager > ul.list, .fold-card > ul.list { margin-inline: 0; }
+.sym-custom p, .factor-manager p, .fold-card p { margin-top: 0; }
 .sym-custom[open], .factor-manager[open] { display: grid; gap: var(--s-3); }
 /* Wpis z dziś zapisany: formularz zwinięty do jednego wiersza */
 .sym-today { display: grid; gap: var(--s-3); padding: var(--s-4); }
@@ -114,3 +114,6 @@
 .factor-manager .chips { margin: var(--s-2) 0; }
 .factor-manager .chip { gap: 4px; }
 .sym-fx { margin: var(--s-2) 0 0; color: var(--text-2); }
+
+/* zwijane karty Dziennika (pomiary, zdarzenia niepożądane): odstępy między elementami treści */
+.fold-card > :not(summary) + :not(summary) { margin-top: var(--s-3); }

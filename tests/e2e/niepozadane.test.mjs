@@ -25,6 +25,9 @@ test('Zdarzenia niepożądane: zapis z nasileniem i opisem, usunięcie i „Cofn
     await go(page, '/dziennik');
     const box = page.locator('#zdarzenia');
     await box.waitFor({ timeout: 15000 });
+    assert.equal(await box.evaluate((e) => e.open), false, 'karta zwinięta na start');
+    await interactive(box.locator('summary'));
+    await box.locator('summary').click();
     assert.match(await box.innerText(), /112/);
     assert.equal(await box.locator('a[href="https://urpl.gov.pl"]').count(), 1);
     await box.locator('#ae-day').fill(today());
@@ -45,6 +48,8 @@ test('Zdarzenia niepożądane: zapis z nasileniem i opisem, usunięcie i „Cofn
     assert.deepEqual(await serious(page), []);
     await shot(page, 'niepozadane');
 
+    // po przeładowaniu z #zdarzenia (link z wyszukiwarki) karta otwiera się sama
+    await page.evaluate(() => { window.location.hash = 'zdarzenia'; });
     await page.reload({ waitUntil: 'load' });
     await row.waitFor({ timeout: 15000 });
     await row.getByRole('button', { name: /^Usuń zdarzenie/ }).click();
@@ -69,7 +74,7 @@ test('Zdarzenia niepożądane w trybie dyskretnym: opis rozmyty', async () => {
   const p = await dctx.newPage();
   try {
     await login(p, 'ania');
-    await go(p, '/dziennik');
+    await go(p, '/dziennik#zdarzenia');
     const note = p.locator('#zdarzenia .adverse-note').filter({ hasText: 'e2e zdarzenie' });
     await note.waitFor({ timeout: 15000 });
     assert.match(await note.evaluate((e) => getComputedStyle(e).filter), /blur/);

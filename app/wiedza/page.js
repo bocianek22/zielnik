@@ -22,41 +22,36 @@ export default async function Wiedza() {
           <p>Materiały mają charakter edukacyjny i nie zastępują porady lekarza. Wiele opisanych działań terpenów pochodzi z badań na zwierzętach lub komórkach. O doborze odmiany decyduj razem z lekarzem prowadzącym.</p>
         </div>
 
-        <nav aria-label="Spis treści">
-          <h2 className="section-label">Spis treści</h2>
-          <ul className="list toc">
-            {ARTICLES.map((a) => (
-              <li key={a.id}><a className="list-row" href={`#${a.id}`}><span className="lr-main">{a.title}</span><Icon name="chevronRight" size={20} className="lr-chev" /></a></li>
-            ))}
-            <li><a className="list-row" href="#katalog-terpenow"><span className="lr-main">Katalog terpenów</span><Icon name="chevronRight" size={20} className="lr-chev" /></a></li>
-          </ul>
-        </nav>
+        {/* UI 4: artykuły jako zwijane karty (spis treści = lista); link /wiedza#id z wyszukiwarki rozwija artykuł (OpenOnHash) */}
+        <h2 className="section-label">Artykuły</h2>
+        <div className="stack read-list">
+          {ARTICLES.map((a) => (
+            <details key={a.id} id={a.id} className="card fold-card read-art">
+              <summary><span className="lr-main">{a.title}</span><Icon name="chevronRight" size={18} className="lr-chev" /></summary>
+              <div className="read-article">
+                {a.text.map((p, i) => <p key={i}>{p}</p>)}
+                {a.list && (
+                  <dl className="klist">
+                    {a.list.map(([t, d]) => <div key={t}><dt>{t}</dt><dd>{d}</dd></div>)}
+                  </dl>
+                )}
+                {a.after && <p>{a.after}</p>}
+                {a.sources && (
+                  <>
+                    <h3 className="section-label">Źródła</h3>
+                    <ul className="sources small">
+                      {a.sources.map((x) => <li key={x.url}><a href={x.url} target="_blank" rel="noopener noreferrer">{x.title}</a></li>)}
+                    </ul>
+                  </>
+                )}
+              </div>
+            </details>
+          ))}
+        </div>
 
-        {ARTICLES.map((a) => (
-          <article key={a.id} id={a.id} className="read-article">
-            <h2>{a.title}</h2>
-            {a.text.map((p, i) => <p key={i}>{p}</p>)}
-            {a.list && (
-              <dl className="klist">
-                {a.list.map(([t, d]) => <div key={t}><dt>{t}</dt><dd>{d}</dd></div>)}
-              </dl>
-            )}
-            {a.after && <p>{a.after}</p>}
-            {a.sources && (
-              <>
-                <h3 className="section-label">Źródła</h3>
-                <ul className="sources small">
-                  {a.sources.map((x) => <li key={x.url}><a href={x.url} target="_blank" rel="noopener noreferrer">{x.title}</a></li>)}
-                </ul>
-              </>
-            )}
-            <a className="to-top" href="#top">Do spisu treści</a>
-          </article>
-        ))}
-
-        <section id="katalog-terpenow" className="read-article">
-          <h2>Katalog terpenów</h2>
-          <p className="muted">Dotknij nazwy, aby zobaczyć aromat, miejsca występowania i to, co wiadomo z badań.</p>
+        <section id="katalog-terpenow" className="read-terps" aria-labelledby="terp-h">
+          <h2 className="section-label" id="terp-h">Katalog terpenów</h2>
+          <p className="muted small">Dotknij nazwy, aby zobaczyć aromat, miejsca występowania i to, co wiadomo z badań.</p>
           <ul className="list terp-list">
             {TERPENES.map((t) => (
               <li key={t.name}>
@@ -73,7 +68,6 @@ export default async function Wiedza() {
               </li>
             ))}
           </ul>
-          <a className="to-top" href="#top">Do spisu treści</a>
         </section>
         <OpenOnHash />
       </main>

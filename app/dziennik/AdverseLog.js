@@ -1,9 +1,9 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { api } from '@/lib/api';
 import { formatDay } from '@/lib/date';
 import { ADVERSE_NOTE_MAX, SEVERITIES, severityLabel } from '@/lib/adverse-meta';
-import SecHead from '../components/SecHead';
+import Icon from '../components/Icon';
 import DictateButton from '../components/DictateButton';
 import Toast from '../components/Toast';
 import useUndoDelete from '../components/useUndoDelete';
@@ -21,6 +21,11 @@ export default function AdverseLog({ initial }) {
   const [err, setErr] = useState('');
   const [msg, setMsg] = useState('');
   const undo = useUndoDelete();
+  // zwinięte domyślnie (rzadko używane); otwarte z linku /dziennik#zdarzenia (wyszukiwarka notatek)
+  const [open, setOpen] = useState(false);
+  const box = useRef(null);
+  useEffect(() => { if (window.location.hash === '#zdarzenia' && box.current) box.current.open = true; }, []); // onToggle ustawi stan
+  const last = events[0];
 
   async function add(e) {
     e.preventDefault();
@@ -44,8 +49,10 @@ export default function AdverseLog({ initial }) {
   }
 
   return (
-    <section className="card stack adverse" data-cat="journal" aria-labelledby="zdarzenia-h" id="zdarzenia">
-      <SecHead cat="journal" icon="alert" id="zdarzenia-h">Zdarzenia niepożądane</SecHead>
+    <details ref={box} className="card fold-card adverse" data-cat="journal" id="zdarzenia" open={open} onToggle={(e) => setOpen(e.currentTarget.open)}>
+      <summary><span className="ic-dot sm" data-cat="journal"><Icon name="alert" size={18} /></span>
+        <span className="lr-main">Zdarzenia niepożądane<span className="lr-sub">{last ? `Zapisane: ${events.length} · ostatnie ${formatDay(last.day)}` : 'Zapisz, jeśli pojawiło się coś niepokojącego'}</span></span>
+        <Icon name="chevronRight" size={18} className="lr-chev" /></summary>
       <p className="muted small">Zapisz, jeśli pojawiło się coś niepokojącego, np. kołatanie serca, zawroty głowy albo silny niepokój. Opis jest szyfrowany i widzisz go tylko Ty. W raporcie dla lekarza jest data i nasilenie, a opis tylko po zaznaczeniu „Dołącz moje spostrzeżenia”.</p>
       <p className="alert note small">
         W nagłej sytuacji albo przy silnych objawach zadzwoń pod <a href="tel:112">112</a>. O działaniu niepożądanym możesz powiedzieć lekarzowi albo farmaceucie lub zgłosić je do URPL
@@ -82,6 +89,6 @@ export default function AdverseLog({ initial }) {
       )}
       {undo.error && <p className="alert error" role="alert">{undo.error}</p>}
       {undo.toast ? <Toast text={undo.toast.text} action={undo.toast.action} /> : <Toast text={msg} onClose={() => setMsg('')} />}
-    </section>
+    </details>
   );
 }

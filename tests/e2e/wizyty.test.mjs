@@ -23,6 +23,9 @@ test('Wizyty: zapis z notatką i następną wizytą, usunięcie i „Cofnij”',
     await go(page, '/raport');
     const box = page.locator('#wizyty');
     await box.waitFor({ timeout: 15000 });
+    assert.equal(await box.evaluate((e) => e.open), false, 'karta zwinięta na start');
+    await interactive(box.locator('summary'));
+    await box.locator('summary').click();
     await box.locator('#vi-day').fill('2026-10-02');
     const next = new Date(Date.now() + 90 * 864e5).toISOString().slice(0, 10);
     await box.locator('#vi-next').fill(next);
@@ -38,6 +41,8 @@ test('Wizyty: zapis z notatką i następną wizytą, usunięcie i „Cofnij”',
     assert.deepEqual(await serious(page), []);
     await shot(page, 'wizyty');
 
+    // z #wizyty (link z wyszukiwarki notatek) karta otwiera się sama
+    await page.evaluate(() => { window.location.hash = 'wizyty'; });
     await page.reload({ waitUntil: 'load' });
     await row.waitFor({ timeout: 15000 });
     await row.getByRole('button', { name: /^Usuń wizytę/ }).click();
@@ -53,7 +58,7 @@ test('Wizyty w trybie dyskretnym: notatka rozmyta', async () => {
   const p = await dctx.newPage();
   try {
     await login(p, 'ania');
-    await go(p, '/raport');
+    await go(p, '/raport#wizyty');
     const note = p.locator('#wizyty .visit-note').filter({ hasText: 'e2e wizyta' });
     await note.waitFor({ timeout: 15000 });
     assert.match(await note.evaluate((e) => getComputedStyle(e).filter), /blur/);

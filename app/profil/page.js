@@ -15,6 +15,7 @@ import NativeVersion from './NativeVersion';
 import Link from 'next/link';
 import { VERSION } from '@/lib/version';
 import Icon from '../components/Icon';
+import HashOpen from '../components/HashOpen';
 import { ThemeChoice, BigChoice } from '../components/ThemeToggle';
 
 export const dynamic = 'force-dynamic';
@@ -29,12 +30,18 @@ export default async function Profil() {
       <Header user={user} />
       <main className="page settings">
         <h1>Mój profil</h1>
+        <HashOpen />
+        <nav className="chips settings-jump" aria-label="Przejdź do ustawień">
+          {[['#bezpieczenstwo', 'Bezpieczeństwo'], ['#powiadomienia', 'Przypomnienia'], ['#discreet-h', 'Tryb dyskretny'], ['#theme-h', 'Wygląd'], ['#moje-dane', 'Moje dane']]
+            .map(([href, label]) => <a key={href} className="chip" href={href}>{label}</a>)}
+        </nav>
         <div className="stack">
           <ProfileForm me={{ id: user.id, username: user.username, isAdmin: user.is_admin }} initial={p}>
-            <h2 className="section-label">Aplikacja na tym urządzeniu</h2>
+            <h2 className="section-label" id="bezpieczenstwo">Aplikacja na tym urządzeniu</h2>
             <NativeLock />
             <ScreenSecureSettings />
             <WebLockSettings />
+            <div id="powiadomienia" />
             <PushSettings />
             <ReminderSettings />
             <LocalReminderSettings />
