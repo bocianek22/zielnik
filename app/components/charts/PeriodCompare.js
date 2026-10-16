@@ -111,12 +111,19 @@ export default function PeriodCompare({ compare }) {
         {empty ? (
           <Empty className="pc-empty">W tych okresach nie ma wpisów do porównania.</Empty>
         ) : (
-          <div className="pc-rows" aria-hidden="true">
-            {rows.map(rowView)}
-            {sym.length > 0 && <h3 className="pc-sub">Objawy z dziennika</h3>}
-            {sym.length > 0 && <p className="pc-note">Średnia z dni, w których zapisano dany objaw.</p>}
-            {sym.map(rowView)}
-          </div>
+          <>
+            <div className="pc-rows" aria-hidden="true">{rows.map(rowView)}</div>
+            {/* UI 4: objawy zwinięte, żeby karta nie zajmowała pół ekranu (czytnik ekranu ma pełną tabelę powyżej) */}
+            {sym.length > 0 && (
+              <details className="pc-more">
+                <summary>Objawy z dziennika ({sym.length})</summary>
+                <div className="pc-rows" aria-hidden="true">
+                  <p className="pc-note">Średnia z dni, w których zapisano dany objaw.</p>
+                  {sym.map(rowView)}
+                </div>
+              </details>
+            )}
+          </>
         )}
       </Frame>
     </>
