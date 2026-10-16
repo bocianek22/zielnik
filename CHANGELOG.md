@@ -8,6 +8,10 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.80.0] - 2026-10
+### Zmieniono
+- **Szczegóły odmiany (UI 4, część 5):** sekcja „Partie” zwinięta jak pozostałe, z liczbą partii w nagłówku; „Sprawdź dostępność w aptekach” jako wiersz-karta z ikoną zamiast luźnego linku między sekcjami.
+
 ## [0.79.0] - 2026-10
 ### Zmieniono
 - **Puste stany z jednym działaniem i mniej szumu (UI 4, część 4):**

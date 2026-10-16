@@ -259,7 +259,7 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, st
         </Fold>
       )}
       <CharacteristicCard strain={strain} hidePrice={me.hidePrices} compact fold />
-      <PharmacyLink producer={strain.producer} name={strain.name} />
+      <PharmacyLink producer={strain.producer} name={strain.name} card />
 
       <Effects strain={strain} meId={me.id} />
 
