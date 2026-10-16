@@ -52,8 +52,9 @@ Tryb awaryjny (rozmowa bez dostępu do repozytorium):
 - Wybór bramki płatności i platformy wpłat (`DONATE_URL`), decyzja o `PREMIUM_ENFORCED`.
 - Źródło danych do katalogu (`CATALOG_FEED_URL`), plan Vercel Pro przy działalności komercyjnej.
 
-## 6. Następne kroki (aktualne dla wersji 0.80.0)
+## 6. Następne kroki (aktualne dla wersji 0.81.0)
 Pełna lista z uzasadnieniem: `docs/PRZEGLAD-2026-10.md`; aplikacje natywne: `docs/APLIKACJE-NATYWNE.md`; system projektowy: `docs/DESIGN.md`. Praca z podziałem na subagentów (`.claude/agents/`): koordynator scala gałęzie, uruchamia kontrole, zleca przegląd (reviewer) i prowadzi CHANGELOG/wersję. Przebieg pracy nocnej: `docs/PLAN-NOC.md`.
+1. **Dziennik (0.81.0, UI 4 część 6):** Dziennik na telefonie: kolejność kart (czynniki, własne objawy, pomiary, zdarzenia, potem „Rok objawów”), ikony w nagłówkach zwijanych kart, równe odstępy; link z wyszukiwarki do zdarzeń nadal rozwija kartę. Dalej UI 4: spójne nagłówki sekcji (SecHead vs section-title), Raport (skróty do sekcji), panel „Dziś”.
 1. **Szczegóły odmiany (0.80.0, UI 4 część 5):** karta odmiany → „Partie” (zwinięte, liczba partii, edycja notatki po rozwinięciu), wiersz „Sprawdź dostępność w aptekach” (otwiera gdziepolek.pl, w APK w przeglądarce systemowej). Dalej UI 4: spójne nagłówki sekcji, Raport (skróty do sekcji), panel „Dziś” (kolejność kart).
 1. **Puste stany (0.79.0, UI 4 część 4):** Szukaj z frazą bez wyników (skróty pod komunikatem), Koło fortuny i Katalog z filtrami bez wyników („Wyczyść filtry”), Grupy bez grup (jeden przycisk, formularz po dotknięciu), Moje obserwacje („Jak liczymy” zwinięte, dni tygodnia przy małej liczbie wpisów), lista odmian (przyciski pod nazwą, przy 320 px bez wcięcia). Dalej UI 4: spójne nagłówki sekcji (SecHead vs section-title), Recepty (karta recepty: mniej tekstu, „Usuń” w menu), Raport (skróty do sekcji).
 1. **Kafelki w „Więcej” (0.78.0, UI 4 część 3):** telefon → „Więcej”: kafelki 4 w rzędzie (320 px, „Większy tekst”, tryb ciemny, TalkBack czyta nazwy), plakietki znajomych i grup na kafelkach. Dalej UI 4: puste stany z jednym jasnym działaniem, spójne nagłówki sekcji.

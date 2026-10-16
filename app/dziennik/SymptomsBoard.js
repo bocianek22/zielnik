@@ -48,7 +48,7 @@ function CustomManager({ defs, onChange }) {
   );
   return (
     <details className="card sym-custom" data-cat="journal" open={defs.length > 0 || undefined}>
-      <summary><span className="lr-main">{defs.length === 0 ? 'Dodaj własny objaw' : 'Własne objawy'}<span className="lr-sub">{defs.length} z {CUSTOM_MAX}</span></span><Icon name="chevronRight" size={18} className="lr-chev" /></summary>
+      <summary><span className="ic-dot sm" data-cat="journal"><Icon name="plus" size={18} /></span><span className="lr-main">{defs.length === 0 ? 'Dodaj własny objaw' : 'Własne objawy'}<span className="lr-sub">{defs.length} z {CUSTOM_MAX}</span></span><Icon name="chevronRight" size={18} className="lr-chev" /></summary>
       <p className="muted small">Dodaj do {CUSTOM_MAX} własnych objawów w skali 0–10. Pojawią się w formularzu, na wykresie, w obserwacjach i w raporcie dla lekarza. Są prywatne.</p>
       {defs.length > 0 && (
         <ul className="list" aria-label="Własne objawy">
@@ -265,7 +265,6 @@ export default function SymptomsBoard({ initialDay = null }) {
       )}
       <FactorManager factors={factorDefs} onChange={async (text) => { try { await reload(); setMsg(text ? { text } : null); } catch (e) { setMsg({ text: e.message, error: true }); } }} />
       <CustomManager defs={defs} onChange={async (text) => { try { await reload(); setMsg(text ? { text } : null); } catch (e) { setMsg({ text: e.message, error: true }); } }} />
-      <p className="priv-note"><Icon name="info" size={20} />Dane są prywatne. Średnie z wybranego okresu trafiają do raportu dla lekarza.</p>
     </div>
   );
 }
