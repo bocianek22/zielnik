@@ -8,6 +8,10 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.78.0] - 2026-10
+### Zmieniono
+- **Arkusz „Więcej” na telefonie (UI 4, część 3):** miejsca w aplikacji jako siatka kafelków (4 w rzędzie) w dwóch grupach: „Dziennik” (Historia, Recepty, Moje obserwacje, Raport dla lekarza) i „Odkrywaj i znajomi” (Katalog, Szukaj, Rankingi, Koło fortuny, Wiedza, Znajomi, Grupy); konto i ustawienia jak dotąd listą. Wszystkie miejsca widać bez przewijania arkusza.
+
 ## [0.77.0] - 2026-10
 ### Zmieniono
 - **Porządek na długich ekranach (UI 4, część 2):**

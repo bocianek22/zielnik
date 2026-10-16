@@ -2,7 +2,7 @@
 // Kolejność na liście = kolejność w każdym menu, w którym pozycja się pojawia.
 //  badge: rodzaj plakietki NavBadge, admin: tylko dla admina,
 //  bar: zakładka dolnego paska (short: krótsza nazwa na pasku), top: 'main' (górny pasek) | 'more' (rozwijane „Więcej” na desktopie),
-//  sheet: grupa w arkuszu „Więcej” na telefonie ('journal' | 'discover' | 'social' | 'account'; pozycja bez top, np. /profil,
+//  sheet: grupa w arkuszu „Więcej” na telefonie ('journal' | 'discover' | 'account'; pozycja bez top, np. /profil,
 //  jest na desktopie pod nazwą użytkownika), icon: nazwa ikony z app/components/Icon.js,
 //  cat: kolor obszaru (docs/DESIGN-3.md: stock | journal | rx | strain | social | learn; brak = neutralny),
 //  file: zwykły odnośnik <a> zamiast Link (pobieranie pliku z API).
@@ -19,8 +19,8 @@ export const NAV_ITEMS = [
   { href: '/rankings', label: 'Rankingi', top: 'more', sheet: 'discover', icon: 'trend', cat: 'strain' },
   { href: '/wheel', label: 'Koło fortuny', top: 'more', sheet: 'discover', icon: 'shuffle', cat: 'strain' },
   { href: '/wiedza', label: 'Wiedza', top: 'more', sheet: 'discover', icon: 'info', cat: 'learn' },
-  { href: '/znajomi', label: 'Znajomi', badge: 'friends', top: 'main', sheet: 'social', icon: 'users', cat: 'social' },
-  { href: '/grupy', label: 'Grupy', badge: 'groups', top: 'more', sheet: 'social', icon: 'group', cat: 'social' },
+  { href: '/znajomi', label: 'Znajomi', badge: 'friends', top: 'main', sheet: 'discover', icon: 'users', cat: 'social' },
+  { href: '/grupy', label: 'Grupy', badge: 'groups', top: 'more', sheet: 'discover', icon: 'group', cat: 'social' },
   { href: '/profil', label: 'Mój profil', sheet: 'account', icon: 'user' },
   { href: '/api/export', label: 'Eksport odmian (CSV)', top: 'more', sheet: 'account', icon: 'download', file: true },
   { href: '/import', label: 'Import odmian (CSV)', top: 'more', sheet: 'account', icon: 'upload' },
@@ -32,7 +32,7 @@ export const NAV_ITEMS = [
 ];
 
 // Grupy arkusza „Więcej” w kolejności wyświetlania
-export const SHEET_GROUPS = [['journal', 'Dziennik'], ['discover', 'Odkrywaj'], ['social', 'Społeczność'], ['account', 'Konto']];
+export const SHEET_GROUPS = [['journal', 'Dziennik'], ['discover', 'Odkrywaj i znajomi'], ['account', 'Konto']];
 
 // place: 'bar' | 'main' | 'more' | 'sheet'
 export function navItems(place, isAdmin) {

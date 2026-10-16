@@ -112,3 +112,15 @@ a.who-name:hover { color: var(--on-bar); }
 .theme-row .seg-sm { margin-left: auto; flex-wrap: nowrap; }
 .theme-row .seg-sm button { min-height: 40px; padding: 0 var(--s-2); }
 @media (pointer: coarse) { .theme-row .seg-sm button { min-height: 44px; } }
+
+/* UI 4: kafelki miejsc w arkuszu „Więcej” (4 w rzędzie na telefonie) */
+@media (max-width: 760px) {
+  .sheet-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+  .sheet-tile { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: var(--s-2);
+    min-height: 76px; padding: var(--s-2) 4px; border-radius: var(--r-md); background: var(--surface); box-shadow: var(--shadow-1, none);
+    color: var(--text); text-decoration: none; text-align: center; font-size: 12.5px; font-weight: 500; line-height: 1.2; }
+  .sheet-tile:active { background: var(--press-bg); }
+  .sheet-tile[aria-current="page"] { outline: 2px solid var(--accent); outline-offset: -2px; font-weight: 600; }
+  .sheet-tile .st-label { overflow-wrap: anywhere; }
+  .sheet-tile .nbadge { position: absolute; top: 6px; right: 6px; margin: 0; }
+}
