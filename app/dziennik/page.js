@@ -27,7 +27,7 @@ export default async function Dziennik({ searchParams }) {
   return (
     <>
       <Header user={user} />
-      <main className="page">
+      <main className="page stack diary-page">
         <header className="hero cat-hero" data-cat="journal">
           <div className="hero-top">
             <span className="ic-dot sq"><Icon name="pulse" size={24} /></span>
@@ -43,9 +43,11 @@ export default async function Dziennik({ searchParams }) {
         </header>
         <SymptomStreak data={streak} className="streak-diary" />
         <SymptomsBoard key={initialDay || 'dzis'} initialDay={initialDay} />
-        <SymptomYear data={year} />
+        {/* UI 4: najpierw wszystko, co się zapisuje (objawy, czynniki, własne objawy, pomiary, zdarzenia), potem przegląd roku */}
         <MeasuresLog initial={{ defs: mDefs, values: mValues }} />
         <AdverseLog initial={adverse} />
+        <SymptomYear data={year} />
+        <p className="priv-note"><Icon name="info" size={20} />Dane są prywatne. Średnie z wybranego okresu trafiają do raportu dla lekarza.</p>
       </main>
     </>
   );

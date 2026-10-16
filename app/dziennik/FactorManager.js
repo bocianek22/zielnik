@@ -23,7 +23,7 @@ export default function FactorManager({ factors, onChange }) {
   const hints = FACTOR_HINTS.filter((h) => !have.has(h)).slice(0, 6);
   return (
     <details className="card factor-manager" data-cat="journal" open={factors.length > 0 || undefined}>
-      <summary><span className="lr-main">{factors.length === 0 ? 'Dodaj czynniki dnia' : 'Czynniki dnia'}<span className="lr-sub">{factors.length} z {FACTOR_MAX}</span></span><Icon name="chevronRight" size={18} className="lr-chev" /></summary>
+      <summary><span className="ic-dot sm" data-cat="journal"><Icon name="zap" size={18} /></span><span className="lr-main">{factors.length === 0 ? 'Dodaj czynniki dnia' : 'Czynniki dnia'}<span className="lr-sub">{factors.length} z {FACTOR_MAX}</span></span><Icon name="chevronRight" size={18} className="lr-chev" /></summary>
       <p className="muted small">Czynniki to krótkie etykiety tego, co działo się danego dnia (np. stres, ruch, kofeina). Zaznaczasz je przy wpisie dnia, a w „Moich obserwacjach” zobaczysz średnie objawów w dniach z nimi i bez nich. Są prywatne.</p>
       {factors.length > 0 && (
         <ul className="list" aria-label="Czynniki dnia">
