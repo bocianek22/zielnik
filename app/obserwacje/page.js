@@ -117,8 +117,11 @@ export default async function Obserwacje({ searchParams }) {
           </>
         )}
 
-        <SecHead cat="journal" icon="info">Jak liczymy</SecHead>
-        <section className="card obs-rules">
+        {/* UI 4: zasady liczenia są dla dociekliwych, więc zwinięte na końcu strony */}
+        <details className="card fold-card obs-rules" id="jak-liczymy">
+          <summary><span className="ic-dot sm" data-cat="journal"><Icon name="info" size={18} /></span>
+            <span className="lr-main">Jak liczymy<span className="lr-sub">Grupy dni, średnie, prywatność</span></span>
+            <Icon name="chevronRight" size={18} className="lr-chev" /></summary>
           <ul>
             <li>Dzień z jedną odmianą trafia do jej wiersza. Dni z kilkoma odmianami i dni bez zużycia mają osobne wiersze.</li>
             <li>Jakość snu dotyczy ostatniej nocy, więc porównujemy ją z zużyciem z poprzedniego dnia. Pozostałe objawy z tym samym dniem.</li>
@@ -128,7 +131,7 @@ export default async function Obserwacje({ searchParams }) {
               : 'Dni bez zużycia liczymy od pierwszego zapisu zużycia (każdy dzień bez wpisu). Oznaczaj dni przyciskiem „Dziś bez zużycia” w panelu „Dziś”, a zapomniany wpis nie trafi do tej grupy.'} Dni liczymy w czasie polskim.</li>
             <li>Zestawienie widzisz tylko Ty. Nie trafia do profilu, grup ani do znajomych.</li>
           </ul>
-        </section>
+        </details>
       </main>
     </>
   );

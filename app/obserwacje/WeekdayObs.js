@@ -23,11 +23,14 @@ export default function WeekdayObs({ data }) {
           </button>
         ))}
       </div>
-      <div aria-hidden="true">
+      {/* bez żadnej średniej siedem pustych pasków nic nie mówi, więc jedno zdanie zamiast nich */}
+      {!s.days.some((c) => c.avg != null) ? (
+        <p className="muted wd-none">Jeszcze za mało wpisów: średnią pokazujemy od {data.minDays} dni w danym dniu tygodnia, a teraz jest najwięcej {Math.max(...s.days.map((c) => c.days))}. Zapisuj objawy, a wykres pojawi się sam.</p>
+      ) : <div aria-hidden="true">
         <HBars className="wd-bars" max={10} items={s.days.map((c, i) => ({
           key: i, label: WEEKDAYS[i], value: c.avg, tone: 'data', text: c.avg != null ? fmtNum(c.avg, 1) : `– (${c.days} ${dayWord(c.days)})`,
         }))} />
-      </div>
+      </div>}
       <table className="sr-only">
         <caption>{s.custom ? <span className="dn">{s.label}</span> : s.label}: średnia 0–10 według dnia tygodnia, ostatnie {data.period} dni</caption>
         <thead><tr><th scope="col">Dzień</th><th scope="col">Średnia</th><th scope="col">Liczba dni</th></tr></thead>

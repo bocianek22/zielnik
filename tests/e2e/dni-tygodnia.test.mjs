@@ -1,5 +1,5 @@
 // Wzorce wg dnia tygodnia (POM-54) w „Moich obserwacjach”: sekcja widoczna, stała kolejność Pn–Nd, poniżej progu tylko
-// liczba dni, wybór objawu (aria-pressed), 320 px, dostępność (axe). Konto ania (14 dni wpisów z seed.mjs: po 2 dni na dzień
+// zdanie zamiast pustych pasków, wybór objawu (aria-pressed), 320 px, dostępność (axe). Konto ania (14 dni wpisów z seed.mjs: po 2 dni na dzień
 // tygodnia, czyli wszystko poniżej progu). Uruchomienie: npm run test:e2e (E2E_FILES=tests/e2e/dni-tygodnia.test.mjs).
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
@@ -15,14 +15,16 @@ before(async () => {
 });
 after(async () => { await ctx?.close(); await browser?.close(); });
 
-test('Dni tygodnia: Pn–Nd, liczba dni poniżej progu, wybór objawu, 320 px, axe', async () => {
+test('Dni tygodnia: Pn–Nd w tabeli, zdanie poniżej progu, wybór objawu, 320 px, axe', async () => {
   try {
     await page.setViewportSize({ width: 320, height: 760 });
     await go(page, '/obserwacje');
     const box = page.locator('.weekday-obs');
     await box.waitFor({ timeout: 15000 });
-    assert.deepEqual(await box.locator('.hb-lbl').allInnerTexts(), ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd']);
-    assert.deepEqual(await box.locator('.hb-val').allInnerTexts(), Array(7).fill('– (2 dni)'));
+    // UI 4: bez żadnej średniej zamiast 7 pustych pasków jedno zdanie; tabela dla czytników nadal ma Pn–Nd i liczby dni
+    assert.equal(await box.locator('.hb-lbl').count(), 0);
+    assert.match(await box.locator('.wd-none').innerText(), /od 5 dni .* najwięcej 2/);
+    assert.deepEqual(await box.locator('tbody td:last-child').allTextContents(), Array(7).fill('2'));
     const pick = box.getByRole('group', { name: 'Objaw w układzie tygodnia' });
     const sleep = pick.getByRole('button', { name: 'Jakość snu' });
     await interactive(sleep);

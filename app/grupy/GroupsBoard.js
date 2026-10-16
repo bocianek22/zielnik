@@ -66,7 +66,8 @@ export default function GroupsBoard() {
             </Link>
           </li>))}</ul>)}
 
-      <details id="nowa-grupa" className="card rx-add new-group" open={formOpen} onToggle={(e) => setFormOpen(e.currentTarget.open)}>
+      {/* bez grup pusty stan ma już przycisk „Utwórz grupę”, więc formularz pojawia się dopiero po nim */}
+      {(mine.length > 0 || formOpen) && <details id="nowa-grupa" className="card rx-add new-group" open={formOpen} onToggle={(e) => setFormOpen(e.currentTarget.open)}>
         <summary><Icon name="plus" size={20} />Nowa grupa</summary>
         <form className="stack" onSubmit={create}>
           <div className="field"><label htmlFor="g-name">Nazwa</label>
@@ -75,7 +76,7 @@ export default function GroupsBoard() {
             <input id="g-desc" className="input" maxLength={300} value={description} onChange={(e) => setDescription(e.target.value)} /></div>
           <div><button className="btn block">Utwórz grupę</button></div>
         </form>
-      </details>
+      </details>}
     </div>
   );
 }

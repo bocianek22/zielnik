@@ -8,6 +8,16 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.79.0] - 2026-10
+### Zmieniono
+- **Puste stany z jednym działaniem i mniej szumu (UI 4, część 4):**
+  - Szukaj: przy braku wyników pod komunikatem lista „Na skróty”, zamiast pustego ekranu.
+  - Koło fortuny i Katalog: pusty wynik filtrów ma przycisk „Wyczyść filtry” / „Pokaż wszystko”.
+  - Grupy: bez grup jeden przycisk „Utwórz grupę” (bez zdublowanego „Nowa grupa” pod nim).
+  - Moje obserwacje: „Jak liczymy” zwinięte na końcu strony; „Dni tygodnia” bez żadnej średniej to jedno zdanie zamiast siedmiu pustych pasków (tabela dla czytników ekranu bez zmian).
+  - Lista odmian: przyciski „Zużyłem” / „Wykupiłem” wyrównane z nazwą odmiany, trochę więcej oddechu w wierszu.
+  - Recepty: data wystawienia i „Usuń” w jednym wierszu stopki karty.
+
 ## [0.78.0] - 2026-10
 ### Zmieniono
 - **Arkusz „Więcej” na telefonie (UI 4, część 3):** miejsca w aplikacji jako siatka kafelków (4 w rzędzie) w dwóch grupach: „Dziennik” (Historia, Recepty, Moje obserwacje, Raport dla lekarza) i „Odkrywaj i znajomi” (Katalog, Szukaj, Rankingi, Koło fortuny, Wiedza, Znajomi, Grupy); konto i ustawienia jak dotąd listą. Wszystkie miejsca widać bez przewijania arkusza.
