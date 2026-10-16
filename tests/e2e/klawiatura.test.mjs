@@ -57,7 +57,7 @@ test('arkusz „Więcej”: pułapka fokusu, Escape, powrót fokusu, axe w obu m
 test('„Większy tekst i przyciski”: ustawienie w profilu zapamiętane na urządzeniu, klasa już w pierwszym dokumencie', async () => {
   const { ctx, page } = await open('light');
   try {
-    await go(page, '/profil');
+    await go(page, '/profil#wyglad');
     const size = () => page.evaluate(() => parseFloat(getComputedStyle(document.documentElement).fontSize));
     const base = await size();
     await page.getByLabel(/Większy tekst i przyciski/).check();

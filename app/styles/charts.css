@@ -271,3 +271,7 @@
 /* „Rok objawów” (POM-50): wybór objawu przewija się w poziomie zamiast łamać siatkę */
 .sym-year-pick { flex-wrap: nowrap; overflow-x: auto; max-width: 100%; }
 .sym-year-pick button { white-space: nowrap; min-width: var(--tap); }
+
+/* UI 4: zwinięte objawy w porównaniu okresów */
+.pc-more { margin-top: var(--s-3); border-top: 1px solid var(--sep); }
+.pc-more > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-weight: 600; color: var(--accent-text); }

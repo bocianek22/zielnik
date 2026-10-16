@@ -28,7 +28,7 @@ test('Ochrona ekranu: przełącznik w APK z wtyczką włącza i wyłącza FLAG_S
   const page = await ctx.newPage();
   try {
     await login(page);
-    await go(page, '/profil');
+    await go(page, '/profil#bezpieczenstwo');
     const sw = page.getByRole('switch', { name: 'Blokuj zrzuty ekranu i podgląd w przełączniku' });
     await sw.waitFor({ timeout: 15000 });
     await interactive(sw);

@@ -8,6 +8,12 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.77.0] - 2026-10
+### Zmieniono
+- **Porządek na długich ekranach (UI 4, część 2):**
+  - Profil: ustawienia urządzenia w trzech zwijanych grupach: „Prywatność” (blokada, ochrona ekranu, tryb dyskretny), „Przypomnienia”, „Wygląd”; ekran ok. 4 razy krótszy, skróty u góry otwierają właściwą grupę.
+  - Historia: w „Porównaniu okresów” objawy z dziennika zwinięte pod „Objawy z dziennika (N)”.
+
 ## [0.76.0] - 2026-10
 ### Zmieniono
 - **Porządek na długich ekranach (UI 4, część 1):**
