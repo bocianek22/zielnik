@@ -77,6 +77,35 @@ test('Raport: w trybie dyskretnym plik też ma neutralną nazwę, a plik się tw
   } catch (e) { await shot(page, 'raport-pdf-dyskretny'); throw e; } finally { await ctx.close(); }
 });
 
+test('Raport skrócony: „PDF po angielsku” (POM-64) daje plik z angielskimi etykietami, tylko w wersji skróconej', async () => {
+  const { ctx } = await phone(browser);
+  const page = await ctx.newPage();
+  try {
+    await login(page);
+    await go(page, '/raport?from=2020-01-01&to=2026-12-31');
+    await page.getByRole('button', { name: 'Pobierz PDF' }).waitFor({ timeout: 15000 });
+    assert.equal(await page.getByRole('button', { name: 'PDF po angielsku' }).count(), 0, 'pełny raport bez wersji angielskiej');
+    await go(page, '/raport?from=2020-01-01&to=2026-12-31&krotki=1');
+    const btn = page.getByRole('button', { name: 'PDF po angielsku' });
+    await btn.waitFor({ timeout: 15000 });
+    assert.ok(Math.round((await btn.boundingBox()).height) >= 44);
+    const [dl] = await Promise.all([page.waitForEvent('download', { timeout: 20000 }), btn.click()]);
+    assert.match(dl.suggestedFilename(), /^report-\d{4}-\d{2}-\d{2}\.pdf$/);
+    const bytes = readFileSync(await dl.path());
+    assert.equal(bytes.subarray(0, 5).toString(), '%PDF-');
+    const dir = mkdtempSync(join(tmpdir(), 'raport-en-'));
+    const file = join(dir, 'r.pdf');
+    writeFileSync(file, bytes);
+    const t = spawnSync('pdftotext', ['-layout', file, '-'], { encoding: 'utf8' });
+    if (t.status === 0) {
+      assert.match(t.stdout, /Summary of medical cannabis use/);
+      assert.match(t.stdout, /Page 1 of \d+/);
+      assert.doesNotMatch(t.stdout, /Podsumowanie|Strona 1 z|Wygenerowano/);
+    }
+    assert.ok(Math.abs((await PDFDocument.load(bytes)).getPage(0).getWidth() - 595.28) < 0.1, 'A4');
+  } catch (e) { await shot(page, 'raport-pdf-en'); throw e; } finally { await ctx.close(); }
+});
+
 test('Raport: axe (WCAG AA) w jasnym i ciemnym motywie z przyciskami PDF', async () => {
   for (const colorScheme of ['light', 'dark']) {
     const { ctx } = await phone(browser);

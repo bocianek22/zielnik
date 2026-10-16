@@ -8,6 +8,10 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.75.0] - 2026-10
+### Dodano
+- **Raport skrócony po angielsku (POM-64, koniec):** w Raporcie w wersji „Skrócony” przycisk „PDF po angielsku”: ten sam zakres danych co raport skrócony, etykiety, daty („8 October 2026”), liczby, nagłówek, stopka („Page 1 of 1”) i nagłówek „To discuss with the doctor” po angielsku; dane pacjenta (nazwy odmian, własnych objawów, pomiarów, czynników) bez tłumaczenia. Tylko plik (pobranie, w APK udostępnienie), strona raportu zostaje po polsku. Nowe `lib/report-pdf-en.js` i wspólne formaty wydruków `lib/print-format.js`; test pilnuje jednej strony także po angielsku.
+
 ## [0.74.0] - 2026-10
 ### Dodano
 - **Karta terapii po angielsku (POM-64, część):** na karcie terapii przełącznik „Polski / English”; wersja angielska tłumaczy etykiety, listę „Before you travel” i zastrzeżenie, daty („8 October 2026”) i liczby, a dane (pacjent, nazwy odmian i producentów) zostają bez zmian. Sekcja ma `lang="en"` (czytnik ekranu), reszta strony po polsku, tryb dyskretny i wydruk jak w wersji polskiej. Teksty w `lib/travel-card-text.js` (test pilnuje tych samych kluczy w obu językach). Raport skrócony po angielsku w osobnym wydaniu.
