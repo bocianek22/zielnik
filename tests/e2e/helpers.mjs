@@ -12,6 +12,8 @@ import AxeBuilder from '@axe-core/playwright';
 const analyze = AxeBuilder.prototype.analyze;
 AxeBuilder.prototype.analyze = async function analyzeStill(...args) {
   const page = this.page;
+  // tytuł karty ustawia się po hydratacji (tryb dyskretny, Next metadata): axe w tej chwili zgłasza „document-title”
+  await page.waitForFunction(() => document.title.trim() !== '', null, { timeout: 5000 }).catch(() => {});
   const id = await page.evaluate(() => {
     const st = document.createElement('style');
     st.id = `axe-still-${Math.random().toString(36).slice(2)}`;
