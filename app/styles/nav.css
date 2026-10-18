@@ -128,3 +128,34 @@ a.who-name:hover { color: var(--on-topbar); }
   .sheet-tile .st-label { overflow-wrap: anywhere; }
   .sheet-tile .nbadge { position: absolute; top: 6px; right: 6px; margin: 0; }
 }
+
+/* ===== UI 5: panel boczny na szerokim ekranie (SideNav.js). Górny pasek staje się kolumną po lewej: logo, nawigacja, konto na dole.
+   Licznik zapisów offline (.oq) zostaje w tym samym miejscu w DOM (jedna kolejka), jego panel otwiera się w górę. ===== */
+.sidenav { display: none; }
+@media (min-width: 1100px) {
+  :root { --side-w: 264px; }
+  body { padding-left: var(--side-w); }
+  .topbar { position: fixed; top: 0; bottom: 0; left: 0; width: var(--side-w); z-index: 30; overflow-y: auto; overscroll-behavior: contain;
+    border-bottom: 0; border-right: 1px solid var(--sep); background: var(--surface); }
+  .topbar-in { flex-direction: column; align-items: stretch; gap: var(--s-5); min-height: 100%; max-width: none; padding: var(--s-5) var(--s-3) var(--s-4); }
+  .topbar .brand { padding: 0 var(--s-2); }
+  .topbar .nav { display: none; }
+  .sidenav { display: grid; gap: var(--s-3); }
+  .side-group { display: grid; gap: 2px; }
+  .side-title { display: flex; align-items: center; justify-content: space-between; margin: 0 0 4px; padding: 0 var(--s-2); font-size: var(--fs-xs); font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--text-3); }
+  summary.side-title { cursor: pointer; list-style: none; min-height: 36px; border-radius: var(--r-md); }
+  summary.side-title::-webkit-details-marker { display: none; }
+  summary.side-title:hover { background: var(--hover-bg); }
+  .side-account[open] > summary .icon { transform: rotate(180deg); }
+  .side-link { display: flex; align-items: center; gap: 10px; min-height: 38px; padding: 3px var(--s-2); border-radius: var(--r-md); color: var(--text); text-decoration: none; font-weight: 500; font-size: .9375rem;
+    transition: background var(--dur-1) var(--ease); }
+  .side-link .ic-dot.sm { width: 30px; height: 30px; }
+  .side-link .side-label { flex: 1; min-width: 0; }
+  .side-link:hover { background: var(--hover-bg); }
+  .side-link[aria-current="page"] { background: var(--c-soft, var(--accent-soft)); color: var(--c-ink, var(--on-accent-soft)); font-weight: 700; }
+  .side-account .list-row { min-height: 42px; padding: 3px var(--s-2); border-radius: var(--r-md); }
+  .side-account .ver { padding: var(--s-2); }
+  .who { margin: auto 0 0; padding: var(--s-3) var(--s-2) 0; border-top: 1px solid var(--sep); flex-wrap: wrap; gap: var(--s-2); }
+  .who .oq { width: 100%; }
+  .oq-panel { left: 0; right: auto; top: auto; bottom: calc(100% + 8px); }
+}
