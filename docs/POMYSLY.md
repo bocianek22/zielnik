@@ -64,7 +64,7 @@ Reguła: brak sprzeczności z zasadami oceny, dane tylko własne, każdy dotyka 
 | POM-36 | „Do omówienia z lekarzem”: lista pytań przy raporcie | 3 | S | P | – | zrobiony (0.43.0) | MON-4 |
 | POM-37 | Karta „Co zostało na recepcie” (apteka, wizyta) | 4 | S/M | P | – | zrobiony (0.42.0) | PAC-4 |
 | POM-38 | „Dzień bez zużycia” i nadrabianie wpisów | 4 | S/M | P | – | zrobiony (0.41.0) | PAC-7 |
-| POM-39 | Inne leki w raporcie dla lekarza (opcjonalna lista) | 3 | M | P, Pr | ⚖️ | nowy | PAC-5 |
+| POM-39 | Inne leki w raporcie dla lekarza (opcjonalna lista) | 3 | M | P, Pr | ⚖️ | zrobiony (0.96.0; teksty do przeglądu prawnego) | PAC-5 |
 | POM-40 | PDF raportu i udostępnienie z APK | 4 | M | P | – | zrobiony (0.55.0) | MON-4, MOB |
 | POM-41 | Import kopii i CSV na nowe konto | 3 | M | P, T | – | zrobiony (0.52.0) | – |
 | POM-42 | Przegląd okresu („Mój miesiąc / kwartał”) | 3 | S/M | P | POM-06 | zrobiony (0.53.0) | PAC-7 |

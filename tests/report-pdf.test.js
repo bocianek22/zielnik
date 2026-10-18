@@ -166,3 +166,10 @@ test('własne pomiary (POM-63): pełny raport z najmniejszą, średnią i najwi�
   for (const t of ['Waga: najmniej 72,5 kg, średnio 72,5 kg, najwięcej 72,5 kg (1 dzień)', 'Bez jednostki: najmniej 1, średnio 2, najwięcej 3 (3 dni)']) assert.ok(all.includes(t), t);
   assert.ok(!JSON.stringify(model()).includes('Pomiary'));
 });
+
+test('inne leki: nagłówek i pozycje z dawką; pusta lista bez bloku', async () => {
+  const { medsBlocks } = await import('../lib/report-pdf-model.js');
+  assert.deepEqual(medsBlocks([]), []);
+  assert.deepEqual(medsBlocks([{ name: 'Ibuprofen', dose: '200 mg' }, { name: 'Witamina D', dose: '' }], 'Other medications'),
+    [{ type: 'h3', text: 'Other medications' }, { type: 'list', items: ['Ibuprofen – 200 mg', 'Witamina D'] }]);
+});

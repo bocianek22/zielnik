@@ -197,6 +197,20 @@ scenario('Raport: "Do omówienia z lekarzem" (dodaj, arkusz, odhacz)', async (pa
   await page.waitForFunction(() => !document.querySelector('.doctor-notes .dn-done'));
 }, withSession);
 
+scenario('Raport: inne leki (dodaj, w arkuszu tylko po „Dołącz”, usuń)', async (page) => {
+  await go(page, '/raport');
+  const card = page.locator('.other-meds');
+  await page.fill('#om-name', 'Ibuprofen');
+  await page.fill('#om-dose', '200 mg');
+  await card.getByRole('button', { name: 'Dodaj lek' }).click();
+  await card.locator('.dn-list').getByText('Ibuprofen').waitFor();
+  assert.equal(await page.locator('.report-meds').count(), 0, 'bez „Dołącz” lista nie trafia do raportu');
+  await go(page, '/raport?leki=1');
+  await page.locator('.report-meds').getByText('Ibuprofen – 200 mg').waitFor();
+  await page.locator('.other-meds').getByRole('button', { name: 'Usuń lek: Ibuprofen' }).click();
+  await page.waitForFunction(() => !document.querySelector('.report-meds'));
+}, withSession);
+
 scenario('Profil: blokada PIN (włącz, nowa karta blokuje, odblokuj, zmień PIN, wyłącz)', async (page, ctx, problems) => {
   problems.allow(/40[01]/); // zły PIN w „Zmień PIN” kończy się odpowiedzią 4xx z komunikatem
   await go(page, '/profil#bezpieczenstwo');
