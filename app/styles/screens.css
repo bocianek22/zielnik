@@ -44,3 +44,17 @@
 .measures-list .measure-val + .measure-val::before { content: ' · '; }
 .measures-manage > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; gap: var(--s-2); font-weight: 600; }
 .measures .chip, .measures .btn.small { min-height: var(--tap); }
+
+/* Plan wykupu (app/recepty/RefillCard.js) */
+.refill .sec-head { display: flex; align-items: center; gap: var(--s-2); margin: 0 0 var(--s-3); font-size: var(--fs-lg); }
+.refill .ic-dot { background: var(--c-soft); color: var(--c-ink); }
+.refill-list { list-style: none; margin: 0 0 var(--s-3); padding: 0; display: grid; gap: var(--s-3); }
+.refill-row { padding: var(--s-3); border-radius: var(--r-md); background: var(--surface-2); border-left: 4px solid var(--c); }
+.refill-row.warn { border-left-color: var(--warn); }
+.refill-row p { margin: 0; }
+.refill-unit { display: flex; justify-content: space-between; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); color: var(--text-2); font-weight: 600; }
+.refill-main { font-size: 1.125rem; margin: 4px 0 2px !important; }
+.refill-main b { color: var(--text); }
+.refill-sub { font-size: var(--fs-sm); color: var(--text-2); }
+.refill-st.ok { background: var(--c-soft); color: var(--c-ink); }
+.refill-st.warn { background: var(--warn-soft); color: var(--warn); }
