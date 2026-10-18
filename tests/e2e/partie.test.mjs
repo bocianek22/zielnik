@@ -52,6 +52,9 @@ test('partia: dodanie notatki w Historii, widok na liście zakupów i karcie odm
       const sid = (await pool.query(`SELECT strain_id FROM purchases WHERE batch_no = 'E2E-77'`)).rows[0].strain_id;
       assert.equal((await pool.query(`SELECT batch_note LIKE 'zenc1:%' AS enc FROM purchases WHERE batch_no = 'E2E-77'`)).rows[0].enc, true, 'notatka zaszyfrowana w bazie');
       await go(pa, `/strains/${sid}`);
+      // UI 5 etap 6: partie są w zakładce „Moje” karty odmiany
+      await pa.getByRole('tab', { name: /^Moje/ }).click();
+      assert.match(pa.url(), /#moje$/);
       const card = pa.locator('.strain-batches');
       await card.waitFor();
       await card.locator('summary').click(); // UI 4: sekcja zwinięta
