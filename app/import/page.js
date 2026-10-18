@@ -4,6 +4,7 @@ import { getUser } from '@/lib/auth';
 import Header from '../components/Header';
 import ImportForm from './ImportForm';
 import RestoreForm from './RestoreForm';
+import PageHero from '../components/PageHero';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,7 +16,7 @@ export default async function ImportPage() {
     <>
       <Header user={user} />
       <main className="page">
-        <h1>Import</h1>
+        <PageHero icon="upload" title="Import" sub="Odmiany z pliku lub kopii" />
         <Link href="/odmiany" className="back">← Wszystkie odmiany</Link>
         <ImportForm />
         <RestoreForm />

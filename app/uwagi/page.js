@@ -5,6 +5,7 @@ import { betaGroupUrl } from '@/lib/beta';
 import { alertPath } from '@/lib/alerts';
 import Header from '../components/Header';
 import FeedbackForm from './FeedbackForm';
+import PageHero from '../components/PageHero';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Zgłoś uwagę' };
@@ -20,7 +21,7 @@ export default async function Uwagi({ searchParams }) {
     <>
       <Header user={user} />
       <main className="page settings">
-        <h1>Zgłoś uwagę</h1>
+        <PageHero cat="learn" icon="edit" title="Zgłoś uwagę" sub="Błąd, pomysł albo pytanie" />
         <FeedbackForm initial={items} screen={typeof ekran === 'string' ? alertPath(ekran.slice(0, 200)) : null} groupUrl={betaGroupUrl()} />
       </main>
     </>

@@ -523,9 +523,10 @@ input.switch:disabled { opacity: .5; cursor: default; }
 a.chip.static:hover { background: var(--surface-3); color: var(--text); }
 
 /* przełącznik segmentowy */
-.seg { display: flex; flex-wrap: wrap; max-width: 100%; padding: 2px; background: var(--surface-2); border-radius: var(--r-md); gap: 2px; width: fit-content; }
-.seg button, .seg a { flex: 1 1 auto; display: inline-grid; place-items: center; text-decoration: none; border: 0; background: transparent; min-height: 36px; padding: 0 var(--s-4); border-radius: 8px; font: inherit; font-size: var(--fs-sm); font-weight: 600; color: var(--text-2); cursor: pointer; }
-.seg button.on, .seg a.on { background: var(--surface); color: var(--text); box-shadow: var(--shadow-1), 0 0 0 1px var(--sep); }
+.seg { display: flex; flex-wrap: wrap; max-width: 100%; padding: 4px; background: var(--surface-2); border-radius: var(--r-lg); gap: 2px; width: fit-content; }
+.seg button, .seg a { flex: 1 1 auto; display: inline-grid; place-items: center; text-decoration: none; border: 0; background: transparent; min-height: 40px; padding: 0 var(--s-4); border-radius: calc(var(--r-lg) - 4px); font: inherit; font-size: var(--fs-sm); font-weight: 600; color: var(--text-2); cursor: pointer; }
+/* UI 5, spójność: przełączniki wyglądają jak zakładki karty odmiany (.dtabs): jasna „pigułka” z cieniem na szarym tle */
+.seg button.on, .seg a.on { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0, 0, 0, .12); }
 :root[data-theme="dark"] :is(.seg button.on, .seg a.on) { background: var(--surface-3); box-shadow: 0 0 0 1px var(--sep-strong); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) :is(.seg button.on, .seg a.on) { background: var(--surface-3); box-shadow: 0 0 0 1px var(--sep-strong); } }
 @media (max-width: 480px) {
@@ -632,7 +633,7 @@ a.chip.static:hover { background: var(--surface-3); color: var(--text); }
 /* nagłówek ekranu z akcją po prawej */
 .page-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); margin-bottom: var(--s-3); }
 .page-head h1 { margin: 0; }
-.seg.seg-links { margin-bottom: var(--s-4); }
+.seg.seg-links { margin-bottom: var(--s-4); width: 100%; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); }
 
 /* chip wybrany w obszarze ekranu (np. filtry na liście odmian w kolorze odmian) */
 [data-cat] .chip.on, .chip.on[data-cat] { background: var(--c-soft); color: var(--c-ink); border-color: var(--c-ink); }
@@ -733,3 +734,8 @@ html.big-ui .slider input[type=range] { min-height: var(--tap); }
 html.big-ui .btn .icon { width: 24px; height: 24px; }
 html.big-ui .bottomnav a, html.big-ui .bottomnav button { font-size: .75rem; }
 html.big-ui .topbar-in { min-height: 64px; }
+/* UI 5, spójność: nagłówek ekranu bez obszaru (profil, import, administracja) w kolorze akcentu; dodatki po prawej */
+.hero.cat-hero:not([data-cat]) { --c: var(--accent); --c-soft: var(--accent-soft); --c-ink: var(--on-accent-soft); }
+.hero-aside { margin-left: auto; flex: none; }
+.hero.cat-hero .hero-aside .icon-btn { color: var(--c-ink); }
+.hero.cat-hero:not([data-cat]) .ic-dot { color: var(--on-accent); }

@@ -4,6 +4,7 @@ import { ARTICLES, TERPENES } from '@/lib/knowledge';
 import Header from '../components/Header';
 import Icon from '../components/Icon';
 import OpenOnHash from './OpenOnHash';
+import PageHero from '../components/PageHero';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,7 +17,7 @@ export default async function Wiedza() {
     <>
       <Header user={user} />
       <main className="page read" id="top">
-        <h1>Wiedza</h1>
+        <PageHero cat="learn" icon="book" title="Wiedza" sub="Artykuły i katalog terpenów" />
         <div className="alert note read-note" role="note">
           <Icon name="info" size={20} />
           <p>Materiały mają charakter edukacyjny i nie zastępują porady lekarza. Wiele opisanych działań terpenów pochodzi z badań na zwierzętach lub komórkach. O doborze odmiany decyduj razem z lekarzem prowadzącym.</p>

@@ -13,6 +13,7 @@ import Header from '../components/Header';
 import Icon from '../components/Icon';
 import EmptyState from '../components/EmptyState';
 import SearchBox from './SearchBox';
+import PageHero from '../components/PageHero';
 
 // UI 4: pusty ekran wyszukiwania prowadzi do miejsc, których najczęściej się szuka (część jest tylko w „Więcej”)
 const QUICK = [
@@ -79,7 +80,7 @@ export default async function Szukaj({ searchParams }) {
     <>
       <Header user={me} />
       <main className="page stack">
-        <h1>Szukaj</h1>
+        <PageHero cat="strain" icon="search" title="Szukaj" sub="Odmiany, wiedza, osoby i notatki" />
         <SearchBox key={raw} initial={raw} index={lite} />
         {!q && <p className="search-hint">Podpowiedzi pojawiają się od pierwszej litery. Szukamy w odmianach, katalogu, terpenach, wiedzy, Twoich grupach, a od 2 znaków także w ludziach i Twoich notatkach (widzisz je tylko Ty).</p>}
         {q && total === 0 && (

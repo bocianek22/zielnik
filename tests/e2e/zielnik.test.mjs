@@ -86,9 +86,10 @@ scenario('Wykres zużycia 14 dni: strzałki zmieniają odczyt, Escape wraca do d
 
 scenario('"Wykupiłem" na karcie odmiany (i Cofnij)', async (page) => {
   await go(page, '/odmiany');
-  const btn = page.getByRole('button', { name: 'Wykupiłem: Lemon Skunk' });
-  const card = page.locator('.quick').filter({ has: btn });
-  await btn.click();
+  // UI 5 (lista „Jedna akcja”): przy zapasie „Wykupiłem” jest w menu „…” wiersza, panel ilości otwiera się w wierszu
+  const card = page.locator('.strain', { has: page.getByRole('link', { name: 'Lemon Skunk', exact: true }) });
+  await card.getByRole('button', { name: 'Więcej akcji: Lemon Skunk' }).click();
+  await page.locator('.row-sheet').getByRole('button', { name: 'Wykupiłem' }).click();
   await card.getByRole('textbox').fill('1');
   await card.getByRole('button', { name: 'Zapisz wykup' }).click();
   const msg = card.locator('.quick-msg', { hasText: 'Zapisano: +1 g' });

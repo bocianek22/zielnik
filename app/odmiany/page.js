@@ -12,6 +12,7 @@ import Skeleton from '../components/Skeleton';
 import Icon from '../components/Icon';
 import WidgetSync from './WidgetSync';
 import StrainsNav from './StrainsNav';
+import PageHero from '../components/PageHero';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,10 +38,8 @@ export default async function Strains() {
     <>
       <Header user={user} />
       <main className="page strains-page">
-        <header className="page-head">
-          <h1 id="odmiany" tabIndex={-1}>Odmiany</h1>
-          <Link href="/szukaj" className="icon-btn" aria-label="Szukaj wszędzie: odmiany, osoby, wiedza"><Icon name="search" /></Link>
-        </header>
+        <PageHero cat="strain" icon="jar" title="Odmiany" sub="Twoje odmiany i zapas" h1Props={{ id: 'odmiany', tabIndex: -1 }}
+          aside={<Link href="/szukaj" className="icon-btn" aria-label="Szukaj wszędzie: odmiany, osoby, wiedza"><Icon name="search" /></Link>} />
         <StrainsNav current="moje" />
         <HomeStore>
           <WidgetSync dailyUse={{ g: usage.perDay || 0, ml: usage.perDayMl || 0 }} today={today} />

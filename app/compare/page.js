@@ -11,6 +11,7 @@ import { formatDay } from '@/lib/date';
 import Header from '../components/Header';
 import Icon from '../components/Icon';
 import EmptyState from '../components/EmptyState';
+import PageHero from '../components/PageHero';
 
 export const dynamic = 'force-dynamic';
 
@@ -63,7 +64,7 @@ export default async function Compare({ searchParams }) {
       <Header user={user} />
       <main className="page">
         <Link href="/odmiany" className="back"><Icon name="chevronLeft" size={20} />Wszystkie odmiany</Link>
-        <header className="page-head"><h1>Porównanie</h1></header>
+        <PageHero cat="strain" icon="chart" title="Porównanie" sub="Odmiany obok siebie" />
         {rows.length < 2 ? (
           <EmptyState art="search" cat="strain" card={false} title="Wybierz odmiany do porównania" action={<Link className="btn" href="/odmiany">Wróć do odmian</Link>}>
             Zaznacz na liście co najmniej dwie odmiany (menu „⋯” przy odmianie, pozycja „Porównaj”) i otwórz porównanie.

@@ -24,7 +24,8 @@ export const parseGrams = (s) => {
 // Szybkie akcje na wierzchu karty: „Zużyłem” i „Wykupiłem” z małym panelem na ilość w jednostce odmiany (bez rozwijania karty).
 // idPrefix: inny przedrostek identyfikatorów, gdy ta sama odmiana ma akcje także w panelu „Dziś” (unikalne id w DOM);
 // icons: ikony w przyciskach (nagłówek panelu „Dziś”); buy={false}: tylko „Zużyłem”; use={false}: tylko „Wykupiłem” (karta „W aptece”).
-export default function QuickActions({ strainId, name, form = 'susz', current, remaining, onSaved, idPrefix = 'q', buy = true, use = true, icons = false, trailing = null }) {
+// buy="auto" (lista odmian, UI 5): „Wykupiłem” widać tylko bez zapasu, inaczej jest w menu wiersza; opener.current(mode) otwiera panel z zewnątrz.
+export default function QuickActions({ strainId, name, form = 'susz', current, remaining, onSaved, idPrefix = 'q', buy = true, use = true, icons = false, trailing = null, opener = null }) {
   const unit = unitOf(form);
   const MODES = modes(form);
   const [mode, setMode] = useState(null); // null | 'use' | 'buy'
@@ -46,10 +47,11 @@ export default function QuickActions({ strainId, name, form = 'susz', current, r
     if (mode === m) return close();
     setMode(m); setVal(''); setErr(''); setMethod(''); setPeriod(''); setRx(undefined); qs.clear(); qs.renew(); // nowe otwarcie panelu = nowy zapis
   }
+  useEffect(() => { if (opener) opener.current = (m) => { if (mode !== m) open(m); }; });
   function close() {
     const m = mode;
     setMode(null); setErr('');
-    if (m) trigger.current[m]?.focus();
+    if (m) (trigger.current[m] || trigger.current.use || trigger.current.buy)?.focus();
   }
 
   async function submit(e) {
@@ -109,7 +111,7 @@ export default function QuickActions({ strainId, name, form = 'susz', current, r
           <button type="button" ref={(el) => { trigger.current.use = el; }} className={`btn small quick-btn${mode === 'use' ? ' on' : ''}`}
             aria-expanded={mode === 'use'} aria-controls={id} aria-label={`Zużyłem: ${name}`} onClick={() => open('use')}>{icons && <Icon name="check" size={20} />}Zużyłem</button>
         )}
-        {buy && (
+        {(buy === 'auto' ? !showUse : buy) && (
           <button type="button" ref={(el) => { trigger.current.buy = el; }} className={`btn small quick-btn ghost${mode === 'buy' ? ' on' : ''}`}
             aria-expanded={mode === 'buy'} aria-controls={id} aria-label={`Wykupiłem: ${name}`} onClick={() => open('buy')}>{icons && <Icon name="cart" size={20} />}Wykupiłem</button>
         )}

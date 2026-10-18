@@ -4,6 +4,7 @@ import { rankingRows } from '@/lib/strains';
 import Header from '../components/Header';
 import Rankings from './Rankings';
 import StrainsNav from '../odmiany/StrainsNav';
+import PageHero from '../components/PageHero';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,7 +21,7 @@ export default async function RankingsPage() {
     <>
       <Header user={user} />
       <main className="page">
-        <header className="page-head"><h1>Rankingi</h1></header>
+        <PageHero cat="strain" icon="trend" title="Rankingi" sub="Najlepiej oceniane odmiany" />
         <StrainsNav current="rankingi" />
         <Rankings strains={strains} meId={user.id} />
         {next && <p className="muted">Ranking obejmuje najnowsze odmiany ({strains.length}).</p>}

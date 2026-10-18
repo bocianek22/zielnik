@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
 import Header from '../components/Header';
 import FriendsBoard from './FriendsBoard';
+import PageHero from '../components/PageHero';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,7 +14,7 @@ export default async function Znajomi() {
     <>
       <Header user={user} />
       <main className="page">
-        <h1>Znajomi</h1>
+        <PageHero cat="social" icon="users" title="Znajomi" sub="Osoby, z którymi dzielisz oceny" />
         <FriendsBoard />
       </main>
     </>
