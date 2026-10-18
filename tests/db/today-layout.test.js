@@ -72,3 +72,19 @@ test('układ „Dziś”: zapis i odczyt na koncie, nieznane klucze pomijane, ty
   const exp = await (await (await import('../../app/api/account/export/route.js')).GET(new Request('http://localhost/api/account/export'))).json();
   assert.equal(exp.profile.todayHidden, 'chart');
 });
+
+test('układ „Dziś” (UI 5): kolejność kart na koncie, stary klient z samym `hidden` jej nie zmienia, eksport', { skip }, async () => {
+  const A = ids.ania, B = ids.bartek;
+  const def = ok(await get(A, 'today-layout')).order;
+  assert.equal(def[0], 'plan');
+  const r = ok(await call(A, 'today-layout', 'PUT', { order: ['symptoms', 'plan', 'nieznany', 'symptoms'], hidden: ['plan', 'streak'] }));
+  assert.deepEqual(r.order.slice(0, 2), ['symptoms', 'plan']);
+  assert.equal(r.order.length, def.length, 'brakujące karty dopisane');
+  assert.deepEqual(r.hidden, ['streak'], '„Plan na dziś” nie do ukrycia');
+  assert.deepEqual(ok(await call(A, 'today-layout', 'PUT', { hidden: [] })).order.slice(0, 2), ['symptoms', 'plan'], 'zapis samego hidden nie rusza kolejności');
+  assert.deepEqual(ok(await get(B, 'today-layout')).order, def, 'inne konto bez zmian');
+  assert.equal(ok(await get(A, 'today-layout')).displayName, undefined, 'API nie zwraca dodatkowych pól');
+  jar.clear(); await createSession(A);
+  const exp = await (await (await import('../../app/api/account/export/route.js')).GET(new Request('http://localhost/api/account/export'))).json();
+  assert.ok(exp.profile.todayOrder.startsWith('symptoms,plan'));
+});

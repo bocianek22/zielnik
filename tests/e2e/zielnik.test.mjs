@@ -149,7 +149,10 @@ scenario('Recepty: "W aptece" i "Wykupiłem" zmniejsza resztę na recepcie', asy
   const card = page.locator('.pharmacy');
   const left = async () => num((await text(card.locator('.pharmacy-rx li', { hasText: ' g zostało' }).first())).match(/([\d,]+) g zostało/)[1]);
   const before = await left();
-  const pool = card.locator('.pharmacy-pool').filter({ hasText: 'do wykupienia' }).filter({ hasText: / g do wykupienia/ }).first();
+  // pozycja przypięta po nazwie odmiany: po zapisie lista się odświeża i może zmienić kolejność, „.first()” wskazałby inną
+  const first = card.locator('.pharmacy-pool').filter({ hasText: / g do wykupienia/ }).first();
+  const name = (await first.locator('.pp-name > .dn').innerText()).trim();
+  const pool = card.locator('.pharmacy-pool').filter({ has: page.locator('.pp-name > .dn', { hasText: new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`) }) });
   const buy = pool.getByRole('button', { name: /^Wykupiłem/ });
   await interactive(buy); // przed hydratacją klik nie otwiera pola ilości
   await buy.click();

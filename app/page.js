@@ -4,7 +4,7 @@ import { dailyUse, purchaseStats } from '@/lib/strains';
 import { dailyUsageSeries, homeSummary, prescriptionCountdown, todaySymptoms } from '@/lib/stats';
 import { noUseToday } from '@/lib/no-use';
 import { symptomStreak } from '@/lib/streak';
-import { todayHidden } from '@/lib/today-layout';
+import { todayLayout } from '@/lib/today-layout';
 import { onboardingOpen } from '@/lib/onboarding';
 import Header from './components/Header';
 import HomeStore from './components/HomeStore';
@@ -35,12 +35,16 @@ export default async function Home({ searchParams }) {
     );
   }
 
-  const [daily, bought, series, summary, prescriptions, symptoms, noUse, streak, hidden] = await Promise.all([
+  const [daily, bought, series, summary, prescriptions, symptoms, noUse, streak, layout] = await Promise.all([
     dailyUse(user.id), purchaseStats(user.id), dailyUsageSeries(user.id, 14), homeSummary(user.id), prescriptionCountdown(user.id), todaySymptoms(user.id),
-    noUseToday(user.id), symptomStreak(user.id), todayHidden(user.id),
+    noUseToday(user.id), symptomStreak(user.id), todayLayout(user.id),
   ]);
   // data w nagłówku w czasie polskim (serwer działa w UTC)
   const date = new Date().toLocaleDateString('pl-PL', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Europe/Warsaw' });
+  // UI 5: powitanie zależne od pory dnia; nazwa wyświetlana albo login (z wielkiej litery)
+  const hour = Number(new Date().toLocaleString('en-GB', { hour: '2-digit', hour12: false, timeZone: 'Europe/Warsaw' }));
+  const name = layout.displayName || (user.username ? user.username[0].toUpperCase() + user.username.slice(1) : '');
+  const greet = `${hour >= 18 || hour < 4 ? 'Dobry wieczór' : 'Dzień dobry'}${name ? `, ${name}` : ''}`;
 
   return (
     <>
@@ -49,10 +53,10 @@ export default async function Home({ searchParams }) {
         <HomeStore bought={bought} series={series} summary={summary}>
           <header className="home-head hero">
             <p className="home-date">{date}</p>
-            <h1>Dziś</h1>
+            <h1 data-short="Dziś">{greet}</h1>
             <TodayHero usage={daily} />
           </header>
-          <TodayBoard usage={daily} bought={bought} prescriptions={prescriptions} symptoms={symptoms} noUse={noUse} hidden={hidden}
+          <TodayBoard usage={daily} bought={bought} prescriptions={prescriptions} symptoms={symptoms} noUse={noUse} layout={layout}
             streak={<SymptomStreak data={streak} className="streak-home" />} />
 
         </HomeStore>

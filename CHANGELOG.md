@@ -8,6 +8,13 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.84.0] - 2026-10
+### Dodano
+- **Ekran „Dziś” po swojemu (UI 5, etap 3):** powitanie z imieniem i porą dnia, „Plan na dziś” (dawne „Do zrobienia”, przy braku zadań spokojne potwierdzenie), cztery gotowe układy (Pełny, Objawy najpierw, Zapas najpierw, Minimalny) i własna kolejność kart strzałkami, zapisane na koncie (nowa kolumna `users.today_order`, w eksporcie konta).
+### Zmieniono
+- Ustawienia ekranu „Dziś” (układ kart, próg „Kończy się”, limit wykupu) przeniesione do profilu, grupa „Ekran Dziś”; na „Dziś” zostały „Szczegóły” i przycisk „Dostosuj ekran i progi”.
+- Na komputerze karty „Dziś” układają się po dwie w rzędzie w wybranej kolejności, bez pustych miejsc.
+
 ## [0.83.0] - 2026-10
 ### Zmieniono
 - **Panel boczny na komputerze (UI 5, etap 2):** od 1100 px szerokości nawigacja jest w panelu po lewej: główne miejsca, grupy „Dziennik” i „Odkrywaj i znajomi” z ikonami, „Konto i ustawienia” zwinięte na dole, użytkownik i wylogowanie pod spodem. Węższy ekran i telefon bez zmian.

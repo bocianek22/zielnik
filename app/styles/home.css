@@ -74,6 +74,7 @@ a.kpi-tile:active { filter: brightness(.96); }
 
 /* „Do zrobienia” (nagłówek: .section-title z globals.css) */
 .today-todo > .section-title { margin-top: 0; }
+.todo-done { display: flex; align-items: center; gap: var(--s-3); margin: 0; padding: var(--s-4); }
 .todo { list-style: none; margin: 0; padding: var(--s-1) var(--s-4); }
 .todo li + li { border-top: 1px solid var(--sep); }
 .todo-row { display: flex; align-items: center; gap: var(--s-3); min-height: 64px; padding: var(--s-3) 0; color: var(--text); text-decoration: none; }
@@ -156,14 +157,10 @@ a.kpi-tile:active { filter: brightness(.96); }
   .hero-ring { width: 136px; height: 136px; }
   .hero-fig .big-num { font-size: 4rem; }
   .kpi-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .today:not(.fresh) { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start;
-    grid-template-areas: "kpi kpi" "chart todo" "chart sym" "rx rx" "prefs prefs"; grid-template-rows: auto auto 1fr auto auto; }
-  .today:not(.fresh) .kpi-grid { grid-area: kpi; }
-  .today:not(.fresh) .today-chart { grid-area: chart; }
-  .today:not(.fresh) .today-todo { grid-area: todo; }
-  .today:not(.fresh) .tsym { grid-area: sym; align-self: stretch; } /* karta objawów dociąga kolumnę do dołu wykresu: bez dziury */
-  .today:not(.fresh) .today-rx { grid-area: rx; }
-  .today:not(.fresh) .prefs-card { grid-area: prefs; }
+  /* UI 5 etap 3: kolejność kart z ustawień konta, więc bez stałych obszarów; szerokie karty na całą szerokość, reszta po dwie */
+  .today:not(.fresh) { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; grid-auto-flow: row dense; }
+  .today:not(.fresh) > :is(.t-cell.wide, .prefs-card) { grid-column: 1 / -1; }
+  .today:not(.fresh) > .t-cell:not(.wide) { display: grid; align-self: stretch; } /* para kart równej wysokości */
   .trx-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--s-8); }
   .trx:nth-child(2) { border-top: 0; }
   .tsym-form { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-5) var(--s-8); }
@@ -212,3 +209,18 @@ a.kpi-tile:active { filter: brightness(.96); }
 /* POM-48: wybór kart panelu „Dziś” w „Szczegóły i ustawienia” */
 .today-layout { border: 0; margin: var(--s-3) 0; padding: 0; display: grid; gap: var(--s-1); }
 .today-layout .check { min-height: var(--tap); align-items: center; }
+/* UI 5 etap 3: gotowe układy (kafelki do wyboru) i kolejność kart strzałkami */
+.tl-presets { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--s-2); margin-bottom: var(--s-2); }
+.tl-preset { display: grid; gap: 2px; text-align: left; padding: var(--s-3); border-radius: var(--r-md); border: 1px solid var(--sep-strong); background: var(--surface); color: var(--text); font: inherit; cursor: pointer; }
+.tl-preset b { font-weight: 700; }
+.tl-preset span { font-size: var(--fs-sm); color: var(--text-2); }
+.tl-preset.on { border-color: var(--accent); background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent); }
+.tl-preset.on span { color: var(--on-accent-soft); }
+.tl-list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--sep); border-radius: var(--r-md); }
+.tl-row { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); padding: 0 var(--s-1) 0 var(--s-3); }
+.tl-row + .tl-row { border-top: 1px solid var(--sep); }
+.tl-row .check { flex: 1; min-width: 0; }
+.tl-fixed { flex: 1; display: inline-flex; align-items: center; gap: var(--s-2); min-height: var(--tap); color: var(--text-2); }
+.tl-move { display: inline-flex; flex: none; }
+.tl-move .icon-btn:disabled { opacity: .35; cursor: default; }
+.tl-up { transform: rotate(180deg); }

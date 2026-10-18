@@ -17,6 +17,8 @@ import { VERSION } from '@/lib/version';
 import Icon from '../components/Icon';
 import HashOpen from '../components/HashOpen';
 import SettingsGroup from './SettingsGroup';
+import TodaySettings from './TodaySettings';
+import { todayLayout } from '@/lib/today-layout';
 import { ThemeChoice, BigChoice } from '../components/ThemeToggle';
 
 export const dynamic = 'force-dynamic';
@@ -25,7 +27,10 @@ export default async function Profil() {
   const user = await getUser();
   if (!user) redirect('/login');
   if (user.must_change_password) redirect('/change-password');
-  const [p] = await sql()`SELECT display_name, bio, links, profile_visibility, (avatar IS NOT NULL) AS has_avatar FROM users WHERE id = ${user.id}`;
+  const [[p], { hidden, order }] = await Promise.all([
+    sql()`SELECT display_name, bio, links, profile_visibility, (avatar IS NOT NULL) AS has_avatar FROM users WHERE id = ${user.id}`,
+    todayLayout(user.id),
+  ]);
   return (
     <>
       <Header user={user} />
@@ -33,7 +38,7 @@ export default async function Profil() {
         <h1>Mój profil</h1>
         <HashOpen />
         <nav className="chips settings-jump" aria-label="Przejdź do ustawień">
-          {[['#bezpieczenstwo', 'Prywatność'], ['#przypomnienia', 'Przypomnienia'], ['#wyglad', 'Wygląd'], ['#moje-dane', 'Moje dane']]
+          {[['#bezpieczenstwo', 'Prywatność'], ['#przypomnienia', 'Przypomnienia'], ['#wyglad', 'Wygląd'], ['#ekran-dzis', 'Ekran „Dziś”'], ['#moje-dane', 'Moje dane']]
             .map(([href, label]) => <a key={href} className="chip" href={href}>{label}</a>)}
         </nav>
         <div className="stack">
@@ -57,6 +62,10 @@ export default async function Profil() {
                 <ThemeChoice />
                 <BigChoice />
               </section>
+            </SettingsGroup>
+            {/* UI 5: wszystkie ustawienia w profilu, na ekranie „Dziś” tylko link „Dostosuj ekran” */}
+            <SettingsGroup icon="home" title="Ekran „Dziś”" value="Układ, progi" id="ekran-dzis">
+              <TodaySettings initial={{ hidden, order }} />
             </SettingsGroup>
           </ProfileForm>
           <section className="card" aria-labelledby="about-h">
