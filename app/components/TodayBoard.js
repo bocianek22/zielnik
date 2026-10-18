@@ -1,11 +1,10 @@
 'use client';
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Icon from './Icon';
 import Bump from './Bump';
 import TodayPanel, { unitsOf } from './TodayPanel';
-import TodayLayout from './TodayLayout';
 import { DEFAULT_ORDER } from '@/lib/today-cards';
 import LocalReminderSync from './LocalReminderSync';
 import QuickActions from './QuickActions';
@@ -84,8 +83,8 @@ export function TodayHero({ usage = { perDay: 0, perDayMl: 0 } }) {
 export default function TodayBoard({ usage = { perDay: 0, perDayMl: 0, cost: 0 }, bought = { grams: 0, ml: 0, cost: 0 },
   prescriptions = { items: [], total: 0, urgent: false }, symptoms = null, noUse = false, streak = null, layout: layout0 = {} }) {
   // POM-48 / UI 5: ukryte karty i kolejność, zapis na koncie (TodayLayout)
-  const [layout, setLayout] = useState({ hidden: layout0.hidden || [], order: layout0.order || DEFAULT_ORDER });
-  const { boughtU, series, recent, stock: stockU, remaining: remainingU, mine, low, limit, savePref, setLow, setLimit } = useHome();
+  const layout = { hidden: layout0.hidden || [], order: layout0.order || DEFAULT_ORDER };
+  const { boughtU, series, recent, stock: stockU, remaining: remainingU, mine, low, limit } = useHome();
   const dailyUse = usage.perDay; // g/dzień (susz); ml/dzień: usage.perDayMl
   const boughtG = boughtU.g;
   const totalRemaining = remainingU.g;
@@ -120,7 +119,7 @@ export default function TodayBoard({ usage = { perDay: 0, perDayMl: 0, cost: 0 }
       <TodayPanel stock={stockU} dailyUse={{ g: dailyUse, ml: usage.perDayMl || 0 }} forecast={usage.forecast} bought={boughtU} low={low} series={series} prescriptions={prescriptions} symptoms={symptoms} noUse={noUse} streak={streak} hidden={layout.hidden} order={layout.order} lowStrain={lowStrain}
         fresh={fresh} hasOwn={mine > 0} onAdd={onAdd} settings={(
           <details className="prefs">
-            <summary>Szczegóły i ustawienia <Icon name="chevronDown" size={18} /></summary>
+            <summary>Szczegóły <Icon name="chevronDown" size={18} /></summary>
             <dl className="facts">
               {daysLeft != null && <div><dt>Średnie zużycie{usage.perDayMl > 0 && ' suszu'}</dt><dd>{n2(dailyUse)} g/dzień</dd></div>}
               {usage.perDayMl > 0 && <div><dt>Średnie zużycie oleju i pena</dt><dd>{n2(usage.perDayMl)} ml/dzień</dd></div>}
@@ -132,14 +131,7 @@ export default function TodayBoard({ usage = { perDay: 0, perDayMl: 0, cost: 0 }
             </dl>
             {daysLeft == null && <p className="muted small">Zapisuj zużycie w karcie odmiany („Zużyłem”), a policzę średnie tempo i prognozę, na ile dni starczy zapasu.</p>}
             {(totalRemaining > 0 || remainingU.ml > 0) && <p className="muted small">Odmiany z jednej puli „do wykupienia” liczone są raz.</p>}
-            <TodayLayout layout={layout} onChange={setLayout} />
-            <h3 className="prefs-title">Na tym urządzeniu</h3>
-            <div className="row">
-              <div className="field"><label htmlFor="pref-low">Próg „Kończy się” dla suszu (g)</label>
-                <input id="pref-low" className="input" type="number" min="0" step="0.5" inputMode="decimal" value={low || ''} onChange={savePref('zielnik.low', setLow)} /></div>
-              <div className="field"><label htmlFor="pref-limit">Miesięczny limit wykupu suszu (g)</label>
-                <input id="pref-limit" className="input" type="number" min="0" step="1" inputMode="numeric" value={limit || ''} onChange={savePref('zielnik.limit', setLimit)} /></div>
-            </div>
+            <Link className="btn ghost small" href="/profil#ekran-dzis"><Icon name="edit" size={18} />Dostosuj ekran i progi</Link>
           </details>
         )} />
     </>

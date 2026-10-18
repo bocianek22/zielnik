@@ -34,6 +34,8 @@ Ustalenia z ankiety (pytania i odpowiedzi właściciela). Każda większa zmiana
 - Etap 2 (zaakceptowany): panel boczny od 1100 px (`SideNav.js`, nav.css).
 - Etap 3, układy „Dziś” wybrane przez właściciela: Pełny (domyślny), Objawy najpierw, Zapas najpierw, Minimalny; plus pełna personalizacja.
 
+- Etap 3 (zaakceptowany z uwagą właściciela: „wszystkie ustawienia do zakładki ustawień”): ustawienia „Dziś” w profilu (`#ekran-dzis`), na ekranie tylko link.
+
 ## Zasady techniczne
 - Bez nowych bibliotek animacji, wykresów i przeciągania; jedna rodzina czcionek; budżety wydajności z CI.
 - Układ „Dziś” zapisany na koncie: kolumna addytywna w `ensureDb`, biała lista identyfikatorów kart po stronie serwera, eksport i kopia, test w `tests/db/`.
