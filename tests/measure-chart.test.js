@@ -9,6 +9,14 @@ test('skala obejmuje zakres wartości bez zera, z ładnym krokiem', () => {
   assert.ok(s.lo <= 36.6 && s.hi >= 36.9 && s.ticks.length <= 5);
 });
 
+test('minimum na podziałce nie dodaje podziałki w dół; krok co najmniej 0,01', () => {
+  assert.equal(measureScale([70, 80]).lo, 70);
+  assert.equal(measureScale([0, 100]).lo, 0);
+  assert.equal(measureScale([-5, -3]).lo, -5);
+  const t = measureScale([1, 1.01]).ticks;
+  assert.equal(new Set(t.map((x) => x.toFixed(2))).size, t.length);
+});
+
 test('jedna wartość albo równe: przedział wokół niej; brak wartości: null', () => {
   const s = measureScale([80]);
   assert.ok(s.lo < 80 && s.hi > 80);
