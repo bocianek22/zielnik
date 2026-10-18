@@ -155,7 +155,7 @@ test('eksport JSON i CSV zawiera partie odszyfrowane; cudzy eksport ich nie ma',
   // zakup bez partii: komórka notatki pusta
   const plain = csv.split('\r\n').filter((l) => l.startsWith('Zakupy;') && !l.includes('Partia'));
   assert.ok(plain.length >= 1);
-  assert.ok(plain.every((l) => l.split(';').length === 15 && l.split(';')[13] === ''));
+  assert.ok(plain.every((l) => l.split(';').length === 16 && l.split(';')[13] === ''));
 });
 
 test('kopia zapasowa zawiera kolumny partii; notatka jest w niej szyfrogramem i odszyfrowuje się skryptem kopii', { skip }, async () => {

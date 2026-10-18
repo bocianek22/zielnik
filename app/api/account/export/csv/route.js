@@ -9,7 +9,7 @@ import { batchSummary } from '@/lib/batch-meta';
 const TYPES = { objawy: 'Objawy', zuzycie: 'Zużycie', zakupy: 'Zakupy' };
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 
-// Dziennik zalogowanego użytkownika jako jeden plik CSV z kolumną „Typ” (objawy dzienne, zużycie, zakupy).
+// Dziennik zalogowanego użytkownika jako jeden plik CSV z kolumną „Typ” (objawy dzienne z pomiarami, zużycie, zakupy).
 // ?typ=objawy|zuzycie|zakupy (domyślnie wszystko), ?od=RRRR-MM-DD, ?do=RRRR-MM-DD (czas polski). Tylko własne dane.
 export const GET = safe(async (req) => {
   const { user, res } = await requireUser();
@@ -26,14 +26,18 @@ export const GET = safe(async (req) => {
   const me = user.id;
   const rows = []; // { k: klucz sortowania, cells }
   if (want('objawy')) {
-    // własne objawy (POM-07) w jednej kolumnie „Nazwa: wartość; ...”; dzień tylko z własnymi objawami też dostaje wiersz
+    // własne objawy (POM-07) i własne pomiary (POM-63) w kolumnach „Nazwa: wartość; ...”; dzień tylko z nimi też dostaje wiersz.
+    // Pomiar z przecinkiem dziesiętnym i jednostką („Waga: 74,6 kg”), jak w polskim Excelu.
     for (const r of await q`WITH cv AS (SELECT v.day, string_agg(c.name || ': ' || v.value, '; ' ORDER BY c.slot) AS txt
           FROM symptom_values v JOIN symptom_custom c ON c.id = v.custom_id WHERE v.user_id = ${me}::int GROUP BY v.day),
-        l AS (SELECT day, pain, sleep, anxiety, mood, note FROM symptom_log WHERE user_id = ${me}::int)
-      SELECT to_char(COALESCE(l.day, cv.day), 'YYYY-MM-DD') AS d, l.pain, l.sleep, l.anxiety, l.mood, COALESCE(l.note, '') AS note, cv.txt AS custom
-      FROM l FULL JOIN cv ON cv.day = l.day
-      WHERE (${from}::date IS NULL OR COALESCE(l.day, cv.day) >= ${from}::date) AND (${to}::date IS NULL OR COALESCE(l.day, cv.day) <= ${to}::date)`) {
-      rows.push({ k: `${r.d} 99:99`, cells: [TYPES.objawy, r.d, '', '', '', '', '', '', '', r.pain, r.sleep, r.anxiety, r.mood, csvText(decryptField('symptom_log', 'note', rowScope('symptom_log', { user_id: me, day: r.d }), r.note)), csvText(r.custom)] });
+        mv AS (SELECT v.day, string_agg(d.name || ': ' || replace((v.value::float8)::text, '.', ',') || CASE WHEN d.unit <> '' THEN ' ' || d.unit ELSE '' END, '; ' ORDER BY d.slot) AS txt
+          FROM measure_values v JOIN measure_defs d ON d.id = v.def_id WHERE v.user_id = ${me}::int GROUP BY v.day),
+        l AS (SELECT day, pain, sleep, anxiety, mood, note FROM symptom_log WHERE user_id = ${me}::int),
+        days AS (SELECT day FROM l UNION SELECT day FROM cv UNION SELECT day FROM mv)
+      SELECT to_char(days.day, 'YYYY-MM-DD') AS d, l.pain, l.sleep, l.anxiety, l.mood, COALESCE(l.note, '') AS note, cv.txt AS custom, mv.txt AS measures
+      FROM days LEFT JOIN l ON l.day = days.day LEFT JOIN cv ON cv.day = days.day LEFT JOIN mv ON mv.day = days.day
+      WHERE (${from}::date IS NULL OR days.day >= ${from}::date) AND (${to}::date IS NULL OR days.day <= ${to}::date)`) {
+      rows.push({ k: `${r.d} 99:99`, cells: [TYPES.objawy, r.d, '', '', '', '', '', '', '', r.pain, r.sleep, r.anxiety, r.mood, csvText(decryptField('symptom_log', 'note', rowScope('symptom_log', { user_id: me, day: r.d }), r.note)), csvText(r.custom), csvText(r.measures)] });
     }
   }
   if (want('zuzycie')) {

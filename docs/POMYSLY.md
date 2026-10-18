@@ -88,7 +88,7 @@ Reguła: brak sprzeczności z zasadami oceny, dane tylko własne, każdy dotyka 
 | POM-60 | „Ukryj teraz” i dyskrecja po powrocie do aplikacji (menu „Więcej”, opcja per urządzenie) | 3 | S | P | – | zrobione (0.70.0) | KON-11 |
 | POM-61 | „Ostatnia kopia” w profilu i przypomnienie o kopii w APK (lokalne, co 30 dni) | 3 | S | P | POM-49, POM-57 | częściowo (0.70.0: „Ostatnia kopia” w przeglądarce; przypomnienie w APK po zapisie plików przez wtyczkę) | PRA-8 |
 | POM-62 | Zdarzenia niepożądane: osobny dziennik (data, opis szyfrowany, nasilenie słowne, odmiana) + link do oficjalnego zgłoszenia | 4 | M | P, Pr | ⚖️ (tekst informacyjny) | zrobione (0.71.0; bez odmiany, znaczniki na wykresie później) | PAC-1 |
-| POM-63 | Własne pomiary z jednostką (ciśnienie, tętno, waga) obok objawów 0–10, bez norm i ocen | 3 | M | P | – | zrobione (0.73.0; wykres i obserwacje później) | PAC-6, PAC-14 |
+| POM-63 | Własne pomiary z jednostką (ciśnienie, tętno, waga) obok objawów 0–10, bez norm i ocen | 3 | M | P | – | zrobione (0.73.0; wykres 0.95.0, CSV 0.97.0; obserwacje później) | PAC-6, PAC-14 |
 | POM-64 | Karta terapii i raport skrócony po angielsku (wydruk/PDF) | 3 | S/M | P, Pr | ⚖️ (teksty listy) | zrobione (0.74.0 karta, 0.75.0 raport skrócony PDF) | PAC-4 |
 | POM-R1 | Seria dni z użyciem / odznaki za zużycie | – | – | Pr | – | **odrzucony** | – |
 | POM-R2 | Podpowiedź dawki („spróbuj 0,3 g”) | – | – | Pr | – | **odrzucony** | – |
