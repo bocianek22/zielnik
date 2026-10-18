@@ -8,6 +8,10 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.90.0] - 2026-10
+### Zmieniono
+- **Wykresy w kolorach obszarów i z animacją (UI 5, „lepsze wykresy”):** linie i pasma objawów w Dzienniku w kolorze obszaru „Dziennik” (fiolet), zużycie zostaje w zieleni zapasu. Słupki rosną od osi po kolei (`Bars.js` daje klasę `.bar` i numer `--n`), paski porównań w Historii wysuwają się od lewej, linie objawów rysują się od lewej. Bez animacji przy „Ogranicz ruch”.
+
 ## [0.89.0] - 2026-10
 ### Zmieniono
 - **Logowanie i rejestracja w stylu reszty aplikacji (UI 5, etap 7, zaakceptowane przez właściciela):** miętowe tło jak nagłówek „Dziś”, formularz w zaokrąglonej karcie (także odzyskiwanie hasła, nowe hasło, potwierdzenie e-maila), na komputerze miętowy panel z poświatą zamiast ciemnej zieleni, trzy punkty z kółkami w kolorach obszarów (na telefonie pod formularzem). Wejście karty i punktów animowane, bez animacji przy „Ogranicz ruch”.

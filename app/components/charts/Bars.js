@@ -4,6 +4,7 @@ import { barPath } from './scale';
 // proporcjonalna do `max` (hmax px dla max), zaokrąglony 4 px tylko u góry, zakotwiczony na `base`.
 //  items: [{ key, value, title? }]    minH: minimalna wysokość niezerowego słupka    zeroH: wysokość znacznika zera (0 = brak)
 //  hit: przezroczysty prostokąt na cały przedział (cel dotyku), onSelect(i) przy kliknięciu
+//  słupek ma klasę .bar i --n (numer) do animacji wzrostu (charts.css)
 //  extra(item, i, { x, y, h }): dodatkowa treść w grupie słupka (podpisy); children: treść pod słupkami (oś)
 export default function Bars({ items, width, height, base = height, slot, x0 = 0, bw = slot, hmax = height, minH = 0, zeroH = 0, max,
   hit = false, onSelect, groupClass, pathClass, zeroClass, extra, className, children, ...svgProps }) {
@@ -19,7 +20,7 @@ export default function Bars({ items, width, height, base = height, slot, x0 = 0
           <g key={d.key} className={cls} onClick={onSelect ? () => onSelect(i) : undefined}>
             {d.title && <title>{d.title}</title>}
             {hit && <rect x={x - (slot - bw) / 2} y="0" width={slot} height={height} fill="transparent" />}
-            {h > 0 ? <path className={pathClass} d={barPath(x, bw, h, base)} />
+            {h > 0 ? <path className={pathClass ? `${pathClass} bar` : 'bar'} style={{ '--n': i }} d={barPath(x, bw, h, base)} />
               : zeroH > 0 && <rect className={zeroClass} x={x} y={base - zeroH} width={bw} height={zeroH} rx={zeroH / 2} />}
             {extra?.(d, i, { x, y: base - h, h })}
           </g>
