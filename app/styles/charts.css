@@ -275,3 +275,19 @@
 /* UI 4: zwinięte objawy w porównaniu okresów */
 .pc-more { margin-top: var(--s-3); border-top: 1px solid var(--sep); }
 .pc-more > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-weight: 600; color: var(--accent-text); }
+
+/* ===== UI 5: wykresy w kolorach obszarów i animacja wejścia ===== */
+/* objawy to Dziennik: linia i pasmo w kolorze obszaru „journal” (zużycie zostaje w zieleni zapasu) */
+.sym-chart .sp-line { stroke: var(--cat-journal-ink); }
+.sym-chart .sp-band { fill: color-mix(in srgb, var(--cat-journal-ink) 16%, transparent); }
+.sp-end { background: var(--cat-journal-ink); }
+@media (prefers-reduced-motion: no-preference) {
+  /* słupki rosną od osi, po kolei (najdłużej 0,4 s opóźnienia), paski porównania od lewej, linie rysują się od lewej */
+  svg .bar, .uchart-bar { transform-box: fill-box; transform-origin: 50% 100%; animation: bar-grow .55s cubic-bezier(.2, .9, .3, 1) both;
+    animation-delay: min(calc(var(--n, 0) * 14ms), .4s); }
+  .hb-bar { transform-origin: left center; animation: hb-grow .6s cubic-bezier(.2, .9, .3, 1) .05s both; }
+  .sym-chart .sp-line, .sym-chart .sp-band, .sym-chart .sp-ref { animation: line-draw .9s cubic-bezier(.3, .7, .2, 1) .1s both; }
+}
+@keyframes bar-grow { from { transform: scaleY(0); } to { transform: none; } }
+@keyframes hb-grow { from { transform: scaleX(0); } to { transform: none; } }
+@keyframes line-draw { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }

@@ -33,7 +33,7 @@ export default function UsageWeeks({ weeks, unit = 'g' }) {
             const x = `${i * slot + slot * 0.18}%`;
             const wd = `${slot * 0.64}%`;
             return (
-              <g key={w.week} className={`uchart-bar${sel == null || sel === i ? '' : ' dim'}`}>
+              <g key={w.week} className={`uchart-bar${sel == null || sel === i ? '' : ' dim'}`} style={{ '--n': i }}>
                 <rect x={x} width={wd} y={`${100 - bh}%`} height={`${bh}%`} rx="3" />
                 {/* dolna część bez zaokrąglenia: słupek stoi płasko na osi */}
                 <rect x={x} width={wd} y={`${100 - Math.min(bh, 3)}%`} height={`${Math.min(bh, 3)}%`} />
