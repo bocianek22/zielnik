@@ -10,6 +10,7 @@ import ThemeToggle from './ThemeToggle';
 import BottomNav from './BottomNav';
 import CompactTitle from './CompactTitle';
 import TopNav from './TopNav';
+import SideNav from './SideNav';
 import WhatsNew from './WhatsNew';
 import { navItems } from './navItems';
 import { VERSION } from '@/lib/version';
@@ -31,6 +32,7 @@ export default function Header({ user }) {
           <Leaf size={24} />
           <span className="brand-name">Zielnik</span><span className="brand-alt">Notatnik</span>
         </Link>
+        <SideNav isAdmin={admin} />
         <nav className="nav" aria-label="Główna nawigacja">
           <TopNav items={plain(navItems('main', admin))} />
           <MoreMenu badge={admin ? <NavBadge kind="admin" /> : null}>

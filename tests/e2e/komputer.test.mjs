@@ -58,7 +58,9 @@ for (const size of SIZES) {
         const o = await overflow(page);
         if (o > 0) found.push(`${path}: poziome przewijanie o ${o} px`);
         if (await page.locator('.bottomnav').isVisible()) found.push(`${path}: widoczne dolne menu`);
-        if (!(await page.locator('.topbar .nav').first().isVisible())) found.push(`${path}: brak menu górnego`);
+        // UI 5: od 1100 px nawigacja w panelu bocznym (.sidenav), węższy komputer ma menu w górnym pasku
+        const menu = size.width >= 1100 ? '.sidenav' : '.topbar .nav';
+        if (!(await page.locator(menu).first().isVisible())) found.push(`${path}: brak menu (${menu})`);
         for (const v of await serious(page)) found.push(`${path}: ${v}`);
       }
       assert.deepEqual(found, []);
@@ -133,7 +135,7 @@ test('1280 px: panel admina, zakładki Gotowość i Zgłoszenia', async () => {
       for (const v of await serious(page)) found.push(`${name}: ${v}`);
     }
     assert.equal(await page.locator('.bottomnav').isVisible(), false);
-    assert.ok(await page.locator('.topbar .nav').first().isVisible());
+    assert.ok(await page.locator('.sidenav').first().isVisible(), 'panel boczny na 1280 px');
     assert.deepEqual(found, []);
     assert.deepEqual(problems, []);
   } catch (e) { await shot(page, 'komputer-admin'); throw e; } finally { await ctx.close(); }

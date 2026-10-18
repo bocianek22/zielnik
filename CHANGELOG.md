@@ -8,6 +8,10 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.83.0] - 2026-10
+### Zmieniono
+- **Panel boczny na komputerze (UI 5, etap 2):** od 1100 px szerokości nawigacja jest w panelu po lewej: główne miejsca, grupy „Dziennik” i „Odkrywaj i znajomi” z ikonami, „Konto i ustawienia” zwinięte na dole, użytkownik i wylogowanie pod spodem. Węższy ekran i telefon bez zmian.
+
 ## [0.82.0] - 2026-10
 ### Zmieniono
 - **Nowy wygląd, etap 1 (UI 5, docs/UI-5.md):** jasny górny pasek w kolorze tła (pasek stanu w APK i przeglądarce w tym samym kolorze, osobno dla trybu jasnego i ciemnego), miętowy nagłówek „Dziś” i karty odmiany, złagodzone pastelowe nagłówki obszarów (Dziennik, Recepty, Historia i inne), pływający dolny pasek z rozmyciem tła, przycisk „+” w kolorze marki, nowa czcionka Plus Jakarta Sans.
