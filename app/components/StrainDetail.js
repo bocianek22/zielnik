@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { OwnEntry, dec } from './StrainCard';
 import Icon from './Icon';
 import SecHead from './SecHead';
-import Fold from './Fold';
+import Fold, { Section } from './Fold';
+import StrainTabs from './StrainTabs';
 import StrainFeel from './StrainFeel';
 import QuickActions from './QuickActions';
 import Illustration from './Illustration';
@@ -220,68 +221,81 @@ export default function StrainDetail({ strain, options, tastes, mates, tests, st
         </section>
       )}
 
-      <MyStats stats={stats} unit={unit} />
-
-      <StrainBatches batches={batches} unit={unit} />
-
-      {mine && (
-        <Fold cat="journal" icon="pulse" title="Samopoczucie po tej odmianie" className="dfeel">
-          <StrainFeel feel={feel} />
-        </Fold>
-      )}
-
-      <Fold cat="stock" icon="jar" title="Mój wpis" className="dmine">
-        {mine && <OwnEntry strainId={strain.id} strainName={strain.name} form={strain.form} entry={mine} mates={mates} hidePrice={me.hidePrices} onSaved={onMineSaved} />}
-      </Fold>
-
-      {!editing && hasComposition && (
-        <Fold cat="strain" icon="flask" title="Skład" className="dcomp" open>
-          <div className="dcomp-body">
-          <div>
-          {(strain.thc != null || strain.cbd != null) && (
-            <div className="meters">
-              {strain.thc != null && <Meter label="THC" value={strain.thc} />}
-              {strain.cbd != null && <Meter label="CBD" value={strain.cbd} />}
-              <p className="meter-scale">Skala paska 0–{METER_MAX}%</p>
-            </div>
-          )}
-          {strain.terpenes?.length > 0 && (
-            <div className="dterp">
-              <h3 className="dlabel">Terpeny</h3>
-              <div className="chips">{strain.terpenes.map((t) => <Link key={t} href={`/wiedza#t-${t.toLowerCase().split(' ')[0]}`} className="chip dn">{t}</Link>)}</div>
-            </div>
-          )}
-          </div>
-          {facts.length > 0 && (
-            <dl className="facts dfacts">{facts.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
-          )}
-          </div>
-        </Fold>
-      )}
-      <CharacteristicCard strain={strain} hidePrice={me.hidePrices} compact fold />
-      <PharmacyLink producer={strain.producer} name={strain.name} card />
-
-      <Effects strain={strain} meId={me.id} />
-
-      <Fold cat="social" icon="users" title="Opinie innych" count={others.length || null} className="dopinions">
-        {others.length ? (
-          <ul className="opinions">
-            {others.map((e) => (
-              <li key={e.userId}>
-                <div className="op-head">
-                  <Link href={`/u/${encodeURIComponent(e.username)}`} className="op-who">{e.displayName || e.username}</Link>
-                  {e.rating != null && <span className="op-rating"><b>{dec(Number(e.rating))}</b>/10</span>}
+      {/* UI 5 etap 6: zakładki zamiast długiej listy sekcji; „Skala odczuć” na pierwszej zakładce (życzenie właściciela) */}
+      <StrainTabs counts={{ opinie: others.length || null, moje: batches?.length || null }} panels={{
+        przeglad: (
+          <>
+            <MyStats stats={stats} unit={unit} />
+            <Effects strain={strain} meId={me.id} fold={false} />
+            {mine && (
+              <Fold cat="journal" icon="pulse" title="Samopoczucie po tej odmianie" className="dfeel">
+                <StrainFeel feel={feel} />
+              </Fold>
+            )}
+          </>
+        ),
+        moje: (
+          <>
+            <Section cat="stock" icon="jar" title="Mój wpis" className="dmine">
+              {mine
+                ? <OwnEntry strainId={strain.id} strainName={strain.name} form={strain.form} entry={mine} mates={mates} hidePrice={me.hidePrices} onSaved={onMineSaved} />
+                : <p className="muted">Tej odmiany nie ma na Twojej liście, więc nie ma tu jeszcze Twoich zapisów.</p>}
+            </Section>
+            <StrainBatches batches={batches} unit={unit} />
+          </>
+        ),
+        sklad: (
+          <>
+            {!editing && hasComposition && (
+              <Section cat="strain" icon="flask" title="Skład" className="dcomp">
+                <div className="dcomp-body">
+                <div>
+                {(strain.thc != null || strain.cbd != null) && (
+                  <div className="meters">
+                    {strain.thc != null && <Meter label="THC" value={strain.thc} />}
+                    {strain.cbd != null && <Meter label="CBD" value={strain.cbd} />}
+                    <p className="meter-scale">Skala paska 0–{METER_MAX}%</p>
+                  </div>
+                )}
+                {strain.terpenes?.length > 0 && (
+                  <div className="dterp">
+                    <h3 className="dlabel">Terpeny</h3>
+                    <div className="chips">{strain.terpenes.map((t) => <Link key={t} href={`/wiedza#t-${t.toLowerCase().split(' ')[0]}`} className="chip dn">{t}</Link>)}</div>
+                  </div>
+                )}
                 </div>
-                {e.notes && <p className="op-note">{e.notes}</p>}
-              </li>
-            ))}
-          </ul>
-        ) : <p className="muted">Nie widzisz jeszcze opinii innych osób o tej odmianie.</p>}
-      </Fold>
-
-      <Tests strainId={strain.id} initialTests={tests} me={me} />
-
-      <StrainHistory strainId={strain.id} isAdmin={me.isAdmin} hidePrice={me.hidePrices} />
+                {facts.length > 0 && (
+                  <dl className="facts dfacts">{facts.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
+                )}
+                </div>
+              </Section>
+            )}
+            <CharacteristicCard strain={strain} hidePrice={me.hidePrices} compact fold />
+            <PharmacyLink producer={strain.producer} name={strain.name} card />
+            <Tests strainId={strain.id} initialTests={tests} me={me} />
+          </>
+        ),
+        opinie: (
+          <>
+            <Section cat="social" icon="users" title="Opinie innych" count={others.length || null} className="dopinions">
+              {others.length ? (
+                <ul className="opinions">
+                  {others.map((e) => (
+                    <li key={e.userId}>
+                      <div className="op-head">
+                        <Link href={`/u/${encodeURIComponent(e.username)}`} className="op-who">{e.displayName || e.username}</Link>
+                        {e.rating != null && <span className="op-rating"><b>{dec(Number(e.rating))}</b>/10</span>}
+                      </div>
+                      {e.notes && <p className="op-note">{e.notes}</p>}
+                    </li>
+                  ))}
+                </ul>
+              ) : <p className="muted">Nie widzisz jeszcze opinii innych osób o tej odmianie.</p>}
+            </Section>
+            <StrainHistory strainId={strain.id} isAdmin={me.isAdmin} hidePrice={me.hidePrices} />
+          </>
+        ),
+      }} />
     </div>
   );
 }

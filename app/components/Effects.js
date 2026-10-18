@@ -2,7 +2,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
-import Fold from './Fold';
+import { Section } from './Fold';
+import Icon from './Icon';
 import { EFFECTS, EFFECT_HELP, TAG_THRESHOLD, strainTags } from '@/lib/effects';
 
 const N = EFFECTS.length, SIZE = 280, C = SIZE / 2, R = 92;
@@ -29,8 +30,17 @@ function Radar({ avg, mine }) {
           </g>
         );
       })}
-      <polygon className="radar-avg" points={poly(avg)} fill="var(--chart-ref)" fillOpacity=".3" stroke="var(--chart-ref)" strokeWidth="2" />
-      <polygon className="radar-me" points={poly(mine)} fill="var(--chart-data)" fillOpacity=".18" stroke="var(--chart-data)" strokeWidth="2" strokeDasharray="5 3" />
+      <defs>
+        <radialGradient id="radar-fill" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="var(--chart-data)" stopOpacity=".05" />
+          <stop offset="100%" stopColor="var(--chart-data)" stopOpacity=".38" />
+        </radialGradient>
+      </defs>
+      <polygon className="radar-avg" points={poly(avg)} fill="var(--chart-ref)" fillOpacity=".22" stroke="var(--chart-ref)" strokeWidth="2" strokeDasharray="5 3" />
+      <g className="radar-me">
+        <polygon points={poly(mine)} fill="url(#radar-fill)" stroke="var(--chart-data)" strokeWidth="2.5" strokeLinejoin="round" />
+        {mine.map((m, i) => m != null && <circle key={i} cx={pt(i, m)[0]} cy={pt(i, m)[1]} r="4" fill="var(--surface)" stroke="var(--chart-data)" strokeWidth="2" />)}
+      </g>
     </svg>
     <div className="sr-only"><table>
       <caption>Skala odczuć, 0–10</caption>
@@ -41,7 +51,8 @@ function Radar({ avg, mine }) {
   );
 }
 
-export default function Effects({ strain, meId }) {
+// fold=false (karta odmiany, UI 5 etap 6): stała karta z wykresem na wierzchu, suwaki oceny pod „Oceń odczucia”
+export default function Effects({ strain, meId, fold = true }) {
   const router = useRouter();
   const saved = strain.entries.find((e) => e.userId === meId)?.effects || {};
   const [mine, setMine] = useState(() => Object.fromEntries(EFFECTS.map(([k]) => [k, saved[k] ?? null])));
@@ -59,15 +70,16 @@ export default function Effects({ strain, meId }) {
   }
 
   return (
-    <Fold cat="strain" icon="zap" title="Skala odczuć" className="effects">
-      <p className="muted">Oceń, jak ta odmiana działała na Ciebie (0–10). To Twoje subiektywne odczucia, nie zalecenia medyczne. Suwak, którego nie ruszysz, pozostaje bez oceny.</p>
+    <Section fold={fold} cat="strain" icon="zap" title="Skala odczuć" className="effects">
       <p>Tagi efektów: {strainTags(strain).length ? strainTags(strain).map((t) => <span key={t} className="chip tag">{t}</span>) : <span className="muted">brak (tag pojawia się, gdy średnia widocznych ocen efektu wynosi co najmniej {String(TAG_THRESHOLD).replace('.', ',')}).</span>}</p>
       <div className="effects-body">
         <div>
           <Radar avg={avg} mine={EFFECTS.map(([k]) => mine[k])} />
-          <p className="legend"><span className="dot avg" /> średnia wszystkich <span className="dot me" /> Ty</p>
+          <p className="legend"><span className="dot avg" /> średnia wszystkich <span className="dot me" /> Ty <span className="muted">· skala 0–10, subiektywne odczucia</span></p>
         </div>
-        <div className="sliders">
+        <details className="sliders fx-rate" open={fold || undefined}>
+          <summary className="btn ghost small">Oceń odczucia<Icon name="chevronDown" size={18} /></summary>
+          <p className="muted">Oceń, jak ta odmiana działała na Ciebie (0–10). To Twoje subiektywne odczucia, nie zalecenia medyczne. Suwak, którego nie ruszysz, pozostaje bez oceny.</p>
           {EFFECTS.map(([k, label]) => (
             <div key={k} className="slider">
               <label htmlFor={`fx-${k}`}>{label} <b>{mine[k] ?? '–'}</b></label>
@@ -82,8 +94,8 @@ export default function Effects({ strain, meId }) {
             <button className="btn small" onClick={save}>Zapisz odczucia</button>
             <span className="muted" role="status">{msg}</span>
           </div>
-        </div>
+        </details>
       </div>
-    </Fold>
+    </Section>
   );
 }

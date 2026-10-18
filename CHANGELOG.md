@@ -8,6 +8,12 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.87.0] - 2026-10
+### Zmieniono
+- **Karta odmiany w zakładkach (UI 5, etap 6, wariant B wybrany przez właściciela):** Przegląd (statystyki, Skala odczuć, samopoczucie), Moje (wpis, partie), Skład (THC/CBD, terpeny, karta charakterystyki, apteki, testy), Opinie (opinie innych, historia zmian). Zakładki przyklejone u góry przy przewijaniu, z przesuwanym wskaźnikiem, obsługą strzałek i adresem (`#sklad`), panele w HTML od początku (stan formularzy zostaje przy przełączaniu).
+- **Skala odczuć na wierzchu:** wykres zawsze widoczny w „Przeglądzie”, z wypełnieniem gradientem i punktami Twoich ocen; suwaki pod przyciskiem „Oceń odczucia”.
+- **Animacje (wyłączone przy „Ogranicz ruch”):** oceny wskakują po kolei, wykres odczuć rozkwita od środka, paski THC/CBD się napełniają, panel wjeżdża przy zmianie zakładki, w nagłówku powoli płynie poświata w kolorze rodzaju.
+
 ## [0.86.0] - 2026-10
 ### Dodano
 - **Karta „Twój tydzień” na „Dziś” (UI 5, etap 5):** regularność wpisów, średnie objawów z ostatnich 7 dni i zmiana względem poprzedniego tygodnia (dopiero przy co najmniej 3 wpisach w obu tygodniach, opis „niżej/wyżej”, kierunek „lepiej” zależny od objawu), odznaki za porządek w wariancie „Gablotka” wybranym przez właściciela: pierwszy wpis, tydzień i miesiąc wpisów z rzędu, 30 dni wpisów, pierwsza recepta, zapisana wizyta. Nigdy za zużycie ani za wartości objawów. Jednorazowa informacja o nowej odznace (pokazane odznaki w pamięci urządzenia, czyszczone przy wylogowaniu; przy pierwszym uruchomieniu bez zalewu gratulacji). Jedno dodatkowe zapytanie (`lib/week-summary.js`), bez zmian w bazie.

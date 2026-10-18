@@ -37,6 +37,33 @@ test('Menu zdjęcia: formularz zgłoszenia widoczny w całości na 320 px', asyn
   } catch (e) { await shot(page, 'odmiana-menu-zdjecia'); throw e; }
 });
 
+test('Zakładki karty odmiany (UI 5 etap 6): Skala odczuć na Przeglądzie, strzałki, adres #, wejście z adresu', async () => {
+  try {
+    await page.setViewportSize({ width: 390, height: 844 });
+    const { rows } = await pool.query(`SELECT id FROM strains WHERE name = 'Lemon Skunk' LIMIT 1`);
+    await go(page, `/strains/${rows[0].id}`);
+    const przeglad = page.getByRole('tab', { name: 'Przegląd' });
+    await interactive(przeglad);
+    assert.equal(await przeglad.getAttribute('aria-selected'), 'true');
+    await page.locator('#panel-przeglad .effects .radar').waitFor();
+    assert.equal(await page.locator('#panel-sklad').isVisible(), false);
+    // klawiatura: strzałka w prawo przenosi na „Moje”, End na „Opinie”
+    await przeglad.focus();
+    await page.keyboard.press('ArrowRight');
+    assert.equal(await page.getByRole('tab', { name: /^Moje/ }).getAttribute('aria-selected'), 'true');
+    await page.keyboard.press('End');
+    assert.equal(await page.getByRole('tab', { name: /^Opinie/ }).getAttribute('aria-selected'), 'true');
+    assert.match(page.url(), /#opinie$/);
+    await page.locator('#panel-opinie .dopinions').waitFor();
+    // wejście z adresem otwiera wskazaną zakładkę
+    await go(page, `/strains/${rows[0].id}#sklad`);
+    await page.locator('#panel-sklad .dcomp').waitFor();
+    assert.equal(await page.getByRole('tab', { name: 'Skład' }).getAttribute('aria-selected'), 'true');
+    const over = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+    assert.ok(over <= 0, `poziome przewijanie o ${over} px`);
+  } catch (e) { await shot(page, 'odmiana-zakladki'); throw e; }
+});
+
 test('Arkusz „…” w wierszu odmiany blokuje przewijanie tła', async () => {
   try {
     await page.setViewportSize({ width: 390, height: 844 });
