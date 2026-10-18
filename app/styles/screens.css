@@ -22,6 +22,10 @@
 /* POM-36: „Do omówienia z lekarzem” */
 .dn-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-2); }
 .dn-list li { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); }
+/* Inne przyjmowane leki (raport/OtherMeds.js): pola na całą szerokość, obok siebie od ok. 560 px */
+.other-meds .row { display: flex; flex-wrap: wrap; gap: var(--s-3); }
+.other-meds .row .field { flex: 1 1 14rem; min-width: 0; }
+.other-meds .row .input { width: 100%; }
 .dn-list .check { align-items: flex-start; }
 .dn-done span { text-decoration: line-through; color: var(--muted); }
 .report-notes { margin: 0 0 var(--s-3); padding-left: 1.2em; }

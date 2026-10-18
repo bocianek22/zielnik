@@ -14,6 +14,9 @@ import DoctorNotes from './DoctorNotes';
 import VisitsLog from './VisitsLog';
 import { listVisits } from '@/lib/visits';
 import ReportNotes from './ReportNotes';
+import OtherMeds from './OtherMeds';
+import ReportMeds from './ReportMeds';
+import { listMeds } from '@/lib/other-meds';
 import { listNotes } from '@/lib/doctor-notes';
 import { formatDay, todayPL, addDaysIso } from '@/lib/date';
 import { doctorReport, MIN_SYMPTOM_DAYS } from '@/lib/report';
@@ -57,13 +60,15 @@ export default async function Raport({ searchParams }) {
   if (from > to) [from, to] = [to, from];
   if (Date.parse(to) - Date.parse(from) >= MAX_DAYS * 864e5) from = addDaysIso(to, -(MAX_DAYS - 1));
   const withNotes = sp.notes === '1';
+  // inne leki trafiają do raportu tylko po zaznaczeniu „Dołącz inne leki” (POM-39: domyślnie nie)
+  const withMeds = sp.leki === '1';
   const visit = sp.okres === 'wizyta';
   // wersja skrócona (POM-56): te same sekcje co w lib/report-pdf-model.js (short), bez list o nieograniczonej długości
   const brief = sp.krotki === '1';
-  const notesQs = `${withNotes ? '&notes=1' : ''}${brief ? '&krotki=1' : ''}`;
+  const notesQs = `${withNotes ? '&notes=1' : ''}${withMeds ? '&leki=1' : ''}${brief ? '&krotki=1' : ''}`;
 
-  const [report, notes, visits] = await Promise.all([
-    doctorReport(me.id, from, to, { withNotes }), listNotes(me.id), listVisits(me.id),
+  const [report, notes, visits, meds] = await Promise.all([
+    doctorReport(me.id, from, to, { withNotes }), listNotes(me.id), listVisits(me.id), listMeds(me.id),
   ]);
   const { usage, weekly, purchases, feel: feelAll, sym, customSym, totals, rx, rxSum, strainSym, whenUsed, factors = [], adverse = [], measures = [] } = report;
   const openNotes = notes.filter((n) => !n.done);
@@ -102,7 +107,7 @@ export default async function Raport({ searchParams }) {
   // objawy przy odmianach: średnia tylko przy co najmniej MIN_SYMPTOM_DAYS dniach z wpisem
   const symCell = (s, k) => (s[`n_${k}`] >= MIN_SYMPTOM_DAYS ? `${nf(s[k])} (${dniGen(s[`n_${k}`])})` : s[`n_${k}`] ? `za mało dni (${s[`n_${k}`]})` : '–');
 
-  const modeHref = (b) => `/raport?from=${from}&to=${to}${visit ? '&okres=wizyta' : ''}${withNotes ? '&notes=1' : ''}${b ? '&krotki=1' : ''}`;
+  const modeHref = (b) => `/raport?from=${from}&to=${to}${visit ? '&okres=wizyta' : ''}${withNotes ? '&notes=1' : ''}${withMeds ? '&leki=1' : ''}${b ? '&krotki=1' : ''}`;
   const { shown: briefUsage, rest: briefRest } = shortUsage(usage);
   const presetHref = (n) => `/raport?from=${addDaysIso(today, -(n - 1))}&to=${today}${notesQs}`;
   const presetOn = (n) => !visit && to === today && from === addDaysIso(today, -(n - 1));
@@ -128,13 +133,14 @@ export default async function Raport({ searchParams }) {
               <Link key={n} className={`chip${presetOn(n) ? ' on' : ''}`} href={presetHref(n)} aria-current={presetOn(n) ? 'page' : undefined}>{l}</Link>
             ))}
           </nav>
-          <VisitPeriod today={today} value={visit ? from : ''} notes={withNotes} brief={brief} />
+          <VisitPeriod today={today} value={visit ? from : ''} notes={withNotes} meds={withMeds} brief={brief} />
           <details className="report-more" open={custom || undefined}>
             <summary>Własny zakres dat i opcje<Icon name="chevronDown" size={20} className="report-more-chev" /></summary>
             <form className="row report-range" method="get">
               <div className="field"><label htmlFor="from">Od</label><input id="from" name="from" type="date" lang="pl" className="input" defaultValue={from} max={today} /></div>
               <div className="field"><label htmlFor="to">Do</label><input id="to" name="to" type="date" lang="pl" className="input" defaultValue={to} max={today} /></div>
               <label className="check"><input type="checkbox" name="notes" value="1" defaultChecked={withNotes} /> Dołącz moje spostrzeżenia (notatki przy odmianach i o partiach, czynniki dnia)</label>
+              <label className="check"><input type="checkbox" name="leki" value="1" defaultChecked={withMeds} /> Dołącz inne przyjmowane leki</label>
               {brief && <input type="hidden" name="krotki" value="1" />}
               <button className="btn ghost">Pokaż raport</button>
             </form>
@@ -146,7 +152,7 @@ export default async function Raport({ searchParams }) {
           </nav>
           {brief && <p className="muted small">Skrócony: podsumowanie, objawy z całego okresu, recepty i najczęstsze odmiany; zwykle mieści się na jednej stronie.</p>}
           {/* key: gotowy PDF (pod Safari) liczony dla danego okresu i wersji; po zmianie trybu bez przeładowania nowy */}
-          <ReportActions key={`${from}|${to}|${brief}|${withNotes}`} from={from} to={to} notes={openNotes} model={buildReportModel({ patient: plan?.display_name || me.username, from, to, today, withNotes, report, minSymptomDays: MIN_SYMPTOM_DAYS, short: brief })}
+          <ReportActions key={`${from}|${to}|${brief}|${withNotes}|${withMeds}`} from={from} to={to} notes={openNotes} meds={withMeds ? meds : null} model={buildReportModel({ patient: plan?.display_name || me.username, from, to, today, withNotes, report, minSymptomDays: MIN_SYMPTOM_DAYS, short: brief })}
             modelEn={brief ? buildBriefModelEn({ patient: plan?.display_name || me.username, from, to, today, report }) : null} />
           <p className="muted small">PDF powstaje na tym urządzeniu, a dane nie trafiają na serwer.</p>
           <details className="report-more">
@@ -156,6 +162,7 @@ export default async function Raport({ searchParams }) {
         </div>
 
         <DoctorNotes initial={notes} />
+        <OtherMeds initial={meds} included={withMeds} />
         <VisitsLog initial={visits} />
 
         {noData ? (
@@ -171,6 +178,7 @@ export default async function Raport({ searchParams }) {
           <p className="report-meta">Pacjent: <b>{plan?.display_name || me.username}</b><br />Okres: <b>{day(from)}</b> do <b>{day(to)}</b> ({dni(daysSpan)})</p>
           <p className="muted small">Zestawienie powstało {day(today)} z zapisów prowadzonych przez pacjenta w aplikacji Zielnik. Nie jest dokumentacją medyczną ani oceną skuteczności leczenia.</p>
 
+          {withMeds && <ReportMeds initial={meds} />}
           <ReportNotes initial={openNotes} />
 
           <h3>Podsumowanie</h3>

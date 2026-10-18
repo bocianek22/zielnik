@@ -5,6 +5,7 @@ import { isNative, nativePrint, canNativeSharePdf, nativeSharePdf } from '../com
 import { isDiscreet } from '@/lib/discreet';
 import { reportTitle } from '@/lib/shortcuts';
 import { NOTES_EVENT } from './ReportNotes';
+import { MEDS_EVENT } from './OtherMeds';
 
 // Przeglądarka: „Drukuj” (okno drukowania z „Zapisz jako PDF”; tytuł strony staje się nazwą pliku, więc na czas druku go podmieniamy),
 // „Pobierz PDF” i, gdy przeglądarka umie udostępniać pliki (telefon), „Udostępnij PDF”. PDF powstaje lokalnie (lib/report-pdf.js,
@@ -12,9 +13,11 @@ import { NOTES_EVENT } from './ReportNotes';
 // więc wtyczka ZielnikShare przyjmuje PDF (base64) i otwiera systemowe okno „Udostępnij”, a ZielnikPrint zostaje jako „Drukuj”
 // (starsze APK bez ZielnikShare: sam druk, mobile/README.md). Tryb dyskretny sprawdzamy w chwili dotknięcia.
 // modelEn (POM-64): raport skrócony po angielsku, tylko jako plik PDF (pobranie, w APK udostępnienie)
-export default function ReportActions({ from, to, model, modelEn = null, notes: initialNotes }) {
+export default function ReportActions({ from, to, model, modelEn = null, notes: initialNotes, meds: initialMeds = null }) {
   const [caps, setCaps] = useState(null); // { native, share, nativeShare } po zamontowaniu (serwer tego nie wie)
   const [notes, setNotes] = useState(initialNotes);
+  // null = inne leki niedołączone do raportu (bez „Dołącz inne leki”): zmiany listy wtedy nie trafiają do PDF
+  const [meds, setMeds] = useState(initialMeds);
   const [busy, setBusy] = useState(null); // 'download' | 'share' | 'native'
   const [err, setErr] = useState('');
 
@@ -26,8 +29,10 @@ export default function ReportActions({ from, to, model, modelEn = null, notes: 
     } catch { share = false; }
     setCaps({ native, share, nativeShare: native && canNativeSharePdf() });
     const on = (e) => setNotes(e.detail);
+    const onMeds = (e) => setMeds((m) => (m ? e.detail : m));
     window.addEventListener(NOTES_EVENT, on);
-    return () => window.removeEventListener(NOTES_EVENT, on);
+    window.addEventListener(MEDS_EVENT, onMeds);
+    return () => { window.removeEventListener(NOTES_EVENT, on); window.removeEventListener(MEDS_EVENT, onMeds); };
   }, []);
 
   const print = () => {
@@ -44,7 +49,7 @@ export default function ReportActions({ from, to, model, modelEn = null, notes: 
   const bytesOf = async (m = model) => {
     const { buildReportPdf } = await import('@/lib/report-pdf');
     const title = m.lang === 'en' ? (isDiscreet() ? 'Report' : `Report ${from} – ${to}`) : reportTitle(from, to, isDiscreet());
-    return buildReportPdf({ ...m, title }, notes);
+    return buildReportPdf({ ...m, title }, notes, undefined, meds || []);
   };
   const make = async (m = model) => new File([await bytesOf(m)], m.fileName, { type: 'application/pdf' });
 
@@ -60,7 +65,7 @@ export default function ReportActions({ from, to, model, modelEn = null, notes: 
       make().then((file) => { if (live) ready.current = { file, discreet }; }).catch(() => {});
     }, 300);
     return () => { live = false; clearTimeout(t); };
-  }, [caps, notes]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [caps, notes, meds]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const run = (kind, m = model) => async () => {
     setErr(''); setBusy(m === model ? kind : 'en');
