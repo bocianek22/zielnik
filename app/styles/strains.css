@@ -228,3 +228,8 @@ html:has(.row-sheet), body:has(.row-sheet) { overflow: hidden; }
 .strain-list .score::after { content: '/10'; font-size: .7rem; font-weight: 600; color: var(--text-3); margin-left: 1px; }
 .strain-list .strain-meta { font-size: .8125rem; }
 .strain-list .score:has([aria-label="Brak oceny"])::after { content: none; }
+/* wąski telefon: bez miniatury w wierszu listy, nazwa odmiany ma pierwszeństwo */
+@media (max-width: 360px) {
+  .strain-list .strain-head { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'title' 'scores'; }
+  .strain-list .strain-head > .strain-thumb, .strain-list .strain-head > .strain-photo, .strain-list .strain-head > .photo-link { display: none; }
+}

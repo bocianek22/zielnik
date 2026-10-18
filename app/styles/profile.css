@@ -86,3 +86,5 @@
 .set-body > .card + .card { border-top: 1px solid var(--sep); padding-top: var(--s-4); }
 /* wartość po prawej nie nachodzi na tytuł: skraca się wielokropkiem */
 .set-group > summary .lr-value { flex: 0 1 auto; min-width: 0; max-width: 45%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* wąski telefon (320–380 px): podpowiedź po prawej znika, żeby tytuł grupy się nie nakładał (treść jest po rozwinięciu) */
+@media (max-width: 380px) { .set-group > summary .lr-value { display: none; } .set-group > summary .lr-main { overflow: hidden; text-overflow: ellipsis; } }
