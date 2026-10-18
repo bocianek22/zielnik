@@ -165,11 +165,19 @@ scenario('Recepty: "W aptece" i "Wykupiłem" zmniejsza resztę na recepcie', asy
     return m && Number(m[1].replace(',', '.')) === b - 1;
   }, before);
   assert.equal(await left(), before - 1);
+  // „Cofnij” widać 8 s, a odświeżenie Recept w CI potrafi trwać dłużej: drugi wykup cofamy od razu po komunikacie
+  // (najpierw znika komunikat pierwszego, żeby „Cofnij” nie trafiło w poprzedni zapis)
+  await pool.locator('.quick-msg', { hasText: 'Zapisano: +1 g' }).waitFor({ state: 'hidden', timeout: 15000 });
+  await buy.click();
+  await pool.getByRole('textbox').fill('1');
+  await pool.getByRole('button', { name: 'Zapisz wykup' }).click();
+  await pool.locator('.quick-msg', { hasText: 'Zapisano: +1 g' }).waitFor();
   await pool.getByRole('button', { name: 'Cofnij' }).click();
+  await pool.locator('.quick-msg', { hasText: /Cofnięto/ }).waitFor();
   await page.waitForFunction((b) => {
     const m = [...document.querySelectorAll('.pharmacy-rx li')].map((e) => e.textContent.match(/([\d,]+) g zostało/)).find(Boolean);
     return m && Number(m[1].replace(',', '.')) === b;
-  }, before);
+  }, before - 1);
 }, withSession);
 
 scenario('Raport: "Do omówienia z lekarzem" (dodaj, arkusz, odhacz)', async (page) => {

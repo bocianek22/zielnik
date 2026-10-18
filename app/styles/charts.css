@@ -291,3 +291,17 @@
 @keyframes bar-grow { from { transform: scaleY(0); } to { transform: none; } }
 @keyframes hb-grow { from { transform: scaleX(0); } to { transform: none; } }
 @keyframes line-draw { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+/* Własne pomiary (charts/MeasureChart.js): jedna seria na wykres, oś Y z zakresu wartości, podpisy osi w HTML */
+.ms-chart { padding: var(--s-3) 0; border-top: 1px solid var(--sep); }
+.ms-chart .ms-scrub { margin-top: var(--s-3); }
+.ms-title { margin: 0; font-size: var(--fs-md, 1rem); font-weight: 700; }
+.ms-unit { font-weight: 400; color: var(--text-2); }
+.ms-chart .sp-head { display: block; }
+.ms-read { min-height: 0; margin-top: 2px; text-align: left; }
+.ms-plot .sp-line { stroke: var(--cat-journal-ink); }
+.ms-scrub, .ms-chart .sp-axis { margin-left: 44px; }
+.ms-plot { position: relative; }
+.ms-plot svg { display: block; width: 100%; overflow: visible; }
+.ms-plot svg * { vector-effect: non-scaling-stroke; }
+.ms-tick { position: absolute; left: -44px; width: 38px; transform: translateY(-50%); text-align: right; font-size: var(--fs-xs); color: var(--text-3); font-variant-numeric: tabular-nums; line-height: 1; pointer-events: none; }
+.ms-dot.on { width: 12px; height: 12px; margin: -6px 0 0 -6px; }
