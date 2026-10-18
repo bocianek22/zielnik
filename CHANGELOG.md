@@ -8,6 +8,10 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.89.0] - 2026-10
+### Zmieniono
+- **Logowanie i rejestracja w stylu reszty aplikacji (UI 5, etap 7, zaakceptowane przez właściciela):** miętowe tło jak nagłówek „Dziś”, formularz w zaokrąglonej karcie (także odzyskiwanie hasła, nowe hasło, potwierdzenie e-maila), na komputerze miętowy panel z poświatą zamiast ciemnej zieleni, trzy punkty z kółkami w kolorach obszarów (na telefonie pod formularzem). Wejście karty i punktów animowane, bez animacji przy „Ogranicz ruch”.
+
 ## [0.88.0] - 2026-10
 ### Zmieniono
 - **Spójny wygląd w całej aplikacji (UI 5, życzenie właściciela: „wszystko do siebie podobne i ujednolicone”):**
