@@ -137,10 +137,10 @@ test('eksport JSON i CSV: własne objawy i tylko własne dane', { skip }, async 
   assert.deepEqual(ex.customSymptomValues.filter((v) => v.day === today).map((v) => [v.symptom, v.value]), [['Apetyt', 2], ['Spastyczność', 10]]);
   assert.equal(ex.customSymptomValues.some((v) => v.value === 8), false, 'cudza wartość w eksporcie');
   const lines = await csv(A);
-  assert.match(lines[0], /;Notatka;Własne objawy$/);
-  assert.ok(lines.some((l) => l.startsWith(`Objawy;${today};`) && l.endsWith('"Apetyt: 2; Spastyczność: 10"')), lines.join('\n'));
+  assert.match(lines[0], /;Notatka;Własne objawy;Pomiary$/);
+  assert.ok(lines.some((l) => l.startsWith(`Objawy;${today};`) && l.endsWith('"Apetyt: 2; Spastyczność: 10";')), lines.join('\n'));
   // dzień tylko z własnym objawem też ma wiersz
-  assert.ok(lines.some((l) => l.startsWith(`Objawy;${yesterday};`) && l.endsWith('Nudności: 3')));
+  assert.ok(lines.some((l) => l.startsWith(`Objawy;${yesterday};`) && l.endsWith('Nudności: 3;')));
   assert.equal(lines.some((l) => /Nudności: 8/.test(l)), false);
 });
 
