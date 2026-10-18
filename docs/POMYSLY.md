@@ -407,7 +407,7 @@ Reguła: brak sprzeczności z zasadami oceny, dane tylko własne, każdy dotyka 
 
 ## Odrzucone
 
-- **POM-R1 Seria dni z użyciem, odznaki za zużycie.** Nagradzałoby przyjmowanie leku, a nie obserwację; sprzeczne z zasadą niezachęcania do zwiększania dawek. Dopuszczalna jest tylko łagodna informacja o regularności wpisów objawów (POM-08).
+- **POM-R1 Seria dni z użyciem, odznaki za zużycie.** Nagradzałoby przyjmowanie leku, a nie obserwację; sprzeczne z zasadą niezachęcania do zwiększania dawek. Dopuszczalna jest tylko łagodna informacja o regularności wpisów objawów (POM-08) i, od 0.86.0 z decyzji właściciela (docs/UI-5.md), odznaki za porządek: regularność wpisów, recepty, wizyty; nigdy za zużycie ani wartości objawów.
 - **POM-R2 Podpowiedź dawki.** Porada medyczna; dawkowanie ustala lekarz. Szybkie wartości w „Zużyłem” (0,1-1 g) zostają jako skrót klawiatury, bez sugestii.
 - **POM-R3 Wnioski z danych społeczności („inni z bólem wybierają X”).** Łączy dane zdrowotne wielu osób, tworzy przekaz o skuteczności konkretnych produktów leczniczych (ryzyko reklamy, PRA-3) i wymaga zgody na badania (MON-7). Wnioski tylko z własnych danych (POM-06).
 - **POM-R4 Linki do aptek, ceny i „kup teraz”.** Ryzyko reklamy aptek i produktów leczniczych; aplikacja natywna już ukrywa ceny (`isNativeApp`). Do ponownej oceny tylko po opinii prawnika (PRA-3).

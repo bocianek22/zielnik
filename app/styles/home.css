@@ -225,3 +225,35 @@ a.kpi-tile:active { filter: brightness(.96); }
 .tl-move { display: inline-flex; flex: none; }
 .tl-move .icon-btn:disabled { opacity: .35; cursor: default; }
 .tl-up { transform: rotate(180deg); }
+/* UI 5 etap 5: karta „Twój tydzień” (średnie objawów, odznaki za porządek) */
+.week-card { display: grid; gap: var(--s-3); }
+.wk-title { margin: 0; font-size: var(--fs-lg); }
+.week-card .streak-home { padding: 0; }
+.wk-sub { margin: var(--s-1) 0 0; font-size: var(--fs-sm); font-weight: 600; display: flex; gap: var(--s-2); align-items: baseline; }
+.wk-trends { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-2); }
+.wk-trends li { display: grid; gap: 2px; padding: var(--s-3); border-radius: var(--r-md); background: var(--surface-2); }
+.wk-label { font-size: var(--fs-sm); color: var(--text-2); }
+.wk-avg { font-size: 1.5rem; line-height: 1.1; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text); }
+.wk-cmp { display: inline-flex; align-items: center; gap: 2px; font-size: var(--fs-xs, .8rem); color: var(--text-2); min-height: 1.2em; }
+.wk-cmp.better { color: var(--cat-journal-ink); font-weight: 600; }
+.wk-cmp .wk-up { transform: rotate(180deg); }
+/* wariant D „Gablotka” (wybór właściciela): półka 3 kolumny, zdobyte błyszczące, pozostałe z obrysem i podpowiedzią */
+.bdgs { list-style: none; margin: 0; padding: var(--s-3); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-2); border-radius: var(--r-lg, 16px);
+  background: var(--surface-2); background: linear-gradient(180deg, var(--surface-2), color-mix(in oklab, var(--surface-2) 70%, var(--cat-journal-soft))); }
+.bdg { display: flex; flex-direction: column; align-items: center; text-align: center; gap: var(--s-2); padding: var(--s-3) 6px; border-radius: 14px; background: var(--surface); box-shadow: 0 1px 2px rgba(0, 0, 0, .08); color: var(--text-2); }
+.bdg-ic { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: transparent; box-shadow: inset 0 0 0 2px var(--sep-strong); color: var(--text-3); }
+.bdg-ic svg { width: 24px; height: 24px; }
+.bdg-txt { display: grid; justify-items: center; min-width: 0; font-size: .66rem; line-height: 1.25; }
+.bdg-txt b { font-size: .74rem; line-height: 1.2; color: var(--text-2); font-weight: 600; }
+.bdg.on .bdg-ic { color: var(--surface); background: var(--cat-journal-ink); background: radial-gradient(circle at 30% 30%, color-mix(in oklab, var(--cat-journal-ink) 55%, #fff), var(--cat-journal-ink));
+  box-shadow: 0 3px 10px rgba(79, 34, 163, .3); }
+.bdg.on .bdg-txt b { color: var(--text); }
+.bdg.on .bdg-txt span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.badge-news { margin: 0; padding: var(--s-2) var(--s-3); border-radius: var(--r-md); background: var(--cat-journal-soft, var(--surface-2)); color: var(--text); font-weight: 600; font-size: var(--fs-sm); }
+@media (prefers-reduced-motion: no-preference) {
+  .bdg.is-new .bdg-ic { animation: badge-pop .6s var(--ease, ease-out) .2s both; }
+  .badge-news { animation: wk-in .25s var(--ease, ease-out) both; }
+}
+@keyframes wk-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes badge-pop { 0% { transform: scale(.6); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }
+@media (min-width: 700px) { .bdgs { grid-template-columns: repeat(6, minmax(0, 1fr)); } }

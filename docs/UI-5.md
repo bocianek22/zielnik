@@ -37,6 +37,7 @@ Ustalenia z ankiety (pytania i odpowiedzi właściciela). Każda większa zmiana
 - Etap 3 (zaakceptowany z uwagą właściciela: „wszystkie ustawienia do zakładki ustawień”): ustawienia „Dziś” w profilu (`#ekran-dzis`), na ekranie tylko link.
 
 - Etap 4 (właściciel: „buźki na suwaku zamiast kropki”): `MoodFace.js` jako uchwyt suwaka (`.face-range`), poziom w `lib/mood-face.js`.
+- Etap 5: odznaki w wariancie D „Gablotka” (wybrany z pięciu: lista, medale, plakietki, gablotka, następna). Karta „Twój tydzień” (`WeekCard.js`) w miejscu dawnej „Regularności wpisów”, odznaki w `lib/badges.js`, średnie w `lib/week-summary.js` / `lib/week-calc.js`.
 
 ## Zasady techniczne
 - Bez nowych bibliotek animacji, wykresów i przeciągania; jedna rodzina czcionek; budżety wydajności z CI.
