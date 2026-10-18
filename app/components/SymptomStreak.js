@@ -1,5 +1,6 @@
 // POM-08: delikatna informacja o regularności wpisów w dzienniku (komponent serwerowy, bez JS po stronie klienta).
-// Bez „zerwania serii”, bez odznak i bez zachęt; przy braku wpisów z ostatnich 7 dni nie pokazuje nic.
+// Bez „zerwania serii” i bez zachęt; przy braku wpisów z ostatnich 7 dni nie pokazuje nic. Odznaki (UI 5 etap 5,
+// docs/UI-5.md) są osobno w karcie „Twój tydzień” (WeekCard.js).
 // Tekst celowo bez słów o temacie (tryb dyskretny); kropka pełna = wpis, pusta = brak (kształt, nie tylko kolor).
 const plural = (n, one, many) => (n === 1 ? one : many);
 

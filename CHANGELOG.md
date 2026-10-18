@@ -8,6 +8,10 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.86.0] - 2026-10
+### Dodano
+- **Karta „Twój tydzień” na „Dziś” (UI 5, etap 5):** regularność wpisów, średnie objawów z ostatnich 7 dni i zmiana względem poprzedniego tygodnia (dopiero przy co najmniej 3 wpisach w obu tygodniach, opis „niżej/wyżej”, kierunek „lepiej” zależny od objawu), odznaki za porządek w wariancie „Gablotka” wybranym przez właściciela: pierwszy wpis, tydzień i miesiąc wpisów z rzędu, 30 dni wpisów, pierwsza recepta, zapisana wizyta. Nigdy za zużycie ani za wartości objawów. Jednorazowa informacja o nowej odznace (pokazane odznaki w pamięci urządzenia, czyszczone przy wylogowaniu; przy pierwszym uruchomieniu bez zalewu gratulacji). Jedno dodatkowe zapytanie (`lib/week-summary.js`), bez zmian w bazie.
+
 ## [0.85.0] - 2026-10
 ### Zmieniono
 - **Suwaki z buźką (UI 5, etap 4):** w Dzienniku uchwytem suwaka objawu jest buźka, która zmienia minę i kolor przy przesuwaniu; kierunek zależy od objawu (ból i lęk: niżej lepiej, sen i nastrój: wyżej lepiej, własne objawy według ustawienia). Pasek wypełnia się kolorem do uchwytu. Mniejsze buźki przy szybkim wpisie na „Dziś”. Klawiatura i czytnik ekranu bez zmian (buźka jest dekoracją, wartość czyta suwak).

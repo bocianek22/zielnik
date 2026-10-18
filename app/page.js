@@ -4,13 +4,14 @@ import { dailyUse, purchaseStats } from '@/lib/strains';
 import { dailyUsageSeries, homeSummary, prescriptionCountdown, todaySymptoms } from '@/lib/stats';
 import { noUseToday } from '@/lib/no-use';
 import { symptomStreak } from '@/lib/streak';
+import { weekSummary } from '@/lib/week-summary';
 import { todayLayout } from '@/lib/today-layout';
 import { onboardingOpen } from '@/lib/onboarding';
 import Header from './components/Header';
 import HomeStore from './components/HomeStore';
 import TodayBoard, { TodayHero } from './components/TodayBoard';
 import Onboarding from './components/Onboarding';
-import SymptomStreak from './components/SymptomStreak';
+import WeekCard from './components/WeekCard';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,9 +36,9 @@ export default async function Home({ searchParams }) {
     );
   }
 
-  const [daily, bought, series, summary, prescriptions, symptoms, noUse, streak, layout] = await Promise.all([
+  const [daily, bought, series, summary, prescriptions, symptoms, noUse, streak, layout, week] = await Promise.all([
     dailyUse(user.id), purchaseStats(user.id), dailyUsageSeries(user.id, 14), homeSummary(user.id), prescriptionCountdown(user.id), todaySymptoms(user.id),
-    noUseToday(user.id), symptomStreak(user.id), todayLayout(user.id),
+    noUseToday(user.id), symptomStreak(user.id), todayLayout(user.id), weekSummary(user.id),
   ]);
   // data w nagłówku w czasie polskim (serwer działa w UTC)
   const date = new Date().toLocaleDateString('pl-PL', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Europe/Warsaw' });
@@ -57,7 +58,7 @@ export default async function Home({ searchParams }) {
             <TodayHero usage={daily} />
           </header>
           <TodayBoard usage={daily} bought={bought} prescriptions={prescriptions} symptoms={symptoms} noUse={noUse} layout={layout}
-            streak={<SymptomStreak data={streak} className="streak-home" />} />
+            streak={<WeekCard streak={streak} week={week} />} />
 
         </HomeStore>
       </main>
