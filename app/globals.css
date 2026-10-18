@@ -46,11 +46,16 @@
   --btn: #0f6b52;
   --btn-hover: #0b5a45;
   --on-btn: #ffffff;
-  --hero-2: #0f6450;
-  --hero-3: #0e7563;
-  --on-hero: #ffffff;
-  --on-hero-2: #d3ece3;
-  --hero-btn-2: rgba(0, 0, 0, .18);
+  --hero-2: #c9f2e1;
+  --hero-3: #e6f8f0;
+  --on-hero: #0a4a37;
+  --on-hero-2: #2f6b57;
+  --hero-btn-2: rgba(10, 74, 55, .1);
+  /* UI 5 (docs/UI-5.md, wariant A): jasny górny pasek w kolorze tła; --bar zostaje kolorem marki (logowanie, ekran blokady) */
+  --topbar: #edf1f4;
+  --on-topbar: #0f1b1f;
+  --on-topbar-2: #475760;
+  --topbar-mark: #12a37a;
   --on-cat: #ffffff;
   --cat-stock: #0f7a55;
   --cat-stock-soft: #dcf3ea;
@@ -120,6 +125,7 @@
   --tap: 44px;
   --page-max: 1000px;
   --bottomnav-h: 60px;
+  --bn-gap: 10px; /* odstęp pływającego paska dolnego od krawędzi ekranu (UI 5) */
 
   /* dawne nazwy (zgodność z kodem, który ich używa, m.in. wykresy SVG) */
   --paper: var(--bg);
@@ -177,11 +183,15 @@
   --btn: #0f7a5c;
   --btn-hover: #12896a;
   --on-btn: #ffffff;
-  --hero-2: #0f4a3c;
-  --hero-3: #0d5a4d;
-  --on-hero: #ffffff;
-  --on-hero-2: #c4e3d8;
-  --hero-btn-2: rgba(0, 0, 0, .22);
+  --hero-2: #0f3a2e;
+  --hero-3: #0c2a22;
+  --on-hero: #d8f7ea;
+  --on-hero-2: #9fd9c2;
+  --hero-btn-2: rgba(255, 255, 255, .1);
+  --topbar: #0b1114;
+  --on-topbar: #e8eef1;
+  --on-topbar-2: #a4b2b9;
+  --topbar-mark: #4fd1a5;
   --on-cat: #ffffff;
   --cat-stock: #11694c;
   --cat-stock-soft: #123128;
@@ -269,11 +279,15 @@
     --btn: #0f7a5c;
     --btn-hover: #12896a;
     --on-btn: #ffffff;
-    --hero-2: #0f4a3c;
-    --hero-3: #0d5a4d;
-    --on-hero: #ffffff;
-    --on-hero-2: #c4e3d8;
-    --hero-btn-2: rgba(0, 0, 0, .22);
+    --hero-2: #0f3a2e;
+    --hero-3: #0c2a22;
+    --on-hero: #d8f7ea;
+    --on-hero-2: #9fd9c2;
+    --hero-btn-2: rgba(255, 255, 255, .1);
+    --topbar: #0b1114;
+    --on-topbar: #e8eef1;
+    --on-topbar-2: #a4b2b9;
+    --topbar-mark: #4fd1a5;
     --on-cat: #ffffff;
     --cat-stock: #11694c;
     --cat-stock-soft: #123128;
@@ -457,8 +471,8 @@ input.switch:disabled { opacity: .5; cursor: default; }
 .btn.text:hover { background: var(--hover-bg); }
 .btn.danger { background: var(--surface); color: var(--danger); border-color: var(--danger-line); }
 .btn.danger:hover { background: var(--danger-soft); }
-.btn.ghost.on-dark { background: transparent; color: var(--on-bar); border-color: rgba(255, 255, 255, .28); }
-.btn.ghost.on-dark:hover { background: rgba(255, 255, 255, .1); }
+.btn.ghost.on-dark { background: transparent; color: var(--on-topbar); border-color: var(--sep-strong); }
+.btn.ghost.on-dark:hover { background: var(--hover-bg); }
 .btn.block { width: 100%; }
 .linklike { background: none; border: 0; color: inherit; font: inherit; text-align: left; cursor: pointer; padding: 6px 12px; border-radius: var(--r-md); }
 .linklike:hover { background: var(--hover-bg); }
@@ -587,27 +601,27 @@ a.chip.static:hover { background: var(--surface-3); color: var(--text); }
 .big-num, .kpi-tile .kt-value, .day-count b { white-space: nowrap; }
 
 /* hero: nagłówek ekranu z gradientem od koloru paska (na telefonie łączy się z górnym paskiem, pasek stanu bez zmian) */
-.hero { background: linear-gradient(165deg, var(--bar) 0%, var(--hero-2) 60%, var(--hero-3) 100%); color: var(--on-hero);
+.hero { background: linear-gradient(160deg, var(--hero-2) 0%, var(--hero-3) 100%); color: var(--on-hero);
   border-radius: var(--r-xl); padding: var(--s-5); margin-bottom: var(--s-4); }
 .hero h1, .hero h2 { color: var(--on-hero); }
 .hero .muted, .hero .hero-sub { color: var(--on-hero-2); }
-.hero .btn { background: var(--on-hero); color: var(--hero-2); border-color: var(--on-hero); }
-.hero .btn.ghost { background: var(--hero-btn-2); color: var(--on-hero); border-color: var(--on-hero-2); }
+.hero .btn { background: var(--btn); color: var(--on-btn); border-color: var(--btn); }
+.hero .btn.ghost { background: transparent; color: var(--on-hero); border-color: color-mix(in srgb, var(--on-hero) 40%, transparent); }
 .hero :focus-visible { outline-color: var(--on-hero); }
 @media (max-width: 760px) {
   .hero { margin: calc(var(--s-5) * -1) calc(var(--s-4) * -1) var(--s-4); border-radius: 0 0 var(--r-xl) var(--r-xl); padding: var(--s-2) var(--s-4) var(--s-6); }
 }
-/* hero obszaru (data-cat) na ekranach drugiego poziomu: jedyna pełna plama koloru na ekranie, karta (także na telefonie).
-   Gradient od --c do --c zmieszanego z czernią (kontrast --on-cat tylko rośnie; pary w tests/theme.test.js) */
-.hero.cat-hero { background: linear-gradient(165deg, var(--c) 0%, color-mix(in srgb, var(--c) 72%, black) 100%); color: var(--on-cat);
-  margin: 0 0 var(--s-4); border-radius: var(--r-xl); padding: var(--s-5); }
-.hero.cat-hero :is(h1, h2, .hero-sub, .hero-lbl, .muted) { color: var(--on-cat); }
+/* hero obszaru (data-cat) na ekranach drugiego poziomu: pastelowe tło obszaru i tekst w jego ciemnym odcieniu (UI 5: złagodzone nagłówki) */
+.hero.cat-hero { background: linear-gradient(160deg, var(--c-soft) 0%, color-mix(in srgb, var(--c-soft) 55%, var(--surface)) 100%); color: var(--c-ink);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 14%, transparent); margin: 0 0 var(--s-4); border-radius: var(--r-xl); padding: var(--s-5); }
+.hero.cat-hero :is(h1, h2, .hero-lbl) { color: var(--c-ink); }
+.hero.cat-hero :is(.hero-sub, .muted) { color: color-mix(in srgb, var(--c-ink) 78%, var(--text-2)); }
 .hero.cat-hero h1 { margin: 0; font-size: 1.75rem; line-height: 1.15; }
 .hero.cat-hero .hero-sub { margin: 2px 0 0; font-size: 1rem; font-weight: 500; }
-.hero.cat-hero .ic-dot { background: var(--hero-btn-2); color: var(--on-cat); }
-.hero.cat-hero .btn { background: var(--on-cat); color: var(--c); border-color: var(--on-cat); }
-.hero.cat-hero .btn.ghost { background: var(--hero-btn-2); color: var(--on-cat); border-color: var(--on-cat); }
-.hero.cat-hero :focus-visible { outline-color: var(--on-cat); }
+.hero.cat-hero .ic-dot { background: var(--c); color: var(--on-cat); }
+.hero.cat-hero .btn { background: var(--c); color: var(--on-cat); border-color: var(--c); }
+.hero.cat-hero .btn.ghost { background: transparent; color: var(--c-ink); border-color: color-mix(in srgb, var(--c-ink) 45%, transparent); }
+.hero.cat-hero :focus-visible { outline-color: var(--c-ink); }
 .hero-top { display: flex; align-items: center; gap: var(--s-4); }
 .hero-top > div { min-width: 0; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: var(--s-3); margin-top: var(--s-4); }
@@ -631,7 +645,7 @@ a.chip.static:hover { background: var(--surface-3); color: var(--text); }
   :root { --cbar-top: env(safe-area-inset-top, 0px); --cbar-h: calc(48px + var(--cbar-top)); scroll-padding-top: calc(var(--cbar-h) + var(--s-2)); }
   html.native-app { --cbar-top: max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px)); }
   .cbar { display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; right: 0; z-index: 38;
-    height: var(--cbar-h); padding: var(--cbar-top) var(--s-12) 0; background: var(--bar); color: var(--on-bar); box-shadow: var(--shadow-1); cursor: pointer;
+    height: var(--cbar-h); padding: var(--cbar-top) var(--s-12) 0; background: var(--topbar); color: var(--on-topbar); box-shadow: var(--shadow-1); cursor: pointer;
     visibility: hidden; transform: translateY(-100%); transition: transform var(--dur-2) var(--ease), visibility 0s linear var(--dur-2); }
   .cbar.on { visibility: visible; transform: none; transition: transform var(--dur-2) var(--ease), visibility 0s; }
   .cbar-t { display: block; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: var(--fs-lg); font-weight: 700; letter-spacing: -.01em; }

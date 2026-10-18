@@ -61,7 +61,8 @@ const PAIRS = [
   ['--text-2', '--surface-2', 4.5], ['--on-btn', '--btn', 4.5], ['--on-accent', '--accent', 4.5], ['--on-accent-soft', '--accent-soft', 4.5],
   ['--accent-text', '--surface', 4.5], ['--accent-text', '--bg', 4.5], ['--accent', '--bg', 3], ['--on-bar', '--bar', 4.5],
   ['--warn', '--warn-soft', 4.5], ['--warn', '--surface', 4.5], ['--danger', '--danger-soft', 4.5],
-  ['--on-hero', '--hero-2', 4.5], ['--on-hero', '--hero-3', 4.5], ['--on-hero-2', '--hero-3', 4.5], ['--on-hero-2', '--bar', 4.5],
+  ['--on-hero', '--hero-2', 4.5], ['--on-hero', '--hero-3', 4.5], ['--on-hero-2', '--hero-2', 4.5], ['--on-hero-2', '--hero-3', 4.5],
+  ['--on-topbar', '--topbar', 4.5], ['--on-topbar-2', '--topbar', 4.5], ['--on-btn', '--btn', 4.5],
   ...CATS.flatMap((c) => [[`--cat-${c}-ink`, `--cat-${c}-soft`, 4.5], ['--text', `--cat-${c}-soft`, 4.5], ['--text-2', `--cat-${c}-soft`, 4.5],
     [`--cat-${c}-ink`, '--surface', 4.5], ['--on-cat', `--cat-${c}`, 4.5]]),
   // miniatura odmiany: ikona --on-kind na pełnym kolorze rodzaju (strains.css, .strain-thumb)
@@ -83,21 +84,22 @@ test('kontrast par tekst/tło (WCAG AA) w obu motywach', () => {
   assert.deepEqual(bad, []);
 });
 
-// Hero obszaru (.hero.cat-hero, globals.css): gradient od --cat-x do --cat-x zmieszanego w 72% z czernią (color-mix w sRGB).
-// Tekst (--on-cat), biały przycisk z tekstem --cat-x i przyciemniony przycisk drugorzędny muszą mieć AA na obu końcach gradientu.
-// --on-hero-2 (podpisy hero „Dziś”) nie nadaje się na hero obszaru (np. 4,29:1 na --cat-stock), dlatego cat-hero przestawia podpisy na --on-cat.
-test('hero obszaru: kontrast --on-cat na obu końcach gradientu w obu motywach', () => {
-  const dark72 = (hex) => '#' + [1, 3, 5].map((i) => Math.round(parseInt(hex.slice(i, i + 2), 16) * 0.72).toString(16).padStart(2, '0')).join('');
+// Hero obszaru (.hero.cat-hero, globals.css; UI 5): pastelowy gradient od --cat-x-soft do --cat-x-soft zmieszanego w 55% z --surface.
+// Tytuł (--cat-x-ink) i podpis (78% --cat-x-ink + --text-2) muszą mieć AA na obu końcach gradientu; przycisk to --on-cat na --cat-x.
+test('hero obszaru: kontrast tekstu na obu końcach pastelowego gradientu w obu motywach', () => {
+  const mix = (a, b, p) => '#' + [1, 3, 5].map((i) => Math.round(parseInt(a.slice(i, i + 2), 16) * p + parseInt(b.slice(i, i + 2), 16) * (1 - p)).toString(16).padStart(2, '0')).join('');
   const bad = [];
   for (const [name, b] of [['jasny', block(/:root\s*\{([^}]*)\}/)], ['ciemny', block(/:root\[data-theme="dark"\]\s*\{([^}]*)\}/)]]) {
     for (const c of CATS) {
-      const fill = b[`--cat-${c}`];
-      for (const bg of [fill, dark72(fill)]) {
-        const r = ratio(b['--on-cat'], bg);
-        if (r < 4.5) bad.push(`${name}: --on-cat na ${c} (${bg}) = ${r.toFixed(2)}`);
+      const soft = b[`--cat-${c}-soft`], ink = b[`--cat-${c}-ink`];
+      for (const bg of [soft, mix(soft, b['--surface'], 0.55)]) {
+        for (const [what, fg] of [['tytuł', ink], ['podpis', mix(ink, b['--text-2'], 0.78)]]) {
+          const r = ratio(fg, bg);
+          if (r < 4.5) bad.push(`${name}: ${what} ${c} na ${bg} = ${r.toFixed(2)}`);
+        }
       }
     }
   }
   assert.deepEqual(bad, []);
-  assert.match(css, /\.hero\.cat-hero :is\(h1, h2, \.hero-sub, \.hero-lbl, \.muted\) \{ color: var\(--on-cat\); \}/, 'podpisy w hero obszaru w --on-cat');
+  assert.match(css, /\.hero\.cat-hero :is\(h1, h2, \.hero-lbl\) \{ color: var\(--c-ink\); \}/, 'tytuł hero obszaru w --c-ink');
 });

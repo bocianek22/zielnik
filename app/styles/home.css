@@ -8,7 +8,7 @@
 .home-date { margin: 0 0 2px; font-size: var(--fs-sm); font-weight: 600; color: var(--text-2); }
 .home-date::first-letter { text-transform: uppercase; }
 .home-head.hero { margin-bottom: 0; position: relative;
-  background: radial-gradient(circle at 96% 4%, rgba(255, 255, 255, .07) 0 76px, transparent 77px), linear-gradient(165deg, var(--bar) 0%, var(--hero-2) 60%, var(--hero-3) 100%); }
+  background: radial-gradient(circle at 96% 4%, var(--hero-btn-2) 0 76px, transparent 77px), linear-gradient(160deg, var(--hero-2) 0%, var(--hero-3) 100%); }
 .home-head.hero .home-date { color: var(--on-hero-2); }
 .hero-main { display: flex; align-items: center; gap: var(--s-5); margin-top: var(--s-5); }
 .hero-ring { position: relative; flex: none; width: 120px; height: 120px; }

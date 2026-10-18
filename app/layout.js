@@ -1,4 +1,4 @@
-import { Figtree } from 'next/font/google';
+import { Plus_Jakarta_Sans as Font } from 'next/font/google';
 // Kolejność ma znaczenie: tokeny i komponenty bazowe, potem ekrany, na końcu wydruk/tryb dyskretny/natywna powłoka
 import './globals.css';
 import './styles/nav.css';
@@ -30,8 +30,9 @@ import WebTransitions from './components/WebTransitions';
 import WebLock from './components/WebLock';
 import { BOOT_SCRIPT } from '@/lib/applock';
 
-// Design 3: jeden krój (Figtree) do tekstu, tytułów i liczb; --font-display w globals.css wskazuje na --font-body
-const body = Figtree({ subsets: ['latin', 'latin-ext'], variable: '--font-body' });
+// UI 5 (docs/UI-5.md): jeden krój (Plus Jakarta Sans) do tekstu, tytułów i liczb; --font-display w globals.css wskazuje na --font-body.
+// PDF raportu ma własną czcionkę (public/fonts, lib/report-pdf.js).
+const body = Font({ subsets: ['latin', 'latin-ext'], variable: '--font-body' });
 
 // W aplikacji natywnej bez powiększania dwoma palcami i podwójnym dotknięciem (jak w aplikacjach systemowych);
 // w przeglądarce powiększanie zostaje (dostępność).
@@ -41,7 +42,8 @@ export async function generateViewport() {
     width: 'device-width',
     initialScale: 1,
     viewportFit: 'cover',
-    themeColor: '#1d3b27',
+    // kolor paska przeglądarki = górny pasek aplikacji (--topbar) w danym motywie systemu
+    themeColor: [{ media: '(prefers-color-scheme: light)', color: '#edf1f4' }, { media: '(prefers-color-scheme: dark)', color: '#0b1114' }],
     ...(native && { maximumScale: 1, userScalable: false }),
   };
 }

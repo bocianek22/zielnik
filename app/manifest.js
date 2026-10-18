@@ -6,7 +6,7 @@ export default function manifest() {
     start_url: '/',
     display: 'standalone',
     background_color: '#eef3e4',
-    theme_color: '#1d3b27',
+    theme_color: '#edf1f4',
     shortcuts: [
       { name: 'Nowa odmiana', short_name: 'Nowa', url: '/odmiany?new=1', icons: [{ src: '/icon-192.png', sizes: '192x192' }] },
       { name: 'Dziennik objawów', short_name: 'Objawy', url: '/dziennik', icons: [{ src: '/icon-192.png', sizes: '192x192' }] },
