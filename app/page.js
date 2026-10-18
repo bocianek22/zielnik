@@ -5,6 +5,7 @@ import { dailyUsageSeries, homeSummary, prescriptionCountdown, todaySymptoms } f
 import { noUseToday } from '@/lib/no-use';
 import { symptomStreak } from '@/lib/streak';
 import { weekSummary } from '@/lib/week-summary';
+import { visitPrep } from '@/lib/visit-prep';
 import { todayLayout } from '@/lib/today-layout';
 import { onboardingOpen } from '@/lib/onboarding';
 import Header from './components/Header';
@@ -12,6 +13,7 @@ import HomeStore from './components/HomeStore';
 import TodayBoard, { TodayHero } from './components/TodayBoard';
 import Onboarding from './components/Onboarding';
 import WeekCard from './components/WeekCard';
+import VisitPrepCard from './components/VisitPrepCard';
 
 export const dynamic = 'force-dynamic';
 
@@ -36,9 +38,9 @@ export default async function Home({ searchParams }) {
     );
   }
 
-  const [daily, bought, series, summary, prescriptions, symptoms, noUse, streak, layout, week] = await Promise.all([
+  const [daily, bought, series, summary, prescriptions, symptoms, noUse, streak, layout, week, prep] = await Promise.all([
     dailyUse(user.id), purchaseStats(user.id), dailyUsageSeries(user.id, 14), homeSummary(user.id), prescriptionCountdown(user.id), todaySymptoms(user.id),
-    noUseToday(user.id), symptomStreak(user.id), todayLayout(user.id), weekSummary(user.id),
+    noUseToday(user.id), symptomStreak(user.id), todayLayout(user.id), weekSummary(user.id), visitPrep(user.id),
   ]);
   // data w nagłówku w czasie polskim (serwer działa w UTC)
   const date = new Date().toLocaleDateString('pl-PL', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Europe/Warsaw' });
@@ -58,7 +60,7 @@ export default async function Home({ searchParams }) {
             <TodayHero usage={daily} />
           </header>
           <TodayBoard usage={daily} bought={bought} prescriptions={prescriptions} symptoms={symptoms} noUse={noUse} layout={layout}
-            streak={<WeekCard streak={streak} week={week} />} />
+            streak={<WeekCard streak={streak} week={week} />} visit={prep && <VisitPrepCard prep={prep} />} />
 
         </HomeStore>
       </main>

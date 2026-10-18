@@ -8,6 +8,10 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.94.0] - 2026-10
+### Dodano
+- **Przed wizytą:** gdy w dzienniku wizyt (albo w dacie wizyty w przypomnieniach) jest wizyta w ciągu 7 dni, na górze ekranu „Dziś” pojawia się karta „Wizyta za N dni”: liczba dni z wpisami objawów od ostatniej wizyty (bez niej z 30 dni), średnie bólu, snu, lęku i nastroju z porównaniem do okresu tej samej długości wcześniej (od 3 wpisów w obu), liczba punktów „Do omówienia” oraz przyciski „Raport za ten okres” i „Pytania”. Jedno zapytanie (`lib/visit-prep.js`), bez zmian w bazie, tylko własne dane.
+
 ## [0.93.0] - 2026-10
 ### Dodano
 - **Plan wykupu:** na ekranie Recepty karta „Plan wykupu” osobno dla suszu i oleju/pena: do kiedy starczy zapas (tempo z ostatnich 30 dni), dzień „wykup najpóźniej” z 5-dniowym zapasem na dojazd, a gdy recepta wygaśnie przed tym dniem albo brak ważnej recepty, wyraźne ostrzeżenie. W „Planie na dziś” pozycja „Wykup …” albo „Potrzebna nowa recepta”, kiedy termin jest blisko (bez powtarzania pilnej recepty tej samej jednostki ani „Kończy się zapas”, chyba że brak ważnej recepty). Bez zmian w bazie (`lib/refill-plan.js`).
