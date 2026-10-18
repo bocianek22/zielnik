@@ -135,7 +135,7 @@ function refillTodo(p, both) {
 }
 
 // stock, dailyUse, bought: { g, ml }; low: próg „Kończy się” w gramach (tylko susz); lowStrain: { name, current, unit } | null
-export default function TodayPanel({ stock, dailyUse, forecast, bought, low, series, prescriptions, symptoms, noUse = false, streak = null, hidden = [], order = DEFAULT_ORDER, lowStrain = null, settings, fresh, hasOwn = false, onAdd }) {
+export default function TodayPanel({ stock, dailyUse, forecast, bought, low, series, prescriptions, symptoms, noUse = false, streak = null, visit = null, hidden = [], order = DEFAULT_ORDER, lowStrain = null, settings, fresh, hasOwn = false, onAdd }) {
   const today = series.at(-1).day;
   const units = unitsOf(stock, dailyUse);
   const u1 = units[0];
@@ -272,6 +272,8 @@ export default function TodayPanel({ stock, dailyUse, forecast, bought, low, ser
             : 'Dodaj odmianę, którą masz, i jej stan. Potem przycisk „Zużyłem” policzy, na ile dni starczy zapasu.'}
         </EmptyState>
       )}
+      {/* „Przed wizytą” tylko na kilka dni przed wizytą: poza układem kart, na górze, żeby nie zginęła */}
+      {visit && <div className="t-cell wide">{visit}</div>}
       {cells.map((c) => <div key={c.k} className={`t-cell${c.wide ? ' wide' : ''}`}>{c.el}</div>)}
       {!fresh && <section className="card prefs-card">{settings}</section>}
     </div>

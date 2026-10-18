@@ -81,7 +81,7 @@ export function TodayHero({ usage = { perDay: 0, perDayMl: 0 } }) {
 
 // Panel „Dziś” z lekkich danych serwera i wspólnego stanu (HomeStore); nie czeka na listę odmian.
 export default function TodayBoard({ usage = { perDay: 0, perDayMl: 0, cost: 0 }, bought = { grams: 0, ml: 0, cost: 0 },
-  prescriptions = { items: [], total: 0, urgent: false }, symptoms = null, noUse = false, streak = null, layout: layout0 = {} }) {
+  prescriptions = { items: [], total: 0, urgent: false }, symptoms = null, noUse = false, streak = null, visit = null, layout: layout0 = {} }) {
   // POM-48 / UI 5: ukryte karty i kolejność, zapis na koncie (TodayLayout)
   const layout = { hidden: layout0.hidden || [], order: layout0.order || DEFAULT_ORDER };
   const { boughtU, series, recent, stock: stockU, remaining: remainingU, mine, low, limit } = useHome();
@@ -116,7 +116,7 @@ export default function TodayBoard({ usage = { perDay: 0, perDayMl: 0, cost: 0 }
   return (
     <>
       <LocalReminderSync hasToday={hasToday} rxUntil={rxUntil} stockDays={daysLeft} />
-      <TodayPanel stock={stockU} dailyUse={{ g: dailyUse, ml: usage.perDayMl || 0 }} forecast={usage.forecast} bought={boughtU} low={low} series={series} prescriptions={prescriptions} symptoms={symptoms} noUse={noUse} streak={streak} hidden={layout.hidden} order={layout.order} lowStrain={lowStrain}
+      <TodayPanel stock={stockU} dailyUse={{ g: dailyUse, ml: usage.perDayMl || 0 }} forecast={usage.forecast} bought={boughtU} low={low} series={series} prescriptions={prescriptions} symptoms={symptoms} noUse={noUse} streak={streak} visit={visit} hidden={layout.hidden} order={layout.order} lowStrain={lowStrain}
         fresh={fresh} hasOwn={mine > 0} onAdd={onAdd} settings={(
           <details className="prefs">
             <summary>Szczegóły <Icon name="chevronDown" size={18} /></summary>

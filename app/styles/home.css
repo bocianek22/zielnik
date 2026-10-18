@@ -270,3 +270,16 @@ a.kpi-tile:active { filter: brightness(.96); }
   .onb-card { animation: wk-in .35s cubic-bezier(.2, 1, .3, 1) both; }
   .onb-card .onb-ill { animation: badge-pop .6s cubic-bezier(.3, 1.4, .5, 1) .1s both; }
 }
+
+/* „Przed wizytą” (lib/visit-prep.js): tylko na kilka dni przed zapisaną wizytą */
+.visit-prep { display: grid; gap: var(--s-3); }
+.visit-prep p { margin: 0; }
+.vp-kicker { display: flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); font-weight: 600; color: var(--c-ink); }
+.vp-kicker .ic-dot { background: var(--c-soft); color: var(--c-ink); }
+.vp-title { margin: 0; font-size: var(--fs-xl); display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--s-2); }
+.vp-date { font-size: var(--fs-sm); font-weight: 500; color: var(--text-2); }
+.vp-period { font-size: var(--fs-sm); color: var(--text-2); }
+.vp-notes { display: flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); }
+.vp-notes svg { color: var(--c-ink); flex: none; }
+.vp-actions { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.vp-actions .btn { flex: 1 1 auto; }
