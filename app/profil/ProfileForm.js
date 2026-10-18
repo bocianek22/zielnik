@@ -125,7 +125,7 @@ export default function ProfileForm({ me, initial, children }) {
           <a className="list-row" href="/api/export"><Icon name="download" /><span className="lr-main">Moje odmiany (CSV)</span></a>
           <Link className="list-row" href="/import#kopia"><Icon name="download" /><span className="lr-main">Przywróć z kopii (plik JSON)</span></Link>
           <a className="list-row" href={`/api/account/export/csv${csvFrom || csvTo ? `?${new URLSearchParams({ ...(csvFrom && { od: csvFrom }), ...(csvTo && { do: csvTo }) })}` : ''}`}>
-            <Icon name="download" /><span className="lr-main">Dziennik (CSV: objawy, zużycie, zakupy)</span>
+            <Icon name="download" /><span className="lr-main">Dziennik (CSV: objawy, pomiary, zużycie, zakupy)</span>
           </a>
         </div>
         <div className="row">

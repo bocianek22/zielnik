@@ -8,6 +8,10 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.97.0] - 2026-10
+### Dodano
+- **Pomiary w CSV dziennika:** Profil → „Dziennik (CSV)” ma nową kolumnę „Pomiary” z własnymi pomiarami dnia („Waga: 74,6 kg; Tętno: 72”, przecinek dziesiętny jak w polskim Excelu, ochrona przed formułami jak w innych kolumnach). Dzień z samymi pomiarami też dostaje wiersz „Objawy”. Bez zmian w bazie.
+
 ## [0.96.0] - 2026-10
 ### Dodano
 - **Inne przyjmowane leki w raporcie dla lekarza (POM-39):** w Raporcie karta „Inne przyjmowane leki” (nazwa i opcjonalne dawkowanie, do 15 pozycji, usunięcie z „Cofnij”). Do arkusza raportu i PDF (także angielskiego, „Other medications”) lista trafia tylko po zaznaczeniu „Dołącz inne przyjmowane leki” (domyślnie nie). Zielnik nie ocenia leków ani ich połączeń. Dane prywatne: nowa tabela `other_meds` (tylko właściciel), eksport konta (`otherMeds`), kopia, przywracanie z pliku eksportu (bez powtórzeń, z limitem), usunięcie razem z kontem. Test `tests/db/other-meds.test.js`.
