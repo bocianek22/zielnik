@@ -31,6 +31,9 @@ Ustalenia z ankiety (pytania i odpowiedzi właściciela). Każda większa zmiana
 - Ton: uprzejmie i spokojnie, na „ty”.
 - Tokeny: `--topbar`, `--on-topbar`, `--on-topbar-2`, `--topbar-mark` (górny pasek); `--bar` zostaje ciemną zielenią marki (logowanie na komputerze, ekran blokady); `--bn-gap` (odstęp pływającego paska).
 
+- Etap 2 (zaakceptowany): panel boczny od 1100 px (`SideNav.js`, nav.css).
+- Etap 3, układy „Dziś” wybrane przez właściciela: Pełny (domyślny), Objawy najpierw, Zapas najpierw, Minimalny; plus pełna personalizacja.
+
 ## Zasady techniczne
 - Bez nowych bibliotek animacji, wykresów i przeciągania; jedna rodzina czcionek; budżety wydajności z CI.
 - Układ „Dziś” zapisany na koncie: kolumna addytywna w `ensureDb`, biała lista identyfikatorów kart po stronie serwera, eksport i kopia, test w `tests/db/`.
