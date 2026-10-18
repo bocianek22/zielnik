@@ -30,9 +30,9 @@ export default function RegisterPage() {
         <div className="brand"><Leaf size={28} /><span className="brand-name">Zielnik</span><span className="brand-alt">Notatnik</span></div>
         <p className="auth-tagline">Dołącz do zamkniętej społeczności pacjentów. Rejestracja wymaga kodu zaproszenia.</p>
         <ul className="auth-points">
-          <li><Icon name="list" size={20} />Stan zapasu, zużycie i wykupy w jednym miejscu</li>
-          <li><Icon name="pulse" size={20} />Dziennik objawów i raport dla lekarza</li>
-          <li><Icon name="shield" size={20} />Dane prywatne, widoczność ustawiasz sam</li>
+          <li><span className="ic-dot sm" data-cat="stock" aria-hidden="true"><Icon name="list" size={18} /></span>Stan zapasu, zużycie i wykupy w jednym miejscu</li>
+          <li><span className="ic-dot sm" data-cat="journal" aria-hidden="true"><Icon name="pulse" size={18} /></span>Dziennik objawów i raport dla lekarza</li>
+          <li><span className="ic-dot sm" data-cat="rx" aria-hidden="true"><Icon name="shield" size={18} /></span>Dane prywatne, widoczność ustawiasz sam</li>
         </ul>
       </aside>
       <main className="auth-form">

@@ -37,6 +37,7 @@ Ustalenia z ankiety (pytania i odpowiedzi właściciela). Każda większa zmiana
 - Etap 3 (zaakceptowany z uwagą właściciela: „wszystkie ustawienia do zakładki ustawień”): ustawienia „Dziś” w profilu (`#ekran-dzis`), na ekranie tylko link.
 
 - Etap 4 (właściciel: „buźki na suwaku zamiast kropki”): `MoodFace.js` jako uchwyt suwaka (`.face-range`), poziom w `lib/mood-face.js`.
+- Etap 7 (0.89.0, zaakceptowany): logowanie i rejestracja z miętowym tłem, formularz w karcie, punkty z kółkami obszarów (`auth.css`).
 - Spójność (0.88.0, właściciel: „wszystko do siebie podobne i ujednolicone”): `PageHero.js` na każdym ekranie, `.seg` w wyglądzie zakładek, lista odmian „Jedna akcja”.
 - Etap 6: karta odmiany w zakładkach (wariant B, `StrainTabs.js`), Skala odczuć na „Przeglądzie” i animacje (życzenie właściciela: „skala odczuć na pewno” i „zajebisty wygląd, animacje”).
 - Etap 5: odznaki w wariancie D „Gablotka” (wybrany z pięciu: lista, medale, plakietki, gablotka, następna). Karta „Twój tydzień” (`WeekCard.js`) w miejscu dawnej „Regularności wpisów”, odznaki w `lib/badges.js`, średnie w `lib/week-summary.js` / `lib/week-calc.js`.
