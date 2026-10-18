@@ -8,6 +8,10 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.91.0] - 2026-10
+### Zmieniono
+- **Kreator pierwszego uruchomienia w stylu UI 5 (zaakceptowany przez właściciela):** ten sam nagłówek co inne ekrany (`PageHero`, przycisk „Zamknij kreator” w nagłówku), postęp jako trzy paski z podpisami (wcześniej kółka z numerami nie mieściły się na 390 px), karta kroku w kolorze jego obszaru (odmiana, recepta, przypomnienia), wejście karty i ilustracji przy zmianie kroku (bez animacji przy „Ogranicz ruch”).
+
 ## [0.90.0] - 2026-10
 ### Zmieniono
 - **Wykresy w kolorach obszarów i z animacją (UI 5, „lepsze wykresy”):** linie i pasma objawów w Dzienniku w kolorze obszaru „Dziennik” (fiolet), zużycie zostaje w zieleni zapasu. Słupki rosną od osi po kolei (`Bars.js` daje klasę `.bar` i numer `--n`), paski porównań w Historii wysuwają się od lewej, linie objawów rysują się od lewej. Bez animacji przy „Ogranicz ruch”.
