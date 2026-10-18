@@ -8,6 +8,7 @@ import { parseNum, decimalProps } from './num';
 import SearchSuggest from './SearchSuggest';
 import Illustration from './Illustration';
 import Icon from './Icon';
+import PageHero from './PageHero';
 import RxForm from '../recepty/RxForm';
 import PushSettings from '../profil/PushSettings';
 import ReminderSettings from '../profil/ReminderSettings';
@@ -185,6 +186,7 @@ export default function Onboarding() {
 
   // Design 3.1, P3 #20: ilustracja kroku (dekoracja, aria-hidden w Illustration)
   const ARTS = ['jar', 'rx', 'journal', 'chart'];
+  const CATS = ['strain', 'rx', 'journal', 'stock'];
   const titles = [
     'Jaką odmianę masz teraz?',
     'Masz receptę?',
@@ -200,11 +202,10 @@ export default function Onboarding() {
 
   return (
     <div className="stack onb">
-      <header className="onb-head hero">
-        <h1>Pierwsze kroki</h1>
-        <p className="muted">Trzy krótkie kroki. Każdy możesz pominąć i uzupełnić później.</p>
-        {step < 3 && <button type="button" className="btn ghost small" onClick={close} disabled={busy}>Zamknij kreator</button>}
-      </header>
+      {/* UI 5: ten sam nagłówek co inne ekrany; kroki jako pasek postępu, karta kroku w kolorze jego obszaru */}
+      <PageHero cat="stock" icon="home" title="Pierwsze kroki" sub="Trzy krótkie kroki. Każdy możesz pominąć i uzupełnić później." className="onb-head">
+        {step < 3 && <div className="hero-actions"><button type="button" className="btn ghost small" onClick={close} disabled={busy}>Zamknij kreator</button></div>}
+      </PageHero>
       {err && <div className="alert error" role="alert">{err}</div>}
       <ol className="onb-steps" aria-label="Postęp kreatora">
         {STEPS.map((s, i) => (
@@ -214,7 +215,7 @@ export default function Onboarding() {
           </li>
         ))}
       </ol>
-      <section className="card stack onb-card" aria-labelledby="onb-h">
+      <section key={step} className="card stack onb-card" data-cat={CATS[step]} aria-labelledby="onb-h">
         <Illustration art={ARTS[step]} size={96} className="onb-ill" />
         <p className="onb-count">{step < 3 ? `Krok ${step + 1} z 3` : 'Koniec'}</p>
         <h2 id="onb-h" ref={head} tabIndex={-1}>{titles[step]}</h2>

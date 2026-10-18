@@ -257,3 +257,16 @@ a.kpi-tile:active { filter: brightness(.96); }
 @keyframes wk-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 @keyframes badge-pop { 0% { transform: scale(.6); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }
 @media (min-width: 700px) { .bdgs { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+/* UI 5: kreator jak reszta aplikacji: kroki jako pasek postępu (trzy odcinki z podpisem), ilustracja w kolorze obszaru kroku */
+.onb-steps { gap: var(--s-2); }
+.onb-steps li { flex-direction: column; align-items: stretch; gap: 6px; font-size: var(--fs-xs); white-space: nowrap; }
+.onb-steps li > span:last-child { overflow: hidden; text-overflow: ellipsis; }
+.onb-steps li::before { content: ''; display: block; height: 6px; border-radius: 999px; background: var(--surface-3, var(--sep)); background-image: linear-gradient(var(--accent), var(--accent)); background-repeat: no-repeat; background-size: 0% 100%; transition: background-size .45s cubic-bezier(.2, .9, .3, 1); }
+.onb-steps li.on::before, .onb-steps li.past::before { background-size: 100% 100%; }
+.onb-steps .onb-n { display: none; }
+.onb-card .onb-ill { color: var(--c-ink); }
+.onb-card .onb-ill .ill-bg { fill: var(--c-soft); }
+@media (prefers-reduced-motion: no-preference) {
+  .onb-card { animation: wk-in .35s cubic-bezier(.2, 1, .3, 1) both; }
+  .onb-card .onb-ill { animation: badge-pop .6s cubic-bezier(.3, 1.4, .5, 1) .1s both; }
+}
