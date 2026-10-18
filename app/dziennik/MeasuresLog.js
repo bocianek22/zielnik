@@ -5,6 +5,7 @@ import { formatDay, addDaysIso } from '@/lib/date';
 import { MEASURE_MAX, MEASURE_NAME_MAX, MEASURE_UNIT_MAX, fmtMeasure, parseMeasure } from '@/lib/measures-meta';
 import Toast from '../components/Toast';
 import Icon from '../components/Icon';
+import MeasureChart from '../components/charts/MeasureChart';
 
 const todayIso = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Warsaw' }).format(new Date());
 const HINTS = [['Tętno', 'ud./min'], ['Waga', 'kg'], ['Ciśnienie skurczowe', 'mmHg'], ['Ciśnienie rozkurczowe', 'mmHg'], ['Temperatura', '°C']];
@@ -94,6 +95,8 @@ export default function MeasuresLog({ initial }) {
         </form>
       )}
       {err && <p id="ms-err" className="alert error" role="alert">{err}</p>}
+      {/* wykres pomiaru od 2 wartości w 30 dniach; każdy pomiar osobno, bo jednostki się różnią */}
+      {defs.map((d) => <MeasureChart key={d.id} def={d} values={values} today={todayIso()} />)}
       {days.length > 0 && (
         <ul className="list measures-list" aria-label="Ostatnie pomiary">
           {days.map((dy) => (

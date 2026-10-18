@@ -8,6 +8,10 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.95.0] - 2026-10
+### Dodano
+- **Wykres własnych pomiarów:** w Dzienniku → „Pomiary” każdy pomiar z co najmniej 2 wartościami w ostatnich 30 dniach ma własny wykres (osobna oś dla każdej jednostki, zakres od najmniejszej do największej wartości zamiast od zera). Linia łączy kolejne pomiary, kropki to dni z pomiarem; dotyk, mysz i strzałki pokazują wartość wybranego dnia, czytnik ekranu dostaje tabelę. Bez norm i ocen. Czysta część w `lib/measure-chart.js` (testy w `tests/measure-chart.test.js`), bez zmian w bazie.
+
 ## [0.94.0] - 2026-10
 ### Dodano
 - **Przed wizytą:** gdy w dzienniku wizyt (albo w dacie wizyty w przypomnieniach) jest wizyta w ciągu 7 dni, na górze ekranu „Dziś” pojawia się karta „Wizyta za N dni”: liczba dni z wpisami objawów od ostatniej wizyty (bez niej z 30 dni), średnie bólu, snu, lęku i nastroju z porównaniem do okresu tej samej długości wcześniej (od 3 wpisów w obu), liczba punktów „Do omówienia” oraz przyciski „Raport za ten okres” i „Pytania”. Jedno zapytanie (`lib/visit-prep.js`), bez zmian w bazie, tylko własne dane.
