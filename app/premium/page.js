@@ -4,6 +4,7 @@ import { sql, ensureDb } from '@/lib/db';
 import { PLAN_FEATURES } from '@/lib/plans';
 import Header from '../components/Header';
 import { formatDay } from '@/lib/date';
+import PageHero from '../components/PageHero';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,7 +26,7 @@ export default async function Premium() {
     <>
       <Header user={me} />
       <main className="page read plan-page">
-        <h1>Premium i wsparcie</h1>
+        <PageHero cat="learn" icon="heart" title="Premium i wsparcie" />
 
         <h2 className="section-label">Twój plan</h2>
         <section className="card">

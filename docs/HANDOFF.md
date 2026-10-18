@@ -52,8 +52,9 @@ Tryb awaryjny (rozmowa bez dostępu do repozytorium):
 - Wybór bramki płatności i platformy wpłat (`DONATE_URL`), decyzja o `PREMIUM_ENFORCED`.
 - Źródło danych do katalogu (`CATALOG_FEED_URL`), plan Vercel Pro przy działalności komercyjnej.
 
-## 6. Następne kroki (aktualne dla wersji 0.87.0)
+## 6. Następne kroki (aktualne dla wersji 0.88.0)
 Pełna lista z uzasadnieniem: `docs/PRZEGLAD-2026-10.md`; aplikacje natywne: `docs/APLIKACJE-NATYWNE.md`; system projektowy: `docs/DESIGN.md`. Praca z podziałem na subagentów (`.claude/agents/`): koordynator scala gałęzie, uruchamia kontrole, zleca przegląd (reviewer) i prowadzi CHANGELOG/wersję. Przebieg pracy nocnej: `docs/PLAN-NOC.md`.
+1. **Spójny wygląd (0.88.0):** nagłówki ekranów (`PageHero`), przełączniki `.seg` jak zakładki, lista odmian „Jedna akcja” („Wykupiłem” w menu „…” przy zapasie). Sprawdzić na telefonie: długie nazwy odmian w wierszu, tryb dyskretny, „Większy tekst”. Dalej UI 5 etap 7: logowanie, rejestracja i kreator.
 1. **Karta odmiany w zakładkach (0.87.0, UI 5 etap 6):** telefon (przyklejone zakładki przy przewijaniu, Safari), TalkBack/VoiceOver („karta, zaznaczona”), strzałki na komputerze, link z `#sklad`, tryb ciemny, „Ogranicz ruch” (bez animacji). Lista „Moje odmiany”: właściciel wybiera wariant A/B/C (zrzuty w rozmowie). Potem logowanie i kreator.
 1. **Twój tydzień i odznaki (0.86.0, UI 5 etap 5):** „Dziś” na telefonie i komputerze (6 odznak w rzędzie od 700 px), tryb ciemny, „Większy tekst”, TalkBack/VoiceOver (nazwa odznaki i „zdobyta” lub podpowiedź), jednorazowa informacja o nowej odznace. Układ „Minimalny” ukrywa tę kartę. Dalej UI 5 etap 6: Odmiany i karta odmiany, potem logowanie i kreator.
 1. **Suwaki z buźką (0.85.0, UI 5 etap 4):** Dziennik na telefonie: przesuwanie palcem po buźce (Android, iOS/Safari), TalkBack i VoiceOver czytają wartość „N z 10”, klawiatura (strzałki) na komputerze, tryb ciemny, „Ogranicz ruch”. Dalej UI 5 etap 5: odznaki za porządek i podsumowanie tygodnia (liczone z istniejących danych, bez zdradzania tematu w trybie dyskretnym), potem Odmiany i logowanie.

@@ -8,6 +8,13 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.88.0] - 2026-10
+### Zmieniono
+- **Spójny wygląd w całej aplikacji (UI 5, życzenie właściciela: „wszystko do siebie podobne i ujednolicone”):**
+  - Każdy ekran ma ten sam pastelowy nagłówek z ikoną i podtytułem w kolorze swojego obszaru (nowy `PageHero.js`): Odmiany, Katalog, Rankingi, Szukaj, Koło fortuny, Porównanie, Grupy, Znajomi, Wiedza, Pomoc, Zgłoś uwagę, Premium, Profil, Import, Administracja (dotąd sam napis).
+  - Przełączniki (`.seg`, okresy w Obserwacjach) wyglądają jak zakładki karty odmiany: większe zaokrąglenie, jasna „pigułka” z cieniem; Moje/Katalog/Rankingi na całą szerokość.
+  - Lista „Moje odmiany” w wariancie „Jedna akcja”: zwarte wiersze jak inne listy, ocena i zapas pod nazwą, w wierszu jeden przycisk („Zużyłem” przy zapasie, inaczej „Wykupiłem”), „Wykupiłem” także w menu „…”.
+
 ## [0.87.0] - 2026-10
 ### Zmieniono
 - **Karta odmiany w zakładkach (UI 5, etap 6, wariant B wybrany przez właściciela):** Przegląd (statystyki, Skala odczuć, samopoczucie), Moje (wpis, partie), Skład (THC/CBD, terpeny, karta charakterystyki, apteki, testy), Opinie (opinie innych, historia zmian). Zakładki przyklejone u góry przy przewijaniu, z przesuwanym wskaźnikiem, obsługą strzałek i adresem (`#sklad`), panele w HTML od początku (stan formularzy zostaje przy przełączaniu).

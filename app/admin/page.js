@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
 import Header from '../components/Header';
 import AdminTabs from './AdminTabs';
+import PageHero from '../components/PageHero';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,7 +15,7 @@ export default async function AdminPage() {
     <>
       <Header user={user} />
       <main className="page admin">
-        <h1>Administracja</h1>
+        <PageHero icon="shield" title="Administracja" />
         <AdminTabs meId={user.id} />
       </main>
     </>

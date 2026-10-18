@@ -209,3 +209,22 @@
 /* otwarty arkusz „…”: tło pod nim się nie przewija (jak arkusze systemowe) */
 html:has(.row-sheet), body:has(.row-sheet) { overflow: hidden; }
 .rs-backdrop { touch-action: none; }
+
+/* UI 5, spójność (wariant B „Jedna akcja”): wiersz odmiany zwarty jak inne listy, jedna akcja po prawej, panel ilości pod spodem */
+.strain-list .strain { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: var(--s-2); }
+.strain-list .strain > .quick, .strain-list .strain > .strain-foot { display: contents; }
+.strain-list .strain .quick-btns { grid-column: 2; grid-row: 1; margin: 0; gap: 2px; flex-wrap: nowrap; }
+.strain-list .strain .quick-panel, .strain-list .strain .toast { grid-column: 1 / -1; }
+.strain-list .strain .quick-panel { margin-top: var(--s-2); }
+.strain-list .strain .quick-btns .btn.quick-btn { min-height: var(--tap); padding-inline: var(--s-3); font-size: .8125rem; border-radius: var(--r-pill); }
+.strain-list .strain-foot .card-menu-btn { grid-column: 2; grid-row: 1; }
+.strain-list .strain-meta > span:nth-child(n+3):not(.meta-warn) { display: none; }
+/* nazwa ma pierwszeństwo: ocena i zapas w drugiej linii pod nazwą zamiast osobnej kolumny */
+.strain-list .strain-head { display: grid; grid-template-columns: 40px minmax(0, 1fr); grid-template-areas: 'thumb title' 'thumb scores'; column-gap: var(--s-3); row-gap: 2px; align-items: center; }
+.strain-list .strain-head > :first-child { grid-area: thumb; }
+.strain-list .strain-title { grid-area: title; }
+.strain-list .scores { grid-area: scores; display: flex; align-items: center; gap: 6px; justify-items: start; text-align: left; }
+.strain-list .score { font-size: 1rem; font-weight: 800; }
+.strain-list .score::after { content: '/10'; font-size: .7rem; font-weight: 600; color: var(--text-3); margin-left: 1px; }
+.strain-list .strain-meta { font-size: .8125rem; }
+.strain-list .score:has([aria-label="Brak oceny"])::after { content: none; }

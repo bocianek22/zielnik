@@ -7,6 +7,7 @@ import { VERSION } from '@/lib/version';
 import { WHATS_NEW } from '@/lib/whats-new';
 import Header from '../components/Header';
 import Icon from '../components/Icon';
+import PageHero from '../components/PageHero';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Pomoc' };
@@ -34,7 +35,7 @@ export default async function Pomoc() {
     <>
       <Header user={user} />
       <main className="page read" id="top">
-        <h1>Pomoc</h1>
+        <PageHero cat="learn" icon="info" title="Pomoc" sub="Jak korzystać z aplikacji" />
         <div className="alert note read-note" role="note">
           <Icon name="info" size={20} />
           <p>Aplikacja jest w wersji testowej (beta): coś może jeszcze nie działać jak trzeba. Twoje uwagi bardzo pomagają, więc zgłaszaj je śmiało.</p>

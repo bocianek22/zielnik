@@ -5,6 +5,7 @@ import { listCatalog } from '@/lib/catalog';
 import Header from '../components/Header';
 import CatalogBoard from './CatalogBoard';
 import StrainsNav from '../odmiany/StrainsNav';
+import PageHero from '../components/PageHero';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,7 +19,7 @@ export default async function Katalog() {
     <>
       <Header user={user} />
       <main className="page">
-        <header className="page-head"><h1>Katalog odmian w Polsce</h1></header>
+        <PageHero cat="strain" icon="book" title="Katalog odmian" sub="Odmiany dostępne w Polsce" />
         <StrainsNav current="katalog" />
         <CatalogBoard items={items} owned={owned} isAdmin={user.is_admin} />
       </main>

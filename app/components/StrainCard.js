@@ -222,7 +222,7 @@ const cap = (s) => (s ? s[0].toUpperCase() + s.slice(1) : s);
 
 // Menu wiersza („…”): rzadkie akcje w arkuszu zamykanym gestem w dół, uchwytem, tłem i Escape (jak „Więcej” w dolnym pasku).
 // Arkusz idzie do <body>, żeby animacja karty ani przewijanie listy nie zmieniały jego położenia.
-function CardMenu({ id, name, cmpOn, onCmp, onEdit }) {
+function CardMenu({ id, name, cmpOn, onCmp, onEdit, onBuy }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
   const close = () => setOpen(false);
@@ -239,6 +239,11 @@ function CardMenu({ id, name, cmpOn, onCmp, onEdit }) {
           <div className="row-sheet" role="dialog" aria-modal="true" aria-label={`Akcje: ${name}`} ref={ref}>
             <p className="rs-title dn">{name}</p>
             <div className="list">
+              {onBuy && (
+                <button type="button" className="list-row" onClick={() => { close(); onBuy(); }}>
+                  <span className="ic-dot sm" data-cat="rx"><Icon name="cart" size={18} /></span><span className="lr-main">Wykupiłem</span>
+                </button>
+              )}
               <Link href={`/strains/${id}`} className="list-row" onClick={close}>
                 <span className="ic-dot sm" data-cat="strain"><Icon name="jar" size={18} /></span><span className="lr-main">Szczegóły odmiany</span><Icon name="chevronRight" size={18} className="lr-chev" />
               </Link>
@@ -272,7 +277,10 @@ export default function StrainCard({ strain, meId, low, cmpOn, onCmp, onEdit, on
   const rating = strain.final_rating;
   // bez inicjałów: nazwa nie może wyciekać w trybie dyskretnym
   const thumb = <span className="strain-thumb" aria-hidden="true"><Icon name={unit === 'ml' ? 'drop' : 'jar'} size={24} /></span>;
-  const menu = <CardMenu id={strain.id} name={strain.name} cmpOn={cmpOn} onCmp={onCmp} onEdit={onEdit} />;
+  // UI 5 (wariant B „Jedna akcja”): w wierszu jedna akcja (Zużyłem przy zapasie, inaczej Wykupiłem), Wykupiłem także w menu „…”
+  const opener = useRef(null);
+  const menu = <CardMenu id={strain.id} name={strain.name} cmpOn={cmpOn} onCmp={onCmp} onEdit={onEdit}
+    onBuy={mine && cur > 0 ? () => opener.current?.('buy') : null} />;
 
   return (
     <article className={`strain k-${strain.kind || 'none'}`} data-cat="stock">
@@ -298,7 +306,7 @@ export default function StrainCard({ strain, meId, low, cmpOn, onCmp, onEdit, on
       </header>
 
       {mine ? (
-        <QuickActions strainId={strain.id} name={strain.name} form={strain.form} current={mine.current} remaining={mine.remaining} trailing={menu}
+        <QuickActions strainId={strain.id} name={strain.name} form={strain.form} current={mine.current} remaining={mine.remaining} trailing={menu} buy="auto" opener={opener}
           onSaved={(en) => { onEntrySaved(strain.id, en); }} />
       ) : <div className="strain-foot">{menu}</div>}
     </article>

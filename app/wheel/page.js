@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth';
 import { wheelItems } from '@/lib/strains';
 import Header from '../components/Header';
 import Wheel from './Wheel';
+import PageHero from '../components/PageHero';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,7 +19,7 @@ export default async function WheelPage() {
     <>
       <Header user={user} />
       <main className="page">
-        <h1>Koło fortuny</h1>
+        <PageHero cat="strain" icon="shuffle" title="Koło fortuny" sub="Losowa odmiana z Twojej listy" />
         <Wheel items={items} />
       </main>
     </>

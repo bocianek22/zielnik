@@ -20,6 +20,7 @@ import SettingsGroup from './SettingsGroup';
 import TodaySettings from './TodaySettings';
 import { todayLayout } from '@/lib/today-layout';
 import { ThemeChoice, BigChoice } from '../components/ThemeToggle';
+import PageHero from '../components/PageHero';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,7 +36,7 @@ export default async function Profil() {
     <>
       <Header user={user} />
       <main className="page settings">
-        <h1>Mój profil</h1>
+        <PageHero icon="user" title="Mój profil" sub="Konto, prywatność i ustawienia" />
         <HashOpen />
         <nav className="chips settings-jump" aria-label="Przejdź do ustawień">
           {[['#bezpieczenstwo', 'Prywatność'], ['#przypomnienia', 'Przypomnienia'], ['#wyglad', 'Wygląd'], ['#ekran-dzis', 'Ekran „Dziś”'], ['#moje-dane', 'Moje dane']]
