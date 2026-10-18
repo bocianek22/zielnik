@@ -216,14 +216,17 @@ export default function SymptomsBoard({ initialDay = null }) {
               <div key={k} className={`sym-slider${empty ? ' unset' : ''}`}>
                 <div className="sym-head">
                   <label htmlFor={`sy-${k}`} className={custom ? 'dn' : undefined}>{label}</label>
-                  <MoodFace value={f[k]} higherBetter={higherBetter} />
                   <span className={`sym-val${empty ? ' unset' : ''}`} aria-hidden="true">{empty ? 'Nie wpisano' : f[k]}</span>
                   {!empty && <button type="button" className="btn text small" onClick={() => setF({ ...f, [k]: '' })} aria-label={`Wyczyść: ${label}`}>Wyczyść</button>}
                 </div>
                 <small id={`sy-${k}-help`}>{help}</small>
-                <input id={`sy-${k}`} type="range" min="0" max="10" step="1" value={empty ? 5 : f[k]} aria-describedby={`sy-${k}-help`}
-                  aria-valuetext={empty ? 'nie wpisano, przesuń, aby ustawić' : `${f[k]} z 10`}
-                  onChange={(e) => setF({ ...f, [k]: Number(e.target.value) })} />
+                {/* UI 5: buźka jest uchwytem suwaka (przezroczysty natywny uchwyt pod spodem, więc klawiatura i czytnik bez zmian) */}
+                <div className="face-range" style={{ '--p': (empty ? 5 : f[k]) / 10 }}>
+                  <input id={`sy-${k}`} type="range" min="0" max="10" step="1" value={empty ? 5 : f[k]} aria-describedby={`sy-${k}-help`}
+                    aria-valuetext={empty ? 'nie wpisano, przesuń, aby ustawić' : `${f[k]} z 10`}
+                    onChange={(e) => setF({ ...f, [k]: Number(e.target.value) })} />
+                  <MoodFace value={f[k]} higherBetter={higherBetter} size={40} />
+                </div>
                 <div className="sym-scale" aria-hidden="true"><span>0</span><span>10</span></div>
               </div>
             );

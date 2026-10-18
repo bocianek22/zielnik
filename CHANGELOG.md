@@ -8,6 +8,11 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.85.0] - 2026-10
+### Zmieniono
+- **Suwaki z buźką (UI 5, etap 4):** w Dzienniku uchwytem suwaka objawu jest buźka, która zmienia minę i kolor przy przesuwaniu; kierunek zależy od objawu (ból i lęk: niżej lepiej, sen i nastrój: wyżej lepiej, własne objawy według ustawienia). Pasek wypełnia się kolorem do uchwytu. Mniejsze buźki przy szybkim wpisie na „Dziś”. Klawiatura i czytnik ekranu bez zmian (buźka jest dekoracją, wartość czyta suwak).
+- Po zapisaniu wpisu dnia krótka animacja potwierdzenia (bez animacji przy „Ogranicz ruch”).
+
 ## [0.84.0] - 2026-10
 ### Dodano
 - **Ekran „Dziś” po swojemu (UI 5, etap 3):** powitanie z imieniem i porą dnia, „Plan na dziś” (dawne „Do zrobienia”, przy braku zadań spokojne potwierdzenie), cztery gotowe układy (Pełny, Objawy najpierw, Zapas najpierw, Minimalny) i własna kolejność kart strzałkami, zapisane na koncie (nowa kolumna `users.today_order`, w eksporcie konta).

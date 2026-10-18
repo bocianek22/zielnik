@@ -36,6 +36,8 @@ Ustalenia z ankiety (pytania i odpowiedzi właściciela). Każda większa zmiana
 
 - Etap 3 (zaakceptowany z uwagą właściciela: „wszystkie ustawienia do zakładki ustawień”): ustawienia „Dziś” w profilu (`#ekran-dzis`), na ekranie tylko link.
 
+- Etap 4 (właściciel: „buźki na suwaku zamiast kropki”): `MoodFace.js` jako uchwyt suwaka (`.face-range`), poziom w `lib/mood-face.js`.
+
 ## Zasady techniczne
 - Bez nowych bibliotek animacji, wykresów i przeciągania; jedna rodzina czcionek; budżety wydajności z CI.
 - Układ „Dziś” zapisany na koncie: kolumna addytywna w `ensureDb`, biała lista identyfikatorów kart po stronie serwera, eksport i kopia, test w `tests/db/`.
