@@ -10,6 +10,7 @@ import StockForecast from './charts/StockForecast';
 import { addDays, ddmm, longDay, num as n2, plural } from './charts/fmt';
 import { shortcutAction, withoutUseParam } from '@/lib/shortcuts';
 import { daysLeft as daysOf } from '@/lib/widget';
+import { DEFAULT_ORDER } from '@/lib/today-cards';
 
 // Panel „Dziś” pod nagłówkiem (hero z zapasem i „Zużyłem” jest w TodayBoard.js): kafle, wykres 14 dni z prognozą, „Do zrobienia”, szybki wpis objawów, recepty.
 // Daty liczy z dni z serwera (czas polski), a nie z zegara przeglądarki, żeby serwer i klient renderowały to samo.
@@ -83,10 +84,15 @@ function Tile({ href, cat, solid, warn, icon, label, value, sub }) {
   return href.startsWith('#') ? <a href={href} {...props}>{body}</a> : <Link href={href} {...props}>{body}</Link>;
 }
 
+// UI 5: „Plan na dziś” (dawne „Do zrobienia”); bez zadań spokojne potwierdzenie zamiast pustego miejsca
 function Todo({ items }) {
   return (
     <section className="today-todo" aria-labelledby="todo-h">
-      <h2 id="todo-h" className="section-title">Do zrobienia</h2>
+      <h2 id="todo-h" className="section-title">Plan na dziś</h2>
+      {items.length === 0 ? (
+        <p className="card todo-done"><span className="ic-dot sq" data-cat="stock"><Icon name="check" size={22} /></span>
+          <span className="todo-main"><b>Na dziś wszystko zrobione</b><span>Objawy zapisane, zapas i recepty w porządku.</span></span></p>
+      ) : (
       <ul className="card todo">
         {items.map((t) => {
           const body = (
@@ -99,6 +105,7 @@ function Todo({ items }) {
           return <li key={t.key}>{t.href.startsWith('#') ? <a href={t.href} className="todo-row">{body}</a> : <Link href={t.href} className="todo-row">{body}</Link>}</li>;
         })}
       </ul>
+      )}
     </section>
   );
 }
@@ -113,7 +120,7 @@ const notesOf = ({ unit, dailyUse, bought }) => {
 const SYM_CORE = ['pain', 'sleep', 'anxiety', 'mood'];
 
 // stock, dailyUse, bought: { g, ml }; low: próg „Kończy się” w gramach (tylko susz); lowStrain: { name, current, unit } | null
-export default function TodayPanel({ stock, dailyUse, forecast, bought, low, series, prescriptions, symptoms, noUse = false, streak = null, hidden = [], lowStrain = null, settings, fresh, hasOwn = false, onAdd }) {
+export default function TodayPanel({ stock, dailyUse, forecast, bought, low, series, prescriptions, symptoms, noUse = false, streak = null, hidden = [], order = DEFAULT_ORDER, lowStrain = null, settings, fresh, hasOwn = false, onAdd }) {
   const today = series.at(-1).day;
   const units = unitsOf(stock, dailyUse);
   const u1 = units[0];
@@ -190,53 +197,60 @@ export default function TodayPanel({ stock, dailyUse, forecast, bought, low, ser
   ].filter(Boolean);
 
   const rx = prescriptions.items.length > 0 && <Prescriptions items={prescriptions.items} total={prescriptions.total} />;
+  // UI 5 etap 3: karty w kolejności z ustawień konta (lib/today-cards.js); ukryte pomijamy, „Plan na dziś” zawsze
+  const cards = {
+    tiles: !fresh && <div key="tiles" className="kpi-grid">{tiles}</div>,
+    chart: fresh ? null : hidden.includes('chart')
+      // wykres ukryty (POM-48): „Dziś bez zużycia” zostaje, bo zasila obserwacje (POM-38)
+      ? !usedToday && <section key="chart" className="card today-nouse" data-cat="stock"><NoUseToday day={today} on={noUseOn} setOn={setNoUseOn} /></section>
+      : <section key="chart" className="card today-chart" data-cat="stock" aria-labelledby="usage-h">
+        <UsageDays series={series} />
+        {/* POM-38: tylko gdy dziś nie zapisano zużycia (zapis „Zużyłem” zdejmuje znacznik na serwerze) */}
+        {!usedToday && <NoUseToday day={today} on={noUseOn} setOn={setNoUseOn} />}
+        {/* ilość i liczba dni są w nagłówku strony („Dziś”); tu tylko data, do której starczy zapasu */}
+        <div className="stock-lead">
+          {units.map((u) => {
+            const d = daysOf(stock[u], dailyUse[u]);
+            return d != null && <p key={u} className={warnU === u ? 'low' : undefined}><span>Zapas {what(u)}</span> starczy do <b>{longDay(addDays(today, d))}</b></p>;
+          })}
+        </div>
+        {rows.length > 0 ? (
+          <details className="stock-notes">
+            <summary>Prognoza i wykupy<Icon name="chevronDown" size={18} /></summary>
+            {rows.map(({ u, notes }) => (
+              <div key={u} className="stock-notes-unit">
+                {dailyUse[u] > 0 && <StockForecast unit={u} stock={stock[u]} rate={dailyUse[u]} range={forecast?.[u]} today={today} rx={rxOf(u)} what={what(u)} />}
+                {notes.length > 0 && <p className="today-note">{units.length > 1 && <b>{u === 'ml' ? 'Olej i pen' : 'Susz'}: </b>}{notes.join(' · ')}</p>}
+              </div>
+            ))}
+          </details>
+        ) : <p className="today-note">Zapisuj zużycie przyciskiem „Zużyłem”, a policzę, na ile dni starczy zapasu.</p>}
+      </section>,
+    plan: !fresh && <Todo key="plan" items={todo} />,
+    symptoms: <SymptomsQuick key="symptoms" day={today} initial={symptoms} onChange={setSym} />,
+    streak: streak ? <div key="streak" className="today-streak">{streak}</div> : null,
+    rx: rx ? <div key="rx" className="today-rx-wrap">{rx}</div> : null,
+  };
+  // wykres zostaje w kolejności także ukryty: w jego miejscu „Dziś bez zużycia”
+  const shown = order.filter((k) => k === 'chart' || !hidden.includes(k)).map((k) => ({ k, el: cards[k] })).filter((c) => c.el);
+  // komputer (home.css): plan, objawy i wykres po dwa w rzędzie; karta bez pary (i ukryty wykres) na całą szerokość
+  const half = (c) => ['plan', 'symptoms'].includes(c.k) || (c.k === 'chart' && !hidden.includes('chart'));
+  const cells = [];
+  for (let i = 0; i < shown.length; i++) {
+    const c = shown[i];
+    if (half(c) && shown[i + 1] && half(shown[i + 1])) { cells.push({ ...c, wide: false }, { ...shown[i + 1], wide: false }); i++; }
+    else cells.push({ ...c, wide: true });
+  }
   return (
     <div className={`today${fresh ? ' fresh' : ''}`}>
-      {fresh ? (
+      {fresh && (
         <EmptyState art="chart" cat="stock" title="Tu zobaczysz zapas i prognozę" id="today-empty-h"
           action={<button type="button" className="btn" onClick={onAdd}>{hasOwn ? 'Wpisz stan' : 'Dodaj odmianę'}</button>}>
           {hasOwn ? 'Wpisz, ile masz którejś odmiany, w jej wierszu na liście odmian. Potem przycisk „Zużyłem” policzy, na ile dni starczy zapasu.'
             : 'Dodaj odmianę, którą masz, i jej stan. Potem przycisk „Zużyłem” policzy, na ile dni starczy zapasu.'}
         </EmptyState>
-      ) : (
-        <>
-          <div className="kpi-grid">{tiles}</div>
-
-          {!hidden.includes('chart') && <section className="card today-chart" data-cat="stock" aria-labelledby="usage-h">
-            <UsageDays series={series} />
-            {/* POM-38: tylko gdy dziś nie zapisano zużycia (zapis „Zużyłem” zdejmuje znacznik na serwerze) */}
-            {!usedToday && <NoUseToday day={today} on={noUseOn} setOn={setNoUseOn} />}
-            {/* ilość i liczba dni są w nagłówku strony („Dziś”); tu tylko data, do której starczy zapasu */}
-            <div className="stock-lead">
-              {units.map((u) => {
-                const d = daysOf(stock[u], dailyUse[u]);
-                return d != null && <p key={u} className={warnU === u ? 'low' : undefined}><span>Zapas {what(u)}</span> starczy do <b>{longDay(addDays(today, d))}</b></p>;
-              })}
-            </div>
-            {rows.length > 0 ? (
-              <details className="stock-notes">
-                <summary>Prognoza i wykupy<Icon name="chevronDown" size={18} /></summary>
-                {rows.map(({ u, notes }) => (
-                  <div key={u} className="stock-notes-unit">
-                    {dailyUse[u] > 0 && <StockForecast unit={u} stock={stock[u]} rate={dailyUse[u]} range={forecast?.[u]} today={today} rx={rxOf(u)} what={what(u)} />}
-                    {notes.length > 0 && <p className="today-note">{units.length > 1 && <b>{u === 'ml' ? 'Olej i pen' : 'Susz'}: </b>}{notes.join(' · ')}</p>}
-                  </div>
-                ))}
-              </details>
-            ) : <p className="today-note">Zapisuj zużycie przyciskiem „Zużyłem”, a policzę, na ile dni starczy zapasu.</p>}
-          </section>}
-
-          {/* wykres ukryty (POM-48): „Dziś bez zużycia” zostaje, bo zasila obserwacje (POM-38) */}
-          {hidden.includes('chart') && !usedToday && <section className="card today-nouse" data-cat="stock"><NoUseToday day={today} on={noUseOn} setOn={setNoUseOn} /></section>}
-          {todo.length > 0 && <Todo items={todo} />}
-        </>
       )}
-
-      {!hidden.includes('symptoms') && <SymptomsQuick day={today} initial={symptoms} onChange={setSym} />}
-      {!hidden.includes('streak') && streak}
-
-      {!hidden.includes('rx') && rx}
-
+      {cells.map((c) => <div key={c.k} className={`t-cell${c.wide ? ' wide' : ''}`}>{c.el}</div>)}
       {!fresh && <section className="card prefs-card">{settings}</section>}
     </div>
   );

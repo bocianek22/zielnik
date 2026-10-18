@@ -6,6 +6,7 @@ import Icon from './Icon';
 import Bump from './Bump';
 import TodayPanel, { unitsOf } from './TodayPanel';
 import TodayLayout from './TodayLayout';
+import { DEFAULT_ORDER } from '@/lib/today-cards';
 import LocalReminderSync from './LocalReminderSync';
 import QuickActions from './QuickActions';
 import { unitOf } from '@/lib/units';
@@ -81,8 +82,9 @@ export function TodayHero({ usage = { perDay: 0, perDayMl: 0 } }) {
 
 // Panel „Dziś” z lekkich danych serwera i wspólnego stanu (HomeStore); nie czeka na listę odmian.
 export default function TodayBoard({ usage = { perDay: 0, perDayMl: 0, cost: 0 }, bought = { grams: 0, ml: 0, cost: 0 },
-  prescriptions = { items: [], total: 0, urgent: false }, symptoms = null, noUse = false, streak = null, hidden: hidden0 = [] }) {
-  const [hidden, setHidden] = useState(hidden0); // POM-48: ukryte karty, zapis na koncie (TodayLayout)
+  prescriptions = { items: [], total: 0, urgent: false }, symptoms = null, noUse = false, streak = null, layout: layout0 = {} }) {
+  // POM-48 / UI 5: ukryte karty i kolejność, zapis na koncie (TodayLayout)
+  const [layout, setLayout] = useState({ hidden: layout0.hidden || [], order: layout0.order || DEFAULT_ORDER });
   const { boughtU, series, recent, stock: stockU, remaining: remainingU, mine, low, limit, savePref, setLow, setLimit } = useHome();
   const dailyUse = usage.perDay; // g/dzień (susz); ml/dzień: usage.perDayMl
   const boughtG = boughtU.g;
@@ -115,7 +117,7 @@ export default function TodayBoard({ usage = { perDay: 0, perDayMl: 0, cost: 0 }
   return (
     <>
       <LocalReminderSync hasToday={hasToday} rxUntil={rxUntil} stockDays={daysLeft} />
-      <TodayPanel stock={stockU} dailyUse={{ g: dailyUse, ml: usage.perDayMl || 0 }} forecast={usage.forecast} bought={boughtU} low={low} series={series} prescriptions={prescriptions} symptoms={symptoms} noUse={noUse} streak={streak} hidden={hidden} lowStrain={lowStrain}
+      <TodayPanel stock={stockU} dailyUse={{ g: dailyUse, ml: usage.perDayMl || 0 }} forecast={usage.forecast} bought={boughtU} low={low} series={series} prescriptions={prescriptions} symptoms={symptoms} noUse={noUse} streak={streak} hidden={layout.hidden} order={layout.order} lowStrain={lowStrain}
         fresh={fresh} hasOwn={mine > 0} onAdd={onAdd} settings={(
           <details className="prefs">
             <summary>Szczegóły i ustawienia <Icon name="chevronDown" size={18} /></summary>
@@ -130,7 +132,7 @@ export default function TodayBoard({ usage = { perDay: 0, perDayMl: 0, cost: 0 }
             </dl>
             {daysLeft == null && <p className="muted small">Zapisuj zużycie w karcie odmiany („Zużyłem”), a policzę średnie tempo i prognozę, na ile dni starczy zapasu.</p>}
             {(totalRemaining > 0 || remainingU.ml > 0) && <p className="muted small">Odmiany z jednej puli „do wykupienia” liczone są raz.</p>}
-            <TodayLayout hidden={hidden} onChange={setHidden} />
+            <TodayLayout layout={layout} onChange={setLayout} />
             <h3 className="prefs-title">Na tym urządzeniu</h3>
             <div className="row">
               <div className="field"><label htmlFor="pref-low">Próg „Kończy się” dla suszu (g)</label>
