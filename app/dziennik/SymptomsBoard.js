@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { api } from '@/lib/api';
 import { SYMPTOMS, customMeta, CUSTOM_MAX, CUSTOM_NAME_MAX } from '@/lib/symptoms';
 import Icon from '../components/Icon';
+import MoodFace from '../components/MoodFace';
 import DictateButton from '../components/DictateButton';
 import Toast from '../components/Toast';
 import useUndoDelete from '../components/useUndoDelete';
@@ -103,6 +104,7 @@ export default function SymptomsBoard({ initialDay = null }) {
   const [saving, setSaving] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   // dzień spoza 60 dni (data wybrana w polu albo ?dzien= z karty dnia) doczytujemy osobno, żeby zapis nie nadpisał wpisu „w ciemno”
   const old = day < addDays(todayIso(), -59);
@@ -136,7 +138,7 @@ export default function SymptomsBoard({ initialDay = null }) {
     if (saving) return;
     setSaving(true);
     const custom = Object.fromEntries(defs.map((d) => [d.id, f[`c${d.id}`] ?? '']));
-    try { const d = await api('/api/symptoms', 'PUT', { day, ...f, ...(defs.length ? { custom } : {}) }); setData(d); setMsg(d.noteError ? { text: `Zapisano wartości. ${d.noteError}`, error: true } : { text: 'Zapisano.' }); if (day === todayIso()) { focusNext.current = 'sym-today-h'; syncLocal({ hasToday: true }).catch(() => {}); } setEditing(false); } catch (err) { setMsg({ text: err.message, error: true }); }
+    try { const d = await api('/api/symptoms', 'PUT', { day, ...f, ...(defs.length ? { custom } : {}) }); setData(d); setSaved(true); setMsg(d.noteError ? { text: `Zapisano wartości. ${d.noteError}`, error: true } : { text: 'Zapisano.' }); if (day === todayIso()) { focusNext.current = 'sym-today-h'; syncLocal({ hasToday: true }).catch(() => {}); } setEditing(false); } catch (err) { setMsg({ text: err.message, error: true }); }
     setSaving(false);
   }
   // usunięcie od razu, „Cofnij” zapisuje dzień z migawki; nieczytelnej (zaszyfrowanej bez klucza) notatki nie da się
@@ -175,7 +177,8 @@ export default function SymptomsBoard({ initialDay = null }) {
       {(msg?.error || undo.error) && <div className="alert error" role="alert">{msg?.error ? msg.text : undo.error}</div>}
       {undo.toast ? <Toast text={undo.toast.text} action={undo.toast.action} /> : <Toast text={msg && !msg.error ? msg.text : ''} onClose={() => setMsg(null)} />}
       {folded ? (
-      <section className="card tint sym-today" data-cat="journal" aria-labelledby="sym-today-h">
+      // UI 5: po zapisie z formularza krótka animacja potwierdzenia (klasa tylko w tej sesji ekranu)
+      <section className={`card tint sym-today${saved ? ' just-saved' : ''}`} data-cat="journal" aria-labelledby="sym-today-h">
         <div className="sym-today-head">
           <span className="ic-dot sm"><Icon name="check" size={20} /></span>
           <h2 id="sym-today-h" tabIndex={-1}>Dziś: zapisano</h2>
@@ -207,7 +210,7 @@ export default function SymptomsBoard({ initialDay = null }) {
             </div>
           </div>
           {existing && <p className="muted small sym-exists">Wpis z tego dnia już istnieje, zapis go nadpisze.</p>}
-          {all.map(({ key: k, label, help, custom }) => {
+          {all.map(({ key: k, label, help, custom, higherBetter }) => {
             const empty = f[k] === '';
             return (
               <div key={k} className={`sym-slider${empty ? ' unset' : ''}`}>
@@ -217,9 +220,13 @@ export default function SymptomsBoard({ initialDay = null }) {
                   {!empty && <button type="button" className="btn text small" onClick={() => setF({ ...f, [k]: '' })} aria-label={`Wyczyść: ${label}`}>Wyczyść</button>}
                 </div>
                 <small id={`sy-${k}-help`}>{help}</small>
-                <input id={`sy-${k}`} type="range" min="0" max="10" step="1" value={empty ? 5 : f[k]} aria-describedby={`sy-${k}-help`}
-                  aria-valuetext={empty ? 'nie wpisano, przesuń, aby ustawić' : `${f[k]} z 10`}
-                  onChange={(e) => setF({ ...f, [k]: Number(e.target.value) })} />
+                {/* UI 5: buźka jest uchwytem suwaka (przezroczysty natywny uchwyt pod spodem, więc klawiatura i czytnik bez zmian) */}
+                <div className="face-range" style={{ '--p': (empty ? 5 : f[k]) / 10 }}>
+                  <input id={`sy-${k}`} type="range" min="0" max="10" step="1" value={empty ? 5 : f[k]} aria-describedby={`sy-${k}-help`}
+                    aria-valuetext={empty ? 'nie wpisano, przesuń, aby ustawić' : `${f[k]} z 10`}
+                    onChange={(e) => setF({ ...f, [k]: Number(e.target.value) })} />
+                  <MoodFace value={f[k]} higherBetter={higherBetter} size={40} />
+                </div>
                 <div className="sym-scale" aria-hidden="true"><span>0</span><span>10</span></div>
               </div>
             );

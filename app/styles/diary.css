@@ -14,6 +14,34 @@
 .sym-slider small { line-height: 1.4; color: var(--text-2); }
 .sym-slider input[type=range] { width: 100%; accent-color: var(--c, var(--accent)); min-height: var(--tap); margin: 0; }
 .sym-slider.unset input[type=range] { accent-color: var(--text-3); }
+/* UI 5 etap 4: suwak z buźką jako uchwytem. Natywny uchwyt ma rozmiar buźki i jest przezroczysty (dotyk, klawiatura, czytnik),
+   buźka leży nad nim w tym samym miejscu: --p (0–1) z wartości. Pasek wypełniony do uchwytu kolorem obszaru. */
+.face-range { --thumb: 40px; position: relative; height: 48px; display: flex; align-items: center; }
+.face-range input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 48px; margin: 0; background: transparent; cursor: pointer; }
+.face-range input[type=range]::-webkit-slider-runnable-track { height: 10px; border-radius: 999px;
+  background: linear-gradient(to right, var(--c, var(--accent)) calc(var(--p) * 100%), var(--surface-3) calc(var(--p) * 100%)); }
+.face-range input[type=range]::-moz-range-track { height: 10px; border-radius: 999px; background: var(--surface-3); }
+.face-range input[type=range]::-moz-range-progress { height: 10px; border-radius: 999px; background: var(--c, var(--accent)); }
+.face-range input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: var(--thumb); height: var(--thumb); margin-top: calc((10px - var(--thumb)) / 2); border: 0; border-radius: 50%; background: transparent; }
+.face-range input[type=range]::-moz-range-thumb { width: var(--thumb); height: var(--thumb); border: 0; border-radius: 50%; background: transparent; }
+.face-range input[type=range]:focus-visible { outline: none; }
+.face-range input[type=range]:focus-visible + .mood-face { outline: 3px solid var(--ring); outline-offset: 2px; border-radius: 50%; }
+.face-range .mood-face { position: absolute; top: 50%; left: calc((100% - var(--thumb)) * var(--p)); transform: translateY(-50%); pointer-events: none;
+  filter: drop-shadow(0 1px 2px rgba(10, 20, 25, .25)); transition: left 60ms linear; }
+.sym-slider.unset .face-range input[type=range]::-webkit-slider-runnable-track { background: var(--surface-3); }
+.sym-slider.unset .face-range input[type=range]::-moz-range-progress { background: transparent; }
+/* buźka (MoodFace.js): kolory z motywu, płynna zmiana ust przy przesuwaniu */
+.mood-face { flex: none; display: block; }
+.mood-face .mf-bg { fill: var(--surface); stroke: var(--sep-strong); stroke-width: 1; transition: fill var(--dur-2) var(--ease); }
+.mood-face .mf-eye { fill: var(--text); }
+.mood-face .mf-line { fill: none; stroke: var(--text); stroke-width: 2.2; stroke-linecap: round; transition: d var(--dur-2) var(--ease); }
+.mood-face[data-level="0"] .mf-bg { fill: var(--danger-soft); stroke: var(--danger-line); }
+.mood-face[data-level="1"] .mf-bg { fill: var(--warn-soft); stroke: var(--warn-line); }
+.mood-face[data-level="2"] .mf-bg { fill: var(--surface-2); }
+.mood-face[data-level="3"] .mf-bg { fill: color-mix(in srgb, var(--ok-soft) 60%, var(--surface)); stroke: color-mix(in srgb, var(--ok) 35%, transparent); }
+.mood-face[data-level="4"] .mf-bg { fill: var(--ok-soft); stroke: color-mix(in srgb, var(--ok) 45%, transparent); }
+.mood-face[data-level="none"] .mf-line { stroke: var(--text-3); }
+@media (prefers-reduced-motion: reduce) { .mood-face .mf-line, .mood-face .mf-bg, .face-range .mood-face { transition: none; } }
 .sym-scale { display: flex; justify-content: space-between; font-size: var(--fs-xs); color: var(--text-3); font-variant-numeric: tabular-nums; margin-top: -6px; }
 .sym-actions { display: flex; gap: var(--s-3); flex-wrap: wrap; }
 .sym-actions .btn { flex: 1 1 140px; }
@@ -118,3 +146,10 @@
 
 /* zwijane karty Dziennika (pomiary, zdarzenia niepożądane): odstępy między elementami treści */
 .fold-card > :not(summary) + :not(summary) { margin-top: var(--s-3); }
+
+/* UI 5 etap 4: potwierdzenie zapisu wpisu dnia (karta „Dziś: zapisano”): delikatne pojawienie się i „pyknięcie” znaczka */
+.sym-today.just-saved { animation: saved-in .32s var(--ease) both; }
+.sym-today.just-saved .sym-today-head .ic-dot { animation: saved-pop .5s var(--ease) .12s both; }
+@keyframes saved-in { from { opacity: 0; transform: translateY(6px) scale(.985); } to { opacity: 1; transform: none; } }
+@keyframes saved-pop { 0% { transform: scale(.6); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .sym-today.just-saved, .sym-today.just-saved .sym-today-head .ic-dot { animation: none; } }
