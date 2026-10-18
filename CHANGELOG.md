@@ -8,6 +8,10 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.92.0] - 2026-10
+### Poprawiono
+- **Wąskie telefony (320–380 px), przegląd w trybie ciemnym:** w profilu podpowiedź przy grupie ustawień (np. „Blokada, dyskrecja”) nie nachodzi już na tytuł (ukryta do 380 px, treść po rozwinięciu); na liście odmian do 360 px bez miniatury w wierszu, więc nazwa odmiany jest dłuższa.
+
 ## [0.91.0] - 2026-10
 ### Zmieniono
 - **Kreator pierwszego uruchomienia w stylu UI 5 (zaakceptowany przez właściciela):** ten sam nagłówek co inne ekrany (`PageHero`, przycisk „Zamknij kreator” w nagłówku), postęp jako trzy paski z podpisami (wcześniej kółka z numerami nie mieściły się na 390 px), karta kroku w kolorze jego obszaru (odmiana, recepta, przypomnienia), wejście karty i ilustracji przy zmianie kroku (bez animacji przy „Ogranicz ruch”).

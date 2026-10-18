@@ -52,7 +52,7 @@ Tryb awaryjny (rozmowa bez dostępu do repozytorium):
 - Wybór bramki płatności i platformy wpłat (`DONATE_URL`), decyzja o `PREMIUM_ENFORCED`.
 - Źródło danych do katalogu (`CATALOG_FEED_URL`), plan Vercel Pro przy działalności komercyjnej.
 
-## 6. Następne kroki (aktualne dla wersji 0.91.0)
+## 6. Następne kroki (aktualne dla wersji 0.92.0)
 Pełna lista z uzasadnieniem: `docs/PRZEGLAD-2026-10.md`; aplikacje natywne: `docs/APLIKACJE-NATYWNE.md`; system projektowy: `docs/DESIGN.md`. Praca z podziałem na subagentów (`.claude/agents/`): koordynator scala gałęzie, uruchamia kontrole, zleca przegląd (reviewer) i prowadzi CHANGELOG/wersję. Przebieg pracy nocnej: `docs/PLAN-NOC.md`.
 1. **Kreator (0.91.0):** nowe konto na telefonie: trzy kroki, pomijanie, TalkBack czyta „krok bieżący” i „(zakończony)”. Odświeżenie UI 5 zakończone; kolejne pomysły w docs/POMYSLY.md.
 1. **Wykresy (0.90.0):** animacje na słabszym telefonie (płynność przewijania Dziennika), fiolet objawów w trybie ciemnym. Następnie kreator pierwszego uruchomienia w stylu UI 5.
