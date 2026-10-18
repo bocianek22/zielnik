@@ -5,6 +5,7 @@ import { saveOrQueue, hasQueued } from '@/lib/offline-client';
 import useQueueEvents from './useQueueEvents';
 import { SYMPTOMS, QUICK_STEPS, customMeta } from '@/lib/symptoms';
 import Icon from './Icon';
+import MoodFace from './MoodFace';
 import Toast from './Toast';
 import { syncLocal } from './localReminders';
 
@@ -131,6 +132,7 @@ export default function SymptomsQuick({ day, initial, onChange }) {
             return (
               <div key={s.key} className="tsym-row" role="group" aria-labelledby={`tsym-${s.key}`}>
                 <div className="tsym-head">
+                  <MoodFace value={cur} higherBetter={s.higherBetter} size={28} />
                   <span id={`tsym-${s.key}`} className={`tsym-label${s.custom ? ' dn' : ''}`}>{s.label}</span>
                   <span className={`tsym-val${cur == null ? ' unset' : ''}`}>{cur == null ? 'nie wpisano' : <><b>{cur}</b> z 10</>}</span>
                 </div>
