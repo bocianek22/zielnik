@@ -8,6 +8,10 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.82.0] - 2026-10
+### Zmieniono
+- **Nowy wygląd, etap 1 (UI 5, docs/UI-5.md):** jasny górny pasek w kolorze tła (pasek stanu w APK i przeglądarce w tym samym kolorze, osobno dla trybu jasnego i ciemnego), miętowy nagłówek „Dziś” i karty odmiany, złagodzone pastelowe nagłówki obszarów (Dziennik, Recepty, Historia i inne), pływający dolny pasek z rozmyciem tła, przycisk „+” w kolorze marki, nowa czcionka Plus Jakarta Sans.
+
 ## [0.81.0] - 2026-10
 ### Zmieniono
 - **Dziennik uporządkowany (UI 4, część 6):** najpierw wszystko, co się zapisuje (objawy, czynniki dnia, własne objawy, pomiary, zdarzenia niepożądane), potem „Rok objawów”, a informacja o prywatności na końcu. Zwijane karty mają jednakowe kółka z ikoną i równe odstępy.

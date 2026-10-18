@@ -24,6 +24,13 @@ Ustalenia z ankiety (pytania i odpowiedzi właściciela). Każda większa zmiana
 | Wpis objawów | Suwaki z buźką, która zmienia się przy przesuwaniu |
 | Inspiracje | Apple Zdrowie / Fitness, Revolut / aplikacje bankowe |
 
+## Wybór wariantu (18.10.2026, zrzuty porównawcze)
+- Kolory: wariant A „Zdrowie” (jasny górny pasek w kolorze tła, miętowy nagłówek „Dziś”) z pływającym paskiem dolnym z wariantu B (zaokrąglony, z rozmyciem tła).
+- Czcionka: Plus Jakarta Sans (zamiast Figtree; PDF raportu bez zmian).
+- Pasek dolny: 5 miejsc bez zmian (Dziś, Odmiany, +, Dziennik, Więcej).
+- Ton: uprzejmie i spokojnie, na „ty”.
+- Tokeny: `--topbar`, `--on-topbar`, `--on-topbar-2`, `--topbar-mark` (górny pasek); `--bar` zostaje ciemną zielenią marki (logowanie na komputerze, ekran blokady); `--bn-gap` (odstęp pływającego paska).
+
 ## Zasady techniczne
 - Bez nowych bibliotek animacji, wykresów i przeciągania; jedna rodzina czcionek; budżety wydajności z CI.
 - Układ „Dziś” zapisany na koncie: kolumna addytywna w `ensureDb`, biała lista identyfikatorów kart po stronie serwera, eksport i kopia, test w `tests/db/`.

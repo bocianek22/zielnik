@@ -19,6 +19,25 @@ const wasUnlocked = () => { try { return sessionStorage.getItem(UNLOCKED) === '1
 
 // Integracja z natywną powłoką (mobile/): przycisk wstecz, linki zewnętrzne, pasek stanu, blokada, odświeżenie tokenu push.
 // W przeglądarce nic nie renderuje i nic nie robi.
+// UI 5: pasek stanu w kolorze jasnego albo ciemnego górnego paska (--topbar), ikony ciemne na jasnym i jasne na ciemnym.
+// Motyw: ręczny wybór (data-theme na <html>) albo ustawienie systemu; śledzimy obie zmiany.
+function installStatusBar() {
+  const sb = plugin('StatusBar');
+  if (!sb) return () => {};
+  const mq = matchMedia('(prefers-color-scheme: dark)');
+  const apply = () => {
+    const t = document.documentElement.dataset.theme;
+    const dark = t ? t === 'dark' : mq.matches;
+    sb.setStyle?.({ style: dark ? 'DARK' : 'LIGHT' }).catch(() => {});
+    sb.setBackgroundColor?.({ color: dark ? '#0b1114' : '#edf1f4' }).catch(() => {});
+  };
+  apply();
+  const mo = new MutationObserver(apply);
+  mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  mq.addEventListener('change', apply);
+  return () => { mo.disconnect(); mq.removeEventListener('change', apply); };
+}
+
 export default function NativeShell() {
   const [lock, setLock] = useState(null); // null | 'cover' (zasłona w tle) | 'locked'
   const [msg, setMsg] = useState('');
@@ -55,8 +74,7 @@ export default function NativeShell() {
   useEffect(() => {
     if (!isNative()) return;
     document.documentElement.classList.add('native-app');
-    plugin('StatusBar')?.setStyle?.({ style: 'DARK' }).catch(() => {}); // jasne ikony na zielonym pasku (--hemp-deep)
-    const offs = [installHaptics(), installKeyboard()];
+    const offs = [installHaptics(), installKeyboard(), installStatusBar()];
 
     // Wstecz: historia strony, a na pierwszej stronie zejście do tła (jak w innych aplikacjach)
     offs.push(listen('App', 'backButton', ({ canGoBack }) => {

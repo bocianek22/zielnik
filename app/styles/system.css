@@ -30,7 +30,7 @@
 .skel-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-3); }
 .skel-kpi { height: 112px; border-radius: var(--r-lg); }
 /* hero szkieletu ma kolor prawdziwego hero (bez błysku szarości przed ciemną zielenią) */
-.skel-hero { background: linear-gradient(165deg, var(--bar) 0%, var(--hero-2) 60%, var(--hero-3) 100%); animation: none; }
+.skel-hero { background: linear-gradient(160deg, var(--hero-2) 0%, var(--hero-3) 100%); animation: none; }
 .skel-hero.neutral { height: 136px; background: linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3) 37%, var(--surface-2) 63%); background-size: 400% 100%; animation: skel-shine 1.4s ease infinite; }
 @media (prefers-reduced-motion: reduce) { .skeleton .skel-line, .skel-dot, .skel-hero, .skel-kpi { animation: none; } }
 
@@ -59,7 +59,7 @@
 /* ===== Potwierdzenie zapisu: components/Toast.js ===== */
 /* Tuż nad dolnym paskiem (telefon), w rogu na szerokim ekranie. Pusty obszar role="status" zostaje w DOM, ale nie jest widoczny.
    Tekst neutralny, stan mówi ikona w kolorze stanu (kolor sukcesu na całym zdaniu był mniej czytelny) */
-.toast { position: fixed; z-index: 60; left: var(--s-4); right: var(--s-4); bottom: calc(var(--bottomnav-h) + var(--s-3) + env(safe-area-inset-bottom));
+.toast { position: fixed; z-index: 60; left: var(--s-4); right: var(--s-4); bottom: calc(var(--bottomnav-h) + var(--bn-gap) + var(--s-3) + env(safe-area-inset-bottom));
   display: flex; align-items: center; gap: var(--s-3); max-width: 420px; min-height: 52px; margin: 0 auto; padding: var(--s-1) var(--s-1) var(--s-1) var(--s-4);
   background: var(--surface); color: var(--text); border: 1px solid var(--sep); border-radius: var(--r-lg); box-shadow: var(--shadow-2); animation: toast-in .2s var(--ease); }
 .toast[data-empty] { display: none; }
@@ -70,7 +70,7 @@
 .toast-text:empty { display: none; }
 .toast .undo-btn { flex: none; min-height: var(--tap); border: 0; background: transparent; color: var(--accent-text); font-weight: 700; }
 @media (min-width: 761px) { .toast { left: auto; right: var(--s-6); bottom: var(--s-6); margin: 0; } }
-html.native-app .toast { bottom: calc(var(--bottomnav-h) + var(--s-3) + max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px))); }
+html.native-app .toast { bottom: calc(var(--bottomnav-h) + var(--bn-gap) + var(--s-3) + max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px))); }
 @keyframes toast-in { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .toast { animation: none; } }
 
