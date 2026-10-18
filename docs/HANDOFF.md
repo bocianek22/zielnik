@@ -52,8 +52,9 @@ Tryb awaryjny (rozmowa bez dostępu do repozytorium):
 - Wybór bramki płatności i platformy wpłat (`DONATE_URL`), decyzja o `PREMIUM_ENFORCED`.
 - Źródło danych do katalogu (`CATALOG_FEED_URL`), plan Vercel Pro przy działalności komercyjnej.
 
-## 6. Następne kroki (aktualne dla wersji 0.92.0)
+## 6. Następne kroki (aktualne dla wersji 0.93.0)
 Pełna lista z uzasadnieniem: `docs/PRZEGLAD-2026-10.md`; aplikacje natywne: `docs/APLIKACJE-NATYWNE.md`; system projektowy: `docs/DESIGN.md`. Praca z podziałem na subagentów (`.claude/agents/`): koordynator scala gałęzie, uruchamia kontrole, zleca przegląd (reviewer) i prowadzi CHANGELOG/wersję. Przebieg pracy nocnej: `docs/PLAN-NOC.md`.
+1. **Plan wykupu (0.93.0):** Recepty → „Plan wykupu” (data „wykup najpóźniej” z tempa z 30 dni minus 5 dni zapasu, ostrzeżenie, gdy recepta wygaśnie wcześniej albo jej brak) i pozycja w „Planie na dziś” (bez dubli z „Kończy się zapas” i „Recepta wygasa”). Sprawdzić na prawdziwych danych, czy termin nie jest zbyt alarmujący. Dalej z listy propozycji: „Przed wizytą u lekarza”, wykres pomiarów, logowanie odciskiem palca.
 1. **Kreator (0.91.0):** nowe konto na telefonie: trzy kroki, pomijanie, TalkBack czyta „krok bieżący” i „(zakończony)”. Odświeżenie UI 5 zakończone; kolejne pomysły w docs/POMYSLY.md.
 1. **Wykresy (0.90.0):** animacje na słabszym telefonie (płynność przewijania Dziennika), fiolet objawów w trybie ciemnym. Następnie kreator pierwszego uruchomienia w stylu UI 5.
 1. **Logowanie i rejestracja (0.89.0, UI 5 etap 7):** sprawdzić na telefonie (klawiatura nie zasłania pola hasła, APK), tryb ciemny, ekran blokady (zostaje ciemnozielony `--bar`). Kreator pierwszego uruchomienia (Onboarding) do ewentualnego odświeżenia w tym samym stylu. UI 5 zakończony; dalej lepsze wykresy (skill dataviz) według docs/UI-5.md.

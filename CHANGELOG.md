@@ -8,6 +8,10 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.93.0] - 2026-10
+### Dodano
+- **Plan wykupu:** na ekranie Recepty karta „Plan wykupu” osobno dla suszu i oleju/pena: do kiedy starczy zapas (tempo z ostatnich 30 dni), dzień „wykup najpóźniej” z 5-dniowym zapasem na dojazd, a gdy recepta wygaśnie przed tym dniem albo brak ważnej recepty, wyraźne ostrzeżenie. W „Planie na dziś” pozycja „Wykup …” albo „Potrzebna nowa recepta”, kiedy termin jest blisko (bez powtarzania pilnej recepty tej samej jednostki ani „Kończy się zapas”, chyba że brak ważnej recepty). Bez zmian w bazie (`lib/refill-plan.js`).
+
 ## [0.92.0] - 2026-10
 ### Poprawiono
 - **Wąskie telefony (320–380 px), przegląd w trybie ciemnym:** w profilu podpowiedź przy grupie ustawień (np. „Blokada, dyskrecja”) nie nachodzi już na tytuł (ukryta do 380 px, treść po rozwinięciu); na liście odmian do 360 px bez miniatury w wierszu, więc nazwa odmiany jest dłuższa.
