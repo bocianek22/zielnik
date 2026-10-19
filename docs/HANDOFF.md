@@ -52,8 +52,9 @@ Tryb awaryjny (rozmowa bez dostępu do repozytorium):
 - Wybór bramki płatności i platformy wpłat (`DONATE_URL`), decyzja o `PREMIUM_ENFORCED`.
 - Źródło danych do katalogu (`CATALOG_FEED_URL`), plan Vercel Pro przy działalności komercyjnej.
 
-## 6. Następne kroki (aktualne dla wersji 0.98.0)
+## 6. Następne kroki (aktualne dla wersji 0.99.0)
 Pełna lista z uzasadnieniem: `docs/PRZEGLAD-2026-10.md`; aplikacje natywne: `docs/APLIKACJE-NATYWNE.md`; system projektowy: `docs/DESIGN.md`. Praca z podziałem na subagentów (`.claude/agents/`): koordynator scala gałęzie, uruchamia kontrole, zleca przegląd (reviewer) i prowadzi CHANGELOG/wersję. Przebieg pracy nocnej: `docs/PLAN-NOC.md`.
+1. **„Dodaj do kalendarza” (0.99.0):** Recepty → „Plan wykupu” i karta „Przed wizytą”: otwarcie pliku `.ics` w Chrome na Androidzie (Kalendarz Google), Safari na iPhonie i **w APK** (WebView może nie pobierać plików; jeśli nie, potrzebna obsługa pobierania w powłoce, jak przy PDF), tryb dyskretny (tytuł „Sprawa do załatwienia”).
 1. **Pomiary na karcie „Przed wizytą” (0.98.0):** wizyta za 1–7 dni i co najmniej jeden pomiar od ostatniej wizyty: lista pod średnimi objawów (telefon, tryb ciemny, „Ukryj nazwy”).
 1. **Poprawki po przeglądzie 0.93–0.97 (0.97.1):** „Dziś” z wygasłą receptą z resztą i nową ważną: pozycja „Wykup …” widoczna; Raport → „Dołącz do raportu” przy innych lekach po wejściu z karty „Przed wizytą” (tryb „od ostatniej wizyty” zostaje). Otwarte z przeglądu (decyzje): szyfrowanie `other_meds` jak notatek, `&leki=1` w linku z karty „Przed wizytą”, status „Recepta jest” przy bardzo małej reszcie na recepcie.
 1. **Pomiary w CSV (0.97.0):** Profil → „Dziennik (CSV)”: kolumna „Pomiary” otwarta w Excelu i Calc (przecinek dziesiętny, polskie znaki). Uwaga dla prawnika: polityka prywatności wymienia kategorie danych zdrowotnych; „inne przyjmowane leki” (0.96.0) mieszczą się w „notatkach dla lekarza”, ale warto dopisać je przy najbliższej zmianie wersji dokumentów (zmiana wersji wymusza ponowną zgodę). Zostały pozycje zablokowane na właścicielu (docs/PLAN-PAZDZIERNIK.md): domena (passkeys, e-maile), klucze VAPID/FCM i Vercel Pro (przypomnienia), prawnik.
