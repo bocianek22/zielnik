@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Icon from './Icon';
-import { longDay } from './charts/fmt';
+import { longDay, num } from './charts/fmt';
 
 // „Przed wizytą” na ekranie „Dziś” (komponent serwerowy, dane z lib/visit-prep.js): pojawia się tylko, gdy w dzienniku
 // wizyt jest wizyta w ciągu 7 dni. Średnie objawów od ostatniej wizyty, punkty „Do omówienia” i gotowy raport za ten okres.
@@ -39,6 +39,18 @@ export default function VisitPrepCard({ prep }) {
             <li key={t.key}><span className="wk-label">{t.label}</span><b className="wk-avg">{pl(t.avg)}</b><Trend t={t} /></li>
           ))}
         </ul>
+      )}
+      {prep.measures?.length > 0 && (
+        <div className="vp-measures">
+          <p className="vp-mhead" id="vp-mh">Pomiary: ostatni, w nawiasie zmiana od pierwszego w tym okresie</p>
+          <ul aria-labelledby="vp-mh">
+            {prep.measures.map((m) => (
+              <li key={m.name}><span className="dn">{m.name}</span> <b>{num(m.last)}{m.unit && ` ${m.unit}`}</b>
+                {m.diff != null && <span className="muted"> ({m.diff === 0 ? 'bez zmian' : `${m.diff > 0 ? '+' : '−'}${num(Math.abs(m.diff))}${m.unit ? ` ${m.unit}` : ''}`})</span>}
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
       {prep.report && <>
         <p className="vp-notes">
