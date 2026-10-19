@@ -49,7 +49,7 @@ Reguła: brak sprzeczności z zasadami oceny, dane tylko własne, każdy dotyka 
 | POM-21 | Dostępność wykresów i formularzy | 4 | S/M | – | – | częściowo (0.33.0: wykres objawów kreska + kształt + tabela dla czytnika; zostają suwaki, kolory, axe) | UX-2 |
 | POM-22 | Większy tekst i tryb „duże cele” | 3 | S | – | – | zrobiony (0.46.0) | UX-2 |
 | POM-23 | Wydajność ekranu głównego (dane „Dziś” bez pełnej listy) | 3 | M | T | – | zrobiony (0.39.0) | PLA-5, MOB-9 |
-| POM-24 | Budżety Lighthouse w CI | 3 | S | – | – | w toku (fala 1, `PLAN-PAZDZIERNIK.md`; zmierzy POM-23) | PLA-16, MOB-15 |
+| POM-24 | Budżety Lighthouse w CI | 3 | S | – | – | zrobiony (0.45.0: `npm run test:perf`, budżety w `tests/perf/budgets.json`) | PLA-16, MOB-15 |
 | POM-25 | Blokada PIN/biometrią także w PWA i automatyczne wylogowanie | 4 | M | P | – | zrobiony (0.38.0; zmiana PIN: POM-33) | KON-11 |
 | POM-26 | Klucze dostępu (passkeys) | 3 | M | T | 🌐 | nowy | KON-9 |
 | POM-27 | Lista sesji i urządzeń | 3 | M | T | – | zrobiony (0.38.0) | KON-4 |
@@ -60,7 +60,7 @@ Reguła: brak sprzeczności z zasadami oceny, dane tylko własne, każdy dotyka 
 | POM-32 | Zgłoszenie „ta partia działała inaczej” | 3 | M | – | – | zrobiony w kodzie (do wydania) | PAC-1, PAC-2 |
 | POM-33 | „Zmień PIN” w blokadzie bez jej wyłączania | 3 | S | P | – | zrobiony (0.40.0) | KON-11 |
 | POM-34 | Trasy auth w trybie `safe()` / `requireUser()` (`change-password`) | 2 | S | T | – | zrobiony (0.40.0) | – |
-| POM-35 | Lekki indeks odmian i paginacja listy po stronie serwera | 3 | M | T | POM-23 | zaplanowany (fala 1, `PLAN-PAZDZIERNIK.md`) | PLA-5 |
+| POM-35 | Lekki indeks odmian i paginacja listy po stronie serwera | 3 | M | T | POM-23 | zrobiony (0.45.0: `strainIndex`, kursor w `GET /api/strains`) | PLA-5 |
 | POM-36 | „Do omówienia z lekarzem”: lista pytań przy raporcie | 3 | S | P | – | zrobiony (0.43.0) | MON-4 |
 | POM-37 | Karta „Co zostało na recepcie” (apteka, wizyta) | 4 | S/M | P | – | zrobiony (0.42.0) | PAC-4 |
 | POM-38 | „Dzień bez zużycia” i nadrabianie wpisów | 4 | S/M | P | – | zrobiony (0.41.0) | PAC-7 |
