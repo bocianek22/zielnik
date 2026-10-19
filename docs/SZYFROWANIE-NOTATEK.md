@@ -14,7 +14,7 @@
   - przy wielu urządzeniach i w APK trzeba by synchronizować klucz.
 
 ## Zakres
-- **Szyfrowane kolumny:** `symptom_log.note`, `user_strain.notes`, `prescriptions.note`, `strain_tests.note`, `purchases.batch_note` (notatka o partii, POM-32), `group_messages.body` (czat grup, SPO-2), `doctor_notes.text`, `visits.note` (dziennik wizyt, POM-52), `adverse_events.note` (zdarzenia niepożądane, POM-62).
+- **Szyfrowane kolumny:** `symptom_log.note`, `user_strain.notes`, `prescriptions.note`, `strain_tests.note`, `purchases.batch_note` (notatka o partii, POM-32), `group_messages.body` (czat grup, SPO-2), `visits.note` (dziennik wizyt, POM-52), `adverse_events.note` (zdarzenia niepożądane, POM-62), od 1.1.0 także `doctor_notes.text` („Do omówienia”) oraz `other_meds.name` i `other_meds.dose` (inne przyjmowane leki).
 - **Poza zakresem:**
   - `symptom_custom.name` (unikalny indeks);
   - `beta_feedback.body` i `reports.note` (czyta je admin);
@@ -23,17 +23,14 @@
 ## Format
 - Szyfrogram: `zenc1:<kid>:<base64(iv12 ‖ tag16 ‖ ct)>`. Pusty tekst zostaje `''`, więc warunki `note <> ''` działają bez zmian.
 - Klucze: `DATA_ENCRYPTION_KEY="k2:<b64-32B>,k1:<b64-32B>"`. Pierwszy szyfruje, pozostałe tylko odszyfrowują (rotacja). Klucz jest osobny od `BACKUP_ENCRYPTION_KEY`.
-- AAD: `zielnik|<tabela>.<kolumna>|<zakres>`, gdzie zakres to konto i niezmienny klucz wiersza: `symptom_log` `user_id|day`, `user_strain` `user_id|strain_id`, `prescriptions` `user_id|id`, `purchases` `user_id|id`, `strain_tests` samo `id` (`user_id` może przejść w SET NULL), `group_messages` samo `id`. Szyfrogramu nie da się więc przenieść do innego wiersza, także tego samego konta.
+- AAD: `zielnik|<tabela>.<kolumna>|<zakres>`, gdzie zakres to konto i niezmienny klucz wiersza: `symptom_log` `user_id|day`, `user_strain` `user_id|strain_id`, `prescriptions` `user_id|id`, `purchases` `user_id|id`, `strain_tests` samo `id` (`user_id` może przejść w SET NULL), `group_messages` samo `id`, `visits`, `adverse_events`, `doctor_notes` i `other_meds` `user_id|id` (id z sekwencji przed INSERT). Szyfrogramu nie da się więc przenieść do innego wiersza, także tego samego konta.
 - **Jawny tekst z prefiksem:** zapis bez klucza poprzedza notatkę zaczynającą się od `zenc1:` lub `zplain:` prefiksem `zplain:` (zdejmowany przy odczycie), żeby nie wyglądała jak szyfrogram. Stare jawne wiersze zaczynające się od `zenc1:` są nierozróżnialne (nie ma takich na produkcji).
 - **Nieczytelny szyfrogram (brak klucza, usunięty kid, zły AAD):** do edytującego klienta wraca `''` i flaga (`noteLocked` / `notesLocked`), nigdy znacznik; eksport, raport i profil pokazują znacznik. Zapis nie nadpisuje takiej kolumny, gdy wejście jest puste albo jest znacznikiem (`planNote`); nowy niepusty tekst ją zastępuje.
 - **Zły format klucza:** zapis wpisu (objawy, wpis odmiany, edycja testu) zapisuje resztę i zostawia notatkę bez zmian, odpowiedź 200 z `noteError` (kolejka offline nie utyka na 5xx). Nowy test, recepta z notatką: 422; import pomija wiersz z notatką.
 - **Szyfrowanie w miejscu z prefiksem.**
   - Odczyt: tekst bez prefiksu wraca jak jest; brak klucza albo błąd daje „[notatka zaszyfrowana, brak klucza]” i wpis w dzienniku błędów bez treści.
   - Limity długości sprawdzamy w JS na jawnym tekście.
-- **Wyjątek `doctor_notes.text`:** ma CHECK 1..200, a szyfrogram jest dłuższy. Wymaga decyzji właściciela:
-  - (a) `DROP CONSTRAINT`: luzuje schemat, wyjątek od zasady „tylko addytywnie”;
-  - (b) addytywna kolumna `text_enc`.
-  - Do decyzji zostaje bez szyfrowania.
+- **`doctor_notes.text` i `other_meds` (1.1.0, decyzja właściciela z 19.10):** stare CHECK długości (1..200, 1..80, ≤80) blokowały dłuższy szyfrogram, więc `ensureDb` zamienia je jednorazowo na luźniejsze (`*_len`, do 1000 znaków; wyjątek od zasady „tylko addytywnie”). Limity dla użytkownika pilnuje kod na jawnym tekście. Punktów i leków nie da się edytować, więc odczyt jest tylko do wyświetlenia (znacznik przy braku klucza); import pomija znacznik z eksportu zrobionego bez klucza. Po wdrożeniu z kluczem: `node scripts/encrypt-notes.mjs --table=doctor_notes` i `--table=other_meds` przepisują stare jawne wiersze.
 
 ## Przepisanie istniejących danych
 - **Skrypt `scripts/encrypt-notes.mjs`:**

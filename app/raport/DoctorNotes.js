@@ -3,6 +3,7 @@ import SecHead from '../components/SecHead';
 import DictateButton from '../components/DictateButton';
 import { useState } from 'react';
 import { api } from '@/lib/api';
+import { LOCKED_NOTE } from '@/lib/locked-note';
 import { NOTES_EVENT } from './ReportNotes';
 import Toast from '../components/Toast';
 import useUndoDelete from '../components/useUndoDelete';
@@ -37,6 +38,7 @@ export default function DoctorNotes({ initial }) {
   // usunięcie od razu, „Cofnij” dodaje punkt z tym samym tekstem (i odhacza, jeśli był omówiony)
   async function remove(n) {
     if (!(await run(api(`/api/doctor-notes/${n.id}`, 'DELETE')))) return;
+    if (n.text === LOCKED_NOTE) return; // nieczytelny bez klucza: nie ma czego przywrócić
     undo.offer('Usunięto punkt.', async () => {
       const { notes: list } = await api('/api/doctor-notes', 'POST', { text: n.text });
       // przywrócony punkt to najnowszy z tym tekstem (przy powtórzonym tekście nie odhaczamy innego)

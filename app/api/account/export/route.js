@@ -2,6 +2,8 @@ import { sql } from '@/lib/db';
 import { requireUser, safe } from '@/lib/guard';
 import { readPhoto } from '@/lib/photos';
 import { openRows, rowScope } from '@/lib/data-crypto';
+import { openNote } from '@/lib/doctor-notes';
+import { openMed } from '@/lib/other-meds';
 
 // Nazwa pliku z polskimi literami (ł, ś, ż...) w nagłówku: zwykłe `filename` musi być ASCII (inaczej Response rzuca
 // błąd i eksport kończy się 500), a pełną nazwę podajemy w `filename*` (RFC 6266).
@@ -83,8 +85,10 @@ export const GET = safe(async (req) => {
     measures: await q`SELECT name, unit, created_at AS "createdAt" FROM measure_defs WHERE user_id = ${me} ORDER BY slot`,
     measureValues: await q`SELECT to_char(v.day, 'YYYY-MM-DD') AS day, d.name AS measure, v.value::float8 AS value FROM measure_values v
       JOIN measure_defs d ON d.id = v.def_id WHERE v.user_id = ${me} ORDER BY v.day, d.slot`,
-    doctorNotes: await q`SELECT text, done, created_at AS "createdAt", done_at AS "doneAt" FROM doctor_notes WHERE user_id = ${me} ORDER BY created_at`,
-    otherMeds: await q`SELECT name, dose, created_at AS "createdAt" FROM other_meds WHERE user_id = ${me} ORDER BY created_at, id`,
+    doctorNotes: (await q`SELECT id, text, done, created_at AS "createdAt", done_at AS "doneAt" FROM doctor_notes WHERE user_id = ${me} ORDER BY created_at`)
+      .map((r) => openNote(me, r)).map(({ id: _id, ...n }) => n),
+    otherMeds: (await q`SELECT id, name, dose, created_at AS "createdAt" FROM other_meds WHERE user_id = ${me} ORDER BY created_at, id`)
+      .map((r) => openMed(me, r)).map(({ id: _id, ...m }) => m),
     noUseDays: (await q`SELECT to_char(day, 'YYYY-MM-DD') AS day FROM no_use_days WHERE user_id = ${me} ORDER BY day`).map((r) => r.day),
     blocked: await q`SELECT u.username FROM blocks b JOIN users u ON u.id = b.blocked WHERE b.blocker = ${me}`,
     // zgłoszenia wysłane przez użytkownika (z jego własnym opisem); zgłoszeń o nim samym nie ujawniamy (dane moderacji i zgłaszających)

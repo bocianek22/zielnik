@@ -66,7 +66,9 @@ test('Dziennik: usunięcie wpisu dnia i „Cofnij” z tymi samymi wartościami'
 test('Do omówienia: punkt usunięty od razu i przywrócony po „Cofnij”', async () => {
   try {
     assert.equal(await call('/api/doctor-notes', 'POST', { text: 'Punkt e2e do cofnięcia' }), 200);
-    const Q = `SELECT count(*)::int AS n FROM doctor_notes WHERE text = 'Punkt e2e do cofnięcia'`;
+    // treść w bazie jest szyfrowana (1.1.0), więc liczymy punkty konta zamiast szukać tekstu
+    const Q = `SELECT count(*)::int AS n FROM doctor_notes d JOIN users u ON u.id = d.user_id WHERE u.username = 'bartek'`;
+    const n0 = await count(Q, []);
     await go(page, '/raport');
     const item = page.locator('.dn-list li', { hasText: 'Punkt e2e do cofnięcia' });
     await item.waitFor({ timeout: 15000 });
@@ -74,13 +76,13 @@ test('Do omówienia: punkt usunięty od razu i przywrócony po „Cofnij”', as
     await interactive(del);
     await del.click();
     await status('Usunięto punkt.');
-    await until(Q, [], 0);
+    await until(Q, [], n0 - 1);
     assert.equal(await item.count(), 0);
     await page.getByRole('button', { name: 'Cofnij' }).click();
     await item.waitFor();
-    await until(Q, [], 1);
+    await until(Q, [], n0);
     // sprzątanie
     await item.getByRole('button', { name: 'Usuń' }).click();
-    await until(Q, [], 0);
+    await until(Q, [], n0 - 1);
   } catch (e) { await shot(page, 'cofnij-omowienie'); throw e; }
 });

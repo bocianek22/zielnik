@@ -5,6 +5,7 @@ import SecHead from '../components/SecHead';
 import Toast from '../components/Toast';
 import useUndoDelete from '../components/useUndoDelete';
 import { api } from '@/lib/api';
+import { LOCKED_NOTE } from '@/lib/locked-note';
 
 export const MEDS_EVENT = 'zielnik:other-meds';
 const MAX = 15, LEN = 80;
@@ -35,6 +36,7 @@ export default function OtherMeds({ initial, included = false, toggleHref = null
   }
   async function remove(m) {
     if (!(await run(api(`/api/other-meds/${m.id}`, 'DELETE')))) return;
+    if (m.name === LOCKED_NOTE || m.dose === LOCKED_NOTE) return; // nieczytelny bez klucza: nie ma czego przywrócić
     undo.offer('Usunięto lek.', async () => {
       const { meds: list } = await api('/api/other-meds', 'POST', { name: m.name, dose: m.dose });
       setMeds(list); publish(list);
