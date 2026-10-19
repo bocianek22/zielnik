@@ -2,7 +2,7 @@ export default function manifest() {
   return {
     name: 'Zielnik',
     short_name: 'Zielnik',
-    description: 'Dziennik odmian: stany, oceny, rankingi i koło fortuny',
+    description: 'Prywatny dziennik terapii: zapas, recepty, objawy i raport dla lekarza',
     start_url: '/',
     display: 'standalone',
     background_color: '#eef3e4',

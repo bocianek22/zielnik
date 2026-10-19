@@ -187,3 +187,25 @@ test('/api/health: limit zapytań na IP (429), inny adres nie jest dotknięty', 
     assert.equal((await get('health', null)).res.status, 200);
   } finally { client.ip = '127.0.0.1'; }
 });
+
+test('gotowość: FIREBASE_SERVICE_ACCOUNT brak / zły / poprawny, bez wartości w odpowiedzi', { skip }, async () => {
+  const { generateKeyPairSync } = await import('node:crypto');
+  const prev = process.env.FIREBASE_SERVICE_ACCOUNT;
+  const st = async () => (await get('admin/readiness', adminId)).json.checks.find((c) => c.id === 'fcm');
+  try {
+    delete process.env.FIREBASE_SERVICE_ACCOUNT;
+    let c = await st();
+    assert.equal(c.state, 'missing'); assert.equal(c.optional, true);
+    process.env.FIREBASE_SERVICE_ACCOUNT = '{"project_id":"WABIK-fcm"}';
+    assert.equal((await st()).state, 'weak');
+    const { privateKey } = generateKeyPairSync('rsa', { modulusLength: 2048 });
+    process.env.FIREBASE_SERVICE_ACCOUNT = JSON.stringify({ project_id: 'WABIK-fcm', client_email: 'wabik@fcm.example',
+      private_key: privateKey.export({ type: 'pkcs8', format: 'pem' }) });
+    c = await st();
+    assert.equal(c.state, 'ok');
+    const body = JSON.stringify((await get('admin/readiness', adminId)).json);
+    assert.doesNotMatch(body, /WABIK-fcm|wabik@fcm/);
+  } finally {
+    if (prev === undefined) delete process.env.FIREBASE_SERVICE_ACCOUNT; else process.env.FIREBASE_SERVICE_ACCOUNT = prev;
+  }
+});

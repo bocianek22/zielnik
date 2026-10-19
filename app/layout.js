@@ -29,6 +29,7 @@ import NativeShell from './components/NativeShell';
 import WebTransitions from './components/WebTransitions';
 import WebLock from './components/WebLock';
 import { BOOT_SCRIPT } from '@/lib/applock';
+import { DISCREET_META, ogMeta, siteUrl } from '@/lib/og';
 
 // UI 5 (docs/UI-5.md): jeden krój (Plus Jakarta Sans) do tekstu, tytułów i liczb; --font-display w globals.css wskazuje na --font-body.
 // PDF raportu ma własną czcionkę (public/fonts, lib/report-pdf.js).
@@ -53,12 +54,13 @@ const icons = { icon: '/icon-192.png' };
 // tryb dyskretny: neutralna ikona karty (liść zdradzałby aplikację)
 const discreetIcons = { icon: '/notatnik.svg' };
 
-// Tryb dyskretny (ciasteczko ustawia przełącznik w profilu): neutralny tytuł karty
+// Tryb dyskretny (ciasteczko ustawia przełącznik w profilu): neutralny tytuł karty, bez podglądu linków z marką
 export async function generateMetadata() {
   const discreet = (await cookies()).get('zielnik_discreet')?.value === '1';
+  // metadataBase: bezwzględne adresy obrazków podglądu linków (lib/og.js)
   return discreet
-    ? { title: 'Notatnik', description: 'Notatnik.', icons: discreetIcons }
-    : { title: 'Zielnik', description: 'Dziennik odmian medycznej konopi: stan, oceny i spostrzeżenia.', icons };
+    ? { metadataBase: siteUrl(), ...DISCREET_META, icons: discreetIcons }
+    : { metadataBase: siteUrl(), applicationName: 'Zielnik', ...ogMeta('app'), icons };
 }
 
 export default async function RootLayout({ children }) {

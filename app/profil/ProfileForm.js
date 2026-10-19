@@ -48,7 +48,7 @@ export default function ProfileForm({ me, initial, children }) {
   }
   async function shareProfile() {
     const url = `${location.origin}/u/${encodeURIComponent(me.username)}`;
-    if (navigator.share) { try { await navigator.share({ title: 'Mój profil w Zielniku', url }); } catch {} }
+    if (navigator.share) { try { await navigator.share({ title: 'Mój profil w Zielniku', text: 'Mój profil w Zielniku:', url }); } catch {} }
     else { try { await navigator.clipboard.writeText(url); setMsg('Skopiowano link do profilu.'); } catch { setMsg(url); } }
   }
 

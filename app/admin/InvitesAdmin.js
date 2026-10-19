@@ -27,7 +27,7 @@ export default function InvitesAdmin() {
   }
   async function share(code) {
     const link = `${location.origin}/register?code=${code}`;
-    if (navigator.share) { try { await navigator.share({ title: 'Zaproszenie do Zielnika', text: 'Dołącz do Zielnika:', url: link }); } catch {} }
+    if (navigator.share) { try { await navigator.share({ title: 'Zaproszenie do Zielnika', text: 'Zapraszam Cię do Zielnika, prywatnego dziennika terapii. Kod zaproszenia jest w linku:', url: link }); } catch {} }
     else copy(code);
   }
 
