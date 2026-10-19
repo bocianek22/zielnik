@@ -208,7 +208,7 @@ Wnioski:
 ## Szyfrowanie notatek w bazie (POM-28)
 Projekt i uzasadnienie wyboru: `docs/SZYFROWANIE-NOTATEK.md`. Moduł `lib/data-crypto.js`, przepisanie danych `scripts/encrypt-notes.mjs`.
 
-**Zakres.** Szyfrowane są `symptom_log.note`, `user_strain.notes`, `prescriptions.note`, `strain_tests.note`, `purchases.batch_note` (notatka o partii, POM-32), `group_messages.body` (czat grup, SPO-2), `visits.note` (dziennik wizyt, POM-52) i `adverse_events.note` (zdarzenia niepożądane, POM-62). `doctor_notes.text` zostaje jawne do decyzji właściciela (CHECK 1..200 vs szyfrogram; w kodzie komentarz TODO). Daty, liczby, skale, widoczność i nazwy odmian zostają jawne.
+**Zakres.** Szyfrowane są `symptom_log.note`, `user_strain.notes`, `prescriptions.note`, `strain_tests.note`, `purchases.batch_note` (notatka o partii, POM-32), `group_messages.body` (czat grup, SPO-2), `visits.note` (dziennik wizyt, POM-52), `adverse_events.note` (zdarzenia niepożądane, POM-62), a od 1.1.0 także `doctor_notes.text` i `other_meds.name`/`dose` (CHECK długości zamienione na luźniejsze, docs/SZYFROWANIE-NOTATEK.md). Daty, liczby, skale, widoczność i nazwy odmian zostają jawne.
 
 **Model zagrożeń.**
 | Zagrożenie | Efekt |
@@ -231,7 +231,7 @@ Projekt i uzasadnienie wyboru: `docs/SZYFROWANIE-NOTATEK.md`. Moduł `lib/data-c
 
 **Rotacja.** Dopisz nowy klucz na początek listy: `DATA_ENCRYPTION_KEY="k2:...,k1:..."`, wdróż, uruchom `encrypt-notes.mjs` (przepisuje wiersze ze starym `kid`), po wyzerowaniu „starych” w panelu usuń `k1` z listy. Usunięcie klucza przed przepisaniem = nieczytelne wiersze (stan „Krytyczne”).
 
-**Wycofanie.** Przed wdrożeniem starego kodu (który nie zna prefiksu i pokazałby szyfrogram): `node scripts/encrypt-notes.mjs --decrypt` z kluczem w env, aż do 0 zmian i 0 błędów; dopiero potem usuń zmienną. Wycofanie nie dotyka `doctor_notes`.
+**Wycofanie.** Przed wdrożeniem starego kodu (który nie zna prefiksu i pokazałby szyfrogram): `node scripts/encrypt-notes.mjs --decrypt` z kluczem w env, aż do 0 zmian i 0 błędów; dopiero potem usuń zmienną.
 
 **Uwagi.** `/szukaj` nie przeszukuje notatek; ewentualne wyszukiwanie tylko w JS po odszyfrowaniu własnych, nigdy `ILIKE` w SQL. Dziennik błędów dostaje przy nieudanym odszyfrowaniu jedną linię na minutę (tabela.kolumna, bez treści i właściciela). Raport dla lekarza, eksport JSON/CSV i widok znajomego zawsze pokazują jawny tekst.
 
@@ -239,7 +239,7 @@ Projekt i uzasadnienie wyboru: `docs/SZYFROWANIE-NOTATEK.md`. Moduł `lib/data-c
 1. **`AUTH_SECRET` ≥ 32 znaki** (panel „Gotowość” pokazuje stan): dziś minimum w kodzie to 16. Wymuszenie w kodzie wyłączyłoby produkcję, jeśli obecny sekret jest krótszy. Zalecenie: sprawdzić w Vercel i w razie potrzeby wymienić; wymiana wyloguje wszystkich.
 2. **Prefiks `__Host-` dla ciasteczka sesji:** chroni przed nadpisaniem ciasteczka z subdomeny. Zmiana nazwy wyloguje wszystkich jednorazowo. Ma sens po przejściu na własną domenę.
 3. ~~**Unieważnianie pojedynczej sesji po wylogowaniu**~~: zrobione w POM-27 (#26).
-4. **Szyfrowanie kopii:** ustawić `BACKUP_ENCRYPTION_KEY`. Bez niego kopie w Blob (wszystkie dane zdrowotne) są tylko skompresowane. Szyfrowanie samych notatek w bazie (`DATA_ENCRYPTION_KEY`, POM-28) to osobny klucz i osobna decyzja: patrz sekcja „Szyfrowanie notatek w bazie”; do decyzji zostaje też `doctor_notes.text` (CHECK 1..200).
+4. **Szyfrowanie kopii:** ustawić `BACKUP_ENCRYPTION_KEY`. Bez niego kopie w Blob (wszystkie dane zdrowotne) są tylko skompresowane. Szyfrowanie samych notatek w bazie (`DATA_ENCRYPTION_KEY`, POM-28) to osobny klucz i osobna decyzja: patrz sekcja „Szyfrowanie notatek w bazie”.
 5. **Pobieranie kopii przez admina:** rozważyć ponowne podanie hasła przed `GET /api/backup`. Przejęta sesja admina daje dziś pełny zrzut bazy.
 6. ~~**DT-7:** każdy zalogowany edytuje wspólne pola odmian.~~ Zamknięte (KAT-1): pola wspólne zmienia bezpośrednio tylko admin i twórca odmiany, dopóki nikt inny jej nie używa; pozostali składają propozycję (limit 20 oczekujących i 30 na godzinę na osobę), którą rozpatruje admin. Propozycje widzi tylko autor i admin. Usunięcie konta kasuje propozycje autora (kaskada), a przyjęte zmiany zostają w historii odmiany bez powiązania z kontem. Pozostaje: nowe opcje (producent, typ, terpen) dopisują się do wspólnych list już przy złożeniu propozycji, bez zatwierdzenia; zdjęcie odmiany ma własne reguły uprawnień (dodający, twórca, admin).
 7. **Wyszukiwarka użytkowników:** każdy zalogowany może wylistować nazwy kont (po 10 na zapytanie, od 2 znaków). Rozważyć wyszukiwanie tylko po pełnej nazwie albo limit.

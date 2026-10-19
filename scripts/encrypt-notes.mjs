@@ -62,7 +62,8 @@ export async function run(sql, { dry = false, batch = 200, table = null, decrypt
       cursor = pk.map((k) => rows[rows.length - 1][`pk_${k}`]);
       if (rows.length < batch) break;
     }
-    total.byTable[t] = stat;
+    // tabela z kilkoma kolumnami (other_meds: name, dose) ma osobny wpis na kolumnę
+    total.byTable[COLUMNS.filter((c) => c.table === t).length > 1 ? `${t}.${col}` : t] = stat;
     for (const k of ['scanned', 'changed', 'skipped', 'raced', 'failed']) total[k] += stat[k];
   }
   return total;
