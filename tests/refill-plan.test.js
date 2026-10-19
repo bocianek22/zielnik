@@ -1,7 +1,7 @@
 // Plan wykupu (lib/refill-plan.js): `npm test`
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { refillPlan, LEAD_DAYS } from '../lib/refill-plan.js';
+import { todayRefills, refillPlan, LEAD_DAYS } from '../lib/refill-plan.js';
 
 const T = '2026-10-18';
 const rx = (o) => ({ unit: 'g', remaining: 10, valid_until: '2026-12-01', days_left: 44, ...o });
@@ -55,4 +55,18 @@ test('druga recepta pokrywa termin wykupu: bez ostrzeżenia, choć pierwsza wyga
 test('pusty zapas bez planu, bardzo wolne tempo bez błędu daty', () => {
   assert.equal(refillPlan({ unit: 'g', stock: 0, perDay: 0.5, today: T }), null);
   assert.equal(refillPlan({ unit: 'g', stock: 10, perDay: 1e-9, today: T }).daysLeft, 3650);
+});
+
+test('plan na dziś: wygasła recepta nie ukrywa wykupu, wygasająca tej samej jednostki tak', () => {
+  const valid = rx({ valid_until: '2026-10-21', days_left: 3 });
+  const expired = rx({ valid_until: '2026-10-15', days_left: -3, remaining: 2 });
+  const base = { units: ['g'], stock: { g: 1 }, perDay: { g: 0.5 }, today: T };
+  assert.equal(todayRefills({ ...base, rx: [valid], urgentRx: valid }).length, 0, 'dubel z „Recepta wygasa”');
+  assert.equal(todayRefills({ ...base, rx: [expired, valid], urgentRx: expired }).length, 1);
+  // ostrzeżenie o recepcie na ml nie ukrywa planu dla suszu
+  const ml = rx({ unit: 'ml', valid_until: '2026-10-20', days_left: 2 });
+  assert.equal(todayRefills({ ...base, rx: [ml], urgentRx: ml })[0].status, 'need-rx');
+  // „Kończy się zapas” zastępuje „wykup”, ale nie „potrzebna nowa recepta”
+  assert.equal(todayRefills({ ...base, rx: [rx()], lowUnit: 'g' }).length, 0);
+  assert.equal(todayRefills({ ...base, rx: [], lowUnit: 'g' })[0].status, 'need-rx');
 });

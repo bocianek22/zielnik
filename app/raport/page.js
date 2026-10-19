@@ -162,7 +162,7 @@ export default async function Raport({ searchParams }) {
         </div>
 
         <DoctorNotes initial={notes} />
-        <OtherMeds initial={meds} included={withMeds} />
+        <OtherMeds initial={meds} included={withMeds} toggleHref={`/raport?from=${from}&to=${to}${visit ? '&okres=wizyta' : ''}${withNotes ? '&notes=1' : ''}${withMeds ? '' : '&leki=1'}${brief ? '&krotki=1' : ''}`} />
         <VisitsLog initial={visits} />
 
         {noData ? (
