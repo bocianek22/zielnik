@@ -18,6 +18,16 @@ export async function run(sql, { dry = false, batch = 200, table = null, decrypt
   if (ks.state !== 'ok') throw new Error(ks.state === 'invalid' ? 'DATA_ENCRYPTION_KEY ma zły format.' : 'Brak DATA_ENCRYPTION_KEY.');
   const targets = COLUMNS.filter((c) => !table || c.table === table);
   if (!targets.length) throw new Error(`Nieznana tabela: ${table}. Dozwolone: ${COLUMNS.map((c) => c.table).join(', ')}.`);
+  // doctor_notes i other_meds (1.1.0): stare CHECK długości odrzuciłyby dłuższy szyfrogram, a część krótkich wierszy
+  // zostałaby zaszyfrowana, zanim wdrożenie zamieni CHECK (stara wersja aplikacji pokazałaby szyfrogram). Najpierw wdrożenie.
+  const needLen = { doctor_notes: ['doctor_notes_text_len'], other_meds: ['other_meds_name_len', 'other_meds_dose_len'] };
+  for (const t of new Set(targets.map((c) => c.table))) {
+    for (const name of needLen[t] || []) {
+      if (!(await sql.query('SELECT 1 FROM pg_constraint WHERE conname = $1', [name])).length) {
+        throw new Error(`Tabela ${t} ma jeszcze stare ograniczenie długości: najpierw wdróż wersję 1.1.0 i otwórz aplikację (migracja), potem uruchom skrypt.`);
+      }
+    }
+  }
   const total = { scanned: 0, changed: 0, skipped: 0, raced: 0, failed: 0, byTable: {} };
 
   for (const { table: t, col, pk, scopeSql } of targets) {

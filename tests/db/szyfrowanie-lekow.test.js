@@ -142,3 +142,13 @@ test('bez klucza: znacznik zamiast treści, nowe wpisy jawne; encrypt-notes szyf
   assert.equal((await call(A, 'other-meds', 'GET')).json.meds.at(-1).dose, '500 mg');
   assert.equal((await run(sql, { table: 'other_meds' })).changed, 0, 'drugi przebieg nic nie zmienia');
 });
+
+test('encrypt-notes odmawia pracy na doctor_notes/other_meds przed migracją CHECK', { skip }, async () => {
+  const { run } = await import('../../scripts/encrypt-notes.mjs');
+  const sql = { query: async (t, p) => (await pool.query(t, p)).rows };
+  await pool.query('ALTER TABLE other_meds RENAME CONSTRAINT other_meds_dose_len TO other_meds_dose_check');
+  try {
+    await assert.rejects(run(sql, { table: 'other_meds' }), /najpierw wdróż/);
+    assert.equal((await run(sql, { table: 'doctor_notes' })).failed, 0, 'inne tabele bez zmian');
+  } finally { await pool.query('ALTER TABLE other_meds RENAME CONSTRAINT other_meds_dose_check TO other_meds_dose_len'); }
+});

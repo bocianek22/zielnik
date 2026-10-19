@@ -8,6 +8,10 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10
+### Zmieniono
+- **Szyfrowanie punktów „Do omówienia” i innych leków:** `doctor_notes.text` oraz `other_meds.name` i `other_meds.dose` są szyfrowane w bazie jak inne notatki (AES-256-GCM, `DATA_ENCRYPTION_KEY`, zakres AAD konto + id). Stare ograniczenia długości (CHECK 1..200, 1..80) zamieniane jednorazowo na luźniejsze (`*_len`, do 1000 znaków), bo szyfrogram jest dłuższy; limity dla użytkownika bez zmian (pilnuje ich kod). Eksport, raport, PDF, wyszukiwarka i import kopii działają na jawnym tekście; import porównuje duble po odszyfrowaniu i pomija znacznik z eksportu bez klucza. `scripts/encrypt-notes.mjs` przepisuje stare jawne wiersze (osobno `other_meds.name` i `other_meds.dose`) i odmawia pracy przed migracją. Bez klucza wpisy pokazują znacznik, a usunięcie takiego wpisu nie proponuje „Cofnij”. Test: `tests/db/szyfrowanie-lekow.test.js`.
+
 ## [1.0.0] - 2026-10
 Pierwsze wydanie stabilne (decyzja właściciela). Od teraz nowa funkcja podnosi `MINOR`, poprawka `PATCH`, zmiana niezgodna wstecz `MAJOR`.
 ### Dodano
