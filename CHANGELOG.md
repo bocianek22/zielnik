@@ -8,6 +8,11 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.98.0] - 2026-10
+### Dodano
+- **Pomiary na karcie „Przed wizytą”:** własne pomiary z okresu od ostatniej wizyty: ostatnia wartość i zmiana od pierwszego pomiaru w tym okresie („Waga 74,6 kg (+1,2 kg)”), bez norm i ocen; nazwa pomiaru rozmyta w „Ukryj nazwy”.
+- **Testy E2E** karty „Przed wizytą” (karta tylko przy wizycie w ciągu 7 dni, linki do raportu, axe, 320 px) i „Planu wykupu” w Receptach (`tests/e2e/przed-wizyta.test.mjs`).
+
 ## [0.97.1] - 2026-10
 ### Poprawiono
 - **Plan na dziś:** recepta wygasła z niewykorzystaną resztą nie ukrywa już pozycji „Wykup …” / „Potrzebna nowa recepta” (wcześniej nawet przez 60 dni, a przy dwóch jednostkach także dla drugiej). Logika w `todayRefills` (`lib/refill-plan.js`) z testami.

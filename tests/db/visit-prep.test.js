@@ -98,3 +98,18 @@ test('dzień z samą notatką nie liczy się jako dzień z wpisami; plan bez wym
   const p = await visitPrep(a, NOW);
   assert.equal(p.days, 4); assert.equal(p.report, true);
 });
+
+test('pomiary w okresie: ostatnia wartość i zmiana od pierwszego, tylko własne i z okresu', { skip }, async () => {
+  const a = ids.ania, b = ids.bartek;
+  const [w] = await q`INSERT INTO measure_defs (user_id, slot, name, unit) VALUES (${a}, 1, 'Waga', 'kg') RETURNING id`;
+  const [t] = await q`INSERT INTO measure_defs (user_id, slot, name, unit) VALUES (${a}, 2, 'Tętno', '') RETURNING id`;
+  const [x] = await q`INSERT INTO measure_defs (user_id, slot, name, unit) VALUES (${b}, 1, 'Cudza', '') RETURNING id`;
+  await q`INSERT INTO measure_values (def_id, user_id, day, value) VALUES
+    (${w.id}, ${a}, '2026-09-10', 80), (${w.id}, ${a}, '2026-09-25', 75), (${w.id}, ${a}, '2026-10-15', 74.6),
+    (${t.id}, ${a}, '2026-10-01', 70), (${x.id}, ${b}, '2026-10-01', 1)`;
+  const p = await visitPrep(a, NOW);
+  assert.deepEqual(p.measures, [
+    { name: 'Waga', unit: 'kg', last: 74.6, n: 2, diff: -0.4 },
+    { name: 'Tętno', unit: '', last: 70, n: 1, diff: null },
+  ]);
+});
