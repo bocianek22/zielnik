@@ -62,4 +62,4 @@
 .refill-sub { font-size: var(--fs-sm); color: var(--text-2); }
 .refill-st.ok { background: var(--c-soft); color: var(--c-ink); }
 .refill-st.warn { background: var(--warn-soft); color: var(--warn); }
-.refill-cal { display: inline-flex; align-items: center; gap: 6px; margin-top: var(--s-2); min-height: 44px; font-size: var(--fs-sm); font-weight: 600; color: var(--c-ink); }
+.refill-cal { display: inline-flex; align-items: center; gap: 6px; margin-top: var(--s-2); min-height: var(--tap); font-size: var(--fs-sm); font-weight: 600; color: var(--c-ink); }
