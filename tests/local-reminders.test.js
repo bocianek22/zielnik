@@ -36,10 +36,10 @@ test('planLocal: wizyta dzień wcześniej o 18:00, tylko w przyszłości', () =>
 });
 
 test('parseLocalSettings: domyślnie wszystko wyłączone, złe dane bezpiecznie', () => {
-  assert.deepEqual(parseLocalSettings(null), { symptoms: false, hour: 21, visit: false, rx: false, stock: false });
-  assert.deepEqual(parseLocalSettings('{"symptoms":true,"hour":19,"rx":true}'), { symptoms: true, hour: 19, visit: false, rx: true, stock: false });
-  assert.deepEqual(parseLocalSettings('{"hour":3,"visit":"tak"}'), { symptoms: false, hour: 21, visit: false, rx: false, stock: false });
-  assert.deepEqual(parseLocalSettings('nie json'), { symptoms: false, hour: 21, visit: false, rx: false, stock: false });
+  assert.deepEqual(parseLocalSettings(null), { symptoms: false, hour: 21, visit: false, rx: false, stock: false, backup: false });
+  assert.deepEqual(parseLocalSettings('{"symptoms":true,"hour":19,"rx":true}'), { symptoms: true, hour: 19, visit: false, rx: true, stock: false, backup: false });
+  assert.deepEqual(parseLocalSettings('{"hour":3,"visit":"tak"}'), { symptoms: false, hour: 21, visit: false, rx: false, stock: false, backup: false });
+  assert.deepEqual(parseLocalSettings('nie json'), { symptoms: false, hour: 21, visit: false, rx: false, stock: false, backup: false });
 });
 
 test('planLocal: recepta 3 dni przed końcem ważności, zapas 2 dni przed końcem prognozy, neutralna treść', () => {
@@ -57,4 +57,20 @@ test('planLocal: recepta 3 dni przed końcem ważności, zapas 2 dni przed końc
   assert.deepEqual(planLocal({ now, settings: {}, rxUntil: '2026-10-30', stockDays: 6 }), [], 'domyślnie wyłączone');
   for (const n of [rx, st]) assert.doesNotMatch(n.body + n.title, /recept|zapas|konop|odmian|gram|apte/i);
   assert.ok(ALL_IDS.includes(ID_BASE.rx) && ALL_IDS.includes(ID_BASE.stock));
+});
+
+test('planLocal: kopia danych 30 dni po ostatniej, zaległa jutro o 18:00, bez kopii od dziś', () => {
+  const now = new Date('2026-10-19T10:00:00Z');
+  const [b] = planLocal({ now, settings: { backup: true }, lastBackup: '2026-10-01' });
+  assert.equal(b.id, ID_BASE.backup);
+  assert.equal(b.at.toISOString(), '2026-10-31T17:00:00.000Z', '31.10 o 18:00 czasu zimowego');
+  assert.equal(b.url, '/profil#moje-dane');
+  assert.doesNotMatch(b.body, /konop|zielnik|lek/i);
+  assert.equal(planLocal({ now, settings: { backup: true }, lastBackup: '2026-08-01' })[0].at.toISOString(), '2026-10-20T16:00:00.000Z', 'zaległa: jutro');
+  assert.equal(planLocal({ now, settings: { backup: true } })[0].at.toISOString(), '2026-11-18T17:00:00.000Z', 'bez kopii: 30 dni od dziś');
+  assert.equal(planLocal({ now, settings: { backup: true }, lastBackup: 'zle' })[0].at.toISOString(), '2026-11-18T17:00:00.000Z');
+  assert.deepEqual(planLocal({ now, settings: { backup: false }, lastBackup: '2026-10-01' }), []);
+  assert.ok(ALL_IDS.includes(ID_BASE.backup));
+  assert.equal(parseLocalSettings('{"backup":true}').backup, true);
+  assert.equal(parseLocalSettings('{"backup":"tak"}').backup, false);
 });

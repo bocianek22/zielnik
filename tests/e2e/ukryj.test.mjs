@@ -64,7 +64,7 @@ test('Ostatnia kopia: po pobraniu danych profil pokazuje dzisiejszą datę', asy
     await go(page, '/profil');
     await page.locator('#moje-dane > summary').click();
     const line = page.locator('.last-backup');
-    assert.match(await line.innerText(), /nie pobrano jeszcze kopii/);
+    assert.match(await line.innerText(), /nie zapisano jeszcze kopii/);
     // zapis daty dopiero po udanym pobraniu (fetch + plik), nie przy samym kliknięciu
     const link = page.getByRole('link', { name: 'Pobierz dane (JSON)' });
     await interactive(link);
