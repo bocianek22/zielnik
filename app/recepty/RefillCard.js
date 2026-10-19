@@ -32,6 +32,9 @@ export default function RefillCard({ stock, perDay, rx, today }) {
                 {p.daysLeft === 0 ? 'Zapas kończy się dziś' : <>Zapas starczy do {longDay(p.runOut)} ({p.daysLeft} {p.daysLeft === 1 ? 'dzień' : 'dni'})</>}
                 {p.rx && <> · na recepcie {n2(p.rx.remaining)} {p.unit}, ważna do {longDay(p.rx.validUntil)}</>}
               </p>
+              {/* plik .ics z przypomnieniem dzień wcześniej; zwykły link, więc działa też w aplikacji bez JavaScriptu */}
+              <a className="refill-cal" href={p.status === 'need-rx' ? `/api/calendar?typ=recepta&dzien=${p.runOut}` : `/api/calendar?typ=wykup&dzien=${p.buyBy}`} download>
+                <Icon name="calendar" size={16} />Dodaj do kalendarza</a>
             </li>
           );
         })}

@@ -30,6 +30,7 @@ export default function VisitPrepCard({ prep }) {
     <section className="card visit-prep" data-cat="learn" aria-labelledby="vp-h">
       <p className="vp-kicker"><span className="ic-dot sm"><Icon name="clipboard" size={18} /></span>Przed wizytą</p>
       <h2 id="vp-h" className="vp-title">Wizyta {when}<span className="vp-date">{longDay(prep.next)}</span></h2>
+      {prep.daysTo > 0 && <a className="vp-cal" href={`/api/calendar?typ=wizyta&dzien=${prep.next}`} download><Icon name="calendar" size={16} />Dodaj do kalendarza</a>}
       <p className="vp-period">
         {fromVisit ? <>Od ostatniej wizyty ({longDay(prep.last)})</> : <>Od {longDay(prep.since)}</>}: {prep.days} {plural(prep.days, 'dzień', 'dni', 'dni')} z wpisami objawów
       </p>

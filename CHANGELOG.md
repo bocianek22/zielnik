@@ -8,6 +8,10 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.99.0] - 2026-10
+### Dodano
+- **„Dodaj do kalendarza”:** w „Planie wykupu” (dzień „wykup najpóźniej” albo „nowa recepta przed”) i na karcie „Przed wizytą” link pobiera plik `.ics` z wydarzeniem całodniowym i przypomnieniem dzień wcześniej o 9:00, do dowolnego kalendarza w telefonie, bez kont i kluczy. Tytuły stałe („Apteka: wykup”, „Nowa recepta”, „Wizyta u lekarza”), w trybie dyskretnym neutralne („Sprawa do załatwienia”, „Spotkanie”) razem z nazwą pliku. Trasa `GET /api/calendar` (tylko zalogowani, daty od dziś do roku), `lib/ics.js` z testami, `tests/db/calendar.test.js`.
+
 ## [0.98.0] - 2026-10
 ### Dodano
 - **Pomiary na karcie „Przed wizytą”:** własne pomiary z okresu od ostatniej wizyty: ostatnia wartość i zmiana od pierwszego pomiaru w tym okresie („Waga 74,6 kg (+1,2 kg)”), bez norm i ocen; nazwa pomiaru rozmyta w „Ukryj nazwy”.
