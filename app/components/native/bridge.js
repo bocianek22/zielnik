@@ -144,6 +144,16 @@ export async function nativeSharePdf(bytes, fileName) {
   await P.sharePdf({ base64: bytesToBase64(bytes), fileName });
 }
 
+// Kopia danych (JSON) w APK od 0.8.0: ZielnikShare.shareJson zapisuje plik w cache i otwiera okno „Udostępnij”
+// (Dysk, pliki, poczta). Starsze APK: false, a profil kieruje do przeglądarki.
+export const canNativeShareJson = () => typeof plugin('ZielnikShare')?.shareJson === 'function';
+
+export async function nativeShareJson(text, fileName) {
+  const P = plugin('ZielnikShare');
+  if (!P?.shareJson) throw new Error('Ta wersja aplikacji nie umie zapisywać kopii. Zaktualizuj aplikację albo pobierz kopię w przeglądarce.');
+  await P.shareJson({ text, fileName });
+}
+
 // Wersja aplikacji natywnej: { version, build } z App.getInfo() albo null (przeglądarka)
 export async function appInfo() {
   const A = plugin('App');

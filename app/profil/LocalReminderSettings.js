@@ -19,7 +19,7 @@ export default function LocalReminderSettings() {
   async function update(patch) {
     const next = { ...s, ...patch };
     setMsg('');
-    if ((patch.symptoms || patch.visit || patch.rx || patch.stock) && !(await ensurePermission())) {
+    if ((patch.symptoms || patch.visit || patch.rx || patch.stock || patch.backup) && !(await ensurePermission())) {
       setMsg('Telefon nie pozwala na powiadomienia. Włącz je w ustawieniach systemu dla aplikacji Zielnik.');
       return;
     }
@@ -42,6 +42,7 @@ export default function LocalReminderSettings() {
       <label className="check"><input type="checkbox" checked={s.visit} onChange={(e) => update({ visit: e.target.checked })} /> Dzień przed wizytą (data z sekcji „Przypomnienia”)</label>
       <label className="check"><input type="checkbox" checked={s.rx} onChange={(e) => update({ rx: e.target.checked })} /> 3 dni przed końcem ważności recepty</label>
       <label className="check"><input type="checkbox" checked={s.stock} onChange={(e) => update({ stock: e.target.checked })} /> 2 dni przed końcem zapasu (według prognozy)</label>
+      <label className="check"><input type="checkbox" checked={s.backup} onChange={(e) => update({ backup: e.target.checked })} /> Co 30 dni o zapisaniu kopii danych (licząc od ostatniej kopii na tym telefonie)</label>
       <p className="muted small">Terminy recepty i zapasu telefon bierze z ekranu „Dziś”: przypomnienia aktualizują się, gdy go otworzysz.</p>
       {msg && <p className="muted small" role="status">{msg}</p>}
     </section>

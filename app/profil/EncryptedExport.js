@@ -1,8 +1,8 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { encryptBackup, PASSWORD_MIN } from '@/lib/backup-crypto';
-import { isNative } from '../components/native/bridge';
-import { backupTaken } from './LastBackup';
+import { canNativeShareJson, isNative } from '../components/native/bridge';
+import { backupTaken, saveBackupFile } from './LastBackup';
 
 // POM-57: kopia zaszyfrowana hasłem na tym urządzeniu. Eksport (bez zdjęć) pobieramy jak zwykle, szyfrujemy w przeglądarce
 // i zapisujemy plik; hasło nie opuszcza urządzenia. Zgubione hasło = kopii nie da się otworzyć (mówimy to wprost).
@@ -18,8 +18,8 @@ export default function EncryptedExport() {
   const refocus = useRef(false);
   // po „Anuluj” fokus wraca na przycisk otwierający (inaczej czytnik zaczyna od początku strony)
   useEffect(() => { if (!open && refocus.current) { refocus.current = false; openBtn.current?.focus(); } }, [open]);
-  // w APK WebView nie zapisuje pliku z adresu blob:, więc tę opcję pokazujemy tylko w przeglądarce
-  useEffect(() => { if (isNative()) setNative(true); }, []); // eslint-disable-line react-hooks/set-state-in-effect
+  // starsze APK (bez ZielnikShare.shareJson) nie zapiszą pliku: wtedy tylko wskazówka o przeglądarce
+  useEffect(() => { if (isNative() && !canNativeShareJson()) setNative(true); }, []); // eslint-disable-line react-hooks/set-state-in-effect
 
   async function save(e) {
     e.preventDefault();
@@ -32,16 +32,13 @@ export default function EncryptedExport() {
       if (!res.ok) throw new Error('Nie udało się pobrać danych. Spróbuj ponownie.');
       const file = await encryptBackup(await res.text(), pw);
       const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Warsaw' }).format(new Date());
-      const url = URL.createObjectURL(new Blob([file], { type: 'application/json' }));
-      const a = Object.assign(document.createElement('a'), { href: url, download: `kopia-zaszyfrowana-${day}.json` });
-      document.body.append(a); a.click(); a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 10000);
+      await saveBackupFile(file, `kopia-zaszyfrowana-${day}.json`);
       backupTaken();
       setPw(''); setPw2(''); setOk('Zapisano zaszyfrowaną kopię. Przechowuj hasło osobno.');
     } catch (e2) { setErr(e2.message); } finally { setBusy(false); }
   }
 
-  if (native) return <p className="muted small">Kopię zabezpieczoną hasłem zapiszesz w przeglądarce na telefonie lub komputerze (profil, „Moje dane”).</p>;
+  if (native) return <p className="muted small">Kopię zabezpieczoną hasłem zapiszesz w nowszej wersji aplikacji albo w przeglądarce (profil, „Moje dane”).</p>;
   if (!open) return <div><button ref={openBtn} type="button" className="btn ghost" onClick={() => setOpen(true)}>Pobierz kopię zabezpieczoną hasłem</button></div>;
   return (
     <form className="card stack enc-export" onSubmit={save} aria-labelledby="enc-h">

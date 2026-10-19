@@ -86,7 +86,7 @@ Reguła: brak sprzeczności z zasadami oceny, dane tylko własne, każdy dotyka 
 | POM-58 | Karta terapii na wyjazd i kontrolę (recepty, ważność, lista kontrolna) | 4 | S/M | P, Pr | ⚖️ (teksty listy) | zrobione (0.68.0; teksty listy do przejrzenia przez prawnika) | PAC-4 |
 | POM-59 | Ochrona ekranu w APK (blokada zrzutów) i „Ukryj teraz” | 3 | S/M | P | nowe APK | zrobione: ochrona ekranu (0.69.0, APK 0.7.0); „Ukryj teraz” później | KON-11 |
 | POM-60 | „Ukryj teraz” i dyskrecja po powrocie do aplikacji (menu „Więcej”, opcja per urządzenie) | 3 | S | P | – | zrobione (0.70.0) | KON-11 |
-| POM-61 | „Ostatnia kopia” w profilu i przypomnienie o kopii w APK (lokalne, co 30 dni) | 3 | S | P | POM-49, POM-57 | częściowo (0.70.0: „Ostatnia kopia” w przeglądarce; przypomnienie w APK po zapisie plików przez wtyczkę) | PRA-8 |
+| POM-61 | „Ostatnia kopia” w profilu i przypomnienie o kopii w APK (lokalne, co 30 dni) | 3 | S | P | POM-49, POM-57 | zrobione (0.70.0: „Ostatnia kopia” w przeglądarce; 1.2.0 i APK 0.8.0: kopia przez „Udostępnij” i lokalne przypomnienie co 30 dni) | PRA-8 |
 | POM-62 | Zdarzenia niepożądane: osobny dziennik (data, opis szyfrowany, nasilenie słowne, odmiana) + link do oficjalnego zgłoszenia | 4 | M | P, Pr | ⚖️ (tekst informacyjny) | zrobione (0.71.0; bez odmiany, znaczniki na wykresie później) | PAC-1 |
 | POM-63 | Własne pomiary z jednostką (ciśnienie, tętno, waga) obok objawów 0–10, bez norm i ocen | 3 | M | P | – | zrobione (0.73.0; wykres 0.95.0, CSV 0.97.0; obserwacje później) | PAC-6, PAC-14 |
 | POM-64 | Karta terapii i raport skrócony po angielsku (wydruk/PDF) | 3 | S/M | P, Pr | ⚖️ (teksty listy) | zrobione (0.74.0 karta, 0.75.0 raport skrócony PDF) | PAC-4 |

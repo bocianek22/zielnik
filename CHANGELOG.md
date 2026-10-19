@@ -8,6 +8,14 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10
+### Poprawiono
+- „Dodaj do kalendarza” w „Planie wykupu” i na karcie „Przed wizytą” ma w trybie „Duże cele” 56 px wysokości jak inne przyciski (było 44 px).
+
+### Dodano
+- **Kopia danych w aplikacji na Androida (POM-61, APK 0.8.0):** „Pobierz dane (JSON)” i „Kopia zabezpieczona hasłem” działają w APK: plik trafia do systemowego okna „Udostępnij” (Dysk, Pliki, poczta), bo WebView nie pobiera plików. Nowa metoda wtyczki `ZielnikShare.shareJson`. Profil pokazuje „Ostatnia kopia zapisana na tym telefonie”; starsze APK kierują do przeglądarki.
+- **Przypomnienie o kopii co 30 dni** (Przypomnienia na tym telefonie, APK): lokalne powiadomienie 30 dni po ostatniej kopii (zaległa: następnego dnia o 18:00), neutralna treść, dotknięcie otwiera „Moje dane”. Test w `tests/local-reminders.test.js`.
+
 ## [1.1.0] - 2026-10
 ### Zmieniono
 - **Szyfrowanie punktów „Do omówienia” i innych leków:** `doctor_notes.text` oraz `other_meds.name` i `other_meds.dose` są szyfrowane w bazie jak inne notatki (AES-256-GCM, `DATA_ENCRYPTION_KEY`, zakres AAD konto + id). Stare ograniczenia długości (CHECK 1..200, 1..80) zamieniane jednorazowo na luźniejsze (`*_len`, do 1000 znaków), bo szyfrogram jest dłuższy; limity dla użytkownika bez zmian (pilnuje ich kod). Eksport, raport, PDF, wyszukiwarka i import kopii działają na jawnym tekście; import porównuje duble po odszyfrowaniu i pomija znacznik z eksportu bez klucza. `scripts/encrypt-notes.mjs` przepisuje stare jawne wiersze (osobno `other_meds.name` i `other_meds.dose`) i odmawia pracy przed migracją. Bez klucza wpisy pokazują znacznik, a usunięcie takiego wpisu nie proponuje „Cofnij”. Test: `tests/db/szyfrowanie-lekow.test.js`.
