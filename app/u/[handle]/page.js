@@ -11,8 +11,12 @@ import ProfileActions from './ProfileActions';
 import ReportButton from '../../components/ReportButton';
 import Icon from '../../components/Icon';
 import { formatDay } from '@/lib/date';
+import { shareMeta } from '@/lib/share-meta';
 
 export const dynamic = 'force-dynamic';
+
+// Podgląd linku „Udostępnij profil”: ogólny, bez nazwy i danych z bazy (widoczność profilu ustawia właściciel)
+export const generateMetadata = () => shareMeta('profile');
 
 const dec = (n) => Number(n).toLocaleString('pl-PL');
 const day = formatDay;

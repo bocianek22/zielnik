@@ -1,12 +1,21 @@
 # Historia zmian
 
 Format oparty na [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/), wersjonowanie zgodne z [SemVer](https://semver.org/lang/pl/) (`MAJOR.MINOR.PATCH`).
-Do wersji 1.0.0 (publiczny start) każda nowa funkcja podnosi `MINOR`, a poprawka błędu `PATCH`.
+Od wersji 1.0.0 nowa funkcja podnosi `MINOR`, poprawka błędu `PATCH`, a zmiana niezgodna wstecz `MAJOR`.
 
 Wersje 0.1.0 do 0.14.0 zostały odtworzone z historii prac (wgrywanych paczkami przez GitHub). Nie mają znaczników `git`.
 Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow „Wydanie” (patrz `CONTRIBUTING.md`).
 
 ## [Unreleased]
+
+## [1.0.0] - 2026-10
+Pierwsze wydanie stabilne (decyzja właściciela). Od teraz nowa funkcja podnosi `MINOR`, poprawka `PATCH`, zmiana niezgodna wstecz `MAJOR`.
+### Dodano
+- **Podgląd udostępnianych linków:** link do aplikacji, zaproszenie (`/register?code=…`) i profil (`/u/…`) mają w Messengerze, WhatsAppie, Telegramie, Signalu, Discordzie i SMS własny tytuł, opis i obrazek 1200×630 (`public/og/`, generowane przez `scripts/og-images.mjs` czcionką Figtree). Podgląd jest ogólny: bez danych z bazy, bez nazwy użytkownika i kodu zaproszenia, opisy bez słów zdradzających rodzaj terapii; w trybie dyskretnym strona nie ma znaczników podglądu (tytuł „Notatnik”). Adres obrazków z `APP_URL`, potem produkcyjny adres Vercel (po zmianie domeny bez zmian w kodzie). `lib/og.js`, `lib/share-meta.js`, testy `tests/og.test.js`.
+- **Panel „Gotowość”:** pozycja `FIREBASE_SERVICE_ACCOUNT` (opcjonalna): ok, uszkodzony JSON albo brak; bez wartości w odpowiedzi.
+- **`docs/KLUCZE-PUSH.md`:** instrukcja krok po kroku: `CRON_SECRET`, klucze VAPID, Firebase dla APK i przypomnienia co godzinę po przejściu na Vercel Pro.
+### Zmieniono
+- Opis aplikacji (strona, manifest PWA) i teksty systemowego „Udostępnij” przy zaproszeniu i profilu.
 
 ## [0.99.0] - 2026-10
 ### Dodano

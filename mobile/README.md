@@ -76,7 +76,7 @@ Albo `npx cap open android` i Run w Android Studio. Po zmianie ikony: podmień `
    ```
    W GitHub (Settings, Secrets and variables, Actions, Secrets) dodaj: `ANDROID_KEYSTORE_BASE64` (zawartość `.b64`), `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` (`zielnik`), `ANDROID_KEY_PASSWORD`. Workflow zbuduje wtedy też podpisane `app-release.apk` i `app-release.aab` (do Google Play).
    **Plik `.jks` i hasła przechowuj bezpiecznie poza repozytorium** (menedżer haseł + kopia offline). Utrata klucza = brak możliwości aktualizacji aplikacji (w Play da się to obejść tylko przez Play App Signing i procedurę resetu klucza przesyłania). Nie commituj `.jks` (jest w `.gitignore`).
-3. **Firebase (push)**: bez tego aplikacja działa, a powiadomienia są wyłączone (profil pokazuje komunikat). Aby włączyć:
+3. **Firebase (push)**, krok po kroku z kluczami VAPID i `CRON_SECRET`: `docs/KLUCZE-PUSH.md`. Bez tego aplikacja działa, a powiadomienia są wyłączone (profil pokazuje komunikat). Aby włączyć:
    1. [console.firebase.google.com](https://console.firebase.google.com/) (konto Google, plan Spark za 0 zł), nowy projekt, „Dodaj aplikację” Android z nazwą pakietu `pl.zielnik.app`.
    2. Pobierz `google-services.json` i dodaj jego zawartość jako sekret `GOOGLE_SERVICES_JSON` (albo lokalnie zapisz w `mobile/android/app/google-services.json`; plik jest w `.gitignore`).
    3. Zbuduj aplikację ponownie: powłoka dopisze `ZielnikPush/fcm` i w profilu pojawi się „Włącz powiadomienia”.
