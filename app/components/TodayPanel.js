@@ -11,7 +11,7 @@ import { addDays, ddmm, longDay, num as n2, plural } from './charts/fmt';
 import { shortcutAction, withoutUseParam } from '@/lib/shortcuts';
 import { daysLeft as daysOf } from '@/lib/widget';
 import { DEFAULT_ORDER } from '@/lib/today-cards';
-import { refillPlan } from '@/lib/refill-plan';
+import { todayRefills } from '@/lib/refill-plan';
 
 // Panel „Dziś” pod nagłówkiem (hero z zapasem i „Zużyłem” jest w TodayBoard.js): kafle, wykres 14 dni z prognozą, „Do zrobienia”, szybki wpis objawów, recepty.
 // Daty liczy z dni z serwera (czas polski), a nie z zegara przeglądarki, żeby serwer i klient renderowały to samo.
@@ -201,8 +201,6 @@ export default function TodayPanel({ stock, dailyUse, forecast, bought, low, ser
 
   const urgentRx = prescriptions.items.find((r) => r.urgent);
   const reasonUnit = lowStrain ? lowStrain.unit : warnU;
-  // jednostki z pilną receptą: jej ostrzeżenie już jest na liście (pokazujemy pierwszą, ale dubli nie chcemy przy żadnej)
-  const rxUnits = new Set(prescriptions.items.filter((r) => r.urgent).map(rxU));
   const todo = [
     urgentRx && (urgentRx.days_left < 0
       ? { key: 'rx', cat: 'rx', icon: 'file', title: 'Recepta wygasła', sub: `Niewykorzystane ${n2(urgentRx.remaining)} ${rxU(urgentRx)}`, href: '/recepty' }
@@ -211,8 +209,7 @@ export default function TodayPanel({ stock, dailyUse, forecast, bought, low, ser
     reason && { key: 'low', cat: 'stock', warn: true, icon: 'alert', title: 'Kończy się zapas',
       sub: lowStrain ? <><span className="dn">{lowStrain.name}</span>: {n2(lowStrain.current)} {lowStrain.unit}</> : daysWarn != null ? `Zapas ${what(warnU)} starczy na ${daysWarn} ${days(daysWarn)}` : `Zapas ${what(warnU)}: ${n2(stock[warnU])} ${warnU}`, href: '/odmiany' },
     // plan wykupu: konkretna data „kup najpóźniej” i czy recepta na to pozwala (bez powtórzeń z pozycjami wyżej)
-    ...units.map((u) => refillPlan({ unit: u, stock: stock[u], perDay: dailyUse[u], rx: prescriptions.items, today }))
-      .filter((p) => p && p.due && !rxUnits.has(p.unit) && (p.status === 'need-rx' || p.unit !== reasonUnit))
+    ...todayRefills({ units, stock, perDay: dailyUse, rx: prescriptions.items, today, urgentRx, lowUnit: reasonUnit })
       .map((p) => refillTodo(p, units.length > 1)),
     filled < SYM_CORE.length && { key: 'sym', cat: 'journal', icon: 'pulse', title: filled ? 'Uzupełnij objawy dnia' : 'Wpisz objawy dnia',
       sub: filled ? `Zapisano ${filled} z ${SYM_CORE.length}` : 'Jedno dotknięcie zapisuje wpis', href: symHref },

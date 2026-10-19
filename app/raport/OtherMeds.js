@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import Link from 'next/link';
 import SecHead from '../components/SecHead';
 import Toast from '../components/Toast';
 import useUndoDelete from '../components/useUndoDelete';
@@ -11,7 +12,7 @@ const MAX = 15, LEN = 80;
 // Inne przyjmowane leki (POM-39): ściąga dla lekarza, bez żadnej oceny leków ani interakcji (to byłaby porada medyczna).
 // Do raportu (ReportMeds) i PDF trafia tylko po zaznaczeniu „Dołącz inne przyjmowane leki” (?leki=1); zmiana tutaj
 // odświeża wtedy obie przez zdarzenie MEDS_EVENT.
-export default function OtherMeds({ initial, included = false }) {
+export default function OtherMeds({ initial, included = false, toggleHref = null }) {
   const [meds, setMeds] = useState(initial);
   const [name, setName] = useState('');
   const [dose, setDose] = useState('');
@@ -64,10 +65,12 @@ export default function OtherMeds({ initial, included = false }) {
           <div><button className="btn small" disabled={busy || !name.trim()}>Dodaj lek</button></div>
         </form>
       ) : <p className="muted small">To już {MAX} leków. Usuń te, których już nie bierzesz.</p>}
-      <p className="muted small">{included
-        ? 'Lista jest dołączona do tego raportu (wydruk i PDF). '
-        : 'Lista trafi do raportu i PDF, gdy zaznaczysz „Dołącz inne przyjmowane leki” w wyborze okresu. '}
-        Zielnik nie ocenia leków ani ich połączeń; to tylko ściąga dla lekarza. Widzisz ją tylko Ty.</p>
+      {/* przełącznik zachowuje okres i tryb raportu (także „od ostatniej wizyty”), w przeciwieństwie do formularza zakresu */}
+      {toggleHref && meds.length > 0 && (
+        <p className="small">{included ? 'Lista jest dołączona do tego raportu (wydruk i PDF). ' : 'Lista nie jest dołączona do raportu. '}
+          <Link href={toggleHref} replace scroll={false}>{included ? 'Nie dołączaj' : 'Dołącz do raportu'}</Link></p>
+      )}
+      <p className="muted small">Zielnik nie ocenia leków ani ich połączeń; to tylko ściąga dla lekarza. Widzisz ją tylko Ty.</p>
       {(err || undo.error) && <p className="alert error" role="alert">{err || undo.error}</p>}
       <Toast text={undo.toast?.text || ''} action={undo.toast?.action} />
     </div>

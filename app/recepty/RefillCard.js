@@ -29,7 +29,7 @@ export default function RefillCard({ stock, perDay, rx, today }) {
                 <p className="refill-main">Wykup najpóźniej <b>{when}</b></p>
               )}
               <p className="refill-sub">
-                Zapas starczy do {longDay(p.runOut)} ({p.daysLeft} {p.daysLeft === 1 ? 'dzień' : 'dni'})
+                {p.daysLeft === 0 ? 'Zapas kończy się dziś' : <>Zapas starczy do {longDay(p.runOut)} ({p.daysLeft} {p.daysLeft === 1 ? 'dzień' : 'dni'})</>}
                 {p.rx && <> · na recepcie {n2(p.rx.remaining)} {p.unit}, ważna do {longDay(p.rx.validUntil)}</>}
               </p>
             </li>

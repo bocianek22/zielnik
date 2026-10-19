@@ -8,6 +8,12 @@ Pierwsze wydanie ze znacznikiem to **v0.15.0**. Kolejne wydania tworzy workflow 
 
 ## [Unreleased]
 
+## [0.97.1] - 2026-10
+### Poprawiono
+- **Plan na dziś:** recepta wygasła z niewykorzystaną resztą nie ukrywa już pozycji „Wykup …” / „Potrzebna nowa recepta” (wcześniej nawet przez 60 dni, a przy dwóch jednostkach także dla drugiej). Logika w `todayRefills` (`lib/refill-plan.js`) z testami.
+- **Raport → Inne przyjmowane leki:** link „Dołącz do raportu” / „Nie dołączaj” przy liście zachowuje okres i tryb „od ostatniej wizyty” (formularz zakresu dat go gubił).
+- **Plan wykupu:** przy zapasie poniżej dziennego tempa „Zapas kończy się dziś” zamiast „… (0 dni)”.
+
 ## [0.97.0] - 2026-10
 ### Dodano
 - **Pomiary w CSV dziennika:** Profil → „Dziennik (CSV)” ma nową kolumnę „Pomiary” z własnymi pomiarami dnia („Waga: 74,6 kg; Tętno: 72”, przecinek dziesiętny jak w polskim Excelu, ochrona przed formułami jak w innych kolumnach). Dzień z samymi pomiarami też dostaje wiersz „Objawy”. Bez zmian w bazie.
